@@ -69,7 +69,7 @@ Once I get this up on PyPI, you can install it with ``pip`` like so:
 - If you get a "Permission Denied" error, try:
 
 .. code-block:: sh
-    
+
     pip3 install --user binobj
 
 Side note: Don't use ``sudo`` (even ``sudo -EH``) to force a package to install,
@@ -100,9 +100,7 @@ this repo run:
     pyenv install 3.6.3
     pyenv install pypy3.5-5.8.0
 
-    # Activate the environment. I already created `.python-version` for you so
-    # you probably won't need to do the whole `pyenv local ...` business.
-    pyenv activate
+    pyenv local 3.6.3 3.5.3 3.4.6 3.3.6 pypy3.5-5.8.0
 
     # Install some testing dependencies and such
     pip3 install -U bumpversion tox tox-pyenv
@@ -111,7 +109,7 @@ Running the Tests
 ~~~~~~~~~~~~~~~~~
 
 To run the unit tests for all supported versions of Python, run ``tox``. If you
-made a change to the package requirements (in ``setup.py`` or ``test-requirements.txt``)
+made a change to the package requirements (in ``setup.py`` or ``test_requirements.txt``)
 then you'll need to rebuild the environment. Use ``tox -r`` to rebuild them and
 run the tests.
 
@@ -119,4 +117,4 @@ License
 -------
 
 I'm releasing this under the terms of the `Three-Clause BSD License <https://tldrlegal.com/license/bsd-3-clause-license-(revised)>`_.
-For the full legal text, see ``LICENSE.txt``.
+For the full legal text, see the ``LICENSE`` file.
