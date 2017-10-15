@@ -6,7 +6,6 @@ import bitstring
 import pytest
 
 from binobj import errors
-from binobj import serialization
 from binobj import structures
 from binobj import fields
 
@@ -14,8 +13,8 @@ from binobj import fields
 class BasicStruct(structures.Struct):
     """A basic structure."""
     string = fields.String(n_bytes=7)
-    int64 = fields.Int64(endian=serialization.Endianness.BIG)
-    uint24 = fields.UnsignedInteger(n_bytes=3, endian=serialization.Endianness.LITTLE)
+    int64 = fields.Int64(endian='big')
+    uint24 = fields.UnsignedInteger(n_bytes=3, endian='little')
 
 
 def test_basic__fields_loaded():

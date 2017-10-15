@@ -74,18 +74,20 @@ class SerializableMeta(abc.ABCMeta):
             field.offset = offset
 
             if offset is not None:
+                # pylint: disable=protected-access
+
                 # Some fields don't have a fixed size, so `size` will be `None`.
                 # After a variable-length field we can't calculate the offset,
                 # so `offset` will be `None` for the rest of this struct.
-                if field.n_bits is None:
+                if field._n_bits is None:
                     offset = None
                 else:
-                    offset += field.n_bits
+                    offset += field._n_bits
 
         return instance
 
 
-class Serializable(metaclass=SerializableMeta):
+class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods."""
     #: A dictionary of default options for loading and dumping functions.
     #: Subclasses can override these, and they can also be overridden with

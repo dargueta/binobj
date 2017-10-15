@@ -14,12 +14,12 @@ from binobj import errors
 
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
-    COMPACT_INDICES = 'compact'   #: Forces big endian
-    GIT_VLQ = 'git'         #: Forces big endian
-    LEB128 = 'leb128'       #: Forces little endian
-    ULEB128 = 'uleb128'     #: Forces little endian
-    VLQ = 'vlq'             #: Forces big endian
-    ZIGZAG = 'zigzag'       #: Forces little endian
+    COMPACT_INDICES = 'compact'
+    GIT_VLQ = 'git'
+    LEB128 = 'leb128'
+    ULEB128 = 'uleb128'
+    VLQ = 'vlq'
+    ZIGZAG = 'zigzag'
 
 
 # TODO (dargueta): Implement the rest of the encodings.
@@ -226,7 +226,7 @@ def decode_integer_zigzag(field, stream):
             int8 = stream.read('uint:8')
         except bitstring.ReadError:
             raise errors.UnexpectedEOFError(field=field, size=1,
-                                            offset=stream.tell())
+                                            offset=stream.pos)
 
         value |= (int8 & 0x7f) << bits_read
         bits_read += 7

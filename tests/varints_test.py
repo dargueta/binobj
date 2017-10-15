@@ -1,7 +1,6 @@
 """Tests for the variable-length integers."""
 
-import io
-
+import bitstring
 import pytest
 
 from binobj import errors
@@ -31,14 +30,14 @@ def test_encode_vlq_negative_crashes():
     (b'\x83\xff\x7f', 65535),
 ))
 def test_decode_vlq_basic(serialized, expected):
-    buf = io.BytesIO(serialized)
+    buf = bitstring.BitStream(bytes=serialized)
     assert varints.decode_integer_vlq(None, buf) == expected
-    assert buf.tell() == len(serialized), "Buffer wasn't emptied."
+    assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
 
 
 def test_decode_vlq_too_few_bytes():
     """Too few bytes -> UnexpectedEOFError"""
-    buf = io.BytesIO(b'\x83\xff')
+    buf = bitstring.BitStream(bytes=b'\x83\xff')
     with pytest.raises(errors.UnexpectedEOFError):
         varints.decode_integer_vlq(None, buf)
 
@@ -64,14 +63,14 @@ def test_encode_zigzag_basic(value, expected):
     (b'\xff\xff\xff\xff\x0f', -2147483648),
 ))
 def test_decode_zigzag(serialized, expected):
-    buf = io.BytesIO(serialized)
+    buf = bitstring.BitStream(bytes=serialized)
     assert varints.decode_integer_zigzag(None, buf) == expected
-    assert buf.tell() == len(serialized), "Buffer wasn't emptied."
+    assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
 
 
 def test_decode_zigzag_too_few_bytes():
     """Too few bytes -> UnexpectedEOFError"""
-    buf = io.BytesIO(b'\xfe\xff\xff')
+    buf = bitstring.BitStream(bytes=b'\xfe\xff\xff')
     with pytest.raises(errors.UnexpectedEOFError):
         varints.decode_integer_zigzag(None, buf)
 
@@ -84,13 +83,13 @@ def test_decode_zigzag_too_few_bytes():
     (b'\xc0\x7f', -127),
 ))
 def test_decode_compact(serialized, expected):
-    buf = io.BytesIO(serialized)
+    buf = bitstring.BitStream(bytes=serialized)
     assert varints.decode_integer_compact(None, buf) == expected
-    assert buf.tell() == len(serialized), "Buffer wasn't emptied."
+    assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
 
 
 def test_decode_compact_too_few_bytes():
     """Too few bytes -> UnexpectedEOFError"""
-    buf = io.BytesIO(b'\xc0\xff')
+    buf = bitstring.BitStream(bytes=b'\xc0\xff')
     with pytest.raises(errors.UnexpectedEOFError):
         varints.decode_integer_compact(None, buf)
