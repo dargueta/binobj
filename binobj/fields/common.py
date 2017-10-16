@@ -120,14 +120,24 @@ class VariableLengthInteger(Integer):
 
     def load(self, stream, context=None):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
-        return self._decode_integer_fn(self, stream)
+        try:
+            return self._decode_integer_fn(self, stream)
+        except bitstring.ReadError:
+            raise errors.UnexpectedEOFError(field=self, size=8, offset=stream.pos)
 
     def dump(self, value, stream, context=None):    # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
         if value is None:
             stream.insert(self._get_null_value())
-        else:
-            stream.insert(self._encode_integer_fn(self, value))
+            return
+
+        try:
+            stream.insert(self._encode_integer_fn(value))
+        except bitstring.ReadError:
+            raise errors.UnexpectedEOFError(field=self, size=8, offset=stream.pos)
+        except ValueError as err:
+            raise errors.UnserializableValueError(
+                field=self, value=value, reason=str(err))
 
 
 class UnsignedInteger(Integer):
