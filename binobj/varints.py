@@ -9,8 +9,6 @@ import enum
 
 import bitstring
 
-from binobj import errors
-
 
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
@@ -25,11 +23,9 @@ class VarIntEncoding(enum.Enum):
 # TODO (dargueta): Implement the rest of the encodings.
 
 
-def encode_integer_compact(field, value):   # pylint: disable=unused-argument
+def encode_integer_compact(value):   # pylint: disable=unused-argument
     """Encode an integer with the Unreal Engine Compact Indices encoding.
 
-    :param Field field:
-        The field the integer is being encoded for.
     :param int value:
         The value to encode.
 
@@ -39,9 +35,14 @@ def encode_integer_compact(field, value):   # pylint: disable=unused-argument
     if value == 0:
         return b'\0'
 
-    sign_bit = 0x40 if value < 0 else 0
+    if value < 0:
+        sign_bit = 0x40
+        value = -value
+    else:
+        sign_bit = 0
+
     n_bits = value.bit_length()
-    n_bytes = int(math.ceil((n_bits + 1) / 7))
+    n_bytes = 1 + int(math.ceil((n_bits - 6) / 7))
 
     buf = bytearray(n_bytes)
 
@@ -55,11 +56,9 @@ def encode_integer_compact(field, value):   # pylint: disable=unused-argument
     return bytes(buf)
 
 
-def decode_integer_compact(field, stream):
+def decode_integer_compact(stream):
     """Decode an integer with the Unreal Engine Compact Indices encoding.
 
-    :param Field field:
-        The field this integer is being decoded for.
     :param bitstring.BitStream stream:
         The bit stream to read from.
 
@@ -70,11 +69,7 @@ def decode_integer_compact(field, stream):
     value = 0
 
     while True:
-        try:
-            int8 = stream.read('uint:8')
-        except bitstring.ReadError:
-            raise errors.UnexpectedEOFError(
-                field=field, size=8, offset=stream.pos)
+        int8 = stream.read('uint:8')
 
         if sign is None:
             # Sign hasn't been determined yet so this must be the first byte of
@@ -117,11 +112,9 @@ def decode_integer_compact(field, stream):
 #     raise NotImplementedError
 
 
-def encode_integer_vlq(field, value):
+def encode_integer_vlq(value):
     """Encode an integer with the VLQ encoding.
 
-    :param Field field:
-        The field the integer is being encoded for.
     :param int value:
         The value to encode. Must be a non-negative integer.
 
@@ -129,9 +122,8 @@ def encode_integer_vlq(field, value):
     :rtype: bytes
     """
     if value < 0:
-        raise errors.UnserializableValueError(
-            reason="The VLQ integer encoding doesn't support negative numbers.",
-            field=field, value=value)
+        raise ValueError(
+            "The VLQ integer encoding doesn't support negative numbers.")
     elif value == 0:
         # Special case needed since value.bit_length() returns 0 if value is 0.
         return b'\0'
@@ -148,11 +140,9 @@ def encode_integer_vlq(field, value):
     return bytes(buf)
 
 
-def decode_integer_vlq(field, stream):
+def decode_integer_vlq(stream):
     """Decode a VLQ-encoded integer from the given stream.
 
-    :param Field field:
-        The field this integer is being decoded for.
     :param bitstring.BitStream stream:
         The bit stream to read from.
 
@@ -161,22 +151,16 @@ def decode_integer_vlq(field, stream):
     """
     value = 0
     while True:
-        try:
-            int8 = stream.read('uint:8')
-        except bitstring.ReadError:
-            raise errors.UnexpectedEOFError(
-                field=field, size=8, offset=stream.pos)
+        int8 = stream.read('uint:8')
 
         value = (value << 7) | (int8 & 0x7f)
         if int8 & 0x80 == 0:
             return value
 
 
-def encode_integer_zigzag(field, value):
+def encode_integer_zigzag(value):
     """Encode an integer with the Google ProtoBuff's "ZigZag" encoding.
 
-    :param Field field:
-        The field the integer is being encoded for.
     :param int value:
         The value to encode.
 
@@ -194,8 +178,7 @@ def encode_integer_zigzag(field, value):
     elif n_bits <= 64:
         int_size = 64
     else:
-        raise errors.UnserializableValueError(
-            reason='Number is too large: %r' % value, field=field, value=value)
+        raise ValueError('Number is too large: %r' % value)
 
     encoded_value = (value << 1) ^ (value >> (int_size - 1))
 
@@ -208,11 +191,9 @@ def encode_integer_zigzag(field, value):
     return bytes(buf)
 
 
-def decode_integer_zigzag(field, stream):
+def decode_integer_zigzag(stream):
     """Decode a ZigZag-encoded integer from the given stream.
 
-    :param Field field:
-        The field this integer is being decoded for.
     :param bitstring.BitStream stream:
         The bit stream to read from.
 
@@ -222,11 +203,7 @@ def decode_integer_zigzag(field, stream):
     value = 0
     bits_read = 0
     while True:
-        try:
-            int8 = stream.read('uint:8')
-        except bitstring.ReadError:
-            raise errors.UnexpectedEOFError(field=field, size=1,
-                                            offset=stream.pos)
+        int8 = stream.read('uint:8')
 
         value |= (int8 & 0x7f) << bits_read
         bits_read += 7
