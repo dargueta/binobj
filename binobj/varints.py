@@ -7,8 +7,6 @@ on Wikipedia.
 import math
 import enum
 
-import bitstring
-
 
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
@@ -23,7 +21,7 @@ class VarIntEncoding(enum.Enum):
 # TODO (dargueta): Implement the rest of the encodings.
 
 
-def encode_integer_compact(value):   # pylint: disable=unused-argument
+def encode_integer_compact(value):
     """Encode an integer with the Unreal Engine Compact Indices encoding.
 
     :param int value:

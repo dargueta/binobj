@@ -3,7 +3,6 @@
 import bitstring
 import pytest
 
-from binobj import errors
 from binobj import varints
 
 
@@ -82,10 +81,3 @@ def test_decode_compact(serialized, expected):
     buf = bitstring.BitStream(bytes=serialized)
     assert varints.decode_integer_compact(buf) == expected
     assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
-
-# --11 0110 -101 0011 -111 1100
-# B    6    D    3    F    C
-
-# --000001 -1111111 -1111111
-# 1100 0001 1111 1111 0111 1111
-# 8    1    F    F    7    F
