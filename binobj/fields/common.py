@@ -195,19 +195,42 @@ class UInt64(Int64):
 
 
 class String(bases.Field):
-    """A fixed-length string."""
-    UNDERLYING_TYPE = str
+    """A fixed-length string.
 
-    def __init__(self, *, encoding='utf-8', truncate=False, pad_byte=None, **kwargs):
+    :param str encoding:
+        The encoding to use for converting the string to and from bytes.
+    :param bool truncate:
+        If ``True``, strings too long to fit into the defined field size will be
+        truncated to fit. If ``False`` (the default) a :class:`ValueSizeError`
+        will be thrown.
+    :param bytes fill_byte:
+        A single byte to use for padding.
+
+    .. note::
+
+        A fixed-width text encoding such as ASCII or ISO-8859-1 is *strongly*
+        recommended when using ``truncate`` or ``fill_byte``, since truncating
+        or padding can result in an invalid string.
+
+        It's up to the user to ensure that the text encoding's restrictions are
+        obeyed, e.g. that the field length is a multiple of two if you select
+        ``utf-16`` as the encoding.
+    """
+    def __init__(self, *, encoding='ascii', truncate=False, fill_byte=None,
+                 align_left=True, **kwargs):
+        if fill_byte is not None and len(fill_byte) != 1:
+            raise ValueError('`fill_byte` must be exactly one byte, got %r.' % fill_byte)
+
         self.encoding = encoding
         self.truncate = truncate
-        self.pad_byte = pad_byte
+        self.fill_byte = fill_byte
+        self.align_left = align_left
         super().__init__(**kwargs)
 
     def load(self, stream, context=None):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream)
-        return to_load.tobytes().decode(self.encoding)
+        return to_load.bytes.decode(self.encoding)
 
     def dump(self, value, stream, context=None):  # pylint: disable=unused-argument
         """Dump a fixed-length string into the stream."""
@@ -218,9 +241,14 @@ class String(bases.Field):
             if len(to_dump) > self._n_bytes and not self.truncate:
                 raise errors.ValueSizeError(field=self, value=to_dump)
             elif len(to_dump) < self._n_bytes:
-                if self.pad_byte is None:
+                if self.fill_byte is None:
                     raise errors.ValueSizeError(field=self, value=to_dump)
-                to_dump += (self.pad_byte * (self._n_bytes - len(to_dump)))
+
+                padding = (self.fill_byte * (self._n_bytes - len(to_dump)))
+                if self.align_left:
+                    to_dump += padding
+                else:
+                    to_dump = padding + to_dump
             else:
                 to_dump = to_dump[:self._n_bytes]
 
