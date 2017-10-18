@@ -64,15 +64,22 @@ class ValueOf:
             self.value_source_name = None
             self.value_source = value_source
             self.struct_class = value_source.struct_class
+        else:
+            TypeError("Unsupported value source: " + type(value_source).__name__)
 
     def bind(self, using_field):
         """Bind this expression to the field that uses it.
 
         :param Field using_field:
-            The field that utilizes this reference.
-
-        :return: The field referred to.
+            The field that utilizes this reference, or a :class:`ValueOf`.
         """
+        # Ignore an attempt to bind to None. This will happen when an unbound
+        # field is used in an expression, such as in the example above. ``bind``
+        # is called twice there -- once to build the expression, and a second
+        # time to bind the expression to ``pixels``.
+        if using_field is None:
+            return
+
         if self.using_field is not None:
             raise RuntimeError(
                 "This reference is already bound. A single reference object "
@@ -210,10 +217,10 @@ class ValueOf:
         source.bind(self.using_field)
         return source
 
-    def __bool__(self):
-        source = type(self)(self, xform_fn=bool)
-        source.bind(self.using_field)
-        return source
+    # def __bool__(self):
+    #     source = type(self)(self, xform_fn=bool)
+    #     source.bind(self.using_field)
+    #     return source
 
     def __contains__(self, item):
         source = type(self)(self, item, xform_fn=operator.contains)
@@ -235,10 +242,10 @@ class ValueOf:
         source.bind(self.using_field)
         return source
 
-    def __index__(self):
-        source = type(self)(self, xform_fn=int)
-        source.bind(self.using_field)
-        return source
+    # def __index__(self):
+    #     source = type(self)(self, xform_fn=int)
+    #     source.bind(self.using_field)
+    #     return source
 
     def __int__(self):
         source = type(self)(self, xform_fn=int)
@@ -250,11 +257,10 @@ class ValueOf:
         source.bind(self.using_field)
         return source
 
-    def __len__(self):  # pylint: disable=invalid-length-returned
-        # FIXME (dargueta): Returning a non-integer from __len__ is apparently uncool.
-        source = type(self)(self, xform_fn=len)
-        source.bind(self.using_field)
-        return source
+    # def __len__(self):  # pylint: disable=invalid-length-returned
+    #     source = type(self)(self, xform_fn=len)
+    #     source.bind(self.using_field)
+    #     return source
 
     def __lshift__(self, other):
         source = type(self)(self, other, xform_fn=operator.lshift)
