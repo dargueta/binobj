@@ -24,7 +24,6 @@ _BIT_VALUE_ATTR = {
 
 class Bytes(bases.Field):   # pylint: disable=too-few-public-methods
     """Raw binary data."""
-    UNDERLYING_TYPE = bytes
 
 
 class Integer(bases.Field):
@@ -36,18 +35,16 @@ class Integer(bases.Field):
     :param bool signed:
         Indicates if this number is a signed or unsigned integer.
     """
-    UNDERLYING_TYPE = int
-
     def __init__(self, *, endian=None, signed=True, **kwargs):
         self.signed = signed
         self.endian = endian or sys.byteorder
 
         key = (self.endian, self.signed)
         if key not in _BIT_VALUE_ATTR:
-            raise OSError(
+            raise ValueError(
                 'Unrecognized combination of endianness (%r) and signedness (%r). '
                 'Either this is running on a mixed-endian system or an invalid '
-                'value for `endian` was passed in.'% (self.endian, self.signed))
+                'value for `endian` or `signed` was passed in.' % key)
 
         self._value_attr = _BIT_VALUE_ATTR[key]
 

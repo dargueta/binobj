@@ -327,8 +327,6 @@ class Field(serialization.SerializableScalar):
     :param bool discard:
         When deserializing, don't include this field in the returned results.
     """
-    UNDERLYING_TYPE = None  # type: type
-
     def __init__(self, *, name=None, required=True, allow_null=True,
                  null_value=serialization.DEFAULT, discard=False, **kwargs):
         if not allow_null and null_value is serialization.DEFAULT:
