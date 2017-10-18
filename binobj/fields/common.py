@@ -90,7 +90,7 @@ class VariableLengthInteger(Integer):
 
     :param VarIntEncoding encoding:
         The encoding to use for the variable-length integer.
-    :param int size:
+    :param int max_size:
         The maximum number of bytes to use for encoding this integer.
     :param bool signed:
         If ``True``, this field is a signed integer.

@@ -6,8 +6,8 @@ import bitstring
 import pytest
 
 from binobj import errors
-from binobj import structures
 from binobj import fields
+from binobj import structures
 
 
 class BasicStruct(structures.Struct):

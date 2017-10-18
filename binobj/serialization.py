@@ -352,7 +352,7 @@ class SerializableContainer(Serializable):
     """A serialization mixin class for container-like objects.
 
     :param list components:
-        Optional. A list of serializable fields, structs, etc. to use for this
+        Optional. A list of :class:`Serializable` objects to use for this
         container. Completely overrides any class-level declared fields (stored
         in ``__components__``).
 
