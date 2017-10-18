@@ -80,7 +80,6 @@ def decode_integer_compact(stream):
         if int8 & 0x80 == 0:
             return value * sign
 
-#
 # def encode_integer_git_vlq(field, value):
 #     """Encode an integer in Git's variable-length quantity (VLQ) format.
 #
@@ -171,9 +170,9 @@ def encode_integer_zigzag(value):
     n_bits = value.bit_length()
     n_bytes = int(math.ceil(n_bits / 7))
 
-    if n_bits <= 32:
+    if n_bits <= 31:
         int_size = 32
-    elif n_bits <= 64:
+    elif n_bits <= 63:
         int_size = 64
     else:
         raise ValueError('Number is too large: %r' % value)
