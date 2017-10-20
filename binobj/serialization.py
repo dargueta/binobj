@@ -113,13 +113,13 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             self._n_bytes = n_bytes
 
         if self.__options__ is not None:
-            self.__options__ = copy.deepcopy(self.__options__)
-            self.__options__.update(kwargs)
+            self._options = copy.deepcopy(self.__options__)
+            self._options.update(kwargs)
         else:
-            self.__options__ = kwargs
+            self._options = kwargs
 
         for key, value in _PREDEFINED_KWARGS.items():
-            self.__options__.setdefault(key, value)
+            self._options.setdefault(key, value)
 
         self._hooks = collections.defaultdict(collections.OrderedDict)
         self._references_to_this = {}
@@ -268,13 +268,13 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :return: The serialized form of ``None`` for this field.
         :rtype: bytes
         """
-        if not self.__options__['allow_null']:
+        if not self._options['allow_null']:
             raise errors.UnserializableValueError(
                 reason='`None` is not an acceptable value for %s.' % self,
                 field=self,
                 value=None)
 
-        null_value = self.__options__['null_value']
+        null_value = self._options['null_value']
 
         if null_value is DEFAULT:
             # User wants us to define the null value for them.
@@ -324,7 +324,7 @@ class SerializableScalar(Serializable):
         :return: The deserialized value.
         """
         loaded_value = stream.read(self._n_bits)
-        if loaded_value == self.__options__['null_value']:
+        if loaded_value == self._options['null_value']:
             return None
         return loaded_value
 
@@ -367,8 +367,13 @@ class SerializableContainer(Serializable):
     __components__ = None   # type: collections.OrderedDict
 
     def __init__(self, *, components=None, **kwargs):
-        self.__components__ = components or self.__components__
-        if self.__components__ is None:
+        if components:
+            self._components = copy.deepcopy(components)
+        elif self.__components__:
+            self._components = copy.deepcopy(self.__components__)
+        elif getattr(self, '__abstract__', False):
+            self._components = {}
+        else:
             raise errors.FieldConfigurationError(
                 'Container has no defined components. You must define them at '
                 'the class level with `__components__`, or pass them to the '
@@ -388,18 +393,18 @@ class SerializableContainer(Serializable):
             Additional data to pass to the ``dump()`` function.
         """
         given_keys = set(data.keys())
-        expected_keys = set(self.__components__.keys())
+        expected_keys = set(self._components.keys())
         extra_keys = given_keys - expected_keys
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
-        for name, component in self.__components__.items():
+        for name, component in self._components.items():
             value = data.get(name, UNDEFINED)
 
             if value is UNDEFINED:
                 # Caller didn't pass a value for this component. If a default
                 # value is defined, use it. Otherwise, crash.
-                default = component.__options__['default']
+                default = component._options['default']
                 if default is UNDEFINED:
                     raise errors.MissingRequiredValueError(field=component)
                 value = default
@@ -419,7 +424,7 @@ class SerializableContainer(Serializable):
         :rtype: collections.OrderedDict
         """
         result = collections.OrderedDict()
-        for name, component in self.__components__.items():
+        for name, component in self._components.items():
             result[name] = component.load(stream, context)
 
         return result
@@ -448,12 +453,12 @@ class SerializableContainer(Serializable):
         :return: The deserialized data.
         :rtype: collections.OrderedDict
         """
-        if last_field is not None and last_field not in self.__components__:
+        if last_field is not None and last_field not in self._components:
             raise ValueError(
                 "%s doesn't have a field named %r." % (self, last_field))
 
         result = collections.OrderedDict()
-        for field in self.__components__.values():
+        for field in self._components.values():
             offset = stream.pos
 
             try:
