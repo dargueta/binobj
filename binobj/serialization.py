@@ -371,8 +371,6 @@ class SerializableContainer(Serializable):
             self._components = copy.deepcopy(components)
         elif self.__components__:
             self._components = copy.deepcopy(self.__components__)
-        elif getattr(self, '__abstract__', False):
-            self._components = {}
         else:
             raise errors.FieldConfigurationError(
                 'Container has no defined components. You must define them at '
@@ -502,12 +500,12 @@ class SerializableContainer(Serializable):
             ``load()`` methods.
         """
         given_keys = set(data.keys())
-        expected_keys = set(self.__components__.keys())
+        expected_keys = set(self._components.keys())
         extra_keys = given_keys - expected_keys
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
-        for field in self.__components__.values():
+        for field in self._components.values():
             if field.name not in data:
                 # Field is missing from the dump data. If the caller wants us to
                 # dump only the fields that're defined, we can bail out now.
@@ -518,7 +516,7 @@ class SerializableContainer(Serializable):
                     # so we need to crash.
                     raise errors.MissingRequiredValueError(field=field)
 
-            value = data.get(field.name, field.__options__['default'])
+            value = data.get(field.name, field._options['default'])
             field.dump(value, stream, context)
 
             if field.name == last_field:
@@ -530,8 +528,8 @@ class SerializableSequence(Serializable):
     __component__ = None    # type: Serializable
 
     def __init__(self, *, component=None, count=None, **kwargs):
-        self.__component__ = component or self.__component__
-        if self.__component__ is None:
+        self._component = component or self.__component__
+        if self._component is None:
             raise errors.FieldConfigurationError(
                 'List has no defined component type. You must define one at '
                 'the class level with `__component__`, or pass it to the '
@@ -539,7 +537,7 @@ class SerializableSequence(Serializable):
                 field=self)
 
         self.count = count
-        super().__init__(component=component, **kwargs)
+        super().__init__(**kwargs)
 
     def _should_halt(self, stream, loaded, context):    # pylint: disable=unused-argument
         """Determine if the deserializer should stop reading from the input.
@@ -590,7 +588,7 @@ class SerializableSequence(Serializable):
             anything they don't recognize.
         """
         for value in data:
-            self.__component__.dump(value, stream, context)
+            self._component.dump(value, stream, context)
 
     def load(self, stream, context=None):
         """Load a structure list from the given stream.
@@ -606,6 +604,6 @@ class SerializableSequence(Serializable):
         """
         result = []
         while not self._should_halt(stream, result, context):
-            result.append(self.__component__.load(stream, context))
+            result.append(self._component.load(stream, context))
 
         return result
