@@ -7,6 +7,7 @@ import weakref
 
 import bitstring
 
+from binobj import fields
 from binobj import errors
 
 
@@ -79,7 +80,7 @@ class SerializableMeta(abc.ABCMeta):
                 # Some fields don't have a fixed size, so `size` will be `None`.
                 # After a variable-length field we can't calculate the offset,
                 # so `offset` will be `None` for the rest of this struct.
-                if field._n_bits is None:
+                if field._n_bits is None or isinstance(field._n_bits, fields.ValueOf):
                     offset = None
                 else:
                     offset += field._n_bits
