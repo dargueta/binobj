@@ -18,13 +18,15 @@ class Field(serialization.SerializableScalar):
         The name of the field.
     :param bool required:
         If ``True``, this value *must* be passed to the serializer for a struct.
-        If ``False``, the default value will be used.
+        If ``False``, the default value will be used if the field is missing in
+        a call to :meth:`dump`.
     :param bool allow_null:
         If ``True`` (the default) then ``None`` is an acceptable value to write
         for this field.
     :param bitstring.Bits null_value:
         A value to use to dump ``None``. When loading, the returned value will
-        be ``None`` if this value is encountered.
+        be ``None`` if this value is encountered. A `bytes` object is also
+        accepted.
     :param default:
         The default value to use if a value for this field isn't passed to the
         struct for serialization. If ``required`` is ``False`` and no default is
@@ -141,12 +143,16 @@ class VariableLengthInteger(Integer):
 
     :param VarIntEncoding encoding:
         The encoding to use for the variable-length integer.
-    :param int max_size:
-        The maximum number of bytes to use for encoding this integer.
+    :param int max_bytes:
+        The maximum number of bytes to use for encoding this integer. If not
+        given, there's no restriction on the size.
     :param bool signed:
         If ``True``, this field is a signed integer.
+
+    .. note::
+        Not all integer encodings allow signed integers.
     """
-    def __init__(self, *, encoding, max_size=None, signed=True, **kwargs):
+    def __init__(self, *, encoding, max_bytes=None, signed=True, **kwargs):
         if encoding == varints.VarIntEncoding.VLQ and signed is True:
             raise errors.FieldConfigurationError(
                 "Signed integers can't be encoded with VLQ. Use an encoding "
@@ -155,7 +161,7 @@ class VariableLengthInteger(Integer):
                 field=self)
 
         self.encoding = encoding
-        self.max_size = max_size
+        self.max_bytes = max_bytes
 
         encoding_functions = varints.INTEGER_ENCODING_MAP.get(encoding)
         if encoding_functions is None:
