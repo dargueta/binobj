@@ -649,8 +649,6 @@ class ValueOf:
         return source
 
 
-
-
 class SerializableContainer(Serializable):
     """A serialization mixin class for container-like objects.
 
@@ -670,9 +668,9 @@ class SerializableContainer(Serializable):
 
     def __init__(self, *, components=None, **kwargs):
         if components:
-            self._components = copy.deepcopy(components)
+            self._components = components.copy()
         elif self.__components__:
-            self._components = copy.deepcopy(self.__components__)
+            self._components = self.__components__.copy()
         else:
             raise errors.FieldConfigurationError(
                 'Container has no defined components. You must define them at '
