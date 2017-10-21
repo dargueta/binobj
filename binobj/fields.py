@@ -1,5 +1,7 @@
 """Definitions of all field types that can be used in structures."""
 
+# pylint: disable=too-few-public-methods
+
 import sys
 
 import bitstring
@@ -74,7 +76,7 @@ _BIT_VALUE_ATTR = {
 }
 
 
-class Bytes(Field):   # pylint: disable=too-few-public-methods
+class Bytes(Field):
     """Raw binary data."""
 
 

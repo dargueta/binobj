@@ -2,8 +2,6 @@
 
 from binobj import serialization
 
-__all__ = ['Struct']
-
 
 class Struct(serialization.SerializableContainer):
     """An ordered collection of fields and other structures."""
