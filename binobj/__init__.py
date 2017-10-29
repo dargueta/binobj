@@ -11,5 +11,6 @@ from .fields import *
 from .serialization import *
 from .structures import *
 
-__version_info__ = (0, 1, 0)
-__version__ = '.'.join(str(v) for v in __version_info__)
+
+__version__ = '0.1.0'
+__version_info__ = tuple(int(p) for p in __version__.split('.'))
