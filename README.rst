@@ -102,8 +102,8 @@ this repo run:
 
     pyenv local 3.6.3 3.5.3 3.4.6 3.3.6 pypy3.5-5.8.0
 
-    # Install some testing dependencies and such
-    pip3 install -U bumpversion tox tox-pyenv
+    # Install dependencies you'll need for development
+    pip3 install -r dev_requirements.txt
 
 Running the Tests
 ~~~~~~~~~~~~~~~~~
