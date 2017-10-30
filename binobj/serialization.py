@@ -266,7 +266,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         default value is provided.
 
         :return: The serialized form of ``None`` for this field.
-        :rtype: bytes
+        :rtype: bitstring.Bits
         """
         if not self._options['allow_null']:
             raise errors.UnserializableValueError(
@@ -275,18 +275,22 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
                 value=None)
 
         null_value = self._options['null_value']
+        if null_value is not DEFAULT:
+            return null_value
 
-        if null_value is DEFAULT:
-            # User wants us to define the null value for them.
-            if self._n_bits is None:
-                raise errors.UnserializableValueError(
-                    reason="Can't guess appropriate serialization of `None` "
-                           "for %s because it has no fixed size." % self,
-                    field=self,
-                    value=None)
-            null_value = '0b' + ('0' * self._n_bits)
+        # User wants us to define the null value for them.
+        if self._n_bits is None:
+            raise errors.UnserializableValueError(
+                reason="Can't guess appropriate serialization of `None` for %s "
+                       "because it has no fixed size." % self,
+                field=self,
+                value=None)
+        elif isinstance(self._n_bits, ValueOf):
+            n_bits = self._n_bits.compute_for_dump()
+        else:
+            n_bits = self._n_bits
 
-        return null_value
+        return bitstring.Bits('0b' + ('0' * n_bits))
 
     def _read_exact_size(self, stream):
         """Read exactly the number of bits this object takes up or crash.
@@ -302,9 +306,13 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
         if self._n_bits is None:
             raise errors.VariableSizedFieldError(field=self, offset=offset)
+        elif isinstance(self._n_bits, ValueOf):
+            n_bits = self._n_bits.compute_for_load()
+        else:
+            n_bits = self._n_bits
 
         try:
-            return stream.read(self._n_bits)
+            return stream.read(n_bits)
         except bitstring.ReadError:
             raise errors.UnexpectedEOFError(
                 field=self, size=self._n_bits, offset=offset)
