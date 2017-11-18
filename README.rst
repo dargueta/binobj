@@ -107,6 +107,14 @@ this repo run:
     # Install dependencies you'll need for development
     pip3 install -r dev_requirements.txt
 
+.. note::
+
+    Mac users: As of right now (2017-11-18) there's no prebuilt binary for pypy.
+    You'll have to install ``pypy3.5-5.9.0-src`` and then use something like
+    ``pypy3.5-5.9.0-g`` in your call to ``pyenv local``. ``pyenv`` will tell you
+    the right version to use.
+
+
 Running the Tests
 ~~~~~~~~~~~~~~~~~
 
