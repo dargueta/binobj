@@ -57,12 +57,6 @@ class Field(serialization.SerializableScalar):
         #: this will be ``None``.
         self.offset = None  # type: int
 
-        # Some arguments and attributes may be references rather than actual
-        # parameters. We must bind those references to this field.
-        for item in vars(self):
-            if isinstance(item, serialization.ValueOf):
-                item.bind(self)
-
         super().__init__(allow_null=allow_null, null_value=null_value, **kwargs)
 
     def __str__(self):

@@ -44,6 +44,8 @@ The same example rewritten using ``binobj``:
 Python supports, toggling endianness on a per-field basis (necessary for ISO 9660
 images), a variety of integer encodings, computed fields, validation, and more.
 
+Note: ``ValueOf`` is currently not implemented.
+
 System Requirements
 -------------------
 
