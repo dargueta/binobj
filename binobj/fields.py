@@ -46,7 +46,8 @@ class Field(serialization.SerializableScalar):
         # The following fields are set by the struct metaclass after the field
         # is instantiated.
 
-        #: A weak reference to the `Struct` class containing this field.
+        #: A weak reference to the :class:`~binobj.structures.Struct` class
+        #: containing this field.
         self.struct_class = None    # type: binobj.structures.Struct
 
         #: The zero-based index of the field in the struct.

@@ -26,9 +26,9 @@ class Struct(serialization.SerializableContainer):
             The name of the field to retrieve.
         :param context:
             Optional. Any object containing extra information to pass to the
-            ``load()`` method of the field. For fields located at a variable
-            offset, this will be passed to the ``load()`` method of *each* field
-            read.
+            :meth:`load` method of the field. For fields located at a variable
+            offset, this will be passed to the :meth:`load` method of *each*
+            field read.
 
         :return: The value of the field in the struct data.
 

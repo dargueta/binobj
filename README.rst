@@ -5,7 +5,7 @@ A cross-platform Python 3 library for reading and writing structured binary data
 in an object-oriented (ish) style.
 
 Why use ``binobj``?
----------------
+-------------------
 
 You may have seen other libraries like `Construct <https://github.com/construct/construct>`_
 that accomplish the same job. ``binobj`` is different in that it's heavily inspired

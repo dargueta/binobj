@@ -56,7 +56,7 @@ class SerializableMeta(abc.ABCMeta):
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
         return collections.OrderedDict()
 
-    def __new__(mcs, name, bases, namespace):
+    def __new__(mcs, name, bases, namespace, **kwargs):
         # TODO (dargueta): Need to get fields from the superclasses as well.
         namespace['__components__'] = collections.OrderedDict(
             (name, comp)
@@ -64,7 +64,7 @@ class SerializableMeta(abc.ABCMeta):
             if isinstance(comp, _SerializableBase)
         )
 
-        instance = super().__new__(mcs, name, bases, namespace)
+        instance = super().__new__(mcs, name, bases, namespace, **kwargs)
         offset = 0
 
         for i, (f_name, field) in enumerate(namespace['__components__'].items()):
