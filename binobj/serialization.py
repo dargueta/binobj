@@ -200,10 +200,11 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
         - ``stream``: The stream the object is being loaded from.
         - ``loaded_objects``: An :class:`~collections.OrderedDict` mapping all
-           of the objects read so far in the containing :class:`Struct`,
-           :class:`Union`, etc.
+           of the objects read so far in the containing
+           :class:`~binobj.structures.Struct`, :class:`~binobj.structures.Union`,
+           etc.
         - ``context``: The context object passed to the containing object's
-          ``load()`` method.
+          :meth:`load` method.
 
         Usage::
 
@@ -225,13 +226,14 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
         - ``stream``: The stream the object is being loaded from.
         - ``loaded_objects``: An :class:`~collections.OrderedDict` mapping all
-           of the objects read so far in the containing :class:`Struct`,
-           :class:`Union`, etc. The current object is included in this dict.
+           of the objects read so far in the containing
+           :class:`~binobj.structures.Struct`, :class:`~binobj.structures.Union`,
+           etc. The current object is included in this dict.
         - ``value``: The value of this object that was just read from the stream.
           This is provided mainly for convenience since it's also accessible in
           the ``loaded_objects`` dictionary.
         - ``context``: The context object passed to the containing object's
-          ``load()`` method.
+          :meth:`load` method.
 
         Usage::
 
@@ -389,7 +391,7 @@ class SerializableContainer(Serializable):
         :param bitstring.BitStream stream:
             A stream to write the serialized data into.
         :param context:
-            Additional data to pass to the ``dump()`` function.
+            Additional data to pass to the :meth:`dump` function.
         """
         given_keys = set(data.keys())
         expected_keys = set(self._components.keys())
@@ -447,7 +449,7 @@ class SerializableContainer(Serializable):
             stream.
         :param context:
             Any object containing extra information to pass to the fields'
-            ``load()`` method.
+            :meth:`load` method.
 
         :return: The deserialized data.
         :rtype: collections.OrderedDict
@@ -498,7 +500,7 @@ class SerializableContainer(Serializable):
             The name of the last field in the object to dump.
         :param context:
             Any object containing extra information to pass to the fields'
-            ``load()`` methods.
+            :meth:`load` methods.
         """
         given_keys = set(data.keys())
         expected_keys = set(self._components.keys())

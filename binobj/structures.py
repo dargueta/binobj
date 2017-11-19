@@ -3,7 +3,7 @@
 from binobj import serialization
 
 
-class Struct(serialization.SerializableContainer):
+class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-public-methods
     """An ordered collection of fields and other structures."""
     def __str__(self):
         return type(self).__name__

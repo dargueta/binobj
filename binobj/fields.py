@@ -73,6 +73,16 @@ _BIT_VALUE_ATTR = {
 }
 
 
+class Const(Field):
+    """A field that expects an invariable hard-coded value.
+
+    A common use for this field is to validate the "magic number" of a file.
+    """
+    def __init__(self, value, **kwargs):
+        self.value = value
+        super().__init__(**kwargs)
+
+
 class Bytes(Field):
     """Raw binary data."""
 
@@ -101,7 +111,7 @@ class Integer(Field):
 
         super().__init__(**kwargs)
 
-    def load(self, stream, context=None):
+    def load(self, stream, context=None):     # pylint: disable=unused-argument
         """Load an integer from the given stream.
 
         :param bitstring.BitStream stream:
@@ -271,7 +281,8 @@ class String(Field):
     def __init__(self, *, encoding='ascii', truncate=False, fill_byte=None,
                  align_left=True, **kwargs):
         if fill_byte is not None and len(fill_byte) != 1:
-            raise ValueError('`fill_byte` must be exactly one byte, got %r.' % fill_byte)
+            raise ValueError(
+                '`fill_byte` must be exactly one byte, got %r.' % fill_byte)
 
         self.encoding = encoding
         self.truncate = truncate
