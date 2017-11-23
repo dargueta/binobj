@@ -23,10 +23,10 @@ class Field(serialization.SerializableScalar):
     :param bool allow_null:
         If ``True`` (the default) then ``None`` is an acceptable value to write
         for this field.
-    :param bitstring.Bits null_value:
+    :param null_value:
         A value to use to dump ``None``. When loading, the returned value will
-        be ``None`` if this value is encountered. A `bytes` object is also
-        accepted.
+        be ``None`` if this value is encountered. You can pass either `bytes` or
+        a `bitstring.Bits` object.
     :param default:
         The default value to use if a value for this field isn't passed to the
         struct for serialization. If ``required`` is ``False`` and no default is

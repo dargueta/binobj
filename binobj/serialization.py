@@ -101,6 +101,13 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
                 "object. Got n_bytes=%r and n_bits=%r." % (n_bytes, n_bits),
                 field=self)
 
+        # FIXME (dargueta): This might be a horrible idea.
+        # Caller is allowed to pass `bytes` for any argument that takes a
+        # `bitstring.Bits` object. Convert everything here.
+        for option, value in kwargs.items():
+            if isinstance(value, bytes):
+                kwargs[option] = bitstring.Bits(bytes=value)
+
         if n_bytes:
             self._n_bytes = n_bytes
             self._n_bits = n_bytes * 8
