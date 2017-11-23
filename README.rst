@@ -51,7 +51,7 @@ System Requirements
 
 - This package will *not* work on a mixed-endian system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on Python 3.3, 3.4, 3.5, 3.6, and PyPy3.5 5.8.0. (It may
+- This has been tested on Python 3.3, 3.4, 3.5, 3.6, and PyPy3.5 5.9.0. (It may
   work on older versions of PyPy3.5 but I haven't tested them.) I make no
   guarantees about other implementations.
 
