@@ -6,6 +6,9 @@
 Welcome to binobj's documentation!
 ==================================
 
+.. include:: ../../README.rst
+   :start-after: ======
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
