@@ -25,8 +25,8 @@ class Field(serialization.SerializableScalar):
         for this field.
     :param null_value:
         A value to use to dump ``None``. When loading, the returned value will
-        be ``None`` if this value is encountered. You can pass either `bytes` or
-        a `bitstring.Bits` object.
+        be ``None`` if this value is encountered. You can pass either
+        :class:`bytes` or a :class:`bitstring.Bits` object.
     :param default:
         The default value to use if a value for this field isn't passed to the
         struct for serialization. If ``required`` is ``False`` and no default is
