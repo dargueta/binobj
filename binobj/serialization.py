@@ -433,7 +433,9 @@ class SerializableContainer(Serializable):
         """
         result = collections.OrderedDict()
         for name, component in self._components.items():
-            result[name] = component.load(stream, context)
+            value = component.load(stream, context)
+            if not component.discard:
+                result[name] = value
 
         return result
 

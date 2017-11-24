@@ -80,7 +80,17 @@ class Const(Field):
     """
     def __init__(self, value, **kwargs):
         self.value = value
-        super().__init__(**kwargs)
+
+        if isinstance(value, bitstring.Bits):
+            n_bits = value.length
+        elif isinstance(value, (bytes, bytearray)):
+            n_bits = len(value) * 8
+        else:
+            raise TypeError(
+                'Expected `bitstring.Bits`, `bytes`, or `bytearray`, got %r.'
+                % type(value).__name__)
+
+        super().__init__(n_bits=n_bits, **kwargs)
 
 
 class Bytes(Field):
