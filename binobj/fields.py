@@ -65,7 +65,7 @@ class Field(serialization.SerializableScalar):
             (self.struct_class.__name__, type(self).__name__, self.name))
 
 
-_BIT_VALUE_ATTR = {
+_INT_BIT_TYPEID = {
     ('little', True): 'intle',
     ('little', False): 'uintle',
     ('big', True): 'intbe',
@@ -111,13 +111,13 @@ class Integer(Field):
         self.endian = endian or sys.byteorder
 
         key = (self.endian, self.signed)
-        if key not in _BIT_VALUE_ATTR:
+        if key not in _INT_BIT_TYPEID:
             raise ValueError(
                 'Unrecognized combination of endianness (%r) and signedness (%r). '
                 'Either this is running on a mixed-endian system or an invalid '
                 'value for `endian` or `signed` was passed in.' % key)
 
-        self._value_attr = _BIT_VALUE_ATTR[key]
+        self._type_id = _INT_BIT_TYPEID[key]
 
         super().__init__(**kwargs)
 
@@ -128,15 +128,11 @@ class Integer(Field):
             The stream to load from.
         :param context:
             Additional information to pass to this method.
-        """
-        bits = self._read_exact_size(stream)
-        if self._n_bits % 8 == 0:
-            return getattr(bits, self._value_attr)
 
-        # Else: integer isn't a whole number of bytes. We need to pad the loaded
-        # value with bits, either copying the sign bit or padding with zeros
-        # depending on whether it's signed or not.
-        raise NotImplementedError
+        :return: The loaded integer.
+        :rtype: int
+        """
+        return stream.read('%s:%d' % (self._type_id, self._n_bits))
 
     def dump(self, value, stream, context=None):  # pylint: disable=unused-argument
         """Dump an integer to the given stream.
@@ -148,7 +144,7 @@ class Integer(Field):
         :param context:
             Additional information to pass to this method.
         """
-        kwarg = {self._value_attr: value}
+        kwarg = {self._type_id: value}
         bits = bitstring.Bits(length=self._n_bits, **kwarg)
         stream.insert(bits)
 
@@ -347,4 +343,5 @@ class StringZ(String):
         if value is None:
             stream.insert(self._get_null_value())
         else:
+            # FIXME (dargueta): This won't work for UTF-16 or UTF-32.
             stream.insert(value.encode(self.encoding) + b'\0')
