@@ -166,8 +166,9 @@ class VariableLengthInteger(Integer):
     def __init__(self, *, encoding, max_bytes=None, signed=True, **kwargs):
         if encoding == varints.VarIntEncoding.VLQ and signed is True:
             raise errors.FieldConfigurationError(
-                "Signed integers can't be encoded with VLQ. Use an encoding "
-                "that supports signed integers, like %s."
+                "Signed integers can't be encoded with VLQ. Either pass "
+                "`signed=False` to __init__ or use an encoding that works for "
+                "signed integers, like %s."
                 % varints.VarIntEncoding.COMPACT_INDICES,
                 field=self)
 
