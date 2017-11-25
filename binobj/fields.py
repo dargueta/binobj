@@ -330,7 +330,16 @@ class String(Field):
 
 
 class StringZ(String):
-    """A variable-length null-terminated string."""
+    """A variable-length null-terminated string.
+
+    This field currently only works for string encodings that encode a null as
+    a single byte, such as ASCII, ISO-8859-1, and UTF-8.
+
+    .. warning::
+
+        This will fail for encodings using multiple bytes to represent a null,
+        such as UTF-16 and UTF-32.
+    """
     def load(self, stream, context=None):
         string = b''
         char = stream.read(8)
@@ -348,5 +357,4 @@ class StringZ(String):
         if value is None:
             stream.insert(self._get_null_value())
         else:
-            # FIXME (dargueta): This won't work for UTF-16 or UTF-32.
             stream.insert(value.encode(self.encoding) + b'\0')
