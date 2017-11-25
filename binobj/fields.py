@@ -132,7 +132,11 @@ class Integer(Field):
         :return: The loaded integer.
         :rtype: int
         """
-        return stream.read('%s:%d' % (self._type_id, self._n_bits))
+        try:
+            return stream.read('%s:%d' % (self._type_id, self._n_bits))
+        except bitstring.ReadError:
+            raise errors.UnexpectedEOFError(
+                field=self, size=self._n_bits, offset=stream.pos)
 
     def dump(self, value, stream, context=None):  # pylint: disable=unused-argument
         """Dump an integer to the given stream.
