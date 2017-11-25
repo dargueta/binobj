@@ -124,7 +124,7 @@ class Integer(Field):
     def load(self, stream, context=None):     # pylint: disable=unused-argument
         """Load an integer from the given stream.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             The stream to load from.
         :param context:
             Additional information to pass to this method.

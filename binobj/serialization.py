@@ -164,7 +164,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     def load(self, stream, context=None):
         """Load a structure from the given byte stream.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             A bit stream to read data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
@@ -299,7 +299,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     def _read_exact_size(self, stream):
         """Read exactly the number of bits this object takes up or crash.
 
-        :param bitstring.BitStream stream: The stream to read from.
+        :param bitstring.ConstBitStream stream: The stream to read from.
 
         :return: Exactly ``self.n_bits`` bits are read from the stream.
         :rtype: bitstring.Bits
@@ -325,7 +325,7 @@ class SerializableScalar(Serializable):
     def load(self, stream, context=None):
         """Load a value from a byte stream.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             The stream to read the next value from.
         :param context:
             Optional. Additional data passed by the caller that can be used by
@@ -422,7 +422,7 @@ class SerializableContainer(Serializable):
     def load(self, stream, context=None):
         """Load a structure from the given byte stream.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             A bit stream to read data from.
         :param context:
             Additional data to pass to the deserialization function. Subclasses
@@ -450,7 +450,7 @@ class SerializableContainer(Serializable):
         and the stream pointer will be reset to the end of the last complete
         field read.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             The stream to load from.
         :param str last_field:
             The name of the last field to load in the object. If given, enough
@@ -563,7 +563,7 @@ class SerializableSequence(Serializable):
           ``count`` isn't an integer, the function returns ``True`` if there's
           any data left in the stream.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             The data stream to read from. Except in rare circumstances, this is
             the same stream that was passed to :meth:`load`. The stream pointer
             should be returned to its original position when the function exits.
@@ -604,7 +604,7 @@ class SerializableSequence(Serializable):
     def load(self, stream, context=None):
         """Load a structure list from the given stream.
 
-        :param bitstring.BitStream stream:
+        :param bitstring.ConstBitStream stream:
             A bit stream to read data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
