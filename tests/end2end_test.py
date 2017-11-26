@@ -2,10 +2,13 @@
 
 # pylint: disable=redefined-outer-names
 
+import io
 import os
 
-import binobj
+import bitstring
 import pytest
+
+import binobj
 
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -48,9 +51,41 @@ def bmp_file():
         return fdesc.read()
 
 
-def test_basic_bmp(bmp_file):
+@pytest.fixture(scope='session')
+def png_file():
+    """Return the test PNG file as :class:`bytes`."""
+    with open(os.path.join(TEST_DATA_DIR, 'test_image.png'), 'rb') as fdesc:
+        return fdesc.read()
+
+
+def test_basic_bmp__loads(bmp_file):
     loader = SimpleBMPFileHeader()
     output = loader.loads(bmp_file)
+
+    assert output == {
+        'magic': b'BM',
+        'file_size': len(bmp_file),
+        'pixels_offset': 54,
+        'header_size': 40,
+        'image_width': 80,
+        'image_height': 60,
+        'n_color_planes': 1,
+        'n_bits_per_pixel': 24,
+        'compression_method': 0,
+        'bitmap_size': 14400,
+        'v_resolution': 2835,
+        'h_resolution': 2835,
+        'n_palette_colors': 0,
+        'n_important_colors': 0,
+    }
+
+
+@pytest.mark.parametrize('constructor', (io.BytesIO, bitstring.ConstBitStream))
+def test_basic_bmp__load(constructor, bmp_file):
+    """Test loading from a stream, both a BytesIO and a ConstBitStream."""
+    stream = constructor(bmp_file)
+    loader = SimpleBMPFileHeader()
+    output = loader.load(stream)
 
     assert output == {
         'magic': b'BM',
