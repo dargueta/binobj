@@ -184,8 +184,6 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             self._options.setdefault(key, value)
 
         self._hooks = collections.defaultdict(collections.OrderedDict)
-        self._references_to_this = {}
-        self._references_to_others = {}
 
     @cast_bitstreams(writable=True)
     @cast_bitstrings
