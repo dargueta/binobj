@@ -150,7 +150,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     #: arguments to ``__init__``.
     __options__ = None     # type: dict
 
-    def __init__(self, *, n_bytes=None, n_bits=None, **kwargs):
+    def __init__(self, *, n_bytes=None, n_bits=None, const=UNDEFINED, **kwargs):
         if n_bytes and n_bits:
             raise errors.FieldConfigurationError(
                 "Only one of `n_bytes` and `n_bits` can be defined for an "

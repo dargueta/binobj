@@ -31,7 +31,7 @@ The same example rewritten using ``binobj``:
 .. code-block:: python
 
     class BMPFile(Struct):
-        signature = Const(b'BMP')
+        signature = Bytes(const=b'BMP')
         width = UInt8()
         height = UInt8()
         pixels = Array(UInt8, count=ValueOf(width) * ValueOf(height))

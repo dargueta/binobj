@@ -23,13 +23,13 @@ class SimpleBMPFileHeader(binobj.Struct):
     """
     __options__ = {'endian': 'little'}
 
-    magic = binobj.Const(b'BM')
+    magic = binobj.Bytes(const=b'BM')
     file_size = binobj.UInt32()
     _reserved = binobj.Bytes(n_bytes=4, discard=True, default=b'\0\0\0\0')
     pixels_offset = binobj.UInt32()
 
     # Legacy DIB header
-    header_size = binobj.UInt32(const_value=40)
+    header_size = binobj.UInt32(const=40)
     image_width = binobj.Int32()
     image_height = binobj.Int32()
     n_color_planes = binobj.UInt16()

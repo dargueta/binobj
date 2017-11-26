@@ -73,26 +73,6 @@ _INT_BIT_TYPEID = {
 }
 
 
-class Const(Field):
-    """A field that expects an invariable hard-coded value.
-
-    A common use for this field is to validate the "magic number" of a file.
-    """
-    def __init__(self, value, **kwargs):
-        self.value = value
-
-        if isinstance(value, bitstring.Bits):
-            n_bits = value.length
-        elif isinstance(value, (bytes, bytearray)):
-            n_bits = len(value) * 8
-        else:
-            raise TypeError(
-                'Expected `bitstring.Bits`, `bytes`, or `bytearray`, got %r.'
-                % type(value).__name__)
-
-        super().__init__(n_bits=n_bits, **kwargs)
-
-
 class Bytes(Field):
     """Raw binary data."""
 
