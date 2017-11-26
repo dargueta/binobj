@@ -379,6 +379,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
 class SerializableScalar(Serializable):
     """A serialization class for single values."""
+    @cast_bitstreams(writable=False)
     def load(self, stream, context=None):
         """Load a value from a byte stream.
 
@@ -395,6 +396,7 @@ class SerializableScalar(Serializable):
             return None
         return loaded_value
 
+    @cast_bitstreams(writable=True)
     def dump(self, data, stream, context=None):
         """Write this field into a bit stream.
 
@@ -447,6 +449,7 @@ class SerializableContainer(Serializable):
 
         super().__init__(**kwargs)
 
+    @cast_bitstreams(writable=True)
     def dump(self, data, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
@@ -476,6 +479,7 @@ class SerializableContainer(Serializable):
 
             component.dump(value, stream, context)
 
+    @cast_bitstreams(writable=False)
     def load(self, stream, context=None):
         """Load a structure from the given byte stream.
 
@@ -496,6 +500,7 @@ class SerializableContainer(Serializable):
 
         return result
 
+    @cast_bitstreams(writable=False)
     def partial_load(self, stream, last_field=None, context=None):
         """Partially load this object, either until EOF or the named field.
 
@@ -549,6 +554,7 @@ class SerializableContainer(Serializable):
 
         return result
 
+    @cast_bitstreams(writable=True)
     def partial_dump(self, data, stream, last_field=None, context=None):
         """Partially dump the object, up to and including the last named field.
 
@@ -644,6 +650,7 @@ class SerializableSequence(Serializable):
             return True
         return False
 
+    @cast_bitstreams(writable=True)
     def dump(self, data, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
@@ -658,6 +665,7 @@ class SerializableSequence(Serializable):
         for value in data:
             self._component.dump(value, stream, context)
 
+    @cast_bitstreams(writable=False)
     def load(self, stream, context=None):
         """Load a structure list from the given stream.
 
