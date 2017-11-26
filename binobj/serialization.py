@@ -3,6 +3,8 @@
 import abc
 import collections
 import copy
+import functools
+import io
 import weakref
 
 import bitstring
@@ -87,6 +89,60 @@ class SerializableMeta(abc.ABCMeta):
         return instance
 
 
+def cast_bitstrings(func):
+    """A decorator that converts all :class:`bytes` and :class:`bytearray`
+    arguments into `bitstring.Bits`."""
+    @functools.wraps(func)
+    def _wrapper(*args, **kwargs):
+        args = list(args)
+
+        for index, value in enumerate(args):
+            if isinstance(value, (bytes, bytearray)):
+                args[index] = bitstring.Bits(bytes=value)
+
+        for key, value in kwargs.items():
+            if isinstance(value, (bytes, bytearray)):
+                kwargs[key] = bitstring.Bits(bytes=value)
+
+        return func(*args, **kwargs)
+    return _wrapper
+
+
+def cast_bitstreams(*, writable):
+    """A decorator that converts all :class:`io.BytesIO` arguments to either a
+    `bitstring.BitStream` or a `bitstring.ConstBitStream`.
+
+    :param bool writable:
+        If ``False``, all stream arguments will be read-only. If ``True``, all
+        will be writeable.
+
+    :rtype: callable
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def _wrapper(*args, **kwargs):
+            args = list(args)
+
+            for index, value in enumerate(args):
+                if isinstance(value, io.BytesIO):
+                    data = value.read()
+                    if writable:
+                        args[index] = bitstring.Bits(bytes=data)
+                    else:
+                        args[index] = bitstring.ConstBitStream(bytes=data)
+
+            for key, value in kwargs.items():
+                if isinstance(value, io.BytesIO):
+                    data = value.read()
+                    if writable:
+                        kwargs[key] = bitstring.BitStream(bytes=data)
+                    else:
+                        kwargs[key] = bitstring.ConstBitStream(bytes=data)
+            return func(*args, **kwargs)
+        return _wrapper
+    return decorator
+
+
 class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods."""
     #: A dictionary of default options for loading and dumping functions.
@@ -131,6 +187,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         self._references_to_this = {}
         self._references_to_others = {}
 
+    @cast_bitstreams(writable=True)
+    @cast_bitstrings
     @abc.abstractmethod
     def dump(self, data, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -144,6 +202,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             anything they don't recognize.
         """
 
+    @cast_bitstrings
     def dumps(self, data, context=None):
         """Convert the given data into bytes.
 
@@ -160,6 +219,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         self.dump(data, stream, context)
         return stream.tobytes()
 
+    @cast_bitstreams(writable=False)
     @abc.abstractmethod
     def load(self, stream, context=None):
         """Load a structure from the given byte stream.
@@ -171,9 +231,9 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             anything they don't recognize.
 
         :return: The deserialized data.
-        :rtype: object
         """
 
+    @cast_bitstrings
     def loads(self, byte_string, context=None, exact=False):
         """Load a structure from the given byte stream.
 
@@ -189,9 +249,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             struct, throw an exception.
 
         :return: The deserialized data.
-        :rtype: object
         """
-        stream = bitstring.BitStream(bytes=byte_string)
+        stream = bitstring.ConstBitStream(bytes=byte_string)
         loaded_data = self.load(stream, context)
 
         if exact and (stream.pos < stream.length - 1):
