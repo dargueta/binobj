@@ -21,7 +21,8 @@ class SimpleBMPFileHeader(binobj.Struct):
     header. Validation will fail if this isn't true, even if the BMP file itself
     is valid.
     """
-    __options__ = {'endian': 'little'}
+    class Options:
+        endian = 'little'
 
     magic = binobj.Bytes(const=b'BM')
     file_size = binobj.UInt32()

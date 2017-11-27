@@ -2,7 +2,6 @@
 
 import abc
 import collections
-import copy
 import functools
 import io
 import weakref
@@ -145,11 +144,6 @@ def cast_bitstreams(*, writable):
 
 class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods."""
-    #: A dictionary of default options for loading and dumping functions.
-    #: Subclasses can override these, and they can also be overridden with
-    #: arguments to ``__init__``.
-    __options__ = None     # type: dict
-
     def __init__(self, *, n_bytes=None, n_bits=None, **kwargs):
         if n_bytes is not None and n_bits is not None:
             raise errors.FieldConfigurationError(
@@ -174,14 +168,25 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             self._n_bits = n_bits
             self._n_bytes = n_bytes
 
-        if self.__options__ is not None:
-            self._options = copy.deepcopy(self.__options__)
-            self._options.update(kwargs)
-        else:
-            self._options = kwargs
+        #: A dictionary of default options for loading and dumping functions.
+        #: Subclasses can override these, and they can also be overridden with
+        #: arguments to ``__init__``.
+        self.__options__ = {}   # type: dict
 
+        # FIXME (dargueta): No way of inheriting options from parent classes. :(
+        if hasattr(self, 'Options') and isinstance(self.Options, type):
+            self.__options__.update({
+                name: value
+                for name, value in vars(self.Options).items()
+                if not name.startswith('_')
+            })
+
+        self.__options__.update(kwargs)
+
+        # Define some keys we're gonna need for sure if the caller hasn't done
+        # so already.
         for key, value in _PREDEFINED_KWARGS.items():
-            self._options.setdefault(key, value)
+            self.__options__.setdefault(key, value)
 
         self._hooks = collections.defaultdict(collections.OrderedDict)
 
@@ -333,13 +338,13 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :return: The serialized form of ``None`` for this field.
         :rtype: bitstring.Bits
         """
-        if not self._options['allow_null']:
+        if not self.__options__['allow_null']:
             raise errors.UnserializableValueError(
                 reason='`None` is not an acceptable value for %s.' % self,
                 field=self,
                 value=None)
 
-        null_value = self._options['null_value']
+        null_value = self.__options__['null_value']
         if null_value is not DEFAULT:
             return null_value
 
@@ -392,7 +397,7 @@ class SerializableScalar(Serializable):
         :return: The deserialized value.
         """
         loaded_value = stream.read(self._n_bits)
-        if loaded_value == self._options['null_value']:
+        if loaded_value == self.__options__['null_value']:
             return None
         return loaded_value
 
@@ -472,7 +477,7 @@ class SerializableContainer(Serializable):
             if value is UNDEFINED:
                 # Caller didn't pass a value for this component. If a default
                 # value is defined, use it. Otherwise, crash.
-                default = component._options['default']
+                default = component.__options__['default']
                 if default is UNDEFINED:
                     raise errors.MissingRequiredValueError(field=component)
                 value = default
@@ -591,7 +596,7 @@ class SerializableContainer(Serializable):
                     # so we need to crash.
                     raise errors.MissingRequiredValueError(field=field)
 
-            value = data.get(field.name, field._options['default'])
+            value = data.get(field.name, field.__options__['default'])
             field.dump(value, stream, context)
 
             if field.name == last_field:
