@@ -5,6 +5,7 @@ TESTFILES=$(TESTDIR)/*.py tox.ini test_requirements.txt
 DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
+TOXDIRS=.tox
 
 # TODO (dargueta): OSX must install PyPy from source so this will break.
 .PHONY: dev_setup
@@ -17,10 +18,10 @@ dev_setup:
 	pyenv local 3.6.3 3.5.3 3.4.7 3.3.6 pypy3.5-5.9.0
 	pip3 install -U -r dev_requirements.txt
 
-test_dependencies: test_requirements.txt tox.ini
+$(TOXDIRS): test_requirements.txt tox.ini
 	tox -r --notest
 
-test: test_dependencies $(SOURCEFILES) $(TESTFILES)
+test: $(TOXDIRS)
 	tox
 
 lint: $(SOURCEFILES)
