@@ -124,18 +124,18 @@ def cast_bitstreams(*, writable):
 
             for index, value in enumerate(args):
                 if isinstance(value, io.BytesIO):
-                    data = value.read()
                     if writable:
-                        args[index] = bitstring.Bits(bytes=data)
+                        args[index] = bitstring.BitStream()
                     else:
+                        data = value.read()
                         args[index] = bitstring.ConstBitStream(bytes=data)
 
             for key, value in kwargs.items():
                 if isinstance(value, io.BytesIO):
-                    data = value.read()
                     if writable:
-                        kwargs[key] = bitstring.BitStream(bytes=data)
+                        kwargs[key] = bitstring.BitStream()
                     else:
+                        data = value.read()
                         kwargs[key] = bitstring.ConstBitStream(bytes=data)
             return func(*args, **kwargs)
         return _wrapper
