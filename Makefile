@@ -11,11 +11,11 @@ TOXDIRS=.tox
 .PHONY: dev_setup
 dev_setup:
 	pyenv install -s 3.6.3
-	pyenv install -s 3.5.3
+	pyenv install -s 3.5.4
 	pyenv install -s 3.4.7
 	pyenv install -s 3.3.6
 	pyenv install -s pypy3.5-5.9.0
-	pyenv local 3.6.3 3.5.3 3.4.7 3.3.6 pypy3.5-5.9.0
+	pyenv local 3.6.3 3.5.4 3.4.7 3.3.6 pypy3.5-5.9.0
 	pip3 install -U -r dev_requirements.txt
 
 $(TOXDIRS): test_requirements.txt tox.ini
