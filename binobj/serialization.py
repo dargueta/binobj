@@ -190,27 +190,47 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
         self._hooks = collections.defaultdict(collections.OrderedDict)
 
-    @cast_bitstreams(writable=True)
-    @cast_bitstrings
-    @abc.abstractmethod
-    def dump(self, data, stream, context=None):
+    def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param data:
-            The data to dump.
         :param bitstring.BitStream stream:
             The bit stream to write the serialized data into.
+        :param data:
+            The data to dump. Can be omitted if this is a constant field.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        """
+        if data is None:
+            stream.insert(self._get_null_value())
+            return
+        elif data is DEFAULT:
+            const = self.__options__.get('const', UNDEFINED)
+            if const is UNDEFINED:
+                raise errors.MissingRequiredValueError(field=self)
+            return self.dump(stream, const, context)
+
+        return self._do_dump(stream, data, context)
+
+    @abc.abstractmethod
+    def _do_dump(self, stream, data, context):
+        """Convert the given data into bytes and write it to ``stream``.
+
+        :param bitstring.BitStream stream:
+            The bit stream to write the serialized data into.
+        :param data:
+            The data to dump. Guaranteed to not be ``None``.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
 
     @cast_bitstrings
-    def dumps(self, data, context=None):
+    def dumps(self, data=DEFAULT, context=None):
         """Convert the given data into bytes.
 
         :param data:
-            The data to dump.
+            The data to dump. Can be omitted if this is a constant field.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -219,7 +239,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :rtype: bytes
         """
         stream = bitstring.BitStream()
-        self.dump(data, stream, context)
+        self.dump(stream, data, context)
         return stream.tobytes()
 
     @cast_bitstreams(writable=False)
@@ -402,20 +422,18 @@ class SerializableScalar(Serializable):
         return loaded_value
 
     @cast_bitstreams(writable=True)
-    def dump(self, data, stream, context=None):
+    def _do_dump(self, stream, data, context):
         """Write this field into a bit stream.
 
-        :param data:
-            The value to serialize.
         :param bitstring.BitStream stream:
             The stream to write the serialized representation of ``value`` into.
+        :param data:
+            The value to serialize. Guaranteed to not be ``None``.
         :param context:
             Optional. Additional data passed by the caller that can be used by
             this function.
         """
-        if data is None:
-            stream.insert(self._get_null_value())
-        elif isinstance(data, bytes):
+        if isinstance(data, bytes):
             stream.insert(data)
         else:
             raise errors.UnserializableValueError(
@@ -455,13 +473,13 @@ class SerializableContainer(Serializable):
         super().__init__(**kwargs)
 
     @cast_bitstreams(writable=True)
-    def dump(self, data, stream, context=None):
+    def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param dict data:
-            The data to dump.
         :param bitstring.BitStream stream:
             A stream to write the serialized data into.
+        :param dict data:
+            The data to dump.
         :param context:
             Additional data to pass to the :meth:`dump` function.
         """
@@ -482,7 +500,7 @@ class SerializableContainer(Serializable):
                     raise errors.MissingRequiredValueError(field=component)
                 value = default
 
-            component.dump(value, stream, context)
+            component.dump(stream, value, context)
 
     @cast_bitstreams(writable=False)
     def load(self, stream, context=None):
@@ -560,7 +578,7 @@ class SerializableContainer(Serializable):
         return result
 
     @cast_bitstreams(writable=True)
-    def partial_dump(self, data, stream, last_field=None, context=None):
+    def partial_dump(self, stream, data, last_field=None, context=None):
         """Partially dump the object, up to and including the last named field.
 
         All fields up to and including the field named in ``last_field`` will be
@@ -569,10 +587,10 @@ class SerializableContainer(Serializable):
         If ``last_field`` isn't given, as many fields will be serialized as
         possible up to the first missing one.
 
-        :param dict data:
-            The data to dump.
         :param bitstring.BitStream stream:
             The stream to dump into.
+        :param dict data:
+            The data to dump.
         :param str last_field:
             The name of the last field in the object to dump.
         :param context:
@@ -597,7 +615,7 @@ class SerializableContainer(Serializable):
                     raise errors.MissingRequiredValueError(field=field)
 
             value = data.get(field.name, field.__options__['default'])
-            field.dump(value, stream, context)
+            field.dump(stream, value, context)
 
             if field.name == last_field:
                 return
@@ -655,20 +673,19 @@ class SerializableSequence(Serializable):
             return True
         return False
 
-    @cast_bitstreams(writable=True)
-    def dump(self, data, stream, context=None):
+    def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param list data:
-            The data to dump.
         :param bitstring.BitStream stream:
             A bit stream to write the serialized data into.
+        :param list data:
+            The data to dump.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
         for value in data:
-            self._component.dump(value, stream, context)
+            self._component.dump(stream, value, context)
 
     @cast_bitstreams(writable=False)
     def load(self, stream, context=None):

@@ -185,9 +185,9 @@ def test_partial_dump__basic():
     struct = BasicStruct()
     stream = bitstring.BitStream()
 
-    struct.partial_dump(data, stream)
+    struct.partial_dump(stream, data)
     assert stream.tobytes() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
 
     stream.clear()
-    struct.partial_dump(data, stream, 'int64')
+    struct.partial_dump(stream, data, 'int64')
     assert stream.tobytes() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'

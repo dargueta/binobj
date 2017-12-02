@@ -118,13 +118,13 @@ class Integer(Field):
             raise errors.UnexpectedEOFError(
                 field=self, size=self._n_bits, offset=stream.pos)
 
-    def dump(self, value, stream, context=None):  # pylint: disable=unused-argument
+    def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump an integer to the given stream.
 
-        :param int value:
-            The value to dump into the stream.
         :param bitstring.BitStream stream:
             The stream to write to.
+        :param int value:
+            The value to dump into the stream.
         :param context:
             Additional information to pass to this method.
         """
@@ -178,12 +178,8 @@ class VariableLengthInteger(Integer):
         except bitstring.ReadError:
             raise errors.UnexpectedEOFError(field=self, size=8, offset=stream.pos)
 
-    def dump(self, value, stream, context=None):    # pylint: disable=unused-argument
+    def _do_dump(self, stream, value, context):    # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
-        if value is None:
-            stream.insert(self._get_null_value())
-            return
-
         try:
             stream.insert(self._encode_integer_fn(value))
         except bitstring.ReadError:
@@ -286,25 +282,22 @@ class String(Field):
         to_load = self._read_exact_size(stream)
         return to_load.bytes.decode(self.encoding)
 
-    def dump(self, value, stream, context=None):  # pylint: disable=unused-argument
+    def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump a fixed-length string into the stream."""
-        if value is None:
-            to_dump = self._get_null_value()
-        else:
-            to_dump = value.encode(self.encoding)
-            if len(to_dump) > self._n_bytes and not self.truncate:
+        to_dump = value.encode(self.encoding)
+        if len(to_dump) > self._n_bytes and not self.truncate:
+            raise errors.ValueSizeError(field=self, value=to_dump)
+        elif len(to_dump) < self._n_bytes:
+            if self.fill_byte is None:
                 raise errors.ValueSizeError(field=self, value=to_dump)
-            elif len(to_dump) < self._n_bytes:
-                if self.fill_byte is None:
-                    raise errors.ValueSizeError(field=self, value=to_dump)
 
-                padding = (self.fill_byte * (self._n_bytes - len(to_dump)))
-                if self.align_left:
-                    to_dump += padding
-                else:
-                    to_dump = padding + to_dump
+            padding = (self.fill_byte * (self._n_bytes - len(to_dump)))
+            if self.align_left:
+                to_dump += padding
             else:
-                to_dump = to_dump[:self._n_bytes]
+                to_dump = padding + to_dump
+        else:
+            to_dump = to_dump[:self._n_bytes]
 
         stream.insert(to_dump)
 
@@ -333,8 +326,5 @@ class StringZ(String):
 
         return string.decode(self.encoding)
 
-    def dump(self, value, stream, context=None):
-        if value is None:
-            stream.insert(self._get_null_value())
-        else:
-            stream.insert(value.encode(self.encoding) + b'\0')
+    def _do_dump(self, stream, value, context):
+        stream.insert(value.encode(self.encoding) + b'\0')
