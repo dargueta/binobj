@@ -10,6 +10,7 @@ TOXDIRS=.tox
 # TODO (dargueta): OSX must install PyPy from source so this will break.
 .PHONY: dev_setup
 dev_setup:
+	pyenv update
 	pyenv install -s 3.6.3
 	pyenv install -s 3.5.4
 	pyenv install -s 3.4.7
