@@ -80,6 +80,21 @@ class Field(serialization.SerializableScalar):
         return '%s::%s(name=%r)' % (
             (self.struct_class.__name__, type(self).__name__, self.name))
 
+    def load(self, stream, context=None):
+        loaded_value = super().load(stream, context)
+        if self.const is not serialization.UNDEFINED \
+                and loaded_value != self.const:
+            raise errors.ValidationError(field=self, value=loaded_value)
+        return loaded_value
+
+    def dump(self, stream, data=serialization.DEFAULT, context=None):
+        if data is serialization.DEFAULT:
+            if self.const is serialization.UNDEFINED:
+                raise errors.MissingRequiredValueError(field=self)
+            data = self.const
+
+        super().dump(stream, data, context)
+
 
 _INT_BIT_TYPEID = {
     ('little', True): 'intle',
@@ -91,6 +106,13 @@ _INT_BIT_TYPEID = {
 
 class Bytes(Field):
     """Raw binary data."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.const is not serialization.UNDEFINED:
+            self._n_bits = len(self.const) * 8
+            self._n_bytes = len(self.const)
+
     def _do_load(self, stream, context):
         data = stream.read(self._n_bits)
         return data.tobytes()

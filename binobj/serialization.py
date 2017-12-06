@@ -204,14 +204,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         """
         if data is None:
             stream.insert(self._get_null_value())
-            return
-        elif data is DEFAULT:
-            const = self.__options__.get('const', UNDEFINED)
-            if const is UNDEFINED:
-                raise errors.MissingRequiredValueError(field=self)
-            return self.dump(stream, const, context)
-
-        return self._do_dump(stream, data, context)
+        else:
+            return self._do_dump(stream, data, context)
 
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
