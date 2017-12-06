@@ -61,7 +61,7 @@ def png_file():
 
 def test_basic_bmp__loads(bmp_file):
     loader = SimpleBMPFileHeader()
-    output = loader.loads(bmp_file)
+    output = loader.loads(bmp_file, exact=False)
 
     assert output == {
         'magic': b'BM',

@@ -81,6 +81,7 @@ class Field(serialization.SerializableScalar):
             (self.struct_class.__name__, type(self).__name__, self.name))
 
     def load(self, stream, context=None):
+        # TODO (dargueta): Change this to a validator instead.
         loaded_value = super().load(stream, context)
         if self.const is not serialization.UNDEFINED \
                 and loaded_value != self.const:

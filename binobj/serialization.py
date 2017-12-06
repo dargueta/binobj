@@ -267,28 +267,30 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         """
 
     @cast_bitstrings
-    def loads(self, byte_string, context=None, exact=False):
+    def loads(self, data, context=None, exact=True):
         """Load from the given byte string.
 
-        :param byte_string:
-            A bytes-like object to get the data from, either `bytes` or a
-            `bytearray`.
+        :param data:
+            A bytes-like object to get the data from, either a :class:`bytes`,
+            :class:`bytearray`, or :class:`bitstring.Bits`.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         :param bool exact:
-            ``byte_string`` must contain exactly the number of bytes required.
-            If not all the bytes in ``byte_string`` were used when reading the
-            struct, throw an exception.
+            ``data`` must contain exactly the number of bits required. If not
+            all the bits in ``data`` were used when reading the struct, throw an
+            exception.
 
         :return: The deserialized data.
         """
-        stream = bitstring.ConstBitStream(bytes=byte_string)
+        stream = bitstring.ConstBitStream(data)
         loaded_data = self.load(stream, context)
 
         if exact and (stream.pos < stream.length - 1):
             # TODO (dargueta): Better error message.
-            raise errors.ExtraneousDataError()
+            raise errors.ExtraneousDataError(
+                'Expected to read %d bits, read %d.'
+                % (stream.length - 1, stream.pos))
         return loaded_data
 
     def before_load(self, method):
