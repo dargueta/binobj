@@ -75,6 +75,9 @@ _INT_BIT_TYPEID = {
 
 class Bytes(Field):
     """Raw binary data."""
+    def _do_load(self, stream, context):
+        data = stream.read(self._n_bits)
+        return data.tobytes()
 
 
 class Integer(Field):
@@ -101,17 +104,8 @@ class Integer(Field):
 
         super().__init__(**kwargs)
 
-    def load(self, stream, context=None):     # pylint: disable=unused-argument
-        """Load an integer from the given stream.
-
-        :param bitstring.ConstBitStream stream:
-            The stream to load from.
-        :param context:
-            Additional information to pass to this method.
-
-        :return: The loaded integer.
-        :rtype: int
-        """
+    def _do_load(self, stream, context):     # pylint: disable=unused-argument
+        """Load an integer from the given stream."""
         try:
             return stream.read('%s:%d' % (self._type_id, self._n_bits))
         except bitstring.ReadError:
@@ -119,15 +113,7 @@ class Integer(Field):
                 field=self, size=self._n_bits, offset=stream.pos)
 
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
-        """Dump an integer to the given stream.
-
-        :param bitstring.BitStream stream:
-            The stream to write to.
-        :param int value:
-            The value to dump into the stream.
-        :param context:
-            Additional information to pass to this method.
-        """
+        """Dump an integer to the given stream."""
         kwarg = {self._type_id: value}
         bits = bitstring.Bits(length=self._n_bits, **kwarg)
         stream.insert(bits)
@@ -171,7 +157,7 @@ class VariableLengthInteger(Integer):
                          signed=signed,
                          **kwargs)
 
-    def load(self, stream, context=None):   # pylint: disable=unused-argument
+    def _do_load(self, stream, context):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
         try:
             return self._decode_integer_fn(self, stream)
@@ -277,7 +263,7 @@ class String(Field):
         self.align_left = align_left
         super().__init__(**kwargs)
 
-    def load(self, stream, context=None):  # pylint: disable=unused-argument
+    def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream)
         return to_load.bytes.decode(self.encoding)
@@ -313,7 +299,7 @@ class StringZ(String):
         This will fail for encodings using multiple bytes to represent a null,
         such as UTF-16 and UTF-32.
     """
-    def load(self, stream, context=None):
+    def _do_load(self, stream, context):
         string = b''
         char = stream.read(8)
 

@@ -193,8 +193,9 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param bitstring.BitStream stream:
-            The bit stream to write the serialized data into.
+        :param stream:
+            The stream to write the serialized data into. Can be either an
+            :class:`io.BytesIO` stream or a :class:`bitstring.BitStream`.
         :param data:
             The data to dump. Can be omitted if this is a constant field.
         :param context:
@@ -212,7 +213,6 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
         return self._do_dump(stream, data, context)
 
-    @abc.abstractmethod
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
@@ -224,6 +224,12 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
+        if isinstance(data, (bytes, bytearray)):
+            stream.insert(data)
+        else:
+            raise errors.UnserializableValueError(
+                reason='Unhandled data type: ' + type(data).__name__,
+                field=self, value=data)
 
     @cast_bitstrings
     def dumps(self, data=DEFAULT, context=None):
@@ -243,14 +249,31 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         return stream.tobytes()
 
     @cast_bitstreams(writable=False)
-    @abc.abstractmethod
     def load(self, stream, context=None):
-        """Load a structure from the given byte stream.
+        """Load data from the given stream.
 
-        :param bitstring.ConstBitStream stream:
-            A bit stream to read data from.
+        :param stream:
+            The stream to load data from. Can be either an :class:`io.BytesIO`
+            stream or a :class:`bitstring.ConstBitStream`.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+
+        :return: The deserialized data.
+        """
+        loaded_value = self._do_load(stream, context)
+        if loaded_value == self.__options__['null_value']:
+            return None
+        return loaded_value
+
+    @abc.abstractmethod
+    def _do_load(self, stream, context):
+        """Load from the given stream.
+
+        :param bitstring.ConstBitStream stream:
+            A stream to read data from.
+        :param context:
+            Additional data passed to :meth:`load`. Subclasses must ignore
             anything they don't recognize.
 
         :return: The deserialized data.
@@ -258,7 +281,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
     @cast_bitstrings
     def loads(self, byte_string, context=None, exact=False):
-        """Load a structure from the given byte stream.
+        """Load from the given byte string.
 
         :param byte_string:
             A bytes-like object to get the data from, either `bytes` or a
@@ -404,45 +427,11 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
 class SerializableScalar(Serializable):
     """A serialization class for single values."""
-    @cast_bitstreams(writable=False)
-    def load(self, stream, context=None):
-        """Load a value from a byte stream.
-
-        :param bitstring.ConstBitStream stream:
-            The stream to read the next value from.
-        :param context:
-            Optional. Additional data passed by the caller that can be used by
-            this function.
-
-        :return: The deserialized value.
-        """
-        loaded_value = stream.read(self._n_bits)
-        if loaded_value == self.__options__['null_value']:
-            return None
-        return loaded_value
-
-    @cast_bitstreams(writable=True)
-    def _do_dump(self, stream, data, context):
-        """Write this field into a bit stream.
-
-        :param bitstring.BitStream stream:
-            The stream to write the serialized representation of ``value`` into.
-        :param data:
-            The value to serialize. Guaranteed to not be ``None``.
-        :param context:
-            Optional. Additional data passed by the caller that can be used by
-            this function.
-        """
-        if isinstance(data, bytes):
-            stream.insert(data)
-        else:
-            raise errors.UnserializableValueError(
-                reason='Unhandled data type: ' + type(data).__name__,
-                field=self, value=data)
+    # TODO (dargueta): I feel like I'm supposed to be doing something here.
 
 
 class SerializableContainer(Serializable):
-    """A serialization mixin class for container-like objects.
+    """A serialization class for container-like objects.
 
     :param list components:
         Optional. A list of :class:`Serializable` objects to use for this
@@ -472,7 +461,6 @@ class SerializableContainer(Serializable):
 
         super().__init__(**kwargs)
 
-    @cast_bitstreams(writable=True)
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
@@ -502,8 +490,7 @@ class SerializableContainer(Serializable):
 
             component.dump(stream, value, context)
 
-    @cast_bitstreams(writable=False)
-    def load(self, stream, context=None):
+    def _do_load(self, stream, context=None):
         """Load a structure from the given byte stream.
 
         :param bitstring.ConstBitStream stream:
@@ -687,8 +674,7 @@ class SerializableSequence(Serializable):
         for value in data:
             self._component.dump(stream, value, context)
 
-    @cast_bitstreams(writable=False)
-    def load(self, stream, context=None):
+    def _do_load(self, stream, context=None):
         """Load a structure list from the given stream.
 
         :param bitstring.ConstBitStream stream:
