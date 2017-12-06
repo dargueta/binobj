@@ -31,17 +31,33 @@ class Field(serialization.SerializableScalar):
         The default value to use if a value for this field isn't passed to the
         struct for serialization. If ``required`` is ``False`` and no default is
         given, null bytes will be used to fill the space required.
+
+        This argument *must* be of the same type as the field, i.e. it must be
+        a string for a :class:`String`, an integer for an :class:`Integer`, and
+        so on.
     :param bool discard:
         When deserializing, don't include this field in the returned results.
+    :param const:
+        A constant value this field is expected to take. It will always have
+        this value when dumped, and will fail validation if the field isn't this
+        value when loaded. Useful for reserved fields and file tags.
+
+        This argument *must* be of the same type as the field, i.e. it must be
+        a string for a :class:`String`, an integer for an :class:`Integer`, and
+        so on.
     """
     def __init__(self, *, name=None, required=True, allow_null=True,
-                 null_value=serialization.DEFAULT, discard=False, **kwargs):
+                 null_value=serialization.DEFAULT,
+                 default=serialization.DEFAULT, discard=False,
+                 const=serialization.UNDEFINED, **kwargs):
         if not allow_null and null_value is serialization.DEFAULT:
             null_value = serialization.UNDEFINED
 
         self.name = name
         self.required = required
+        self.default = default
         self.discard = discard
+        self.const = const
 
         # The following fields are set by the struct metaclass after the field
         # is instantiated.
