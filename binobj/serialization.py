@@ -90,7 +90,7 @@ class SerializableMeta(abc.ABCMeta):
 
 def cast_bitstrings(func):
     """A decorator that converts all :class:`bytes` and :class:`bytearray`
-    arguments into `bitstring.Bits`."""
+    arguments into :class:`bitstring.Bits`."""
     @functools.wraps(func)
     def _wrapper(*args, **kwargs):
         args = list(args)
@@ -109,7 +109,7 @@ def cast_bitstrings(func):
 
 def cast_bitstreams(*, writable):
     """A decorator that converts all :class:`io.BytesIO` arguments to either a
-    `bitstring.BitStream` or a `bitstring.ConstBitStream`.
+    :class:`bitstring.BitStream` or a :class:`bitstring.ConstBitStream`.
 
     :param bool writable:
         If ``False``, all stream arguments will be read-only. If ``True``, all
