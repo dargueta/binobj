@@ -181,8 +181,6 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         for key, value in _PREDEFINED_KWARGS.items():
             self.__options__.setdefault(key, value)
 
-        self._hooks = collections.defaultdict(collections.OrderedDict)
-
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
@@ -200,7 +198,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         else:
             return self._do_dump(stream, data, context)
 
-    def _do_dump(self, stream, data, context):
+    def _do_dump(self, stream, data, context):  # pylint: disable=unused-argument
         """Convert the given data into bytes and write it to ``stream``.
 
         :param bitstring.BitStream stream:
@@ -292,73 +290,6 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
                 'Expected to read %d bits, read %d.'
                 % (stream.length - 1, stream.pos))
         return loaded_data
-
-    def before_load(self, method):
-        """Decorator that marks a method for execution before this object is
-        loaded.
-
-        The method must take the following arguments:
-
-        - ``stream``: The stream the object is being loaded from.
-        - ``loaded_objects``: An :class:`~collections.OrderedDict` mapping all
-           of the objects read so far in the containing
-           :class:`~binobj.structures.Struct`, :class:`~binobj.structures.Union`,
-           etc.
-        - ``context``: The context object passed to the containing object's
-          :meth:`load` method.
-
-        Usage::
-
-            class MyStruct(Struct):
-                my_field = Integer(n_bytes=3)
-
-                @my_field.before_load
-                def do_something(self, stream, loaded_objects, context):
-                    ...
-        """
-        self._hooks['before_load'][method.__name__] = method
-        return method
-
-    def after_load(self, method):
-        """Decorator that marks a method for execution after this object is
-        loaded.
-
-        The method must take the following arguments:
-
-        - ``stream``: The stream the object is being loaded from.
-        - ``loaded_objects``: An :class:`~collections.OrderedDict` mapping all
-           of the objects read so far in the containing
-           :class:`~binobj.structures.Struct`, :class:`~binobj.structures.Union`,
-           etc. The current object is included in this dict.
-        - ``value``: The value of this object that was just read from the stream.
-          This is provided mainly for convenience since it's also accessible in
-          the ``loaded_objects`` dictionary.
-        - ``context``: The context object passed to the containing object's
-          :meth:`load` method.
-
-        Usage::
-
-            class MyStruct(Struct):
-                my_field = Integer(n_bytes=3)
-
-                @my_field.after_load
-                def do_something(self, stream, value, loaded_objects, context):
-                    ...
-        """
-        self._hooks['after_load'][method.__name__] = method
-        return method
-
-    def before_dump(self, method):
-        """Decorator that marks a method for execution before this object is
-        dumped."""
-        self._hooks['before_dump'][method.__name__] = method
-        return method
-
-    def after_dump(self, method):
-        """Decorator that marks a method for execution after this object is
-        dumped."""
-        self._hooks['after_dump'][method.__name__] = method
-        return method
 
     def _get_null_value(self):
         """Return the serialized value for ``None``.

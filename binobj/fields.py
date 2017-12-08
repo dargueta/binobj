@@ -114,7 +114,7 @@ class Bytes(Field):
             self._n_bits = len(self.const) * 8
             self._n_bytes = len(self.const)
 
-    def _do_load(self, stream, context):
+    def _do_load(self, stream, context):    # pylint: disable=unused-argument
         data = stream.read(self._n_bits)
         return data.tobytes()
 
