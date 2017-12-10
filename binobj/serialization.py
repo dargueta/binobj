@@ -196,7 +196,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         if data is None:
             stream.insert(self._get_null_value())
         else:
-            return self._do_dump(stream, data, context)
+            self._do_dump(stream, data, context)
 
     def _do_dump(self, stream, data, context):  # pylint: disable=unused-argument
         """Convert the given data into bytes and write it to ``stream``.
@@ -403,10 +403,14 @@ class SerializableContainer(Serializable):
             if value is UNDEFINED:
                 # Caller didn't pass a value for this component. If a default
                 # value is defined, use it. Otherwise, crash.
+                const = component.__options__['const']
                 default = component.__options__['default']
-                if default is UNDEFINED:
+                if const is not UNDEFINED:
+                    value = const
+                elif default is not UNDEFINED:
+                    value = default
+                else:
                     raise errors.MissingRequiredValueError(field=component)
-                value = default
 
             component.dump(stream, value, context)
 

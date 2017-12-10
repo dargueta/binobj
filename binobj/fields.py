@@ -10,6 +10,8 @@ from binobj import errors
 from binobj import varints
 from binobj import serialization
 
+from binobj.serialization import DEFAULT, UNDEFINED
+
 
 class Field(serialization.SerializableScalar):
     """The base class for all struct fields.
@@ -46,18 +48,9 @@ class Field(serialization.SerializableScalar):
         a string for a :class:`String`, an integer for an :class:`Integer`, and
         so on.
     """
-    def __init__(self, *, name=None, required=True, allow_null=True,
-                 null_value=serialization.DEFAULT,
-                 default=serialization.DEFAULT, discard=False,
-                 const=serialization.UNDEFINED, **kwargs):
-        if not allow_null and null_value is serialization.DEFAULT:
-            null_value = serialization.UNDEFINED
-
+    def __init__(self, *, name=None, **kwargs):
+        super().__init__(**kwargs)
         self.name = name
-        self.required = required
-        self.default = default
-        self.discard = discard
-        self.const = const
 
         # The following fields are set by the struct metaclass after the field
         # is instantiated.
@@ -74,7 +67,17 @@ class Field(serialization.SerializableScalar):
         #: this will be ``None``.
         self.offset = None  # type: int
 
-        super().__init__(allow_null=allow_null, null_value=null_value, **kwargs)
+    @property
+    def default(self):
+        return self.__options__.setdefault('default', UNDEFINED)
+
+    @property
+    def discard(self):
+        return self.__options__.setdefault('discard', False)
+
+    @property
+    def const(self):
+        return self.__options__.setdefault('const', UNDEFINED)
 
     def __str__(self):
         return '%s::%s(name=%r)' % (
@@ -83,16 +86,18 @@ class Field(serialization.SerializableScalar):
     def load(self, stream, context=None):
         # TODO (dargueta): Change this to a validator instead.
         loaded_value = super().load(stream, context)
-        if self.const is not serialization.UNDEFINED \
-                and loaded_value != self.const:
+        if self.const is not UNDEFINED and loaded_value != self.const:
             raise errors.ValidationError(field=self, value=loaded_value)
         return loaded_value
 
-    def dump(self, stream, data=serialization.DEFAULT, context=None):
-        if data is serialization.DEFAULT:
-            if self.const is serialization.UNDEFINED:
+    def dump(self, stream, data=DEFAULT, context=None):
+        if data is DEFAULT:
+            if self.const is not UNDEFINED:
+                data = self.const
+            elif self.default is not UNDEFINED:
+                data = self.default
+            else:
                 raise errors.MissingRequiredValueError(field=self)
-            data = self.const
 
         super().dump(stream, data, context)
 
@@ -110,7 +115,7 @@ class Bytes(Field):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.const is not serialization.UNDEFINED:
+        if self.const is not UNDEFINED:
             self._n_bits = len(self.const) * 8
             self._n_bytes = len(self.const)
 
