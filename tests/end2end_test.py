@@ -104,3 +104,29 @@ def test_basic_bmp__load(constructor, bmp_file):
         'n_palette_colors': 0,
         'n_important_colors': 0,
     }
+
+
+def test_basic_bmp__dumps(bmp_file):
+    """Writing the same data that's in the header should result in an identical
+    header."""
+    header_data = {
+        'file_size': len(bmp_file),
+        'pixels_offset': 54,
+        'header_size': 40,
+        'image_width': 80,
+        'image_height': 60,
+        'n_color_planes': 1,
+        'n_bits_per_pixel': 24,
+        'compression_method': 0,
+        'bitmap_size': 14400,
+        'v_resolution': 2835,
+        'h_resolution': 2835,
+        'n_palette_colors': 0,
+        'n_important_colors': 0,
+    }
+
+    loader = SimpleBMPFileHeader()
+    output = loader.dumps(header_data)
+
+    assert len(output) == 40, 'Header is wrong size.'
+    assert output == bmp_file[:40], 'Data mismatch.'
