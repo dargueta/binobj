@@ -5,16 +5,14 @@ import collections.abc
 import bitstring
 import pytest
 
-from binobj import errors
-from binobj import fields
-from binobj import structures
+import binobj
 
 
-class BasicStruct(structures.Struct):
+class BasicStruct(binobj.Struct):
     """A basic structure."""
-    string = fields.String(n_bytes=7)
-    int64 = fields.Int64(endian='big')
-    uint24 = fields.UnsignedInteger(n_bytes=3, endian='little')
+    string = binobj.String(n_bytes=7)
+    int64 = binobj.Int64(endian='big')
+    uint24 = binobj.UnsignedInteger(n_bytes=3, endian='little')
 
 
 def test_basic__fields_loaded():
@@ -57,7 +55,7 @@ def test_load__short_read():
     """Crash if we don't have enough data to read all the fields."""
     stream = bitstring.BitStream(bytes=b'abcdefg\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
 
-    with pytest.raises(errors.UnexpectedEOFError) as errinfo:
+    with pytest.raises(binobj.UnexpectedEOFError) as errinfo:
         BasicStruct().load(stream)
 
     exc = errinfo.value
@@ -115,7 +113,7 @@ def test_partial_load__short_read_of_required():
     stream = bitstring.BitStream(bytes=b'zyxwvut\x0b\xad')
 
     # int64 should be the last field included in the output.
-    with pytest.raises(errors.UnexpectedEOFError):
+    with pytest.raises(binobj.UnexpectedEOFError):
         BasicStruct().partial_load(stream, 'int64')
 
 
@@ -157,7 +155,7 @@ def test_dump__extra_fields(extra_fields):
     # Add in the extra keys we can't keep
     data.update({k: 0 for k in extra_fields})
 
-    with pytest.raises(errors.UnexpectedValueError) as errinfo:
+    with pytest.raises(binobj.UnexpectedValueError) as errinfo:
         BasicStruct().dumps(data)
 
     assert errinfo.value.names == extra_fields
@@ -170,7 +168,7 @@ def test_dump__missing_fields():
         'uint24': 65535,
     }
 
-    with pytest.raises(errors.MissingRequiredValueError) as errinfo:
+    with pytest.raises(binobj.MissingRequiredValueError) as errinfo:
         BasicStruct().dumps(data)
 
     assert errinfo.value.field is BasicStruct.int64
@@ -191,3 +189,20 @@ def test_partial_dump__basic():
     stream.clear()
     struct.partial_dump(stream, data, 'int64')
     assert stream.tobytes() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
+
+
+def test_sequence__basic():
+    """Test deserializing a list of stuff."""
+    sequence = binobj.SerializableSequence(binobj.UInt8())
+    result = sequence.loads(b'\xde\xad\xbe\xef')
+    assert result == [0xde, 0xad, 0xbe, 0xef]
+
+
+def test_sequence__sentinel():
+    """Test deserializing a sequence that has a sentinel terminator."""
+    halt = lambda _seq, _str, loaded, _ctx: loaded and (loaded[-1] == 0xdead)
+    sequence = binobj.SerializableSequence(binobj.UInt16(endian='little'),
+                                           halt_check=halt)
+
+    result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
+    assert result == [0, 0xff, 0xdead]
