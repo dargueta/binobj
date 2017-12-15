@@ -98,20 +98,22 @@ To set up your development environment, you'll need to install a few things.
   * Debian systems (e.g. Ubuntu): ``sudo apt-get install make``
   * Windows: Use `Cygwin <https://www.cygwin.com/>`_ and install it during setup.
 
-Once you have those installed, in the *root directory* of this repo run:
+Once you have those installed, in the root directory of this repo run:
 
 .. code-block:: sh
 
     make setup
 
+If you're running on a Mac and don't already have PyPy3 installed, this can take
+a *very* long time. There's no prebuilt binary for it on OSX so you need to
+build it from the source. This can take over an hour even on a new machine.
+
 
 Running the Tests
 ~~~~~~~~~~~~~~~~~
 
-To run the unit tests for all supported versions of Python, run ``tox``. If you
-made a change to the package requirements (in ``setup.py`` or ``test_requirements.txt``)
-then you'll need to rebuild the environment. Use ``tox -r`` to rebuild them and
-run the tests.
+To run the unit tests for all supported versions of Python, run ``make test``.
+The environments will automatically be rebuilt if needed.
 
 License
 -------
