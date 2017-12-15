@@ -52,5 +52,5 @@ docs: $(SOURCEFILES) $(DOCSSOURCE)
 .PHONY: clean
 clean:
 	git clean -fd $(DOCSSOURCE)
-	rm -rf .tox .cache *.egg-info
-
+	rm -rf .tox .cache *.egg-info .coverage
+	find . -name '__pycache__' -type d -print0 | xargs -0 rm -rf
