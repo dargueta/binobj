@@ -31,8 +31,8 @@ $(ENVFILE):
 	pyenv local $(PYTHON_VERSIONS)
 	pip3 install -U pip setuptools
 
-.PHONY: dev_deps
-dev_deps: $(ENVFILE)
+.PHONY: setup
+setup: $(ENVFILE) dev_requirements.txt
 	pip3 install -U -r dev_requirements.txt
 
 $(TOXDIRS): test_requirements.txt tox.ini
