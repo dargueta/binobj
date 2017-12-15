@@ -35,18 +35,21 @@ $(ENVFILE):
 setup: $(ENVFILE) dev_requirements.txt
 	pip3 install -U -r dev_requirements.txt
 
-$(TOXDIRS): test_requirements.txt tox.ini
+$(TOXDIRS): dev_requirements.txt test_requirements.txt tox.ini
 	detox -r --notest
 
-test: $(TOXDIRS)
+test: $(TOXDIRS) $(SOURCEFILES)
 	detox
 
 lint: $(SOURCEFILES)
 	pylint --disable=fixme $(SOURCEDIR)
 
-docs: $(SOURCEFILES) $(DOCSSOURCE)
+$(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 	sphinx-apidoc --ext-autodoc --ext-intersphinx -M -f -o $(DOCSSOURCE) -e $(SOURCEDIR)
 	sphinx-build $(DOCSSOURCE) $(DOCSTARGET)
+
+.PHONY: docs
+docs: $(DOCSTARGET)
 
 # TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean
