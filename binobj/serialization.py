@@ -536,7 +536,7 @@ class SerializableSequence(Serializable):
     """A serialization class for objects that're sequences of other objects."""
     __component__ = None    # type: Serializable
 
-    def __init__(self, *, component=None, count=None, **kwargs):
+    def __init__(self, component=None, *, count=None, halt_check=None, **kwargs):
         self._component = component or self.__component__
         if self._component is None:
             raise errors.FieldConfigurationError(
@@ -546,9 +546,11 @@ class SerializableSequence(Serializable):
                 field=self)
 
         self.count = count
+        self.halt_check = halt_check or self._should_halt
         super().__init__(**kwargs)
 
-    def _should_halt(self, stream, loaded, context):    # pylint: disable=unused-argument
+    @staticmethod
+    def _should_halt(seq, stream, loaded, context):    # pylint: disable=unused-argument
         """Determine if the deserializer should stop reading from the input.
 
         The default implementation does the following:
@@ -560,6 +562,8 @@ class SerializableSequence(Serializable):
           ``count`` isn't an integer, the function returns ``True`` if there's
           any data left in the stream.
 
+        :param SerializableSequence seq:
+            The sequence being checked.
         :param bitstring.ConstBitStream stream:
             The data stream to read from. Except in rare circumstances, this is
             the same stream that was passed to :meth:`load`. The stream pointer
@@ -575,8 +579,8 @@ class SerializableSequence(Serializable):
             otherwise.
         :rtype: bool
         """
-        if isinstance(self.count, int):
-            return self.count <= len(loaded)
+        if isinstance(seq.count, int):
+            return seq.count <= len(loaded)
 
         try:
             stream.peek(1)
@@ -611,7 +615,7 @@ class SerializableSequence(Serializable):
         :rtype: list
         """
         result = []
-        while not self._should_halt(stream, result, context):
+        while not self.halt_check(self, stream, result, context):
             result.append(self._component.load(stream, context))
 
         return result
