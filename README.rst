@@ -88,31 +88,21 @@ Setup
 ~~~~~
 
 To set up your development environment, you'll need to install a few things.
-For Python version management, I use `pyenv-virtualenv <https://github.com/pyenv/pyenv-virtualenv>`_.
-Follow the installation instructions there, and then in the *root directory* of
-this repo run:
+
+* For Python version management, I use `pyenv-virtualenv <https://github.com/pyenv/pyenv-virtualenv>`_.
+  Follow the installation instructions there.
+* You'll also need ``make``. Depending on your platform you can install it in
+  one of several ways:
+
+  * macOS: ``brew install make``
+  * Debian systems (e.g. Ubuntu): ``sudo apt-get install make``
+  * Windows: Use `Cygwin <https://www.cygwin.com/>`_ and install it during setup.
+
+Once you have those installed, in the *root directory* of this repo run:
 
 .. code-block:: sh
 
-    # Install all the Python versions this package supports. This will take some
-    # time.
-    pyenv install 3.3.6
-    pyenv install 3.4.7
-    pyenv install 3.5.4
-    pyenv install 3.6.3
-    pyenv install pypy3.5-5.9.0
-
-    pyenv local 3.6.3 3.5.4 3.4.7 3.3.6 pypy3.5-5.9.0
-
-    # Install dependencies you'll need for development
-    pip3 install -r dev_requirements.txt
-
-.. note::
-
-    Mac users: As of right now (2017-11-18) there's no prebuilt binary for pypy.
-    You'll have to install ``pypy3.5-5.9.0-src`` and then use something like
-    ``pypy3.5-5.9.0-g`` in your call to ``pyenv local``. ``pyenv`` will tell you
-    the right version to use.
+    make setup
 
 
 Running the Tests
