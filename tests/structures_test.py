@@ -1,8 +1,10 @@
 """Tests for the structure objects."""
 
-import collections.abc
+# pylint: disable=invalid-name
 
-import bitstring
+import collections.abc
+import io
+
 import pytest
 
 import binobj
@@ -38,7 +40,7 @@ def test_basic__fields_loaded():
 
 
 def test_load__basic():
-    stream = bitstring.BitStream(bytes=b'abcdefg\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01\x02\x03')
+    stream = io.BytesIO(b'abcdefg\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01\x02\x03')
     values = BasicStruct().load(stream)
 
     assert isinstance(values, collections.abc.Mapping)
@@ -53,7 +55,7 @@ def test_load__basic():
 
 def test_load__short_read():
     """Crash if we don't have enough data to read all the fields."""
-    stream = bitstring.BitStream(bytes=b'abcdefg\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
+    stream = io.BytesIO(b'abcdefg\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
 
     with pytest.raises(binobj.UnexpectedEOFError) as errinfo:
         BasicStruct().load(stream)
@@ -66,7 +68,7 @@ def test_load__short_read():
 
 def test_partial_load__bad_column():
     """Crash if an invalid column name is given."""
-    stream = bitstring.BitStream(bytes=b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
+    stream = io.BytesIO(b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
 
     with pytest.raises(ValueError) as errinfo:
         BasicStruct().partial_load(stream, 'lol')
@@ -76,7 +78,7 @@ def test_partial_load__bad_column():
 
 def test_partial_load__short_read():
     """A short read with no defined end field shouldn't crash partial_load()."""
-    stream = bitstring.BitStream(bytes=b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
+    stream = io.BytesIO(b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
 
     # Make sure the correct data was loaded and that the last field was *not*
     # included in the output.
@@ -87,14 +89,13 @@ def test_partial_load__short_read():
     }
 
     # Stream head should've been repositioned properly as well.
-    assert stream.pos == BasicStruct.uint24.offset
-    assert stream[stream.pos:].tobytes() == b'\x01'
+    assert stream.tell() == BasicStruct.uint24.offset
+    assert stream.read() == b'\x01'
 
 
 def test_partial_load__stops():
     """Verify partial_load() stops at the right field."""
-    stream = bitstring.BitStream(
-        bytes=b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01\x02\x03extra data!')
+    stream = io.BytesIO(b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01\x02\x03extra data!')
 
     # int64 should be the last field included in the output.
     loaded = BasicStruct().partial_load(stream, 'int64')
@@ -104,13 +105,13 @@ def test_partial_load__stops():
     }
 
     # Stream head should be at the beginning of the first unread field.
-    assert stream.pos == BasicStruct.uint24.offset
-    assert stream[stream.pos:].tobytes() == b'\x01\x02\x03extra data!'
+    assert stream.tell() == BasicStruct.uint24.offset
+    assert stream.read() == b'\x01\x02\x03extra data!'
 
 
 def test_partial_load__short_read_of_required():
     """Crash if we get a short read on a required field."""
-    stream = bitstring.BitStream(bytes=b'zyxwvut\x0b\xad')
+    stream = io.BytesIO(b'zyxwvut\x0b\xad')
 
     # int64 should be the last field included in the output.
     with pytest.raises(binobj.UnexpectedEOFError):
@@ -119,14 +120,14 @@ def test_partial_load__short_read_of_required():
 
 def test_get_field__basic():
     """Retrieve a field."""
-    stream = bitstring.BitStream(bytes=b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad')
+    stream = io.BytesIO(b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad')
     struct = BasicStruct()
 
     assert struct.get_field(stream, 'int64') == 0x00badc0ffee15bad
-    assert stream.pos == 0, 'Stream head was moved! :('
+    assert stream.tell() == 0, 'Stream head was moved! :('
 
     assert struct.get_field(stream, 'string') == 'zyxwvut'
-    assert stream.pos == 0
+    assert stream.tell() == 0
 
 
 def test_dump__basic():
@@ -181,14 +182,15 @@ def test_partial_dump__basic():
         'int64': 65535,
     }
     struct = BasicStruct()
-    stream = bitstring.BitStream()
+    stream = io.BytesIO()
 
     struct.partial_dump(stream, data)
-    assert stream.tobytes() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
+    assert stream.getvalue() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
 
-    stream.clear()
+    stream.seek(0)
+    stream.truncate()
     struct.partial_dump(stream, data, 'int64')
-    assert stream.tobytes() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
+    assert stream.getvalue() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
 
 
 def test_sequence__basic():

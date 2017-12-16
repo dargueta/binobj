@@ -2,11 +2,8 @@
 
 import abc
 import collections
-import functools
 import io
 import weakref
-
-import bitstring
 
 from binobj import errors
 
@@ -88,60 +85,6 @@ class SerializableMeta(abc.ABCMeta):
         return instance
 
 
-def cast_bitstrings(func):
-    """A decorator that converts all :class:`bytes` and :class:`bytearray`
-    arguments into :class:`bitstring.Bits`."""
-    @functools.wraps(func)
-    def _wrapper(*args, **kwargs):
-        args = list(args)
-
-        for index, value in enumerate(args):
-            if isinstance(value, (bytes, bytearray)):
-                args[index] = bitstring.Bits(bytes=value)
-
-        for key, value in kwargs.items():
-            if isinstance(value, (bytes, bytearray)):
-                kwargs[key] = bitstring.Bits(bytes=value)
-
-        return func(*args, **kwargs)
-    return _wrapper
-
-
-def cast_bitstreams(*, writable):
-    """A decorator that converts all :class:`io.BytesIO` arguments to either a
-    :class:`bitstring.BitStream` or a :class:`bitstring.ConstBitStream`.
-
-    :param bool writable:
-        If ``False``, all stream arguments will be read-only. If ``True``, all
-        will be writeable.
-
-    :rtype: callable
-    """
-    def decorator(func):
-        @functools.wraps(func)
-        def _wrapper(*args, **kwargs):
-            args = list(args)
-
-            for index, value in enumerate(args):
-                if isinstance(value, io.BytesIO):
-                    if writable:
-                        args[index] = bitstring.BitStream()
-                    else:
-                        data = value.read()
-                        args[index] = bitstring.ConstBitStream(bytes=data)
-
-            for key, value in kwargs.items():
-                if isinstance(value, io.BytesIO):
-                    if writable:
-                        kwargs[key] = bitstring.BitStream()
-                    else:
-                        data = value.read()
-                        kwargs[key] = bitstring.ConstBitStream(bytes=data)
-            return func(*args, **kwargs)
-        return _wrapper
-    return decorator
-
-
 class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods."""
     def __init__(self, *, n_bytes=None, n_bits=None, **kwargs):
@@ -184,9 +127,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param stream:
-            The stream to write the serialized data into. Can be either an
-            :class:`io.BytesIO` stream or a :class:`bitstring.BitStream`.
+        :param io.BytesIO stream:
+            The stream to write the serialized data into.
         :param data:
             The data to dump. Can be omitted if this is a constant field.
         :param context:
@@ -194,15 +136,15 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             anything they don't recognize.
         """
         if data is None:
-            stream.insert(self._get_null_value())
+            stream.write(self._get_null_value())
         else:
             self._do_dump(stream, data, context)
 
     def _do_dump(self, stream, data, context):  # pylint: disable=unused-argument
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param bitstring.BitStream stream:
-            The bit stream to write the serialized data into.
+        :param io.BytesIO stream:
+            The stream to write the serialized data into.
         :param data:
             The data to dump. Guaranteed to not be ``None``.
         :param context:
@@ -210,13 +152,12 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             anything they don't recognize.
         """
         if isinstance(data, (bytes, bytearray)):
-            stream.insert(data)
+            stream.write(data)
         else:
             raise errors.UnserializableValueError(
                 reason='Unhandled data type: ' + type(data).__name__,
                 field=self, value=data)
 
-    @cast_bitstrings
     def dumps(self, data=DEFAULT, context=None):
         """Convert the given data into bytes.
 
@@ -229,17 +170,15 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :return: The serialized data, padded to the nearest byte.
         :rtype: bytes
         """
-        stream = bitstring.BitStream()
+        stream = io.BytesIO()
         self.dump(stream, data, context)
-        return stream.tobytes()
+        return stream.getvalue()
 
-    @cast_bitstreams(writable=False)
     def load(self, stream, context=None):
         """Load data from the given stream.
 
-        :param stream:
-            The stream to load data from. Can be either an :class:`io.BytesIO`
-            stream or a :class:`bitstring.ConstBitStream`.
+        :param io.BytesIO stream:
+            The stream to load data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -255,7 +194,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     def _do_load(self, stream, context):
         """Load from the given stream.
 
-        :param bitstring.ConstBitStream stream:
+        :param io.BytesIO stream:
             A stream to read data from.
         :param context:
             Additional data passed to :meth:`load`. Subclasses must ignore
@@ -264,13 +203,11 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :return: The deserialized data.
         """
 
-    @cast_bitstrings
     def loads(self, data, context=None, exact=True):
         """Load from the given byte string.
 
-        :param data:
-            A bytes-like object to get the data from, either a :class:`bytes`,
-            :class:`bytearray`, or :class:`bitstring.Bits`.
+        :param bytes data:
+            A bytes-like object to get the data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -281,14 +218,14 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
         :return: The deserialized data.
         """
-        stream = bitstring.ConstBitStream(data)
+        stream = io.BytesIO(data)
         loaded_data = self.load(stream, context)
 
-        if exact and (stream.pos < stream.length - 1):
+        if exact and (stream.tell() < len(data) - 1):
             # TODO (dargueta): Better error message.
             raise errors.ExtraneousDataError(
-                'Expected to read %d bits, read %d.'
-                % (stream.length - 1, stream.pos))
+                'Expected to read %d bytes, read %d.'
+                % (len(data), stream.tell() + 1))
         return loaded_data
 
     def _get_null_value(self):
@@ -299,7 +236,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         default value is provided.
 
         :return: The serialized form of ``None`` for this field.
-        :rtype: bitstring.Bits
+        :rtype: bytes
         """
         if not self.__options__['allow_null']:
             raise errors.UnserializableValueError(
@@ -319,30 +256,31 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
                 field=self,
                 value=None)
 
-        return bitstring.Bits('0b' + ('0' * self._n_bits))
+        return bytes([0] * self._n_bits)
 
     def _read_exact_size(self, stream):
-        """Read exactly the number of bits this object takes up or crash.
+        """Read exactly the number of bytes this object takes up or crash.
 
-        :param bitstring.ConstBitStream stream: The stream to read from.
+        :param io.BytesIO stream: The stream to read from.
 
-        :return: Exactly ``self.n_bits`` bits are read from the stream.
-        :rtype: bitstring.Bits
+        :return: Exactly ``self.n_bytes`` bytes are read from the stream.
+        :rtype: bytes
 
-        :raise UnexpectedEOFError: Not enough bits were left in the stream.
+        :raise UnexpectedEOFError: Not enough bytes were left in the stream.
         """
-        offset = stream.pos
+        offset = stream.tell()
 
         if self._n_bits is None:
             raise errors.VariableSizedFieldError(field=self, offset=offset)
 
-        n_bits = self._n_bits
+        n_bytes = self._n_bytes
+        data_read = stream.read(n_bytes)
 
-        try:
-            return stream.read(n_bits)
-        except bitstring.ReadError:
+        if len(data_read) < n_bytes:
             raise errors.UnexpectedEOFError(
-                field=self, size=self._n_bits, offset=offset)
+                field=self, size=self._n_bytes, offset=offset)
+
+        return data_read
 
 
 class SerializableScalar(Serializable):
@@ -384,7 +322,7 @@ class SerializableContainer(Serializable):
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param bitstring.BitStream stream:
+        :param io.BytesIO stream:
             A stream to write the serialized data into.
         :param dict data:
             The data to dump.
@@ -417,8 +355,8 @@ class SerializableContainer(Serializable):
     def _do_load(self, stream, context=None):
         """Load a structure from the given byte stream.
 
-        :param bitstring.ConstBitStream stream:
-            A bit stream to read data from.
+        :param io.BytesIO stream:
+            A bytes stream to read data from.
         :param context:
             Additional data to pass to the deserialization function. Subclasses
             must ignore anything they don't recognize.
@@ -434,7 +372,6 @@ class SerializableContainer(Serializable):
 
         return result
 
-    @cast_bitstreams(writable=False)
     def partial_load(self, stream, last_field=None, context=None):
         """Partially load this object, either until EOF or the named field.
 
@@ -446,7 +383,7 @@ class SerializableContainer(Serializable):
         and the stream pointer will be reset to the end of the last complete
         field read.
 
-        :param bitstring.ConstBitStream stream:
+        :param io.BytesIO stream:
             The stream to load from.
         :param str last_field:
             The name of the last field to load in the object. If given, enough
@@ -488,7 +425,6 @@ class SerializableContainer(Serializable):
 
         return result
 
-    @cast_bitstreams(writable=True)
     def partial_dump(self, stream, data, last_field=None, context=None):
         """Partially dump the object, up to and including the last named field.
 
@@ -498,7 +434,7 @@ class SerializableContainer(Serializable):
         If ``last_field`` isn't given, as many fields will be serialized as
         possible up to the first missing one.
 
-        :param bitstring.BitStream stream:
+        :param io.BytesIO stream:
             The stream to dump into.
         :param dict data:
             The data to dump.
@@ -564,7 +500,7 @@ class SerializableSequence(Serializable):
 
         :param SerializableSequence seq:
             The sequence being checked.
-        :param bitstring.ConstBitStream stream:
+        :param io.BytesIO stream:
             The data stream to read from. Except in rare circumstances, this is
             the same stream that was passed to :meth:`load`. The stream pointer
             should be returned to its original position when the function exits.
@@ -582,17 +518,17 @@ class SerializableSequence(Serializable):
         if isinstance(seq.count, int):
             return seq.count <= len(loaded)
 
+        offset = stream.tell()
         try:
-            stream.peek(1)
-        except bitstring.ReadError:
-            return True
-        return False
+            return stream.read(1) == b''
+        finally:
+            stream.seek(offset)
 
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param bitstring.BitStream stream:
-            A bit stream to write the serialized data into.
+        :param io.BytesIO stream:
+            A binary stream to write the serialized data into.
         :param list data:
             The data to dump.
         :param context:
@@ -605,7 +541,7 @@ class SerializableSequence(Serializable):
     def _do_load(self, stream, context=None):
         """Load a structure list from the given stream.
 
-        :param bitstring.ConstBitStream stream:
+        :param io.BytesIO stream:
             A bit stream to read data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore

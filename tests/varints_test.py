@@ -1,6 +1,9 @@
 """Tests for the variable-length integers."""
 
-import bitstring
+# pylint: disable=invalid-name
+
+import io
+
 import pytest
 
 from binobj import varints
@@ -29,9 +32,9 @@ def test_encode_vlq_negative_crashes():
     (b'\x83\xff\x7f', 65535),
 ))
 def test_decode_vlq_basic(serialized, expected):
-    buf = bitstring.BitStream(bytes=serialized)
+    buf = io.BytesIO(serialized)
     assert varints.decode_integer_vlq(buf) == expected
-    assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
+    assert buf.read() == b'', "Buffer wasn't emptied."
 
 
 @pytest.mark.parametrize('value,expected', (
@@ -55,9 +58,9 @@ def test_encode_zigzag_basic(value, expected):
     (b'\xff\xff\xff\xff\x0f', -2147483648),
 ))
 def test_decode_zigzag(serialized, expected):
-    buf = bitstring.BitStream(bytes=serialized)
+    buf = io.BytesIO(serialized)
     assert varints.decode_integer_zigzag(buf) == expected
-    assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
+    assert buf.read() == b'', "Buffer wasn't emptied."
 
 
 @pytest.mark.parametrize('value,expected', (
@@ -78,6 +81,6 @@ def test_encode_compact(value, expected):
     (b'\xb6\xd3\x7c', 895484),
 ))
 def test_decode_compact(serialized, expected):
-    buf = bitstring.BitStream(bytes=serialized)
+    buf = io.BytesIO(serialized)
     assert varints.decode_integer_compact(buf) == expected
-    assert buf.pos == len(serialized) * 8, "Buffer wasn't emptied."
+    assert buf.read() == b'', "Buffer wasn't emptied."

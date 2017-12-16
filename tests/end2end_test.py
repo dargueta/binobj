@@ -1,6 +1,6 @@
 """End-to-end tests for the entire system."""
 
-# pylint: disable=redefined-outer-names
+# pylint: disable=redefined-outer-name
 
 import io
 import os

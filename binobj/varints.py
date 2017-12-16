@@ -57,7 +57,7 @@ def encode_integer_compact(value):
 def decode_integer_compact(stream):
     """Decode an integer with the Unreal Engine Compact Indices encoding.
 
-    :param bitstring.ConstBitStream stream:
+    :param io.BytesIO stream:
         The bit stream to read from.
 
     :return: The decoded integer.
@@ -140,8 +140,8 @@ def encode_integer_vlq(value):
 def decode_integer_vlq(stream):
     """Decode a VLQ-encoded integer from the given stream.
 
-    :param bitstring.ConstBitStream stream:
-        The bit stream to read from.
+    :param io.BytesIO stream:
+        The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -191,8 +191,8 @@ def encode_integer_zigzag(value):
 def decode_integer_zigzag(stream):
     """Decode a ZigZag-encoded integer from the given stream.
 
-    :param bitstring.ConstBitStream stream:
-        The bit stream to read from.
+    :param io.BytesIO stream:
+        The stream to read from.
 
     :return: The decoded integer.
     :rtype: int

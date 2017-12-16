@@ -18,7 +18,7 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
             Unfortunately, this means that unrelated validation errors can be
             thrown if other fields are invalid.
 
-        :param bitstring.ConstBitStream stream:
+        :param io.BytesIO stream:
             The stream to read from. It's assumed that the stream pointer is
             positioned at the start of a struct. The stream pointer is returned
             to its original position even if an exception occurred.
