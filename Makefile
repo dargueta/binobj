@@ -55,7 +55,7 @@ setup: .python-version dev_requirements.txt
 
 .PHONY: lint
 lint: $(SOURCEFILES)
-	tox -e pylint
+	pylint --disable=fixme $(SOURCEDIR) $(TESTDIR)
 
 # TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean
