@@ -1,10 +1,10 @@
 SOURCEDIR=binobj
-SOURCEFILES=$(SOURCEDIR)/*.py setup.py
+SOURCEFILES=$(SOURCEDIR)/*.py
 TESTDIR=tests
 TESTFILES=$(TESTDIR)/*.py tox.ini test_requirements.txt
 DOCSDIR=docs
-DOCSSOURCE=$(DOCSDIR)/source
-DOCSTARGET=$(DOCSDIR)/build
+DOCSSOURCE=$(DOCSDIR)/source/*
+DOCSTARGET=$(DOCSDIR)/build/*
 
 ifeq ($(OS),Windows_NT)
     OPERATING_SYSTEM=WINDOWS
@@ -55,8 +55,8 @@ lint: $(SOURCEFILES)
 .PHONY: clean
 clean:
 	git clean -fd $(DOCSSOURCE)
-	rm -rf .tox .cache *.egg-info .coverage
-	find . -name '__pycache__' -type d -print0 | xargs -0 rm -rf
+	rm -rf .tox .cache *.egg-info *.eggs .coverage $(DOCSTARGET)
+	find . -name '__pycache__' -type d -print0 | xargs -0 rm -r
 
 # Run the unit tests if the source code has changed.
 .PHONY: test
