@@ -30,12 +30,12 @@ def test_basic__fields_loaded():
 
     assert field_list[1].name == 'int64'
     assert field_list[1].index == 1
-    assert field_list[1].offset == 56
+    assert field_list[1].offset == 7
     assert field_list[1].struct_class is not None, "Struct reference isn't set."
 
     assert field_list[2].name == 'uint24'
     assert field_list[2].index == 2
-    assert field_list[2].offset == 120
+    assert field_list[2].offset == 15
     assert field_list[2].struct_class is not None, "Struct reference isn't set."
 
 
@@ -63,7 +63,7 @@ def test_load__short_read():
     exc = errinfo.value
     assert exc.field is BasicStruct.uint24
     assert exc.offset == BasicStruct.uint24.offset
-    assert exc.size == 24
+    assert exc.size == 3
 
 
 def test_partial_load__bad_column():

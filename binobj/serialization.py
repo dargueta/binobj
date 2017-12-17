@@ -74,13 +74,13 @@ class SerializableMeta(abc.ABCMeta):
             if offset is not None:
                 # pylint: disable=protected-access
 
-                # Some fields don't have a fixed size, so `size` will be `None`.
-                # After a variable-length field we can't calculate the offset,
-                # so `offset` will be `None` for the rest of this struct.
-                if field._n_bits is None:
+                # Some fields don't have a fixed size, so `n_bytes` will be
+                # `None`. After a variable-length field we can't calculate the
+                # offset, so `offset` will be `None` for the rest of this struct.
+                if field._n_bytes is None:
                     offset = None
                 else:
-                    offset += field._n_bits
+                    offset += field._n_bytes
 
         return instance
 
@@ -249,14 +249,14 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             return null_value
 
         # User wants us to define the null value for them.
-        if self._n_bits is None:
+        if self._n_bytes is None:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
                        "because it has no fixed size." % self,
                 field=self,
                 value=None)
 
-        return bytes([0] * self._n_bits)
+        return bytes([0] * self._n_bytes)
 
     def _read_exact_size(self, stream):
         """Read exactly the number of bytes this object takes up or crash.
@@ -402,7 +402,7 @@ class SerializableContainer(Serializable):
 
         result = collections.OrderedDict()
         for field in self._components.values():
-            offset = stream.pos
+            offset = stream.tell()
 
             try:
                 value = field.load(stream, context)
@@ -414,7 +414,7 @@ class SerializableContainer(Serializable):
                 # Hit EOF in the middle of reading a field. Since the caller
                 # didn't specify how far we should read, this isn't an error. Go
                 # back to the beginning of this field and return.
-                stream.pos = offset
+                stream.seek(offset)
                 return result
 
             if not field.discard:

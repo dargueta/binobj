@@ -40,16 +40,16 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
             raise ValueError("%s doesn't have a field named %r." % (self, name))
 
         field = self.__components__[name]
-        original_offset = stream.pos
+        original_offset = stream.tell()
 
         # If the field is at a fixed offset from the beginning of the struct,
         # then we can read and return it directly.
         if field.offset is not None:
             try:
-                stream.pos = original_offset + field.offset
+                stream.seek(original_offset + field.offset)
                 return field.load(stream, context)
             finally:
-                stream.pos = original_offset
+                stream.seek(original_offset)
 
         # If we get here then the field is *not* at a fixed offset from the
         # beginning of the struct and we have to read everything up to it. This
@@ -58,7 +58,7 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
         try:
             loaded_data = self.partial_load(stream, name, context)
         finally:
-            stream.pos = original_offset
+            stream.seek(original_offset)
         return loaded_data[name]
 
 
