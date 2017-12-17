@@ -129,22 +129,15 @@ class UnexpectedEOFError(DeserializationError):
     :param Field field:
         The field that failed to be deserialized.
     :param int size:
-        The number of bits that were attempted to be read.
+        The number of bytes that were attempted to be read.
     :param int offset:
         The offset into the input stream/string where the error was encountered,
-        in bits.
+        in bytes.
     """
     def __init__(self, *, field, size, offset):
-        n_bytes = size // 8
-        n_bits = size % 8
-
-        o_bytes = offset // 8
-        o_bits = offset % 8
-
         super().__init__(
-            'Unexpected EOF while trying to read %d bytes, %d bits. %s at '
-            'offset %d bytes, %d bits.'
-            % (size, n_bytes, n_bits, o_bytes, o_bits),
+            'Unexpected EOF while trying to read %d bytes at offset %d.'
+            % (size, offset),
             field=field, offset=offset)
 
         self.size = size
