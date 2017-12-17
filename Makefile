@@ -30,19 +30,13 @@ PYTHON_VERSIONS=3.6.3 3.5.4 3.4.7 3.3.7 $(PYPY3)
 	$(foreach version,$(PYTHON_VERSIONS),pyenv install -s $(version);)
 	pyenv local $(PYTHON_VERSIONS)
 
-.PHONY: venv
-venv: .python-version
-
-.tox: venv setup.cfg dev_requirements.txt test_requirements.txt tox.ini
+.tox: .python-version setup.cfg dev_requirements.txt test_requirements.txt tox.ini
 	detox -r --notest
-
-.PHONY: toxenv
-toxenv: .tox
 
 # Coverage file gets changed on every test run so we can use it to see when the
 # last time tests were run. Don't rerun the tests if the source code, test code,
 # or environment hasn't changed.
-.coverage: toxenv $(SOURCEFILES) $(TESTFILES)
+.coverage: .tox $(SOURCEFILES) $(TESTFILES)
 	detox
 
 $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
