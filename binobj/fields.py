@@ -4,9 +4,8 @@
 
 import sys
 
-import bitstring
-
 from binobj import errors
+from binobj import iohelpers
 from binobj import varints
 from binobj import serialization
 
@@ -101,14 +100,6 @@ class Field(serialization.SerializableScalar):
         super().dump(stream, data, context)
 
 
-_INT_BIT_TYPEID = {
-    ('little', True): 'intle',
-    ('little', False): 'uintle',
-    ('big', True): 'intbe',
-    ('big', False): 'uintbe',
-}
-
-
 class Bytes(Field):
     """Raw binary data."""
     def __init__(self, *args, **kwargs):
@@ -135,31 +126,16 @@ class Integer(Field):
     def __init__(self, *, endian=None, signed=True, **kwargs):
         self.signed = signed
         self.endian = endian or sys.byteorder
-
-        key = (self.endian, self.signed)
-        if key not in _INT_BIT_TYPEID:
-            raise ValueError(
-                'Unrecognized combination of endianness (%r) and signedness (%r). '
-                'Either this is running on a mixed-endian system or an invalid '
-                'value for `endian` or `signed` was passed in.' % key)
-
-        self._type_id = _INT_BIT_TYPEID[key]
-
         super().__init__(**kwargs)
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
-        try:
-            return stream.read('%s:%d' % (self._type_id, self._n_bits))
-        except bitstring.ReadError:
-            raise errors.UnexpectedEOFError(
-                field=self, size=self._n_bits, offset=stream.pos)
+        return iohelpers.read_int(stream, self._n_bytes, self.signed, self.endian)
 
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
-        kwarg = {self._type_id: value}
-        bits = bitstring.Bits(length=self._n_bits, **kwarg)
-        stream.insert(bits)
+        return iohelpers.write_int(stream, value, self._n_bytes, self.signed,
+                                   self.endian)
 
 
 class VariableLengthInteger(Integer):
@@ -202,17 +178,12 @@ class VariableLengthInteger(Integer):
 
     def _do_load(self, stream, context):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
-        try:
-            return self._decode_integer_fn(self, stream)
-        except bitstring.ReadError:
-            raise errors.UnexpectedEOFError(field=self, size=8, offset=stream.pos)
+        return self._decode_integer_fn(self, stream)
 
     def _do_dump(self, stream, value, context):    # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
         try:
-            stream.insert(self._encode_integer_fn(value))
-        except bitstring.ReadError:
-            raise errors.UnexpectedEOFError(field=self, size=8, offset=stream.pos)
+            stream.write(self._encode_integer_fn(value))
         except ValueError as err:
             raise errors.UnserializableValueError(
                 field=self, value=value, reason=str(err))
@@ -309,7 +280,7 @@ class String(Field):
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream)
-        return to_load.bytes.decode(self.encoding)
+        return to_load.decode(self.encoding)
 
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump a fixed-length string into the stream."""
