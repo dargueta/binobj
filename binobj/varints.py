@@ -7,6 +7,8 @@ on Wikipedia.
 import math
 import enum
 
+from binobj import iohelpers
+
 
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
@@ -67,7 +69,7 @@ def decode_integer_compact(stream):
     value = 0
 
     while True:
-        int8 = stream.read('uint:8')
+        int8 = iohelpers.read_uint8(stream)
 
         if sign is None:
             # Sign hasn't been determined yet so this must be the first byte of
@@ -148,7 +150,7 @@ def decode_integer_vlq(stream):
     """
     value = 0
     while True:
-        int8 = stream.read('uint:8')
+        int8 = iohelpers.read_uint8(stream)
 
         value = (value << 7) | (int8 & 0x7f)
         if int8 & 0x80 == 0:
@@ -200,7 +202,7 @@ def decode_integer_zigzag(stream):
     value = 0
     bits_read = 0
     while True:
-        int8 = stream.read('uint:8')
+        int8 = iohelpers.read_uint8(stream)
 
         value |= (int8 & 0x7f) << bits_read
         bits_read += 7
