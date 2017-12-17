@@ -31,6 +31,27 @@ def read_int(stream, n_bytes, signed=True, endian=None):
     return int.from_bytes(data, endian, signed=signed)
 
 
+def write_int(stream, value, n_bytes, signed=True, endian=None):
+    """Write an integer to a stream.
+
+    :param io.BytesIO stream:
+        The stream to write the integer to.
+    :param int value:
+        The integer to dump into the stream.
+    :param bool signed:
+        If ``True``, write this integer in twos-complement format. Otherwise,
+        write it as an unsigned integer.
+    :param str endian:
+        The endianness to use when writing the integer, either ``big`` or
+        ``little``. If not given, will default to the system's native byte order
+        as given by `sys.byteorder`.
+    """
+    if not endian:
+        endian = sys.byteorder
+
+    stream.write(value.to_bytes(n_bytes, signed=signed, byteorder=endian))
+
+
 def read_int8(stream):
     """Load a signed 8-bit integer from the given byte stream."""
     return read_int(stream, 1, signed=True)
