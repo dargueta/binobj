@@ -5,7 +5,6 @@
 import io
 import os
 
-import bitstring
 import pytest
 
 import binobj
@@ -81,10 +80,9 @@ def test_basic_bmp__loads(bmp_file):
     }
 
 
-@pytest.mark.parametrize('constructor', (io.BytesIO, bitstring.ConstBitStream))
-def test_basic_bmp__load(constructor, bmp_file):
-    """Test loading from a stream, both a BytesIO and a ConstBitStream."""
-    stream = constructor(bmp_file)
+def test_basic_bmp__load(bmp_file):
+    """Test loading from a stream."""
+    stream = io.BytesIO(bmp_file)
     loader = SimpleBMPFileHeader()
     output = loader.load(stream)
 
