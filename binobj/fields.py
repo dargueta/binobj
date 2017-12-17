@@ -285,6 +285,7 @@ class String(Field):
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump a fixed-length string into the stream."""
         to_dump = value.encode(self.encoding)
+
         if len(to_dump) > self._n_bytes and not self.truncate:
             raise errors.ValueSizeError(field=self, value=to_dump)
         elif len(to_dump) < self._n_bytes:
@@ -299,7 +300,7 @@ class String(Field):
         else:
             to_dump = to_dump[:self._n_bytes]
 
-        stream.insert(to_dump)
+        stream.write(to_dump)
 
 
 class StringZ(String):
@@ -314,17 +315,17 @@ class StringZ(String):
         such as UTF-16 and UTF-32.
     """
     def _do_load(self, stream, context):
-        string = b''
-        char = stream.read(8)
+        string = bytearray()
+        char = stream.read(1)
 
         while char != b'\0':
             if char == b'':
                 raise errors.UnexpectedEOFError(
-                    field=self, size=1, offset=stream.pos)
-            string += char.tobytes()
-            char = stream.read(8)
+                    field=self, size=1, offset=stream.tell())
+            string.append(char)
+            char = stream.read(1)
 
         return string.decode(self.encoding)
 
     def _do_dump(self, stream, value, context):
-        stream.insert(value.encode(self.encoding) + b'\0')
+        stream.write(value.encode(self.encoding) + b'\0')
