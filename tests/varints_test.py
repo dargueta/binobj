@@ -45,8 +45,14 @@ def test_decode_vlq_basic(serialized, expected):
     (2147483647, b'\xfe\xff\xff\xff\x0f'),
     (-2147483648, b'\xff\xff\xff\xff\x0f'),
 ))
-def test_encode_zigzag_basic(value, expected):
+def test_encode_zigzag__basic(value, expected):
     assert varints.encode_integer_zigzag(value) == expected
+
+
+def test_encode_zigzag__too_big():
+    """We only support integers <= 64 bits for zig-zag encoding."""
+    with pytest.raises(OverflowError):
+        varints.encode_integer_zigzag(2 ** 65)
 
 
 @pytest.mark.parametrize('serialized,expected', (
