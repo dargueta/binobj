@@ -12,9 +12,9 @@ import binobj
 
 class BasicStruct(binobj.Struct):
     """A basic structure."""
-    string = binobj.String(n_bytes=7)
+    string = binobj.String(size=7)
     int64 = binobj.Int64(endian='big')
-    uint24 = binobj.UnsignedInteger(n_bytes=3, endian='little')
+    uint24 = binobj.UnsignedInteger(size=3, endian='little')
 
 
 def test_basic__fields_loaded():

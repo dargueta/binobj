@@ -203,25 +203,25 @@ class UnsignedInteger(Integer):
 class Int8(Integer):
     """An 8-bit signed integer."""
     def __init__(self, **kwargs):
-        super().__init__(n_bytes=1, **kwargs)
+        super().__init__(size=1, **kwargs)
 
 
 class Int16(Integer):
     """A 16-bit signed integer."""
     def __init__(self, **kwargs):
-        super().__init__(n_bytes=2, **kwargs)
+        super().__init__(size=2, **kwargs)
 
 
 class Int32(Integer):
     """A 32-bit signed integer."""
     def __init__(self, **kwargs):
-        super().__init__(n_bytes=4, **kwargs)
+        super().__init__(size=4, **kwargs)
 
 
 class Int64(Integer):
     """A 64-bit signed integer."""
     def __init__(self, **kwargs):
-        super().__init__(n_bytes=8, **kwargs)
+        super().__init__(size=8, **kwargs)
 
 
 class UInt8(Int8):
