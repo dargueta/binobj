@@ -31,6 +31,7 @@ HALT = _NamedSentinel('HALT')
 
 _PREDEFINED_KWARGS = {
     'allow_null': True,
+    'const': UNDEFINED,
     'default': UNDEFINED,
     'null_value': DEFAULT,
 }
