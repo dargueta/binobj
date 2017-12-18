@@ -71,15 +71,7 @@ class SerializableMeta(abc.ABCMeta):
             field.name = f_name
             field.struct_class = weakref.proxy(instance)
             field.offset = offset
-
-            if offset is not None:
-                # Some fields don't have a fixed size, so `size` will be `None`.
-                # After a variable-length field we can't calculate the offset,
-                # so `offset` will be `None` for the rest of this struct.
-                if field.size is None:
-                    offset = None
-                else:
-                    offset += field.size
+            offset += field.size
 
         return instance
 
