@@ -177,7 +177,7 @@ def encode_integer_zigzag(value):
     elif n_bits <= 63:
         int_size = 64
     else:
-        raise ValueError('Number is too large: %r' % value)
+        raise OverflowError('Number is too large: %r' % value)
 
     encoded_value = (value << 1) ^ (value >> (int_size - 1))
 
