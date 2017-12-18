@@ -45,7 +45,7 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
     :param bool signed:
         If ``True``, write this integer in twos-complement format. Otherwise,
         write it as an unsigned integer. A negative ``value`` will trigger an
-        `OverflowError` if this is ``False``.
+        :class:`OverflowError` if this is ``False``.
     :param str endian:
         The endianness to use when writing the integer, either ``big`` or
         ``little``. If not given, will default to the system's native byte order
