@@ -38,18 +38,27 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
         The stream to write the integer to.
     :param int value:
         The integer to dump into the stream.
+    :param int n_bytes:
+        The number of bytes the integer should take up. Exactly this many bytes
+        will be written into the stream, so ensure that there's enough bits to
+        represent ``value``.
     :param bool signed:
         If ``True``, write this integer in twos-complement format. Otherwise,
-        write it as an unsigned integer.
+        write it as an unsigned integer. A negative ``value`` will trigger an
+        `OverflowError` if this is ``False``.
     :param str endian:
         The endianness to use when writing the integer, either ``big`` or
         ``little``. If not given, will default to the system's native byte order
         as given by `sys.byteorder`.
+
+    :raise OverflowError:
+        ``value`` can't be represented only by ``n_bytes`` bytes. The number is
+        too big, or it's negative and ``signed`` is ``False``.
     """
     if not endian:
         endian = sys.byteorder
 
-    stream.write(value.to_bytes(n_bytes, signed=signed, byteorder=endian))
+    stream.write(value.to_bytes(n_bytes, endian, signed=signed))
 
 
 def read_int8(stream):
