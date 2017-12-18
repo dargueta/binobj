@@ -72,37 +72,22 @@ class SerializableMeta(abc.ABCMeta):
             field.offset = offset
 
             if offset is not None:
-                # pylint: disable=protected-access
-
-                # Some fields don't have a fixed size, so `n_bytes` will be
-                # `None`. After a variable-length field we can't calculate the
-                # offset, so `offset` will be `None` for the rest of this struct.
-                if field._n_bytes is None:
+                # Some fields don't have a fixed size, so `size` will be `None`.
+                # After a variable-length field we can't calculate the offset,
+                # so `offset` will be `None` for the rest of this struct.
+                if field.size is None:
                     offset = None
                 else:
-                    offset += field._n_bytes
+                    offset += field.size
 
         return instance
 
 
 class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods."""
-    def __init__(self, *, n_bytes=None, n_bits=None, **kwargs):
-        if n_bytes is not None and n_bits is not None:
-            raise errors.FieldConfigurationError(
-                "Only one of `n_bytes` and `n_bits` can be defined for an "
-                "object. Got n_bytes=%r and n_bits=%r." % (n_bytes, n_bits),
-                field=self)
-
-        if n_bytes:
-            self._n_bytes = n_bytes
-            self._n_bits = n_bytes * 8
-        elif n_bits and n_bits % 8 == 0:
-            self._n_bits = n_bits
-            self._n_bytes = n_bits // 8
-        else:
-            self._n_bits = n_bits
-            self._n_bytes = n_bytes
+    def __init__(self, *, size=None, **kwargs):
+        #: The size of this object, in bytes.
+        self.size = size
 
         #: A dictionary of default options for loading and dumping functions.
         #: Subclasses can override these, and they can also be overridden with
@@ -249,36 +234,36 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             return null_value
 
         # User wants us to define the null value for them.
-        if self._n_bytes is None:
+        if self.size is None:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
                        "because it has no fixed size." % self,
                 field=self,
                 value=None)
 
-        return bytes([0] * self._n_bytes)
+        return bytes([0] * self.size)
 
     def _read_exact_size(self, stream):
         """Read exactly the number of bytes this object takes up or crash.
 
         :param io.BytesIO stream: The stream to read from.
 
-        :return: Exactly ``self.n_bytes`` bytes are read from the stream.
+        :return: Exactly ``self.size`` bytes are read from the stream.
         :rtype: bytes
 
         :raise UnexpectedEOFError: Not enough bytes were left in the stream.
         """
         offset = stream.tell()
 
-        if self._n_bits is None:
+        if self.size is None:
             raise errors.VariableSizedFieldError(field=self, offset=offset)
 
-        n_bytes = self._n_bytes
+        n_bytes = self.size
         data_read = stream.read(n_bytes)
 
         if len(data_read) < n_bytes:
             raise errors.UnexpectedEOFError(
-                field=self, size=self._n_bytes, offset=offset)
+                field=self, size=self.size, offset=offset)
 
         return data_read
 

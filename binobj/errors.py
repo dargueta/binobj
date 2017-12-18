@@ -1,4 +1,4 @@
-"""Errors for the binmarsh module."""
+"""Errors for the binobj package."""
 
 
 class Error(Exception):
@@ -84,14 +84,7 @@ class UnexpectedValueError(SerializationError):
 class ValueSizeError(UnserializableValueError):
     """The value can't be serialized because it doesn't fit into the field."""
     def __init__(self, *, field, value):
-        if field.n_bytes is not None:
-            unit = 'bytes'
-            size = field.n_bytes
-        else:
-            unit = 'bits'
-            size = field.n_bits
-
-        super().__init__(reason="Value doesn't fit into %r %s." % (size, unit),
+        super().__init__(reason="Value doesn't fit into %r bytes." % field.size,
                          field=field, value=value)
 
 

@@ -113,10 +113,10 @@ class Bytes(Field):
 
         if self.const is not UNDEFINED:
             self._n_bits = len(self.const) * 8
-            self._n_bytes = len(self.const)
+            self.size = len(self.const)
 
     def _do_load(self, stream, context):    # pylint: disable=unused-argument
-        return stream.read(self._n_bytes)
+        return stream.read(self.size)
 
 
 class Integer(Field):
@@ -135,11 +135,11 @@ class Integer(Field):
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
-        return iohelpers.read_int(stream, self._n_bytes, self.signed, self.endian)
+        return iohelpers.read_int(stream, self.size, self.signed, self.endian)
 
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
-        return iohelpers.write_int(stream, value, self._n_bytes, self.signed,
+        return iohelpers.write_int(stream, value, self.size, self.signed,
                                    self.endian)
 
 
@@ -291,19 +291,19 @@ class String(Field):
         """Dump a fixed-length string into the stream."""
         to_dump = value.encode(self.encoding)
 
-        if len(to_dump) > self._n_bytes and not self.truncate:
+        if len(to_dump) > self.size and not self.truncate:
             raise errors.ValueSizeError(field=self, value=to_dump)
-        elif len(to_dump) < self._n_bytes:
+        elif len(to_dump) < self.size:
             if self.fill_byte is None:
                 raise errors.ValueSizeError(field=self, value=to_dump)
 
-            padding = (self.fill_byte * (self._n_bytes - len(to_dump)))
+            padding = (self.fill_byte * (self.size - len(to_dump)))
             if self.align_left:
                 to_dump += padding
             else:
                 to_dump = padding + to_dump
         else:
-            to_dump = to_dump[:self._n_bytes]
+            to_dump = to_dump[:self.size]
 
         stream.write(to_dump)
 
