@@ -12,7 +12,7 @@ from binobj import serialization
 from binobj.serialization import DEFAULT, UNDEFINED
 
 
-class Field(serialization.SerializableScalar):
+class Field(serialization.Serializable):
     """The base class for all struct fields.
 
     :param str name:

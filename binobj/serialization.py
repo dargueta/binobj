@@ -261,11 +261,6 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         return data_read
 
 
-class SerializableScalar(Serializable):
-    """A serialization class for single values."""
-    # TODO (dargueta): I feel like I'm supposed to be doing something here.
-
-
 class SerializableContainer(Serializable):
     """A serialization class for container-like objects.
 
