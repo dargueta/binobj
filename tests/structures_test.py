@@ -195,7 +195,7 @@ def test_partial_dump__basic():
 
 def test_sequence__basic():
     """Test deserializing a list of stuff."""
-    sequence = binobj.SerializableSequence(binobj.UInt8())
+    sequence = binobj.Array(binobj.UInt8())
     result = sequence.loads(b'\xde\xad\xbe\xef')
     assert result == [0xde, 0xad, 0xbe, 0xef]
 
@@ -203,8 +203,7 @@ def test_sequence__basic():
 def test_sequence__sentinel():
     """Test deserializing a sequence that has a sentinel terminator."""
     halt = lambda _seq, _str, loaded, _ctx: loaded and (loaded[-1] == 0xdead)
-    sequence = binobj.SerializableSequence(binobj.UInt16(endian='little'),
-                                           halt_check=halt)
+    sequence = binobj.Array(binobj.UInt16(endian='little'), halt_check=halt)
 
     result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
     assert result == [0, 0xff, 0xdead]
