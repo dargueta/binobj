@@ -1,6 +1,5 @@
 """Classes defining structures and unions."""
 
-from binobj import errors
 from binobj import serialization
 
 
@@ -64,18 +63,9 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
 
 
 class Array(serialization.Serializable):
-    """A serialization class for objects that're sequences of other objects."""
-    __component__ = None    # type: serialization.Serializable
-
-    def __init__(self, component=None, *, count=None, halt_check=None, **kwargs):
-        self._component = component or self.__component__
-        if self._component is None:
-            raise errors.FieldConfigurationError(
-                'List has no defined component type. You must define one at '
-                'the class level with `__component__`, or pass it to the '
-                'constructor in the `component` keyword argument.',
-                field=self)
-
+    """An array of other serializable objects."""
+    def __init__(self, component, *, count=None, halt_check=None, **kwargs):
+        self.component = component
         self.count = count
         self.halt_check = halt_check or self._should_halt
         super().__init__(**kwargs)
@@ -131,7 +121,7 @@ class Array(serialization.Serializable):
             anything they don't recognize.
         """
         for value in data:
-            self._component.dump(stream, value, context)
+            self.component.dump(stream, value, context)
 
     def _do_load(self, stream, context=None):
         """Load a structure list from the given stream.
@@ -147,7 +137,7 @@ class Array(serialization.Serializable):
         """
         result = []
         while not self.halt_check(self, stream, result, context):
-            result.append(self._component.load(stream, context))
+            result.append(self.component.load(stream, context))
 
         return result
 

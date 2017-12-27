@@ -193,14 +193,14 @@ def test_partial_dump__basic():
     assert stream.getvalue() == b'AbCdEfG\0\0\0\0\0\0\xff\xff'
 
 
-def test_sequence__basic():
+def test_array__basic():
     """Test deserializing a list of stuff."""
     sequence = binobj.Array(binobj.UInt8())
     result = sequence.loads(b'\xde\xad\xbe\xef')
     assert result == [0xde, 0xad, 0xbe, 0xef]
 
 
-def test_sequence__sentinel():
+def test_array__sentinel():
     """Test deserializing a sequence that has a sentinel terminator."""
     halt = lambda _seq, _str, loaded, _ctx: loaded and (loaded[-1] == 0xdead)
     sequence = binobj.Array(binobj.UInt16(endian='little'), halt_check=halt)
