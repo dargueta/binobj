@@ -73,3 +73,48 @@ def test_dump__allow_null_false_with_null_value_crashes():
 
     assert errinfo.value.field is field
     assert errinfo.value.value is None
+
+
+def test_array__basic():
+    """Test deserializing a list of stuff."""
+    sequence = fields.Array(fields.UInt8())
+    result = sequence.loads(b'\xde\xad\xbe\xef')
+    assert result == [0xde, 0xad, 0xbe, 0xef]
+
+
+def test_array__basic_sized():
+    """Verify the behavior of a fixed-size array."""
+    sequence = fields.Array(fields.UInt8(), count=3)
+    result = sequence.loads(b'\xde\xad\xbe\xef')
+    assert result == [0xde, 0xad, 0xbe]
+
+
+def test_array__sentinel():
+    """Test deserializing a sequence that has a sentinel terminator."""
+    halt = lambda _seq, _str, loaded, _ctx: loaded and (loaded[-1] == 0xdead)
+    sequence = fields.Array(fields.UInt16(endian='little'), halt_check=halt)
+
+    result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
+    assert result == [0, 0xff, 0xdead]
+
+
+class BasicStructWithArray(structures.Struct):
+    """A basic structure with a sized array."""
+    class Options:
+        endian = 'big'
+
+    header = fields.Bytes(const=b'ABC')
+    numbers = fields.Array(fields.UInt16(), count=2)
+    trailer = fields.Bytes(const=b'XYZ')
+
+
+def test_array__fixed_in_struct():
+    """Test a fixed array in a struct with elements surrounding it."""
+    stream = io.BytesIO(b'ABC\xde\xad\xbe\xefXYZ')
+    loaded = BasicStructWithArray().load(stream)
+
+    assert loaded == {
+        'header': b'ABC',
+        'numbers': [0xdead, 0xbeef],
+        'trailer': b'XYZ',
+    }
