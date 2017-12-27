@@ -106,6 +106,86 @@ class Field(serialization.Serializable):
         super().dump(stream, data, context)
 
 
+class Array(Field):
+    """An array of other serializable objects."""
+    def __init__(self, component, *, count=None, halt_check=None, **kwargs):
+        self.component = component
+        self.count = count
+        self.halt_check = halt_check or self._should_halt
+        super().__init__(**kwargs)
+
+    @staticmethod
+    def _should_halt(seq, stream, loaded, context):    # pylint: disable=unused-argument
+        """Determine if the deserializer should stop reading from the input.
+
+        The default implementation does the following:
+
+        - If the object has an integer attribute called ``count``, it compares
+          ``count`` against the length of ``loaded``. If ``len(loaded)`` is less
+          than ``count`` it'll return ``True`` (halt), ``False`` otherwise.
+        - If the object *doesn't* have an attribute called ``count``, or
+          ``count`` isn't an integer, the function returns ``True`` if there's
+          any data left in the stream.
+
+        :param SerializableSequence seq:
+            The sequence being checked.
+        :param io.BytesIO stream:
+            The data stream to read from. Except in rare circumstances, this is
+            the same stream that was passed to :meth:`load`. The stream pointer
+            should be returned to its original position when the function exits.
+        :param list loaded:
+            A list of the objects that have been deserialized so far. In general
+            this function *should not* modify the list. A possible exception to
+            this rule is to remove a sentinel value from the end of the list.
+        :param context:
+            The ``context`` object passed to :meth:`load`.
+
+        :return: ``True`` if the deserializer should stop reading, ``False``
+            otherwise.
+        :rtype: bool
+        """
+        if isinstance(seq.count, int):
+            return seq.count <= len(loaded)
+
+        offset = stream.tell()
+        try:
+            return stream.read(1) == b''
+        finally:
+            stream.seek(offset)
+
+    def _do_dump(self, stream, data, context):
+        """Convert the given data into bytes and write it to ``stream``.
+
+        :param io.BytesIO stream:
+            A binary stream to write the serialized data into.
+        :param list data:
+            The data to dump.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        """
+        for value in data:
+            self.component.dump(stream, value, context)
+
+    def _do_load(self, stream, context=None):
+        """Load a structure list from the given stream.
+
+        :param io.BytesIO stream:
+            A bit stream to read data from.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+
+        :return: The deserialized data.
+        :rtype: list
+        """
+        result = []
+        while not self.halt_check(self, stream, result, context):
+            result.append(self.component.load(stream, context))
+
+        return result
+
+
 class Bytes(Field):
     """Raw binary data."""
     def __init__(self, *args, **kwargs):
