@@ -81,14 +81,21 @@ class SerializableMeta(abc.ABCMeta):
 
 
 class Serializable(_SerializableBase, metaclass=SerializableMeta):
-    """Base class providing basic loading and dumping methods."""
-    def __init__(self, *, size=None, **kwargs):
-        #: The size of this object, in bytes.
-        self.size = size
+    """Base class providing basic loading and dumping methods.
 
-        #: A dictionary of default options for loading and dumping functions.
-        #: Subclasses can override these, and they can also be overridden with
-        #: arguments to ``__init__``.
+    .. attribute:: __options__
+
+        A dictionary of default options used by the loading and dumping methods.
+        Subclasses can override these options, and they can also be overridden
+        on a per-instance basis with keyword arguments passed to :meth:`__init__`.
+        Keyword arguments not recognized by a constructor will be put in here.
+
+    .. attribute:: size
+
+        The size of this object, in bytes.
+    """
+    def __init__(self, *, size=None, **kwargs):
+        self.size = size
         self.__options__ = {}   # type: dict
 
         # FIXME (dargueta): No way of inheriting options from parent classes. :(
@@ -112,7 +119,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :param io.BytesIO stream:
             The stream to write the serialized data into.
         :param data:
-            The data to dump. Can be omitted if this is a constant field.
+            The data to dump. Can be omitted only if this is a constant field,
+            i.e. ``__options__['const']`` is not :data:`UNDEFINED`.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -144,7 +152,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         """Convert the given data into bytes.
 
         :param data:
-            The data to dump. Can be omitted if this is a constant field.
+            The data to dump. Can be omitted only if this is a constant field,
+            i.e. ``__options__['const']`` is not :data:`UNDEFINED`.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -194,9 +203,9 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         :param bool exact:
-            ``data`` must contain exactly the number of bits required. If not
-            all the bits in ``data`` were used when reading the struct, throw an
-            exception.
+            ``data`` must contain exactly the number of bytes required. If not
+            all the bytes in ``data`` were used when reading the struct, throw
+            an exception.
 
         :return: The deserialized data.
         """
@@ -275,18 +284,20 @@ class SerializableContainer(Serializable):
 
         Really you should only be using this argument if you need to dynamically
         declare a struct.
+
+    .. attribute:: __components__
+
+        An :class:`~collections.OrderedDict` of the serializables comprising the
+        container. This is typically set by the metaclass, but can be overridden
+        by the ``components`` argument to the constructor.
     """
-    #: An :class:`~collections.OrderedDict` of the serializables comprising the
-    #: container.
-    #:
-    #: This is set by the metaclass but defined here for documentation purposes.
     __components__ = None   # type: collections.OrderedDict
 
     def __init__(self, *, components=None, **kwargs):
         if components:
-            self._components = components.copy()
-        elif self.__components__:
-            self._components = self.__components__.copy()
+            self.__components__ = components.copy()
+        elif type(self).__components__:
+            self.__components__ = type(self).__components__.copy()
         else:
             raise errors.FieldConfigurationError(
                 'Container has no defined components. You must define them at '
@@ -307,12 +318,12 @@ class SerializableContainer(Serializable):
             Additional data to pass to the :meth:`dump` function.
         """
         given_keys = set(data.keys())
-        expected_keys = set(self._components.keys())
+        expected_keys = set(self.__components__.keys())
         extra_keys = given_keys - expected_keys
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
-        for name, component in self._components.items():
+        for name, component in self.__components__.items():
             value = data.get(name, UNDEFINED)
 
             if value is UNDEFINED:
@@ -342,7 +353,7 @@ class SerializableContainer(Serializable):
         :rtype: collections.OrderedDict
         """
         result = collections.OrderedDict()
-        for name, component in self._components.items():
+        for name, component in self.__components__.items():
             value = component.load(stream, context)
             if not component.discard:
                 result[name] = value
@@ -373,12 +384,12 @@ class SerializableContainer(Serializable):
         :return: The deserialized data.
         :rtype: collections.OrderedDict
         """
-        if last_field is not None and last_field not in self._components:
+        if last_field is not None and last_field not in self.__components__:
             raise ValueError(
                 "%s doesn't have a field named %r." % (self, last_field))
 
         result = collections.OrderedDict()
-        for field in self._components.values():
+        for field in self.__components__.values():
             offset = stream.tell()
 
             try:
@@ -422,12 +433,12 @@ class SerializableContainer(Serializable):
             :meth:`load` methods.
         """
         given_keys = set(data.keys())
-        expected_keys = set(self._components.keys())
+        expected_keys = set(self.__components__.keys())
         extra_keys = given_keys - expected_keys
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
-        for field in self._components.values():
+        for field in self.__components__.values():
             if field.name not in data:
                 # Field is missing from the dump data. If the caller wants us to
                 # dump only the fields that're defined, we can bail out now.
