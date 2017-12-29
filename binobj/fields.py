@@ -204,7 +204,6 @@ class Bytes(Field):
         super().__init__(*args, **kwargs)
 
         if self.const is not UNDEFINED:
-            self._n_bits = len(self.const) * 8
             self.size = len(self.const)
 
     def _do_load(self, stream, context):    # pylint: disable=unused-argument
