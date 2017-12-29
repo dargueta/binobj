@@ -277,35 +277,12 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 class SerializableContainer(Serializable):
     """A serialization class for container-like objects.
 
-    :param list components:
-        Optional. A list of :class:`Serializable` objects to use for this
-        container. Completely overrides any class-level declared fields (stored
-        in ``__components__``).
-
-        Really you should only be using this argument if you need to dynamically
-        declare a struct.
-
     .. attribute:: __components__
 
-        An :class:`~collections.OrderedDict` of the serializables comprising the
-        container. This is typically set by the metaclass, but can be overridden
-        by the ``components`` argument to the constructor.
+        An :class:`~collections.OrderedDict` of the :class:`Serializable`s
+        comprising the container.
     """
     __components__ = None   # type: collections.OrderedDict
-
-    def __init__(self, *, components=None, **kwargs):
-        if components:
-            self.__components__ = components.copy()
-        elif type(self).__components__:
-            self.__components__ = type(self).__components__.copy()
-        else:
-            raise errors.FieldConfigurationError(
-                'Container has no defined components. You must define them at '
-                'the class level with `__components__`, or pass them to the '
-                'constructor in the `components` keyword argument.',
-                field=self)
-
-        super().__init__(**kwargs)
 
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
