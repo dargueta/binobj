@@ -107,15 +107,27 @@ class Field(serialization.Serializable):
 
 
 class Array(Field):
-    """An array of other serializable objects."""
+    """An array of other serializable objects.
+
+    :param binobj.serialization.Serializable component:
+        The component this array is comprised of.
+    :param int count:
+        Optional. The number of elements in this array. If not given, the array
+        is of variable size and ``halt_check`` should be passed in to indicate
+        when the array ends.
+    :param callable halt_check:
+        A function taking four arguments. See :meth:`should_halt` for the
+        default implementation. Subclasses can override this function if desired
+        to avoid having to pass in a custom function every time.
+    """
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
         self.component = component
         self.count = count
-        self.halt_check = halt_check or self._should_halt
+        self.halt_check = halt_check or self.should_halt
         super().__init__(**kwargs)
 
     @staticmethod
-    def _should_halt(seq, stream, loaded, context):    # pylint: disable=unused-argument
+    def should_halt(seq, stream, loaded, context):    # pylint: disable=unused-argument
         """Determine if the deserializer should stop reading from the input.
 
         The default implementation does the following:
@@ -127,7 +139,7 @@ class Array(Field):
           ``count`` isn't an integer, the function returns ``True`` if there's
           any data left in the stream.
 
-        :param SerializableSequence seq:
+        :param Array seq:
             The sequence being checked.
         :param io.BytesIO stream:
             The data stream to read from. Except in rare circumstances, this is
