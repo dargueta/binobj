@@ -45,25 +45,37 @@ class Field(serialization.Serializable):
         This argument *must* be of the same type as the field, i.e. it must be
         a string for a :class:`String`, an integer for an :class:`Integer`, and
         so on.
+
+    .. attribute:: name
+
+        The name of this field.
+
+    .. attribute:: index
+
+        The zero-based index of the field in the struct.
+
+    .. attribute:: offset
+
+        The zero-based byte offset of the field in the struct. If the offset
+        can't be computed (e.g. it's preceded by a variable-length field), this
+        will be ``None``.
+
+    .. attribute:: struct_class
+
+        A weak reference to the :class:`~binobj.structures.Struct` class
+        containing this field.
     """
     def __init__(self, *, name=None, **kwargs):
         super().__init__(**kwargs)
-        self.name = name
+
+        self.name = name  # type: str
 
         # The following fields are set by the struct metaclass after the field
         # is instantiated.
 
-        #: A weak reference to the :class:`~binobj.structures.Struct` class
-        #: containing this field.
         self.struct_class = None    # type: binobj.structures.Struct
-
-        #: The zero-based index of the field in the struct.
-        self.index = None   # type: int
-
-        #: The zero-based bit offset of the field in the struct. If the offset
-        #: can't be computed (e.g. it's preceded by a variable-length field),
-        #: this will be ``None``.
-        self.offset = None  # type: int
+        self.index = None           # type: int
+        self.offset = None          # type: int
 
     @property
     def default(self):

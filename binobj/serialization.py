@@ -50,7 +50,7 @@ class _SerializableBase:    # pylint: disable=too-few-public-methods
 
 
 class SerializableMeta(abc.ABCMeta):
-    """Base metaclass for all structure-like things."""
+    """Base metaclass for all serializable things."""
     @classmethod
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
         return collections.OrderedDict()
@@ -85,7 +85,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
 
     .. attribute:: __options__
 
-        A dictionary of default options used by the loading and dumping methods.
+        A dictionary of options used by the loading and dumping methods.
         Subclasses can override these options, and they can also be overridden
         on a per-instance basis with keyword arguments passed to :meth:`__init__`.
         Keyword arguments not recognized by a constructor will be put in here.
@@ -279,7 +279,7 @@ class SerializableContainer(Serializable):
 
     .. attribute:: __components__
 
-        An :class:`~collections.OrderedDict` of the :class:`Serializable`s
+        An :class:`~collections.OrderedDict` of the :class:`Serializable` objects
         comprising the container.
     """
     __components__ = None   # type: collections.OrderedDict
