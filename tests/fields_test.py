@@ -100,11 +100,8 @@ def test_array__sentinel():
 
 class BasicStructWithArray(structures.Struct):
     """A basic structure with a sized array."""
-    class Options:
-        endian = 'big'
-
     header = fields.Bytes(const=b'ABC')
-    numbers = fields.Array(fields.UInt16(), count=2)
+    numbers = fields.Array(fields.UInt16(endian='big'), count=2)
     trailer = fields.Bytes(const=b'XYZ')
 
 
