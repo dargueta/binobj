@@ -138,20 +138,3 @@ class UnexpectedEOFError(DeserializationError):
 
 class ExtraneousDataError(DeserializationError):
     """Extra bytes were found at the end of the input after deserialization."""
-
-
-class BadForwardReferenceError(DeserializationError):
-    """A forward reference from one field to another couldn't be resolved.
-
-    This gets thrown when one field refers to a second one that comes *after*
-    it, and that other field doesn't have a fixed offset. Since the referenced
-    field doesn't have a fixed offset, we don't know where to look to get its
-    value.
-    """
-    def __init__(self, *, from_field, to_field):
-        message = \
-            "Can't resolve forward reference by %s %r to unread field %r. %r " \
-            "isn't at a fixed offset from the beginning of its struct (%s)." \
-            % (type(from_field).__name__, from_field.name,
-               to_field.name, to_field.name, type(from_field.struct).__name__)
-        super().__init__(message, field=from_field)
