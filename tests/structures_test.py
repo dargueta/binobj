@@ -57,7 +57,7 @@ def test_load__short_read():
     """Crash if we don't have enough data to read all the fields."""
     stream = io.BytesIO(b'abcdefg\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
 
-    with pytest.raises(binobj.UnexpectedEOFError) as errinfo:
+    with pytest.raises(binobj.errors.UnexpectedEOFError) as errinfo:
         BasicStruct().load(stream)
 
     exc = errinfo.value
@@ -114,7 +114,7 @@ def test_partial_load__short_read_of_required():
     stream = io.BytesIO(b'zyxwvut\x0b\xad')
 
     # int64 should be the last field included in the output.
-    with pytest.raises(binobj.UnexpectedEOFError):
+    with pytest.raises(binobj.errors.UnexpectedEOFError):
         BasicStruct().partial_load(stream, 'int64')
 
 
@@ -156,7 +156,7 @@ def test_dump__extra_fields(extra_fields):
     # Add in the extra keys we can't keep
     data.update({k: 0 for k in extra_fields})
 
-    with pytest.raises(binobj.UnexpectedValueError) as errinfo:
+    with pytest.raises(binobj.errors.UnexpectedValueError) as errinfo:
         BasicStruct().dumps(data)
 
     assert errinfo.value.names == extra_fields
@@ -169,7 +169,7 @@ def test_dump__missing_fields():
         'uint24': 65535,
     }
 
-    with pytest.raises(binobj.MissingRequiredValueError) as errinfo:
+    with pytest.raises(binobj.errors.MissingRequiredValueError) as errinfo:
         BasicStruct().dumps(data)
 
     assert errinfo.value.field is BasicStruct.int64
