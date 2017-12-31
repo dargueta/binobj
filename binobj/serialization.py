@@ -158,7 +158,7 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
 
-        :return: The serialized data, padded to the nearest byte.
+        :return: The serialized data.
         :rtype: bytes
         """
         stream = io.BytesIO()
@@ -257,6 +257,8 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         :return: Exactly ``self.size`` bytes are read from the stream.
         :rtype: bytes
 
+        :raise VariableSizedFieldError:
+            The field cannot be read directly because it's of variable size.
         :raise UnexpectedEOFError: Not enough bytes were left in the stream.
         """
         offset = stream.tell()
@@ -280,7 +282,7 @@ class SerializableContainer(Serializable):
     .. attribute:: __components__
 
         An :class:`~collections.OrderedDict` of the :class:`Serializable` objects
-        comprising the container.
+        comprising the container. *Never* modify this yourself.
     """
     __components__ = None   # type: collections.OrderedDict
 
