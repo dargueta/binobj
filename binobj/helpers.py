@@ -18,7 +18,13 @@ def read_int(stream, n_bytes, signed=True, endian=None):
     :param str endian:
         The endianness of the integer, either ``big`` or ``little``. If not
         given, will default to the system's native byte order as given by
-        `sys.byteorder`.
+        :data:`sys.byteorder`.
+
+    :return: The integer loaded from the byte stream.
+    :rtype: int
+
+    :raise UnexpectedEOFError:
+        The end of the stream was hit before ``n_bytes`` bytes were read.
     """
     if not endian:
         endian = sys.byteorder
@@ -49,7 +55,7 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
     :param str endian:
         The endianness to use when writing the integer, either ``big`` or
         ``little``. If not given, will default to the system's native byte order
-        as given by `sys.byteorder`.
+        as given by :data:`sys.byteorder`.
 
     :raise OverflowError:
         ``value`` can't be represented only by ``n_bytes`` bytes. The number is

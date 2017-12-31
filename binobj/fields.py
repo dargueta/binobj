@@ -225,7 +225,8 @@ class Integer(Field):
 
     :param str endian:
         The endianness to use to load/store the integer. Either 'big' or 'little'.
-        If not given, defaults to the system's native byte ordering.
+        If not given, defaults to the system's native byte ordering as given by
+        :data:`sys.byteorder`.
     :param bool signed:
         Indicates if this number is a signed or unsigned integer.
     """
