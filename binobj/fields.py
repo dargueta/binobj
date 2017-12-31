@@ -68,11 +68,9 @@ class Field(serialization.Serializable):
     def __init__(self, *, name=None, **kwargs):
         super().__init__(**kwargs)
 
-        self.name = name  # type: str
-
-        # The following fields are set by the struct metaclass after the field
-        # is instantiated.
-
+        # These attributes are typically set by the struct containing the field
+        # after the field's instantiated.
+        self.name = name            # type: str
         self.struct_class = None    # type: binobj.structures.Struct
         self.index = None           # type: int
         self.offset = None          # type: int
