@@ -87,10 +87,6 @@ class Field(serialization.Serializable):
     def const(self):
         return self.__options__.setdefault('const', UNDEFINED)
 
-    def __str__(self):
-        return '%s::%s(name=%r)' % (
-            (self.struct_class.__name__, type(self).__name__, self.name))
-
     def load(self, stream, context=None):
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
@@ -114,6 +110,10 @@ class Field(serialization.Serializable):
                 raise errors.MissingRequiredValueError(field=self)
 
         super().dump(stream, data, context)
+
+    def __str__(self):
+        return '%s::%s(name=%r)' % (
+            (self.struct_class.__name__, type(self).__name__, self.name))
 
 
 class Array(Field):
