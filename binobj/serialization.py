@@ -68,6 +68,11 @@ class SerializableMeta(abc.ABCMeta):
 
         if not hasattr(class_object, '__options__'):
             class_object.__options__ = gather_options_for_class(class_object)
+        else:
+            # Unclear why we need this for struct options to get propagated down
+            # to the fields in the struct, but oh well.
+            helpers.merge_dicts(class_object.__options__,
+                                gather_options_for_class(class_object))
 
         offset = 0
         for i, (f_name, field) in enumerate(namespace['__components__'].items()):
