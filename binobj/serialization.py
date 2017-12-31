@@ -63,13 +63,13 @@ class SerializableMeta(abc.ABCMeta):
             if isinstance(comp, _SerializableBase)
         )
 
-        instance = super().__new__(mcs, name, bases, namespace, **kwargs)
+        class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
         offset = 0
 
         for i, (f_name, field) in enumerate(namespace['__components__'].items()):
             field.index = i
             field.name = f_name
-            field.struct_class = weakref.proxy(instance)
+            field.struct_class = weakref.proxy(class_object)
             field.offset = offset
 
             if offset is not None and field.size is not None:
@@ -77,7 +77,9 @@ class SerializableMeta(abc.ABCMeta):
             else:
                 offset = None
 
-        return instance
+        class_object.__options__ = gather_options_for_class(class_object)
+
+        return class_object
 
 
 # TODO (dargueta) Cache the return value for this without borking singletons.
