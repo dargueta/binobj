@@ -6,6 +6,7 @@ import io
 import weakref
 
 from binobj import errors
+from binobj import helpers
 
 
 class _NamedSentinel:   # pylint: disable=too-few-public-methods
@@ -64,21 +65,22 @@ class SerializableMeta(abc.ABCMeta):
         )
 
         class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
-        offset = 0
 
+        if not hasattr(class_object, '__options__'):
+            class_object.__options__ = gather_options_for_class(class_object)
+
+        offset = 0
         for i, (f_name, field) in enumerate(namespace['__components__'].items()):
             field.index = i
             field.name = f_name
             field.struct_class = weakref.proxy(class_object)
             field.offset = offset
+            helpers.merge_dicts(field.__options__, class_object.__options__)
 
             if offset is not None and field.size is not None:
                 offset += field.size
             else:
                 offset = None
-
-        if not hasattr(class_object, '__options__'):
-            class_object.__options__ = gather_options_for_class(class_object)
 
         return class_object
 
