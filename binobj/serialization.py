@@ -80,6 +80,48 @@ class SerializableMeta(abc.ABCMeta):
         return instance
 
 
+def gather_options_for_class(klass):
+    """Build a dictionary of the Serializable object's options, inheriting
+    values from parent classes.
+
+    :param type klass:
+        A :class:`Serializable` class object (not an instance) that we want to
+        get the options for.
+
+    :return: A dictionary of the class' defined options.
+    :rtype: dict
+    """
+    return _r_gather_options_for_class(klass, {}, set())
+
+
+def _r_gather_options_for_class(klass, options, seen):
+    """Helper method for :fun:`gather_options_from_class`.
+
+    :param type klass:
+    :param dict options:
+    :param set seen:
+
+    :return: The class' options, including the ones defined in its superclasses.
+    :rtype: dict
+    """
+    seen.add(klass)
+
+    # Determine all the options defined in the parent classes
+    for parent_class in reversed(klass.__mro__):
+        if parent_class not in seen:
+            _r_gather_options_for_class(parent_class, options, seen)
+        seen.add(parent_class)
+
+    if hasattr(klass, 'Options') and isinstance(klass.Options, type):
+        options.update({
+            name: value
+            for name, value in vars(klass.Options).items()
+            if not name.startswith('_')
+        })
+
+    return options
+
+
 class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods.
 
