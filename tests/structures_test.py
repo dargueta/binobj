@@ -1,7 +1,5 @@
 """Tests for the structure objects."""
 
-# pylint: disable=invalid-name
-
 import collections.abc
 import io
 

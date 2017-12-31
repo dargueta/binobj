@@ -1,7 +1,5 @@
 """Tests for the variable-length integers."""
 
-# pylint: disable=invalid-name
-
 import io
 
 import pytest

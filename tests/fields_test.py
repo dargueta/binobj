@@ -1,7 +1,5 @@
 """Tests for fields."""
 
-# pylint: disable=invalid-name
-
 import io
 
 import pytest
