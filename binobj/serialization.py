@@ -80,6 +80,13 @@ class SerializableMeta(abc.ABCMeta):
         return instance
 
 
+# TODO (dargueta) Cache the return value for this without borking singletons.
+#
+# The problem with caching the return value is that a deep copy needs to be made
+# in Serializable.__init__. This is normally fine, except that `copy.deepcopy`
+# uses pickling to perform a deep copy, so there end up being multiple copies of
+# the ``UNDEFINED``, ``DEFAULT``, and ``HALT`` sentinel objects. Identity checks
+# (the exact reason we have sentinels) will no longer work. :(
 def gather_options_for_class(klass):
     """Build a dictionary of the Serializable object's options, inheriting
     values from parent classes.
@@ -91,7 +98,7 @@ def gather_options_for_class(klass):
     :return: A dictionary of the class' defined options.
     :rtype: dict
     """
-    return _r_gather_options_for_class(klass, {}, set())
+    return _r_gather_options_for_class(klass, _PREDEFINED_KWARGS.copy(), set())
 
 
 def _r_gather_options_for_class(klass, options, seen):
@@ -138,22 +145,9 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
     """
     def __init__(self, *, size=None, **kwargs):
         self.size = size
-        self.__options__ = {}   # type: dict
-
-        # FIXME (dargueta): No way of inheriting options from parent classes. :(
-        if hasattr(self, 'Options') and isinstance(self.Options, type):
-            self.__options__.update({
-                name: value
-                for name, value in vars(self.Options).items()
-                if not name.startswith('_')
-            })
-
+        self.__options__ = gather_options_for_class(type(self))
         self.__options__.update(kwargs)
-
-        # Define some keys we're gonna need for sure if the caller hasn't done
-        # so already.
-        for key, value in _PREDEFINED_KWARGS.items():
-            self.__options__.setdefault(key, value)
+        super().__init__()
 
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.

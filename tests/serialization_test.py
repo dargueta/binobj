@@ -2,7 +2,7 @@
 
 import pytest
 
-from binobj.serialization import gather_options_for_class
+from binobj.serialization import gather_options_for_class, _PREDEFINED_KWARGS
 
 
 class BaseClassWithOptions:
@@ -22,4 +22,5 @@ class BaseClassWithoutOptions:
 ))
 def test_single_class(class_object, expected):
     """Basic test for single classes that have options."""
+    expected.update(_PREDEFINED_KWARGS)
     assert gather_options_for_class(class_object) == expected
