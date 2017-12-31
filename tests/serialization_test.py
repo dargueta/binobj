@@ -2,17 +2,18 @@
 
 import pytest
 
+import binobj
 from binobj.serialization import gather_options_for_class, _PREDEFINED_KWARGS
 
 
-class BaseClassWithOptions:
+class BaseClassWithOptions(binobj.Struct):
     class Options:
         foo = 'bar'
         bar = 'baz'
         _ignored = 'ignored'
 
 
-class BaseClassWithoutOptions:
+class BaseClassWithoutOptions(binobj.Struct):
     pass
 
 
@@ -67,3 +68,19 @@ def test_gather_options__inherits__with_overrides():
     }
     expected.update(_PREDEFINED_KWARGS)
     assert gather_options_for_class(GrandchildWithOverrides) == expected
+
+
+class ChildWithFields(binobj.Struct):
+    class Options:
+        blah = 123
+
+    field = binobj.Int32(kw1=1, kw2=2)
+
+
+def test_gather_options__field_inherits_struct():
+    struct = ChildWithFields()
+
+    assert 'blah' in struct.field.__options__
+    assert struct.field.__options__['blah'] == 123
+    assert struct.field.__options__['kw1'] == 1
+    assert struct.field.__options__['kw2'] == 2
