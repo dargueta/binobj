@@ -5,7 +5,7 @@
 import sys
 
 from binobj import errors
-from binobj import iohelpers
+from binobj import helpers
 from binobj import varints
 from binobj import serialization
 
@@ -236,12 +236,12 @@ class Integer(Field):
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
-        return iohelpers.read_int(stream, self.size, self.signed, self.endian)
+        return helpers.read_int(stream, self.size, self.signed, self.endian)
 
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
-        return iohelpers.write_int(stream, value, self.size, self.signed,
-                                   self.endian)
+        return helpers.write_int(stream, value, self.size, self.signed,
+                                 self.endian)
 
 
 class VariableLengthInteger(Integer):
