@@ -77,7 +77,8 @@ class SerializableMeta(abc.ABCMeta):
             else:
                 offset = None
 
-        class_object.__options__ = gather_options_for_class(class_object)
+        if not hasattr(class_object, '__options__'):
+            class_object.__options__ = gather_options_for_class(class_object)
 
         return class_object
 
