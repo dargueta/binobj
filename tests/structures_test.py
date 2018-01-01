@@ -24,17 +24,14 @@ def test_basic__fields_loaded():
     assert field_list[0].name == 'string'
     assert field_list[0].index == 0
     assert field_list[0].offset == 0
-    assert field_list[0].struct_class is not None, "Struct reference isn't set."
 
     assert field_list[1].name == 'int64'
     assert field_list[1].index == 1
     assert field_list[1].offset == 7
-    assert field_list[1].struct_class is not None, "Struct reference isn't set."
 
     assert field_list[2].name == 'uint24'
     assert field_list[2].index == 2
     assert field_list[2].offset == 15
-    assert field_list[2].struct_class is not None, "Struct reference isn't set."
 
 
 def test_load__basic():

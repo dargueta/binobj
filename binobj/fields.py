@@ -59,11 +59,6 @@ class Field(serialization.Serializable):
         The zero-based byte offset of the field in the struct. If the offset
         can't be computed (e.g. it's preceded by a variable-length field), this
         will be ``None``.
-
-    .. attribute:: struct_class
-
-        A weak reference to the :class:`~binobj.structures.Struct` class
-        containing this field.
     """
     def __init__(self, *, name=None, **kwargs):
         super().__init__(**kwargs)
@@ -71,7 +66,6 @@ class Field(serialization.Serializable):
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
         self.name = name            # type: str
-        self.struct_class = None    # type: binobj.structures.Struct
         self.index = None           # type: int
         self.offset = None          # type: int
 
@@ -112,8 +106,7 @@ class Field(serialization.Serializable):
         super().dump(stream, data, context)
 
     def __str__(self):
-        return '%s::%s(name=%r)' % (
-            (self.struct_class.__name__, type(self).__name__, self.name))
+        return '%s(name=%r)' % (type(self).__name__, self.name)
 
 
 class Array(Field):

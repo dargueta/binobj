@@ -3,7 +3,6 @@
 import abc
 import collections
 import io
-import weakref
 
 from binobj import errors
 from binobj import helpers
@@ -78,7 +77,6 @@ class SerializableMeta(abc.ABCMeta):
         for i, (f_name, field) in enumerate(namespace['__components__'].items()):
             field.index = i
             field.name = f_name
-            field.struct_class = weakref.proxy(class_object)
             field.offset = offset
             helpers.merge_dicts(field.__options__, class_object.__options__)
 
