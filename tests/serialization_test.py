@@ -1,5 +1,7 @@
 """Basic tests for serialization code."""
 
+import sys
+
 import pytest
 
 import binobj
@@ -86,21 +88,26 @@ def test_gather_options__field_inherits_struct():
     assert struct.field.__options__['kw2'] == 2
 
 
+NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'
+
+
 class StructWithFieldOverrides(binobj.Struct):
     class Options:
-        endian = 'big'
+        endian = NONDEFAULT_ENDIANNESS
 
-    big = binobj.Int32()    # Should be big-endian
-    little = binobj.Int32(endian='little')
+    one = binobj.Int32()    # Should be non-default byte order.
+    two = binobj.UInt32(endian=sys.byteorder)
 
 
 def test_gather_options__field_overrides_struct():
     struct = StructWithFieldOverrides()
-    expected_big = {'endian': 'big'}
-    expected_little = {'endian': 'little'}
+    expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': True}
+    expected_two = {'endian': sys.byteorder, 'signed': False}
 
-    expected_big.update(_DEFAULT_OPTIONS)
-    expected_little.update(_DEFAULT_OPTIONS)
+    expected_one.update(_DEFAULT_OPTIONS)
+    expected_two.update(_DEFAULT_OPTIONS)
 
-    assert struct.big.__options__ == expected_big
-    assert struct.little.__options__ == expected_little
+    assert struct.one.__options__ == expected_one
+    assert struct.one.endian == NONDEFAULT_ENDIANNESS
+    assert struct.two.__options__ == expected_two
+    assert struct.two.endian == sys.byteorder
