@@ -48,57 +48,6 @@ _DEFAULT_OPTIONS = {
 }
 
 
-class _SerializableBase:    # pylint: disable=too-few-public-methods
-    """Ignore this.
-
-    This empty base class is a hack around the circular dependency that would
-    arise between `SerializableMeta` and `Serializable` since the metaclass
-    needs to know what fields in the client class are serializable, but
-    `Serializable` needs `SerializableMeta`.
-
-    There's gotta be a way around this.
-    """
-
-
-class SerializableMeta(abc.ABCMeta):
-    """Base metaclass for all serializable things."""
-    @classmethod
-    def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
-        return collections.OrderedDict()
-
-    def __new__(mcs, name, bases, namespace, **kwargs):
-        # TODO (dargueta): Need to get fields from the superclasses as well.
-        namespace['__components__'] = collections.OrderedDict(
-            (name, comp)
-            for name, comp in namespace.items()
-            if isinstance(comp, _SerializableBase)
-        )
-
-        class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
-
-        if not hasattr(class_object, '__options__'):
-            class_object.__options__ = gather_options_for_class(class_object)
-        else:
-            # Unclear why we need this for struct options to get propagated down
-            # to the fields in the struct, but oh well.
-            helpers.merge_dicts(class_object.__options__,
-                                gather_options_for_class(class_object))
-
-        offset = 0
-        for i, (f_name, field) in enumerate(namespace['__components__'].items()):
-            field.index = i
-            field.name = f_name
-            field.offset = offset
-            helpers.merge_dicts(field.__options__, class_object.__options__)
-
-            if offset is not None and field.size is not None:
-                offset += field.size
-            else:
-                offset = None
-
-        return class_object
-
-
 # TODO (dargueta) Cache the return value for this without borking singletons.
 #
 # The problem with caching the return value is that a deep copy needs to be made
@@ -132,6 +81,8 @@ def _r_gather_options_for_class(klass, options, seen):
     :rtype: dict
     """
     seen.add(klass)
+    if not issubclass(klass, Serializable):
+        return options
 
     # Determine all the options defined in the parent classes
     for parent_class in reversed(klass.__mro__):
@@ -332,7 +283,44 @@ class Serializable(_SerializableBase, metaclass=SerializableMeta):
         return data_read
 
 
-class SerializableContainer(Serializable):
+class SerializableContainerMeta(abc.ABCMeta):
+    """The metaclass for all serializable objects composed of other serializable
+    objects.
+
+    It defines the ``__components__`` class variable and sets some values on the
+    :class:`Serializable` components such as the name and index.
+    """
+    @classmethod
+    def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
+        return collections.OrderedDict()
+
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        # TODO (dargueta): Need to get fields from the superclasses as well.
+        namespace['__components__'] = collections.OrderedDict(
+            (name, comp)
+            for name, comp in namespace.items()
+            if isinstance(comp, Serializable)
+        )
+
+        class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
+        class_options = gather_options_for_class(class_object)
+
+        offset = 0
+        for i, (f_name, field) in enumerate(namespace['__components__'].items()):
+            field.index = i
+            field.name = f_name
+            field.offset = offset
+            helpers.merge_dicts(field.__options__, class_options)
+
+            if offset is not None and field.size is not None:
+                offset += field.size
+            else:
+                offset = None
+
+        return class_object
+
+
+class SerializableContainer(Serializable, metaclass=SerializableContainerMeta):
     """A serialization class for container-like objects.
 
     .. attribute:: __components__
