@@ -264,7 +264,7 @@ class VariableLengthInteger(Integer):
     .. note::
         Not all integer encodings allow signed integers.
     """
-    def __init__(self, *, encoding, max_bytes=None, signed=True, **kwargs):
+    def __init__(self, *args, encoding, signed=True, **kwargs):
         if encoding == varints.VarIntEncoding.VLQ and signed is True:
             raise errors.FieldConfigurationError(
                 "Signed integers can't be encoded with VLQ. Either pass "
@@ -281,10 +281,10 @@ class VariableLengthInteger(Integer):
 
         self._encode_integer_fn = encoding_functions['encode']
         self._decode_integer_fn = encoding_functions['decode']
-        super().__init__(endian=encoding_functions['endian'],
+        super().__init__(*args,
+                         endian=encoding_functions['endian'],
                          signed=signed,
                          encoding=encoding,
-                         max_bytes=max_bytes,
                          **kwargs)
 
     @property
