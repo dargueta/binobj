@@ -15,18 +15,18 @@ from binobj import helpers
 # time, hence the following abomination.
 
 
-def UNDEFINED():
+def UNDEFINED():  # pylint: disable=invalid-name
     """A sentinel value used to indicate that a setting or field is undefined.
 
     .. note::
 
         This sentinel value is implemented as a function for stupid reasons and
-        may change at any time. Never call it.
+        may change at any time. Never call it or even assume it's callable.
     """
     raise RuntimeError('Only use this sentinel as a value and never call it.')
 
 
-def DEFAULT():
+def DEFAULT():  # pylint: disable=invalid-name
     """A sentinel value used to indicate that the default value of a setting
     should be used. We need this because sometimes ``None`` is a valid value for
     that setting.
@@ -34,7 +34,7 @@ def DEFAULT():
     .. note::
 
         This sentinel value is implemented as a function for stupid reasons and
-        may change at any time. Never call it.
+        may change at any time. Never call it or even assume it's callable.
     """
     raise RuntimeError('Only use this sentinel as a value and never call it.')
 
@@ -107,8 +107,8 @@ class SerializableMeta(abc.ABCMeta):
 # the ``UNDEFINED``, ``DEFAULT``, and ``HALT`` sentinel objects. Identity checks
 # (the exact reason we have sentinels) will no longer work. :(
 def gather_options_for_class(klass):
-    """Build a dictionary of the Serializable object's options, inheriting
-    values from parent classes.
+    """Build a dictionary of a :class:`Serializable` object's settings, including
+    values defined in parent classes.
 
     :param type klass:
         A :class:`Serializable` class object (not an instance) that we want to
@@ -122,7 +122,7 @@ def gather_options_for_class(klass):
 
 
 def _r_gather_options_for_class(klass, options, seen):
-    """Helper method for :fun:`gather_options_from_class`.
+    """Helper method for :func:`gather_options_from_class`.
 
     :param type klass:
     :param dict options:
