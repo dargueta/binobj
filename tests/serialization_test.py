@@ -95,19 +95,20 @@ class StructWithFieldOverrides(binobj.Struct):
     class Options:
         endian = NONDEFAULT_ENDIANNESS
 
-    one = binobj.Int32()    # Should be non-default byte order.
+    one = binobj.Int32(signed=False)    # Should be non-default byte order.
     two = binobj.UInt32(endian=sys.byteorder)
 
 
 def test_gather_options__field_overrides_struct():
     struct = StructWithFieldOverrides()
-    expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': True}
-    expected_two = {'endian': sys.byteorder, 'signed': False}
+    expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': False}
+    expected_two = {'endian': sys.byteorder, 'signed': True}
 
     expected_one.update(_DEFAULT_OPTIONS)
     expected_two.update(_DEFAULT_OPTIONS)
 
     assert struct.one.__options__ == expected_one
-    assert struct.one.endian == NONDEFAULT_ENDIANNESS
     assert struct.two.__options__ == expected_two
+
+    assert struct.one.endian == NONDEFAULT_ENDIANNESS
     assert struct.two.endian == sys.byteorder
