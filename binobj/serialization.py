@@ -2,34 +2,45 @@
 
 import abc
 import collections
+import copy
 import io
 
 from binobj import errors
 from binobj import helpers
 
 
-class _NamedSentinel:   # pylint: disable=too-few-public-methods
-    """Hack class for creating sentinel values that show their name in repr."""
-    def __init__(self, name):
-        self.__name = name
-
-    def __repr__(self):
-        return self.__name
+# Normally a plain :class:`object` instance would be used as a sentinel value,
+# but `copy.deepcopy` uses pickling which creates a new instance of the object.
+# That breaks the assumption that only one instance of this will ever exist at a
+# time, hence the following abomination.
 
 
-#: A sentinel value used to indicate that a setting or field is undefined.
-UNDEFINED = _NamedSentinel('UNDEFINED')
+def UNDEFINED():
+    """A sentinel value used to indicate that a setting or field is undefined.
 
-#: A sentinel value used to indicate that the default value of a setting should
-#: be used. We need this because sometimes ``None`` is a valid value for that
-#: setting.
-DEFAULT = _NamedSentinel('DEFAULT')
+    .. note::
 
-#: A special return value that tells the loading or dumping function to stop.
-HALT = _NamedSentinel('HALT')
+        This sentinel value is implemented as a function for stupid reasons and
+        may change at any time. Never call it.
+    """
+    raise RuntimeError('Only use this sentinel as a value and never call it.')
 
 
-_PREDEFINED_KWARGS = {
+def DEFAULT():
+    """A sentinel value used to indicate that the default value of a setting
+    should be used. We need this because sometimes ``None`` is a valid value for
+    that setting.
+
+    .. note::
+
+        This sentinel value is implemented as a function for stupid reasons and
+        may change at any time. Never call it.
+    """
+    raise RuntimeError('Only use this sentinel as a value and never call it.')
+
+
+#: A read-only dictionary of predefined options for serializable objects.
+_DEFAULT_OPTIONS = {
     'allow_null': True,
     'const': UNDEFINED,
     'default': UNDEFINED,
@@ -106,7 +117,8 @@ def gather_options_for_class(klass):
     :return: A dictionary of the class' defined options.
     :rtype: dict
     """
-    return _r_gather_options_for_class(klass, _PREDEFINED_KWARGS.copy(), set())
+    dct = copy.deepcopy(_DEFAULT_OPTIONS)
+    return _r_gather_options_for_class(klass, dct, set())
 
 
 def _r_gather_options_for_class(klass, options, seen):
