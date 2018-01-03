@@ -224,9 +224,9 @@ class Integer(Field):
         Indicates if this number is a signed or unsigned integer.
     """
     def __init__(self, *, endian=None, signed=True, **kwargs):
-        self.signed = signed
-        self.endian = endian or sys.byteorder
-        super().__init__(**kwargs)
+        super().__init__(signed=signed, endian=endian or sys.byteorder, **kwargs)
+        self.signed = self.__options__['signed']
+        self.endian = self.__options__['endian']
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
@@ -274,6 +274,8 @@ class VariableLengthInteger(Integer):
         self._decode_integer_fn = encoding_functions['decode']
         super().__init__(endian=encoding_functions['endian'],
                          signed=signed,
+                         encoding=encoding,
+                         max_bytes=max_bytes,
                          **kwargs)
 
     def _do_load(self, stream, context):   # pylint: disable=unused-argument
