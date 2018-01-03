@@ -221,7 +221,8 @@ class Integer(Field):
         If not given, defaults to the system's native byte ordering as given by
         :data:`sys.byteorder`.
     :param bool signed:
-        Indicates if this number is a signed or unsigned integer.
+        Indicates if this number is a signed or unsigned integer. Defaults to
+        ``True``.
     """
     @property
     def endian(self):
@@ -379,30 +380,34 @@ class String(Field):
         If ``True``, strings too long to fit into the defined field size will be
         truncated to fit. If ``False`` (the default) a :class:`ValueSizeError`
         will be thrown.
-    :param bytes fill_byte:
-        A single byte to use for padding.
 
     .. note::
 
         A fixed-width text encoding such as ASCII or ISO-8859-1 is *strongly*
         recommended when using ``truncate`` or ``fill_byte``, since truncating
-        or padding can result in an invalid string.
+        can result in an invalid string.
 
         It's up to the user to ensure that the text encoding's restrictions are
         obeyed, e.g. that the field length is a multiple of two if you select
         ``utf-16`` as the encoding.
     """
-    def __init__(self, *, encoding='ascii', truncate=False, fill_byte=None,
-                 align_left=True, **kwargs):
-        if fill_byte is not None and len(fill_byte) != 1:
-            raise ValueError(
-                '`fill_byte` must be exactly one byte, got %r.' % fill_byte)
+    @property
+    def encoding(self):
+        """The encoding to use for this string.
+        Defaults to ``ascii``.
 
-        self.encoding = encoding
-        self.truncate = truncate
-        self.fill_byte = fill_byte
-        self.align_left = align_left
-        super().__init__(**kwargs)
+        :type: str
+        """
+        return self.__options__.setdefault('encoding', 'ascii')
+
+    @property
+    def truncate(self):
+        """When serializing, truncate strings that are too long to fit into the
+        field. Defaults to ``False``.
+
+        :type: bool
+        """
+        return self.__options__.setdefault('truncate', False)
 
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
@@ -416,14 +421,7 @@ class String(Field):
         if len(to_dump) > self.size and not self.truncate:
             raise errors.ValueSizeError(field=self, value=to_dump)
         elif len(to_dump) < self.size:
-            if self.fill_byte is None:
-                raise errors.ValueSizeError(field=self, value=to_dump)
-
-            padding = (self.fill_byte * (self.size - len(to_dump)))
-            if self.align_left:
-                to_dump += padding
-            else:
-                to_dump = padding + to_dump
+            raise errors.ValueSizeError(field=self, value=to_dump)
         else:
             to_dump = to_dump[:self.size]
 
