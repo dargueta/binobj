@@ -223,10 +223,21 @@ class Integer(Field):
     :param bool signed:
         Indicates if this number is a signed or unsigned integer.
     """
-    def __init__(self, *, endian=None, signed=True, **kwargs):
-        super().__init__(signed=signed, endian=endian or sys.byteorder, **kwargs)
-        self.signed = self.__options__['signed']
-        self.endian = self.__options__['endian']
+    @property
+    def endian(self):
+        """The endianness to use to load/store the integer.
+
+        :type: str
+        """
+        return self.__options__.setdefault('endian', sys.byteorder)
+
+    @property
+    def signed(self):
+        """Indicates if this number is a signed or unsigned integer.
+
+        :type: bool
+        """
+        return self.__options__.setdefault('signed', True)
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
@@ -261,9 +272,6 @@ class VariableLengthInteger(Integer):
                 % varints.VarIntEncoding.COMPACT_INDICES,
                 field=self)
 
-        self.encoding = encoding
-        self.max_bytes = max_bytes
-
         encoding_functions = varints.INTEGER_ENCODING_MAP.get(encoding)
         if encoding_functions is None:
             raise errors.FieldConfigurationError(
@@ -277,6 +285,23 @@ class VariableLengthInteger(Integer):
                          encoding=encoding,
                          max_bytes=max_bytes,
                          **kwargs)
+
+    @property
+    def encoding(self):
+        """The encoding to use for the variable-length integer.
+
+        :type: str
+        """
+        return self.__options__['encoding']
+
+    @property
+    def max_bytes(self):
+        """The maximum number of bytes to use for encoding this integer, or
+        ``None`` if there's no limit.
+
+        :type: int
+        """
+        return self.__options__['max_bytes']
 
     def _do_load(self, stream, context):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
