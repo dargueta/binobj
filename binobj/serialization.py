@@ -90,30 +90,34 @@ def _r_gather_options_for_class(klass, options, seen):
             _r_gather_options_for_class(parent_class, options, seen)
         seen.add(parent_class)
 
-    if hasattr(klass, 'Options') and isinstance(klass.Options, type):
-        options.update({
-            name: value
-            for name, value in vars(klass.Options).items()
-            if not name.startswith('_')
-        })
+    options_to_copy = {
+        name: value
+        for name, value in vars(klass.Options).items()
+        if not name.startswith('_')
+    }
+
+    options.update(copy.deepcopy(options_to_copy))
 
     return options
 
 
-class Serializable(_SerializableBase, metaclass=SerializableMeta):
+class Serializable:
     """Base class providing basic loading and dumping methods.
 
     .. attribute:: __options__
 
         A dictionary of options used by the loading and dumping methods.
         Subclasses can override these options, and they can also be overridden
-        on a per-instance basis with keyword arguments passed to :meth:`__init__`.
+        on a per-instance basis with keyword arguments passed to the constructor.
         Keyword arguments not recognized by a constructor will be put in here.
 
     .. attribute:: size
 
         The size of this object, in bytes.
     """
+    class Options:
+        """An object used for defining settings on a per-class basis."""
+
     def __init__(self, *, size=None, **kwargs):
         self.size = size
         self.__options__ = gather_options_for_class(type(self))
