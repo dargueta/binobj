@@ -65,9 +65,9 @@ class Field(serialization.Serializable):
 
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
-        self.name = name            # type: str
-        self.index = None           # type: int
-        self.offset = None          # type: int
+        self.name = name        # type: str
+        self.index = None       # type: int
+        self.offset = None      # type: int
 
     @property
     def default(self):
