@@ -57,14 +57,14 @@ _DEFAULT_OPTIONS = {
 # the ``UNDEFINED``, ``DEFAULT``, and ``HALT`` sentinel objects. Identity checks
 # (the exact reason we have sentinels) will no longer work. :(
 def gather_options_for_class(klass):
-    """Build a dictionary of a :class:`Serializable` object's settings, including
-    values defined in parent classes.
+    """Build a dictionary of an object's settings, including values defined in
+    parent classes.
 
     :param type klass:
-        A :class:`Serializable` class object (not an instance) that we want to
-        get the options for.
+        A class object (not an instance) that we want to get the options for.
+        The class must have an internal class named ``Options``.
 
-    :return: A dictionary of the class' defined options.
+    :return: A dictionary of the class' defined options, plus a few defaults.
     :rtype: dict
     """
     dct = copy.deepcopy(_DEFAULT_OPTIONS)
@@ -350,7 +350,24 @@ class SerializableContainer(collections.abc.MutableMapping,
         An :class:`~collections.OrderedDict` of the :class:`Serializable` objects
         comprising the container. *Never* modify or create this yourself.
 
-        :type: collections.OrderedDict
+        :type: :class:`collections.OrderedDict`
+
+
+    .. attribute:: __options__
+
+        A dictionary of options that all fields will inherit by default.
+
+        :type: dict
+
+        When creating a subclass, you might want to provide some defaults of
+        your own. Do *not* declare ``__options__`` at the class level; instead,
+        use an internal class named ``Options``::
+
+            class MyStruct(Struct):
+                class Options:
+                    option_name = 'value'
+
+                ...
     """
     __options__ = None      # type: dict
     __components__ = None   # type: collections.OrderedDict
