@@ -36,8 +36,8 @@ The same example rewritten using ``binobj``:
         height = UInt8()
         pixels = Array(UInt8, count=ValueOf(width) * ValueOf(height))
 
-    serializer = BMPFile()
-    serializer.dumps({'width': 3, 'height': 2, 'pixels': [7, 8, 9, 11, 12, 13]})
+    bmp_file = BMPFile(width=3, height=2, pixels=[7,8,9,11,12,13])
+    bytes(bmp_file)
 
 
 ``binobj`` also has other advantages in that it supports strings in any encoding

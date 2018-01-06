@@ -8,7 +8,8 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
     def __str__(self):
         return type(self).__name__
 
-    def get_field(self, stream, name, context=None):
+    @classmethod
+    def get_field(cls, stream, name, context=None):
         """Return the value of a single field.
 
         .. note ::
@@ -36,10 +37,10 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
             The end of the stream was reached before the requested field could
             be completely read.
         """
-        if name not in self.__components__:
+        if name not in cls.__components__:
             raise ValueError("%s doesn't have a field named %r." % (self, name))
 
-        field = self.__components__[name]
+        field = cls.__components__[name]
         original_offset = stream.tell()
 
         # If the field is at a fixed offset from the beginning of the struct,
@@ -56,7 +57,7 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
         # can unfortunately result in validation errors if there is data before
         # the desired field that's invalid.
         try:
-            loaded_data = self.partial_load(stream, name, context)
+            loaded_data = cls.partial_load(stream, name, context)
         finally:
             stream.seek(original_offset)
         return loaded_data[name]

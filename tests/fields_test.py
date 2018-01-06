@@ -11,28 +11,21 @@ from binobj import serialization
 from binobj import structures
 
 
-class DummyStruct(structures.Struct):
-    """A struct that does nothing."""
-
-
 def test_load__null_with_null_value():
     null_value = b' :( '
     field = fields.Bytes(name='field', size=4, null_value=null_value)
-    field.struct_class = DummyStruct
     assert field.load(io.BytesIO(null_value)) is None
 
 
 def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
-    field.struct_class = DummyStruct
     assert field.dumps(None) == b' :( '
 
 
 def test_dump__null_with_default_null():
     """No defined ``null_value`` --> dumps all null bytes."""
     field = fields.Bytes(name='field', size=4, null_value=serialization.DEFAULT)
-    field.struct_class = DummyStruct
     assert field.dumps(None) == b'\0\0\0\0'
 
 
@@ -41,7 +34,6 @@ def test_dump__null_with_no_def_and_varlen():
     column is variable-length."""
     field = fields.VariableLengthInteger(name='field',
                                          encoding=varints.VarIntEncoding.ZIGZAG)
-    field.struct_class = DummyStruct
 
     with pytest.raises(errors.UnserializableValueError):
         field.dumps(None)
@@ -50,7 +42,6 @@ def test_dump__null_with_no_def_and_varlen():
 def test_dump__allow_null_false_crashes():
     """Crash if we try dumping None and allow_null is False."""
     field = fields.Bytes(name='field', size=4, allow_null=False)
-    field.struct_class = DummyStruct
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.dumps(None)
@@ -64,7 +55,6 @@ def test_dump__allow_null_false_with_null_value_crashes():
     null_value is provided."""
     field = fields.Bytes(name='field', size=4, allow_null=False,
                          null_value=b' :) ')
-    field.struct_class = DummyStruct
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.dumps(None)
@@ -106,10 +96,17 @@ class BasicStructWithArray(structures.Struct):
 def test_array__fixed_in_struct():
     """Test a fixed array in a struct with elements surrounding it."""
     stream = io.BytesIO(b'ABC\xde\xad\xbe\xefXYZ')
-    loaded = BasicStructWithArray().load(stream)
+    struct = BasicStructWithArray.from_stream(stream)
 
-    assert loaded == {
-        'header': b'ABC',
-        'numbers': [0xdead, 0xbeef],
-        'trailer': b'XYZ',
-    }
+    assert struct.header == b'ABC'
+    assert struct.numbers == [0xdead, 0xbeef]
+    assert struct.trailer == b'XYZ'
+
+
+def test_descriptor_get():
+    """A field should return itself when accessed from a class, and its assigned
+    value when accessed from an instance."""
+    assert isinstance(BasicStructWithArray.header, fields.Bytes)
+
+    struct = BasicStructWithArray(header=b'abc')
+    assert struct.header == b'abc'

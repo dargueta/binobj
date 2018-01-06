@@ -2,6 +2,7 @@
 
 import abc
 import collections
+import collections.abc
 import copy
 import io
 
@@ -81,22 +82,21 @@ def _r_gather_options_for_class(klass, options, seen):
     :rtype: dict
     """
     seen.add(klass)
-    if not issubclass(klass, Serializable):
-        return options
 
     # Determine all the options defined in the parent classes
-    for parent_class in reversed(klass.__mro__):
+    for parent_class in reversed(klass.__bases__):
         if parent_class not in seen:
             _r_gather_options_for_class(parent_class, options, seen)
         seen.add(parent_class)
 
-    options_to_copy = {
-        name: value
-        for name, value in vars(klass.Options).items()
-        if not name.startswith('_')
-    }
+    if hasattr(klass, 'Options') and isinstance(klass.Options, type):
+        options_to_copy = {
+            name: value
+            for name, value in vars(klass.Options).items()
+            if not name.startswith('_')
+        }
 
-    options.update(copy.deepcopy(options_to_copy))
+        options.update(copy.deepcopy(options_to_copy))
 
     return options
 
@@ -111,9 +111,13 @@ class Serializable:
         on a per-instance basis with keyword arguments passed to the constructor.
         Keyword arguments not recognized by a constructor will be put in here.
 
+        :type: dict
+
     .. attribute:: size
 
         The size of this object, in bytes.
+
+        :type: int
     """
     class Options:
         """An object used for defining settings on a per-class basis."""
@@ -122,7 +126,6 @@ class Serializable:
         self.size = size
         self.__options__ = gather_options_for_class(type(self))
         self.__options__.update(kwargs)
-        super().__init__()
 
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -154,6 +157,8 @@ class Serializable:
         """
         if isinstance(data, (bytes, bytearray)):
             stream.write(data)
+        elif data is DEFAULT or data is UNDEFINED:
+            stream.write(self._get_default_value())
         else:
             raise errors.UnserializableValueError(
                 reason='Unhandled data type: ' + type(data).__name__,
@@ -286,6 +291,17 @@ class Serializable:
 
         return data_read
 
+    def _get_default_value(self):
+        const = self.__options__.get('const', UNDEFINED)
+        if const is not UNDEFINED:
+            return const
+
+        default = self.__options__.get('default', UNDEFINED)
+        if default is not UNDEFINED:
+            return default
+
+        return UNDEFINED
+
 
 class SerializableContainerMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
@@ -308,6 +324,7 @@ class SerializableContainerMeta(abc.ABCMeta):
 
         class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
         class_options = gather_options_for_class(class_object)
+        class_object.__options__ = class_options
 
         offset = 0
         for i, (f_name, field) in enumerate(namespace['__components__'].items()):
@@ -324,70 +341,115 @@ class SerializableContainerMeta(abc.ABCMeta):
         return class_object
 
 
-class SerializableContainer(Serializable, metaclass=SerializableContainerMeta):
+class SerializableContainer(collections.abc.MutableMapping,
+                            metaclass=SerializableContainerMeta):
     """A serialization class for container-like objects.
 
     .. attribute:: __components__
 
         An :class:`~collections.OrderedDict` of the :class:`Serializable` objects
-        comprising the container. *Never* modify this yourself.
+        comprising the container. *Never* modify or create this yourself.
+
+        :type: collections.OrderedDict
     """
+    __options__ = None      # type: dict
     __components__ = None   # type: collections.OrderedDict
 
-    def _do_dump(self, stream, data, context):
-        """Convert the given data into bytes and write it to ``stream``.
-
-        :param io.BytesIO stream:
-            A stream to write the serialized data into.
-        :param dict data:
-            The data to dump.
-        :param context:
-            Additional data to pass to the :meth:`dump` function.
-        """
-        given_keys = set(data.keys())
-        expected_keys = set(self.__components__.keys())
-        extra_keys = given_keys - expected_keys
+    def __init__(self, **values):
+        extra_keys = values.keys() - self.__components__.keys()
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
-        for name, component in self.__components__.items():
-            value = data.get(name, UNDEFINED)
+        self.__values__ = values
 
-            if value is UNDEFINED:
-                # Caller didn't pass a value for this component. If a default
-                # value is defined, use it. Otherwise, crash.
-                const = component.__options__['const']
-                default = component.__options__['default']
-                if const is not UNDEFINED:
-                    value = const
-                elif default is not UNDEFINED:
-                    value = default
-                else:
-                    raise errors.MissingRequiredValueError(field=component)
-
-            component.dump(stream, value, context)
-
-    def _do_load(self, stream, context=None):
-        """Load a structure from the given byte stream.
+    def to_stream(self, stream, context=None):
+        """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BytesIO stream:
-            A bytes stream to read data from.
+            The stream to write the serialized data into.
         :param context:
-            Additional data to pass to the deserialization function. Subclasses
-            must ignore anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        """
+        for name, field in self.__components__.items():
+            value = self.__values__.get(name, field.default)
+            if value is UNDEFINED:
+                raise errors.MissingRequiredValueError(field=field)
 
-        :return: The deserialized data.
+            field.dump(stream, value, context)
+
+    def to_bytes(self, context=None):
+        """Convert the given data into bytes.
+
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+
+        :return: The serialized data.
+        :rtype: bytes
+        """
+        stream = io.BytesIO()
+        self.to_stream(stream, context)
+        return stream.getvalue()
+
+    def to_dict(self, fill_missing=False):
+        """Convert this struct into a dictionary.
+
+        :param bool fill_missing:
+            If ``True``, any unassigned values in this struct will be set to
+            their defaults.
+
         :rtype: collections.OrderedDict
         """
-        result = collections.OrderedDict()
-        for name, component in self.__components__.items():
-            value = component.load(stream, context)
-            if not component.discard:
-                result[name] = value
+        raise NotImplementedError
 
-        return result
+    @classmethod
+    def from_stream(cls, stream, context=None):
+        """Load a struct from the given stream.
 
-    def partial_load(self, stream, last_field=None, context=None):
+        :param io.BytesIO stream:
+            The stream to load data from.
+        :param context:
+            Additional data to pass to the components' :meth:`load` methods.
+            Subclasses must ignore anything they don't recognize.
+
+        :return: The loaded struct.
+        """
+        results = {}
+
+        for name, field in cls.__components__.items():
+            results[name] = field.load(stream, context)
+
+        return cls(**results)
+
+    @classmethod
+    def from_bytes(cls, data, context=None, exact=True):
+        """Load a struct from the given byte string.
+
+        :param bytes data:
+            A bytes-like object to get the data from.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        :param bool exact:
+            ``data`` must contain exactly the number of bytes required. If not
+            all the bytes in ``data`` were used when reading the struct, throw
+            an exception.
+
+        :return: The loaded struct.
+        """
+        stream = io.BytesIO(data)
+        loaded_data = cls.from_stream(stream, context)
+
+        if exact and (stream.tell() < len(data) - 1):
+            # TODO (dargueta): Better error message.
+            raise errors.ExtraneousDataError(
+                'Expected to read %d bytes, read %d.'
+                % (len(data), stream.tell() + 1))
+        return loaded_data
+
+    @classmethod
+    def partial_load(cls, stream, last_field=None, context=None):
         """Partially load this object, either until EOF or the named field.
 
         All fields up to and including the field named in ``last_field`` will be
@@ -408,15 +470,15 @@ class SerializableContainer(Serializable, metaclass=SerializableContainerMeta):
             Any object containing extra information to pass to the fields'
             :meth:`load` method.
 
-        :return: The deserialized data.
-        :rtype: collections.OrderedDict
+        :return: The loaded struct.
         """
-        if last_field is not None and last_field not in self.__components__:
-            raise ValueError(
-                "%s doesn't have a field named %r." % (self, last_field))
+        if last_field is not None and last_field not in cls.__components__:
+            raise ValueError("%s doesn't have a field named %r."
+                             % (cls.__name__, last_field))
 
-        result = collections.OrderedDict()
-        for field in self.__components__.values():
+        result = {}
+
+        for field in cls.__components__.values():
             offset = stream.tell()
 
             try:
@@ -438,9 +500,9 @@ class SerializableContainer(Serializable, metaclass=SerializableContainerMeta):
             if field.name == last_field:
                 return result
 
-        return result
+        return cls(**result)
 
-    def partial_dump(self, stream, data, last_field=None, context=None):
+    def partial_dump(self, stream, last_field=None, defaults=None, context=None):
         """Partially dump the object, up to and including the last named field.
 
         All fields up to and including the field named in ``last_field`` will be
@@ -451,22 +513,17 @@ class SerializableContainer(Serializable, metaclass=SerializableContainerMeta):
 
         :param io.BytesIO stream:
             The stream to dump into.
-        :param dict data:
-            The data to dump.
         :param str last_field:
             The name of the last field in the object to dump.
         :param context:
             Any object containing extra information to pass to the fields'
             :meth:`load` methods.
         """
-        given_keys = set(data.keys())
-        expected_keys = set(self.__components__.keys())
-        extra_keys = given_keys - expected_keys
-        if extra_keys:
-            raise errors.UnexpectedValueError(struct=self, name=extra_keys)
+        data = self.__values__
 
         for field in self.__components__.values():
-            if field.name not in data:
+            value = data.get(field.name, field.default)
+            if value is UNDEFINED:
                 # Field is missing from the dump data. If the caller wants us to
                 # dump only the fields that're defined, we can bail out now.
                 if last_field is None:
@@ -476,8 +533,32 @@ class SerializableContainer(Serializable, metaclass=SerializableContainerMeta):
                     # so we need to crash.
                     raise errors.MissingRequiredValueError(field=field)
 
-            value = data.get(field.name, field.__options__['default'])
             field.dump(stream, value, context)
 
             if field.name == last_field:
                 return
+
+    # Container methods
+    def __getitem__(self, item):
+        return self.__values__[item]
+
+    def __setitem__(self, field_name, value):
+        if field_name not in self.__components__:
+            raise KeyError('%r has field named %r.'
+                           % (type(self).__name__, field_name))
+        self.__values__[field_name] = value
+
+    def __delitem__(self, field_name):
+        if field_name not in self.__components__:
+            raise KeyError('Struct %r has such field named %r.'
+                           % (type(self).__name__, field_name))
+        del self.__values__[field_name]
+
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        return len(bytes(self))
+
+    def __bytes__(self):
+        return self.to_bytes()

@@ -9,7 +9,8 @@ from binobj import helpers
 from binobj import varints
 from binobj import serialization
 
-from binobj.serialization import DEFAULT, UNDEFINED
+from binobj.serialization import DEFAULT
+from binobj.serialization import UNDEFINED
 
 
 class Field(serialization.Serializable):
@@ -70,16 +71,16 @@ class Field(serialization.Serializable):
         self.offset = None      # type: int
 
     @property
+    def const(self):
+        return self.__options__.setdefault('const', UNDEFINED)
+
+    @property
     def default(self):
-        return self.__options__.setdefault('default', UNDEFINED)
+        return self._get_default_value()
 
     @property
     def discard(self):
         return self.__options__.setdefault('discard', False)
-
-    @property
-    def const(self):
-        return self.__options__.setdefault('const', UNDEFINED)
 
     def load(self, stream, context=None):
         # TODO (dargueta): This try-catch just to set the field feels dumb.
@@ -96,14 +97,24 @@ class Field(serialization.Serializable):
 
     def dump(self, stream, data=DEFAULT, context=None):
         if data is DEFAULT:
-            if self.const is not UNDEFINED:
-                data = self.const
-            elif self.default is not UNDEFINED:
-                data = self.default
-            else:
+            data = self.default
+            if (data is UNDEFINED) or (data is DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
 
         super().dump(stream, data, context)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+
+        return instance.__values__.setdefault(self.name, self.default)
+
+    def __set__(self, instance, value):
+        # TODO (dargueta): Call validators here
+        instance.__values__[self.name] = value
+
+    def __delete__(self, instance):
+        instance.__values__[self.name] = self.default
 
     def __str__(self):
         return '%s(name=%r)' % (type(self).__name__, self.name)
@@ -199,6 +210,19 @@ class Array(Field):
             result.append(self.component.load(stream, context))
 
         return result
+
+
+class Nested(Field):
+    """Used for inserting nested structs."""
+    def __init__(self, struct, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.struct = struct
+
+    def _do_dump(self, stream, data, context):
+        self.struct.dump(stream, data, context)
+
+    def _do_load(self, stream, context):
+        self.struct.load(stream, context)
 
 
 class Bytes(Field):

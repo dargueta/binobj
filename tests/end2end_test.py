@@ -57,49 +57,43 @@ def png_file():
 
 
 def test_basic_bmp__loads(bmp_file):
-    loader = SimpleBMPFileHeader()
-    output = loader.loads(bmp_file, exact=False)
+    output = SimpleBMPFileHeader.from_bytes(bmp_file, exact=False)
 
-    assert output == {
-        'magic': b'BM',
-        'file_size': len(bmp_file),
-        'pixels_offset': 54,
-        'header_size': 40,
-        'image_width': 80,
-        'image_height': 60,
-        'n_color_planes': 1,
-        'n_bits_per_pixel': 24,
-        'compression_method': 0,
-        'bitmap_size': 14400,
-        'v_resolution': 2835,
-        'h_resolution': 2835,
-        'n_palette_colors': 0,
-        'n_important_colors': 0,
-    }
+    assert output.magic == b'BM'
+    assert output.file_size == len(bmp_file)
+    assert output.pixels_offset == 54
+    assert output.header_size == 40
+    assert output.image_width == 80
+    assert output.image_height == 60
+    assert output.n_color_planes == 1
+    assert output.n_bits_per_pixel == 24
+    assert output.compression_method == 0
+    assert output.bitmap_size == 14400
+    assert output.v_resolution == 2835
+    assert output.h_resolution == 2835
+    assert output.n_palette_colors == 0
+    assert output.n_important_colors == 0
 
 
 def test_basic_bmp__load(bmp_file):
     """Test loading from a stream."""
     stream = io.BytesIO(bmp_file)
-    loader = SimpleBMPFileHeader()
-    output = loader.load(stream)
+    output = SimpleBMPFileHeader.from_stream(stream)
 
-    assert output == {
-        'magic': b'BM',
-        'file_size': len(bmp_file),
-        'pixels_offset': 54,
-        'header_size': 40,
-        'image_width': 80,
-        'image_height': 60,
-        'n_color_planes': 1,
-        'n_bits_per_pixel': 24,
-        'compression_method': 0,
-        'bitmap_size': 14400,
-        'v_resolution': 2835,
-        'h_resolution': 2835,
-        'n_palette_colors': 0,
-        'n_important_colors': 0,
-    }
+    assert output.magic == b'BM'
+    assert output.file_size == len(bmp_file)
+    assert output.pixels_offset == 54
+    assert output.header_size == 40
+    assert output.image_width == 80
+    assert output.image_height == 60
+    assert output.n_color_planes == 1
+    assert output.n_bits_per_pixel == 24
+    assert output.compression_method == 0
+    assert output.bitmap_size == 14400
+    assert output.v_resolution == 2835
+    assert output.h_resolution == 2835
+    assert output.n_palette_colors == 0
+    assert output.n_important_colors == 0
 
 
 def test_basic_bmp__dumps(bmp_file):
@@ -120,8 +114,8 @@ def test_basic_bmp__dumps(bmp_file):
         'n_important_colors': 0,
     }
 
-    loader = SimpleBMPFileHeader()
-    output = loader.dumps(header_data)
+    loader = SimpleBMPFileHeader(**header_data)
+    output = loader.to_bytes()
 
     assert len(output) == 54, 'Header is wrong size.'
     assert output == bmp_file[:54], 'Data mismatch.'

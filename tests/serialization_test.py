@@ -5,7 +5,8 @@ import sys
 import pytest
 
 import binobj
-from binobj.serialization import gather_options_for_class, _DEFAULT_OPTIONS
+from binobj.serialization import _DEFAULT_OPTIONS
+from binobj.serialization import gather_options_for_class
 
 
 class BaseClassWithOptions(binobj.Struct):
@@ -55,7 +56,7 @@ def test_gather_options__inherits__with_additional_options():
     expected = {
         'foo': 'bar',
         'bar': 'baz',
-        'child': True
+        'child': True,
     }
     expected.update(_DEFAULT_OPTIONS)
     assert gather_options_for_class(ChildClassWithOptions) == expected
@@ -66,7 +67,7 @@ def test_gather_options__inherits__with_overrides():
     expected = {
         'foo': 123456,
         'bar': 'baz',
-        'child': True
+        'child': True,
     }
     expected.update(_DEFAULT_OPTIONS)
     assert gather_options_for_class(GrandchildWithOverrides) == expected
@@ -80,12 +81,10 @@ class ChildWithFields(binobj.Struct):
 
 
 def test_gather_options__field_inherits_struct():
-    struct = ChildWithFields()
-
-    assert 'blah' in struct.field.__options__
-    assert struct.field.__options__['blah'] == 123
-    assert struct.field.__options__['kw1'] == 1
-    assert struct.field.__options__['kw2'] == 2
+    assert 'blah' in ChildWithFields.field.__options__
+    assert ChildWithFields.field.__options__['blah'] == 123
+    assert ChildWithFields.field.__options__['kw1'] == 1
+    assert ChildWithFields.field.__options__['kw2'] == 2
 
 
 NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'
@@ -95,20 +94,18 @@ class StructWithFieldOverrides(binobj.Struct):
     class Options:
         endian = NONDEFAULT_ENDIANNESS
 
-    one = binobj.Int32(signed=False)    # Should be non-default byte order.
-    two = binobj.UInt32(endian=sys.byteorder)
+    one = binobj.UInt32()   # Should be non-default byte order.
+    two = binobj.Int32(endian=sys.byteorder)
 
 
 def test_gather_options__field_overrides_struct():
-    struct = StructWithFieldOverrides()
     expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': False}
-    expected_two = {'endian': sys.byteorder, 'signed': True}
+    expected_two = {'endian': sys.byteorder}    # `signed` = `True` implied
 
     expected_one.update(_DEFAULT_OPTIONS)
     expected_two.update(_DEFAULT_OPTIONS)
 
-    assert struct.one.__options__ == expected_one
-    assert struct.two.__options__ == expected_two
-
-    assert struct.one.endian == NONDEFAULT_ENDIANNESS
-    assert struct.two.endian == sys.byteorder
+    assert StructWithFieldOverrides.one.__options__ == expected_one
+    assert StructWithFieldOverrides.two.__options__ == expected_two
+    assert StructWithFieldOverrides.one.endian == NONDEFAULT_ENDIANNESS
+    assert StructWithFieldOverrides.two.endian == sys.byteorder
