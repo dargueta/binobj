@@ -119,9 +119,6 @@ class Serializable:
 
         :type: int
     """
-    class Options:
-        """An object used for defining settings on a per-class basis."""
-
     def __init__(self, *, size=None, **kwargs):
         self.size = size
         self.__options__ = gather_options_for_class(type(self))
