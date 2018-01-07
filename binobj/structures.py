@@ -38,7 +38,7 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
             be completely read.
         """
         if name not in cls.__components__:
-            raise ValueError("%s doesn't have a field named %r." % (self, name))
+            raise ValueError("%s doesn't have a field named %r." % (cls, name))
 
         field = cls.__components__[name]
         original_offset = stream.tell()
