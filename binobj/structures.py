@@ -5,9 +5,6 @@ from binobj import serialization
 
 class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-public-methods
     """An ordered collection of fields and other structures."""
-    def __str__(self):
-        return type(self).__name__
-
     @classmethod
     def get_field(cls, stream, name, context=None):
         """Return the value of a single field.
@@ -38,7 +35,8 @@ class Struct(serialization.SerializableContainer):  # pylint: disable=too-few-pu
             be completely read.
         """
         if name not in cls.__components__:
-            raise ValueError("%s doesn't have a field named %r." % (cls, name))
+            raise ValueError("%s doesn't have a field named %r."
+                             % (cls.__name__, name))
 
         field = cls.__components__[name]
         original_offset = stream.tell()

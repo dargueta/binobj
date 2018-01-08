@@ -117,6 +117,13 @@ def test_get_field__basic():
     assert stream.tell() == 0
 
 
+def test_get_field__bad_name():
+    with pytest.raises(ValueError) as errinfo:
+        BasicStruct.get_field(None, ':)')
+
+    assert str(errinfo.value) == "BasicStruct doesn't have a field named ':)'."
+
+
 def test_dump__basic():
     """Verify basic dump works."""
     struct = BasicStruct(string='AbCdEfG', int64=-100, uint24=65535)
