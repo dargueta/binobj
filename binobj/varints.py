@@ -82,34 +82,6 @@ def decode_integer_compact(stream):
         if int8 & 0x80 == 0:
             return value * sign
 
-# def encode_integer_git_vlq(field, value):
-#     """Encode an integer in Git's variable-length quantity (VLQ) format.
-#
-#     :param Field field:
-#         The field the integer is being encoded for.
-#     :param int value:
-#         The value to encode. Must be a non-negative integer.
-#
-#     :return: ``value`` encoded as a variable-length integer in Git's VLQ format.
-#     :rtype: bytes
-#     """
-#     raise NotImplementedError
-#
-#
-# def decode_integer_git_vlq(field, stream):
-#     """pass"""
-#     raise NotImplementedError
-#
-#
-# def encode_integer_leb128(field, value):
-#     """pass"""
-#     raise NotImplementedError
-#
-#
-# def decode_integer_leb128(field, data):
-#     """pass"""
-#     raise NotImplementedError
-
 
 def encode_integer_vlq(value):
     """Encode an integer with the VLQ encoding.

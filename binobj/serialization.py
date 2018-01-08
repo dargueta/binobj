@@ -516,7 +516,7 @@ class SerializableContainer(collections.abc.MutableMapping,
 
         return cls(**result)
 
-    def partial_dump(self, stream, last_field=None, defaults=None, context=None):
+    def partial_dump(self, stream, last_field=None, context=None):
         """Partially dump the object, up to and including the last named field.
 
         All fields up to and including the field named in ``last_field`` will be
