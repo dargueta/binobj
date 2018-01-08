@@ -248,21 +248,10 @@ class Integer(Field):
         Indicates if this number is a signed or unsigned integer. Defaults to
         ``True``.
     """
-    @property
-    def endian(self):
-        """The endianness to use to load/store the integer.
-
-        :type: str
-        """
-        return self.__options__.setdefault('endian', sys.byteorder)
-
-    @property
-    def signed(self):
-        """Indicates if this number is a signed or unsigned integer.
-
-        :type: bool
-        """
-        return self.__options__.setdefault('signed', True)
+    def __init__(self, endian=None, signed=True, **kwargs):
+        super().__init__(**kwargs)
+        self.endian = endian or sys.byteorder
+        self.signed = signed
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
@@ -286,9 +275,10 @@ class VariableLengthInteger(Integer):
         If ``True``, this field is a signed integer.
 
     .. note::
+
         Not all integer encodings allow signed integers.
     """
-    def __init__(self, *args, encoding, signed=True, **kwargs):
+    def __init__(self, encoding, max_bytes=None, signed=True, **kwargs):
         if encoding == varints.VarIntEncoding.VLQ and signed is True:
             raise errors.FieldConfigurationError(
                 "Signed integers can't be encoded with VLQ. Either pass "
@@ -303,30 +293,13 @@ class VariableLengthInteger(Integer):
                 'Invalid or unsupported integer encoding scheme: %r' % encoding,
                 field=self)
 
-        self._encode_integer_fn = encoding_functions['encode']
-        self._decode_integer_fn = encoding_functions['decode']
-        super().__init__(*args,
-                         endian=encoding_functions['endian'],
-                         signed=signed,
-                         encoding=encoding,
+        super().__init__(endian=encoding_functions['endian'], signed=signed,
                          **kwargs)
 
-    @property
-    def encoding(self):
-        """The encoding to use for the variable-length integer.
-
-        :type: str
-        """
-        return self.__options__['encoding']
-
-    @property
-    def max_bytes(self):
-        """The maximum number of bytes to use for encoding this integer, or
-        ``None`` if there's no limit.
-
-        :type: int
-        """
-        return self.__options__['max_bytes']
+        self._encode_integer_fn = encoding_functions['encode']
+        self._decode_integer_fn = encoding_functions['decode']
+        self.encoding = encoding
+        self.max_bytes = max_bytes
 
     def _do_load(self, stream, context):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
@@ -415,23 +388,10 @@ class String(Field):
         obeyed, e.g. that the field length is a multiple of two if you select
         ``utf-16`` as the encoding.
     """
-    @property
-    def encoding(self):
-        """The encoding to use for this string.
-        Defaults to ``ascii``.
-
-        :type: str
-        """
-        return self.__options__.setdefault('encoding', 'ascii')
-
-    @property
-    def truncate(self):
-        """When serializing, truncate strings that are too long to fit into the
-        field. Defaults to ``False``.
-
-        :type: bool
-        """
-        return self.__options__.setdefault('truncate', False)
+    def __init__(self, *, encoding='ascii', truncate=False, **kwargs):
+        super().__init__(**kwargs)
+        self.encoding = encoding
+        self.truncate = truncate
 
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
