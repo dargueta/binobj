@@ -14,14 +14,28 @@ class Error(Exception):
 
 
 class FieldConfigurationError(Error):
-    """A field was misconfigured."""
+    """A field was misconfigured.
+
+    :param str message: A description of what's wrong with the field.
+    :param ~binobj.fields.Field field: The offending field.
+    """
     def __init__(self, message, *, field):
         super().__init__(message)
         self.field = field
 
 
 class SerializationError(Error):
-    """An error occurred while serializing data."""
+    """An error occurred while serializing data.
+
+    :param str message:
+        An error message explaining the problem.
+    :param ~binobj.structures.Struct struct:
+        The struct that contains the field that failed to be serialized.
+    :param ~binobj.fields.Field field:
+        The field that failed to be serialized.
+    :param value:
+        The value that caused the crash.
+    """
     def __init__(self, message=None, *, struct=None, field=None, value=None):
         super().__init__(message)
         self.struct = struct
@@ -30,7 +44,17 @@ class SerializationError(Error):
 
 
 class DeserializationError(Error):
-    """An error occurred while deserializing data."""
+    """An error occurred while deserializing data.
+
+    :param str message:
+        An error message explaining the problem.
+    :param ~binobj.fields.Field field:
+        The field that failed to load.
+    :param bytes data:
+        The raw data that was read that led to the crash.
+    :param int offset:
+        The offset into the data stream where the crash occurred.
+    """
     def __init__(self, message=None, *, field=None, data=None, offset=None):
         super().__init__(message)
         self.field = field
@@ -39,11 +63,23 @@ class DeserializationError(Error):
 
 
 class ValidationError(Error):
-    """Validation failed for one or more fields."""
+    """Validation failed for one or more fields.
+
+    :param str message:
+        An error message explaining the problem.
+    :param ~binobj.fields.Field field:
+        The field that failed validation.
+    :param value:
+        The invalid value.
+    """
     def __init__(self, message=None, *, field, value):
         super().__init__(message)
         self.field = field
         self.value = value
+
+
+class FieldReferenceError(Error):
+    """An error occurred while computing a field reference."""
 
 
 ################################################################################
@@ -60,14 +96,25 @@ class UnserializableValueError(SerializationError):
 
 
 class MissingRequiredValueError(SerializationError):
-    """No value was passed for a required field."""
+    """No value was passed for a required field.
+
+    :param ~binobj.fields.Field field:
+        The missing field, or its name.
+    """
     def __init__(self, *, field):
         super().__init__('Missing required value for field: %s' % field,
                          field=field)
 
 
 class UnexpectedValueError(SerializationError):
-    """The data to dump has unexpected fields."""
+    """The data to dump has unexpected fields.
+
+    :param ~binobj.structures.Struct struct:
+        The struct performing the serialization.
+    :param str name:
+        Either a string or an iterable of strings, each being the name of a
+        field that was unexpected.
+    """
     def __init__(self, *, struct, name):
         if isinstance(name, str):
             self.names = {name}
@@ -119,7 +166,7 @@ class UnreadableDataError(DeserializationError):
 class UnexpectedEOFError(DeserializationError):
     """Hit EOF while reading, but expected more data.
 
-    :param Field field:
+    :param ~binobj.fields.Field field:
         The field that failed to be deserialized.
     :param int size:
         The number of bytes that were attempted to be read.
