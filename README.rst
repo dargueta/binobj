@@ -51,12 +51,10 @@ System Requirements
 
 - This package will *not* work on a mixed-endian system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on Python 3.3, 3.4, 3.5, 3.6, and PyPy3.5 5.9.0. (It may
-  work on older versions of PyPy3.5 but I haven't tested them.) I make no
-  guarantees about other implementations.
+- This has been tested on Python 3.3, 3.4, 3.5, 3.6, and PyPy3.5.
 
 Sorry, I have no intention of supporting Python 2. Feel free to fork this and do
-a backport if you like! I'd be interested to see it and even contribute.
+a backport if you like! I'd be interested to see it and might even contribute.
 
 Installation
 ------------
@@ -103,11 +101,6 @@ Once you have those installed, in the root directory of this repo run:
 .. code-block:: sh
 
     make setup
-
-If you're running on a Mac and don't already have PyPy3 installed, this can take
-a *very* long time. There's no prebuilt binary for it on OSX so you need to
-build it from the source. This can take over an hour even on a new machine.
-
 
 Running the Tests
 ~~~~~~~~~~~~~~~~~

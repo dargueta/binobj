@@ -6,22 +6,7 @@ DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-ifeq ($(OS),Windows_NT)
-    OPERATING_SYSTEM=WINDOWS
-else
-    OPERATING_SYSTEM=$(shell uname -s)
-endif
-
-ifeq ($(OPERATING_SYSTEM),Darwin)
-    # OSX doesn't provide a pre-built binary for PyPy3 so we have to build it
-    # ourselves. Unfortunately, this can take over an hour even on a modern
-    # system.
-    PYPY3=pypy3.5-5.9.0-src
-else
-    PYPY3=pypy3.5-5.9.0
-endif
-
-PYTHON_VERSIONS=3.6.3 3.5.4 3.4.7 3.3.7 $(PYPY3)
+PYTHON_VERSIONS=3.6.4 3.5.4 3.4.7 3.3.7 pypy3.5-5.10.0
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
