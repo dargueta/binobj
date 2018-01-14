@@ -10,34 +10,39 @@ from binobj import errors
 from binobj import helpers
 
 
-# Normally a plain :class:`object` instance would be used as a sentinel value,
-# but `copy.deepcopy` uses pickling which creates a new instance of the object.
-# That breaks the assumption that only one instance of this will ever exist at a
-# time, hence the following abomination.
-
-
-def UNDEFINED():  # pylint: disable=invalid-name
-    """A sentinel value used to indicate that a setting or field is undefined.
-
-    .. note::
-
-        This sentinel value is implemented as a function for stupid reasons and
-        may change at any time. Never call it or even assume it's callable.
+class _NamedSentinel:
+    """An object type used for creating sentinel objects that can be retrieved
+    by name.
     """
-    raise RuntimeError('Only use this sentinel as a value and never call it.')
+    # A mapping of sentinels from name to instance.
+    __sentinels = {}
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def get_sentinel(cls, name):
+        """Return the sentinel with the given name, creating it if necessary."""
+        return cls.__sentinels.setdefault(name, cls(name))
+
+    def __deepcopy__(self, memodict=None):
+        return self
+
+    def __reduce__(self):
+        return _NamedSentinel.get_sentinel, (self.name,)
+
+    def __repr__(self):
+        return 'Sentinel(%r)' % self.name
 
 
-def DEFAULT():  # pylint: disable=invalid-name
-    """A sentinel value used to indicate that the default value of a setting
-    should be used. We need this because sometimes ``None`` is a valid value for
-    that setting.
+#: A sentinel value used to indicate that a setting or field is undefined.
+UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
 
-    .. note::
 
-        This sentinel value is implemented as a function for stupid reasons and
-        may change at any time. Never call it or even assume it's callable.
-    """
-    raise RuntimeError('Only use this sentinel as a value and never call it.')
+#: A sentinel value used to indicate that the default value of a setting should
+#: be used. We need this because sometimes ``None`` is a valid value for that
+#: setting.
+DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
 
 
 #: A read-only dictionary of predefined options for serializable objects.
