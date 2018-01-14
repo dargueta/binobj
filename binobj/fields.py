@@ -72,17 +72,25 @@ class Field(serialization.Serializable):
 
     @property
     def const(self):
+        """The value this field is hardcoded to, or :data:`UNDEFINED` if it's
+        not hardcoded.
+        """
         return self.__options__.setdefault('const', UNDEFINED)
 
     @property
     def default(self):
+        """The default value of this field, or :data:`UNDEFINED`."""
         return self._get_default_value()
 
     @property
     def discard(self):
+        """If ``True``, this field will always be discarded upon loading.
+
+        :type: bool
+        """
         return self.__options__.setdefault('discard', False)
 
-    def load(self, stream, context=None):
+    def load(self, stream, context=None):   # pylint: disable=missing-docstring
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
             loaded_value = super().load(stream, context)
@@ -95,7 +103,7 @@ class Field(serialization.Serializable):
             raise errors.ValidationError(field=self, value=loaded_value)
         return loaded_value
 
-    def dump(self, stream, data=DEFAULT, context=None):
+    def dump(self, stream, data=DEFAULT, context=None):  # pylint: disable=missing-docstring
         if data is DEFAULT:
             data = self.default
             if (data is UNDEFINED) or (data is DEFAULT):
