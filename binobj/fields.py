@@ -122,7 +122,7 @@ class Field(serialization.Serializable):
         instance.__values__[self.name] = value
 
     def __delete__(self, instance):
-        instance.__values__[self.name] = self.default
+        instance.__values__[self.name] = self._get_default_value()
 
     def __str__(self):
         return '%s(name=%r)' % (type(self).__name__, self.name)

@@ -7,7 +7,8 @@ import pytest
 from binobj import errors
 from binobj import fields
 from binobj import varints
-from binobj import serialization
+from binobj.serialization import DEFAULT
+from binobj.serialization import UNDEFINED
 from binobj import structures
 
 
@@ -25,7 +26,7 @@ def test_dump__null_with_null_value():
 
 def test_dump__null_with_default_null():
     """No defined ``null_value`` --> dumps all null bytes."""
-    field = fields.Bytes(name='field', size=4, null_value=serialization.DEFAULT)
+    field = fields.Bytes(name='field', size=4, null_value=DEFAULT)
     assert field.dumps(None) == b'\0\0\0\0'
 
 
@@ -63,6 +64,14 @@ def test_dump__allow_null_false_with_null_value_crashes():
     assert errinfo.value.value is None
 
 
+def test_dump__field_only__no_value_no_default():
+    """Dumping a field with no predefined value crashes"""
+    field = fields.Bytes(name='field', size=4)
+
+    with pytest.raises(errors.MissingRequiredValueError):
+        field.dumps()
+
+
 def test_array__basic():
     """Test deserializing a list of stuff."""
     sequence = fields.Array(fields.UInt8())
@@ -93,6 +102,16 @@ class BasicStructWithArray(structures.Struct):
     trailer = fields.Bytes(const=b'XYZ')
 
 
+def test_load__invalid_const():
+    data = b'ASDFGHJXYZ'
+
+    with pytest.raises(errors.ValidationError) as errinfo:
+        BasicStructWithArray.from_bytes(data)
+
+    assert errinfo.value.field is BasicStructWithArray.header
+    assert errinfo.value.value == b'ASD'
+
+
 def test_array__fixed_in_struct():
     """Test a fixed array in a struct with elements surrounding it."""
     stream = io.BytesIO(b'ABC\xde\xad\xbe\xefXYZ')
@@ -110,3 +129,45 @@ def test_descriptor_get():
 
     struct = BasicStructWithArray(header=b'abc')
     assert struct.header == b'abc'
+
+
+def test_descriptor_set():
+    """Setting a field on an instance should update values."""
+    instance = BasicStructWithArray()
+
+    assert 'numbers' not in instance.__values__
+    instance.numbers = [1, 2]
+    assert 'numbers' in instance.__values__, 'Value was not set in instance'
+    assert instance.__values__['numbers'] == [1, 2]
+
+
+def test_descriptor_delete__no_default_to_undefined():
+    """Deleting a field should set it to its default value, or UNDEFINED."""
+    instance = BasicStructWithArray()
+
+    assert 'numbers' not in instance.__values__
+
+    instance.numbers = [1, 2]
+    assert 'numbers' in instance.__values__
+    assert instance.__values__['numbers'] == [1, 2]
+
+    del instance.numbers
+    assert instance.numbers is UNDEFINED
+
+
+def test_descriptor_delete__const_to_const():
+    """Deleting a const field should have no effect."""
+    instance = BasicStructWithArray()
+
+    assert 'header' not in instance.__values__
+    assert instance.header == b'ABC'
+    assert 'header' in instance.__values__
+    assert instance.__values__['header'] == b'ABC'
+
+    del instance.header
+
+    # Check to see if 'header' is in __values__ first because accessing 'header'
+    # from the instance will automatically set it in the dictionary.
+    assert 'header' in instance.__values__
+    assert instance.__values__['header'] == b'ABC'
+    assert instance.header == b'ABC'
