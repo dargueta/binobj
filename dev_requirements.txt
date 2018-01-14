@@ -1,6 +1,6 @@
 bumpversion==0.5.3
 detox>=0.10
 Sphinx>=1.6
-sphinx_rtd_theme>=0.2.5
+sphinx_rtd_theme>=0.2
 tox>=2.8
 tox-pyenv>=1.0
