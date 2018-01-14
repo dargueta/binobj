@@ -1,4 +1,5 @@
-"""Stuff for serializing data."""
+"""Base classes for representing objects that can be loaded and stored as binary
+data."""
 
 import abc
 import collections
@@ -54,13 +55,6 @@ _DEFAULT_OPTIONS = {
 }
 
 
-# TODO (dargueta) Cache the return value for this without borking singletons.
-#
-# The problem with caching the return value is that a deep copy needs to be made
-# in Serializable.__init__. This is normally fine, except that `copy.deepcopy`
-# uses pickling to perform a deep copy, so there end up being multiple copies of
-# the ``UNDEFINED``, ``DEFAULT``, and ``HALT`` sentinel objects. Identity checks
-# (the exact reason we have sentinels) will no longer work. :(
 def gather_options_for_class(klass):
     """Build a dictionary of an object's settings, including values defined in
     parent classes.
