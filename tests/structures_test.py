@@ -1,6 +1,5 @@
 """Tests for the structure objects."""
 
-import collections.abc
 import io
 
 import pytest
