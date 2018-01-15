@@ -64,6 +64,9 @@ class Field(serialization.Serializable):
     def __init__(self, *, name=None, **kwargs):
         super().__init__(**kwargs)
 
+        if self.size is None and self.const is not UNDEFINED:
+            self.size = len(self.const)
+
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
         self.name = name        # type: str
@@ -235,12 +238,6 @@ class Nested(Field):
 
 class Bytes(Field):
     """Raw binary data."""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.const is not UNDEFINED:
-            self.size = len(self.const)
-
     def _do_load(self, stream, context):    # pylint: disable=unused-argument
         return stream.read(self.size)
 
