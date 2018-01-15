@@ -23,7 +23,7 @@ def test_dump__unserializable():
 
 
 def test_dump__use_default():
-    field = binobj.Bytes(name='field', size=4, default=b'\xde\xad\xbe\xef')
+    field = binobj.UInt32(name='field', default=0xdeadbeef, endian='big')
     assert field.dumps() == b'\xde\xad\xbe\xef'
 
 
