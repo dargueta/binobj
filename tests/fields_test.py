@@ -122,6 +122,25 @@ def test_array__fixed_in_struct():
     assert struct.trailer == b'XYZ'
 
 
+class BasicStructWithSentinelArray(structures.Struct):
+    def should_halt(seq, stream, loaded, context):   # pylint: disable=unused-argument
+        if loaded and loaded[-1] == 0:
+            del loaded[-1]
+            return True
+        return False
+
+    numbers = fields.Array(fields.UInt8(), halt_check=should_halt)
+    eof = fields.String(const='ABC')
+
+
+def test_array__variable_in_struct():
+    stream = io.BytesIO(b'\x01\x02\x7f\x00ABC')
+    loaded = BasicStructWithSentinelArray.from_stream(stream)
+
+    assert loaded.numbers == [1, 2, 0x7f]
+    assert loaded.eof == 'ABC'
+
+
 def test_descriptor_get():
     """A field should return itself when accessed from a class, and its assigned
     value when accessed from an instance."""
