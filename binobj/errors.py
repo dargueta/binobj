@@ -73,6 +73,9 @@ class ValidationError(Error):
         The invalid value.
     """
     def __init__(self, message=None, *, field, value):
+        if not message:
+            message = 'Invalid value for %s: %r' % (field, value)
+
         super().__init__(message)
         self.field = field
         self.value = value
