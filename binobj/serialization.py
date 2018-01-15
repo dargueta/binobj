@@ -224,11 +224,11 @@ class Serializable:
         stream = io.BytesIO(data)
         loaded_data = self.load(stream, context)
 
-        if exact and (stream.tell() < len(data) - 1):
+        if exact and (stream.tell() < len(data)):
             # TODO (dargueta): Better error message.
             raise errors.ExtraneousDataError(
                 'Expected to read %d bytes, read %d.'
-                % (len(data), stream.tell() + 1))
+                % (stream.tell(), len(data)))
         return loaded_data
 
     def _get_null_value(self):

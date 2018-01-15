@@ -5,8 +5,35 @@ import sys
 import pytest
 
 import binobj
+from binobj import errors
 from binobj.serialization import _DEFAULT_OPTIONS
 from binobj.serialization import gather_options_for_class
+
+
+def test_dump__unserializable():
+    field = binobj.Bytes(name='field', size=4)
+    garbage = object()
+
+    with pytest.raises(errors.UnserializableValueError) as errinfo:
+        field.dumps(garbage)
+
+    assert 'Unhandled data type: object' in str(errinfo.value)
+    assert errinfo.value.field is field
+    assert errinfo.value.value is garbage
+
+
+def test_dump__use_default():
+    field = binobj.Bytes(name='field', size=4, default=b'\xde\xad\xbe\xef')
+    assert field.dumps() == b'\xde\xad\xbe\xef'
+
+
+def test_loads__extraneous_data_crashes():
+    field = binobj.Bytes(name='field', size=3)
+
+    with pytest.raises(errors.ExtraneousDataError) as errinfo:
+        field.loads(b'\xc0\xff\xee!')
+
+    assert str(errinfo.value) == 'Expected to read 3 bytes, read 4.'
 
 
 class BaseClassWithOptions(binobj.Struct):

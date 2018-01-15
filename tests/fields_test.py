@@ -82,7 +82,7 @@ def test_array__basic():
 def test_array__basic_sized():
     """Verify the behavior of a fixed-size array."""
     sequence = fields.Array(fields.UInt8(), count=3)
-    result = sequence.loads(b'\xde\xad\xbe\xef')
+    result = sequence.loads(b'\xde\xad\xbe')
     assert result == [0xde, 0xad, 0xbe]
 
 
