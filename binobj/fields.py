@@ -253,10 +253,23 @@ class Integer(Field):
         Indicates if this number is a signed or unsigned integer. Defaults to
         ``True``.
     """
-    def __init__(self, endian=None, signed=True, **kwargs):
-        super().__init__(**kwargs)
-        self.endian = endian or sys.byteorder
-        self.signed = signed
+    @property
+    def endian(self):
+        """The endianness of the integer. Defaults to the system byte order.
+
+        :type: str
+        """
+        return self.__options__.setdefault('endian', sys.byteorder)
+
+    @property
+    def signed(self):
+        """``True`` if this integer is signed, ``False`` otherwise.
+
+        Defaults to ``True``.
+
+        :type: bool
+        """
+        return self.__options__.setdefault('signed', True)
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""

@@ -8,7 +8,6 @@ import copy
 import io
 
 from binobj import errors
-from binobj import helpers
 
 
 class _NamedSentinel:
@@ -327,7 +326,8 @@ class SerializableContainerMeta(abc.ABCMeta):
             field.index = i
             field.name = f_name
             field.offset = offset
-            helpers.merge_dicts(field.__options__, class_options)
+            field.__options__ = collections.ChainMap(field.__options__,
+                                                     class_object.__options__)
 
             if offset is not None and field.size is not None:
                 offset += field.size
