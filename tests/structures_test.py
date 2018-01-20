@@ -95,10 +95,7 @@ def test_partial_load__stops():
 
     # int64 should be the last field included in the output.
     loaded = BasicStruct().partial_load(stream, 'int64')
-    assert loaded == {
-        'string': 'zyxwvut',
-        'int64': 0x00badc0ffee15bad,
-    }
+    assert loaded == BasicStruct(string='zyxwvut', int64=0x00badc0ffee15bad)
 
     # Stream head should be at the beginning of the first unread field.
     assert stream.tell() == BasicStruct.uint24.offset
