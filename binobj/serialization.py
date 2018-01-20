@@ -503,13 +503,13 @@ class SerializableContainer(collections.abc.MutableMapping,
                 # didn't specify how far we should read, this isn't an error. Go
                 # back to the beginning of this field and return.
                 stream.seek(offset)
-                return result
+                break
 
             if not field.discard:
                 result[field.name] = value
 
             if field.name == last_field:
-                return result
+                break
 
         return cls(**result)
 
