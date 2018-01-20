@@ -93,6 +93,14 @@ class Field(serialization.Serializable):
         """
         return self.__options__.setdefault('discard', False)
 
+    @property
+    def required(self):
+        """Is this field required for serialization?
+
+        :type: bool
+        """
+        return self.const is UNDEFINED and self.default is UNDEFINED
+
     def load(self, stream, context=None):   # pylint: disable=missing-docstring
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
