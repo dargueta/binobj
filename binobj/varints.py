@@ -22,6 +22,10 @@ class VarIntEncoding(enum.Enum):
 
 # TODO (dargueta): Implement the rest of the encodings.
 
+def _read_uint8(stream):
+    """Read an unsigned 8-bit integer from the given byte stream."""
+    return helpers.read_int(stream, 1, signed=False)
+
 
 def encode_integer_compact(value):
     """Encode an integer with the Unreal Engine Compact Indices encoding.
@@ -69,7 +73,7 @@ def decode_integer_compact(stream):
     value = 0
 
     while True:
-        int8 = helpers.read_uint8(stream)
+        int8 = _read_uint8(stream)
 
         if sign is None:
             # Sign hasn't been determined yet so this must be the first byte of
@@ -122,7 +126,7 @@ def decode_integer_vlq(stream):
     """
     value = 0
     while True:
-        int8 = helpers.read_uint8(stream)
+        int8 = _read_uint8(stream)
 
         value = (value << 7) | (int8 & 0x7f)
         if int8 & 0x80 == 0:
@@ -174,7 +178,7 @@ def decode_integer_zigzag(stream):
     value = 0
     bits_read = 0
     while True:
-        int8 = helpers.read_uint8(stream)
+        int8 = _read_uint8(stream)
 
         value |= (int8 & 0x7f) << bits_read
         bits_read += 7
