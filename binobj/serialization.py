@@ -455,8 +455,8 @@ class SerializableContainer(collections.abc.MutableMapping,
         if exact and (stream.tell() < len(data) - 1):
             # TODO (dargueta): Better error message.
             raise errors.ExtraneousDataError(
-                'Expected to read %d bytes, read %d.'
-                % (len(data), stream.tell() + 1))
+                'Expected %d bytes, got %d.' % (len(data), stream.tell() + 1),
+                offset=stream.tell())
         return loaded_data
 
     @classmethod
@@ -555,7 +555,7 @@ class SerializableContainer(collections.abc.MutableMapping,
 
     def __setitem__(self, field_name, value):
         if field_name not in self.__components__:
-            raise KeyError('%r has field named %r.'
+            raise KeyError('Struct %r has no field named %r.'
                            % (type(self).__name__, field_name))
         self.__values__[field_name] = value
 
@@ -566,10 +566,13 @@ class SerializableContainer(collections.abc.MutableMapping,
         del self.__values__[field_name]
 
     def __iter__(self):
-        raise NotImplementedError
+        yield from iter(self.__values__)
 
     def __len__(self):
-        return len(bytes(self))
+        sizes = [f.size for f in self.__components__.values()]
+        if None in sizes:
+            return len(bytes(self))
+        return sum(sizes)
 
     def __bytes__(self):
         return self.to_bytes()

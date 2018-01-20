@@ -138,3 +138,43 @@ def test_gather_options__field_overrides_struct():
     assert StructWithFieldOverrides.two.__options__ == expected_two
     assert StructWithFieldOverrides.one.endian == NONDEFAULT_ENDIANNESS
     assert StructWithFieldOverrides.two.endian == sys.byteorder
+
+
+def test_accessor__getitem():
+    struct = StructWithFieldOverrides(one=1)
+
+    assert 'one' in struct
+    assert struct['one'] == 1
+    assert struct.one == 1
+
+
+def test_accessor__setitem():
+    struct = StructWithFieldOverrides(one=1)
+    struct['two'] = 2
+
+    assert struct.two == 2
+    assert struct['two'] == 2
+
+
+def test_accessor__setitem__no_such_field():
+    """Crash if we try setting a field that doesn't exist."""
+    struct = StructWithFieldOverrides(one=1)
+
+    with pytest.raises(KeyError):
+        struct['basdfdasf'] = 1
+
+
+def test_accessor__delitem():
+    struct = StructWithFieldOverrides(one=1)
+
+    assert 'one' in struct
+    del struct['one']
+    assert 'one' not in struct
+
+
+def test_accessor__delitem__no_such_field():
+    """Crash if we try deleting a field that doesn't exist."""
+    struct = StructWithFieldOverrides(one=1)
+
+    with pytest.raises(KeyError):
+        del struct['basdfdasf']
