@@ -10,7 +10,7 @@ import io
 from binobj import errors
 
 
-class _NamedSentinel:
+class _NamedSentinel:   # pylint: disable=too-few-public-methods
     """An object type used for creating sentinel objects that can be retrieved
     by name.
     """
@@ -152,8 +152,6 @@ class Serializable:
         """
         if isinstance(data, (bytes, bytearray)):
             stream.write(data)
-        elif data is DEFAULT or data is UNDEFINED:
-            stream.write(self._get_default_value())
         else:
             raise errors.UnserializableValueError(
                 reason='Unhandled data type: ' + type(data).__name__,

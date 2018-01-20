@@ -108,8 +108,8 @@ class Field(serialization.Serializable):
 
     def dump(self, stream, data=DEFAULT, context=None):  # pylint: disable=missing-docstring
         if data is DEFAULT:
-            data = self.default
-            if (data is UNDEFINED) or (data is DEFAULT):
+            data = self._get_default_value()
+            if data in (UNDEFINED, DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
 
         super().dump(stream, data, context)
@@ -224,7 +224,7 @@ class Array(Field):
 
 
 class Nested(Field):
-    """Used for inserting nested structs."""
+    """Used to nest one struct inside of another."""
     def __init__(self, struct, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.struct = struct
