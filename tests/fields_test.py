@@ -18,6 +18,12 @@ def test_load__null_with_null_value():
     assert field.load(io.BytesIO(null_value)) is None
 
 
+def test_loads__field_insufficient_data():
+    """Load a field when there's insufficient data -> BOOM"""
+    with pytest.raises(errors.UnexpectedEOFError):
+        fields.String(size=17).loads(b'abc')
+
+
 def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
@@ -122,14 +128,17 @@ def test_array__fixed_in_struct():
     assert struct.trailer == b'XYZ'
 
 
-class BasicStructWithSentinelArray(structures.Struct):
-    def should_halt(seq, stream, loaded, context):   # pylint: disable=unused-argument
-        if loaded and loaded[-1] == 0:
-            del loaded[-1]
-            return True
-        return False
+def bswsa_should_halt(seq, stream, loaded, context):   # pylint: disable=unused-argument
+    """Halting function for :attr:`BasicStructWithSentinelArray.numbers`."""
+    if loaded and loaded[-1] == 0:
+        # Hit sentinel, remove it from the end of the array.
+        del loaded[-1]
+        return True
+    return False
 
-    numbers = fields.Array(fields.UInt8(), halt_check=should_halt)
+
+class BasicStructWithSentinelArray(structures.Struct):
+    numbers = fields.Array(fields.UInt8(), halt_check=bswsa_should_halt)
     eof = fields.String(const='ABC')
 
 

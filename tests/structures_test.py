@@ -55,6 +55,15 @@ def test_load__short_read():
     assert exc.size == 3
 
 
+def test_loads__extra_bytes():
+    """Crash if we have too much data."""
+    with pytest.raises(binobj.errors.ExtraneousDataError) as errinfo:
+        BasicStruct.from_bytes(b'abcdefghijklmnopqrstuwxyz')
+
+    exc = errinfo.value
+    assert exc.offset == BasicStruct.uint24.offset + BasicStruct.uint24.size
+
+
 def test_partial_load__bad_column():
     """Crash if an invalid column name is given."""
     stream = io.BytesIO(b'zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01')
