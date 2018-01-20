@@ -34,7 +34,7 @@ The same example rewritten using ``binobj``:
         signature = Bytes(const=b'BMP')
         width = UInt8()
         height = UInt8()
-        pixels = Array(UInt8, count=ValueOf(width) * ValueOf(height))
+        pixels = Array(UInt8(), count=width * height)
 
     bmp_file = BMPFile(width=3, height=2, pixels=[7,8,9,11,12,13])
     bytes(bmp_file)
@@ -44,7 +44,7 @@ The same example rewritten using ``binobj``:
 Python supports, toggling endianness on a per-field basis (necessary for ISO 9660
 images), a variety of integer encodings, computed fields, validation, and more.
 
-Note: ``ValueOf`` is currently not implemented.
+Note: Size expressions are currently not implemented but they're in the works.
 
 System Requirements
 -------------------
