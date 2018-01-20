@@ -199,3 +199,55 @@ def test_descriptor_delete__const_to_const():
     assert 'header' in instance.__values__
     assert instance.__values__['header'] == b'ABC'
     assert instance.header == b'ABC'
+
+
+def test_string__load_basic():
+    """Basic test of loading a String"""
+    field = fields.String(size=13, encoding='utf-8')
+    assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf') == r'¯\_(ツ)_/¯'
+
+
+def test_string__dump_basic():
+    """Basic test of dumping a String"""
+    field = fields.String(size=13, encoding='utf-8')
+    assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf'
+
+
+def test_string__dump_too_long_before_encoding():
+    """Basic test of dumping a string that's too long into a String."""
+    field = fields.String(size=5, encoding='utf-8')
+    with pytest.raises(errors.ValueSizeError):
+        assert field.dumps('abcdefg')
+
+
+def test_string__dump_to_long_after_encoding():
+    """Test dumping a string that's too long only after encoding to bytes."""
+    field = fields.String(size=4, encoding='utf-8')
+    with pytest.raises(errors.ValueSizeError):
+        assert field.dumps('très')
+
+
+def test_string__dump_too_short_before_encoding():
+    """Basic test of dumping a string that's too short into a String."""
+    field = fields.String(size=5, encoding='utf-8')
+    with pytest.raises(errors.ValueSizeError):
+        assert field.dumps('a')
+
+
+def test_stringz__load_basic():
+    """Basic test of StringZ loading."""
+    field = fields.StringZ(encoding='utf-8')
+    assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0') == r'¯\_(ツ)_/¯'
+
+
+def test_stringz__load_eof_before_null():
+    """Crash if we hit the end of the data before we get a null byte."""
+    field = fields.StringZ(encoding='utf-8')
+    with pytest.raises(errors.UnexpectedEOFError):
+        assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf')
+
+
+def test_stringz__dump_basic():
+    """Basic test of StringZ dumping."""
+    field = fields.StringZ(encoding='utf-8')
+    assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0'

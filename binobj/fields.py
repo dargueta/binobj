@@ -457,7 +457,7 @@ class StringZ(String):
             if char == b'':
                 raise errors.UnexpectedEOFError(
                     field=self, size=1, offset=stream.tell())
-            string.append(char)
+            string.append(ord(char))
             char = stream.read(1)
 
         return string.decode(self.encoding)
