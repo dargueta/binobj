@@ -561,9 +561,9 @@ class SerializableContainer(collections.abc.MutableMapping,
 
     def __delitem__(self, field_name):
         if field_name not in self.__components__:
-            raise KeyError('Struct %r has such field named %r.'
+            raise KeyError('Struct %r has no field named %r.'
                            % (type(self).__name__, field_name))
-        del self.__values__[field_name]
+        self.__values__.pop(field_name, None)
 
     def __iter__(self):
         yield from iter(self.__values__)

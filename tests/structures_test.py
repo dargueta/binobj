@@ -5,6 +5,7 @@ import io
 import pytest
 
 import binobj
+from binobj import errors
 
 
 class BasicStruct(binobj.Struct):
@@ -190,3 +191,11 @@ def test_partial_dump__include_trailing_default():
 
     struct.partial_dump(stream, 'int64')
     assert stream.getvalue() == b'AbCdEfG\0\0\0\0\0\0\0\0'
+
+
+def test_partial_dump__missing_values():
+    struct = BasicStruct(string='AbCdEfG', uint24=65535)
+    stream = io.BytesIO()
+
+    with pytest.raises(errors.MissingRequiredValueError):
+        struct.partial_dump(stream, 'uint24')
