@@ -5,24 +5,6 @@ import sys
 from binobj import errors
 
 
-def merge_dicts(target, source):
-    """An implementation of :meth:`dict.update` that doesn't overwrite existing
-    keys.
-
-    :param dict target:
-        The dictionary to set keys in. This is modified in place, so you should
-        make a copy if you don't want to modify the original.
-    :param dict source:
-        The dictionary to get new keys from.
-
-    :return: ``target``
-    :rtype: dict
-    """
-    for key, value in source.items():
-        target.setdefault(key, value)
-    return target
-
-
 def read_int(stream, n_bytes, signed=True, endian=None):
     """Read an integer from the given byte stream.
 
