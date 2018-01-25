@@ -233,15 +233,16 @@ class Array(Field):
 
 class Nested(Field):
     """Used to nest one struct inside of another."""
-    def __init__(self, struct, *args, **kwargs):
+    def __init__(self, struct_class, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.struct = struct
+        self.struct_class = struct_class
 
     def _do_dump(self, stream, data, context):
-        self.struct.dump(stream, data, context)
+        instance = self.struct_class(**data)
+        return instance.to_stream(stream, context)
 
     def _do_load(self, stream, context):
-        self.struct.load(stream, context)
+        return self.struct_class.from_stream(stream, context)
 
 
 class Bytes(Field):

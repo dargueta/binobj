@@ -251,3 +251,30 @@ def test_stringz__dump_basic():
     """Basic test of StringZ dumping."""
     field = fields.StringZ(encoding='utf-8')
     assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0'
+
+
+class SubStruct(structures.Struct):
+    first = fields.UInt16(endian='big')
+    second = fields.String(size=7)
+
+
+class MainStruct(structures.Struct):
+    before = fields.Int16(endian='big')
+    nested = fields.Nested(SubStruct)
+    after = fields.Int8()
+
+
+def test_nested__load_basic():
+    loaded = MainStruct.from_bytes(b'\x01\x02\x03\x04String!\x05')
+
+    assert loaded.before == 0x0102
+    assert loaded.after == 5
+    assert loaded.nested.first == 0x0304
+    assert loaded.nested.second == 'String!'
+
+
+def test_nested__dump_basic():
+    data = MainStruct(before=0x0bad, after=0x7f)
+    data.nested = SubStruct(first=0x0fad, second='HllWrld')
+
+    assert bytes(data) == b'\x0b\xad\x0f\xadHllWrld\x7f'
