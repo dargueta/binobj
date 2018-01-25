@@ -271,16 +271,15 @@ class Serializable:
         :raise UnexpectedEOFError: Not enough bytes were left in the stream.
         """
         offset = stream.tell()
+        n_bytes = self.size
 
-        if self.size is None:
+        if n_bytes is None:
             raise errors.VariableSizedFieldError(field=self, offset=offset)
 
-        n_bytes = self.size
         data_read = stream.read(n_bytes)
-
         if len(data_read) < n_bytes:
             raise errors.UnexpectedEOFError(
-                field=self, size=self.size, offset=offset)
+                field=self, size=n_bytes, offset=offset)
 
         return data_read
 
