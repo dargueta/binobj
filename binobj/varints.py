@@ -13,9 +13,9 @@ from binobj import helpers
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
     COMPACT_INDICES = 'compact'
-    GIT_VLQ = 'git'
-    LEB128 = 'leb128'
-    ULEB128 = 'uleb128'
+    # GIT_VLQ = 'git'       # Not implemented
+    # LEB128 = 'leb128'     # Not implemented
+    # ULEB128 = 'uleb128'   # Not implemented
     VLQ = 'vlq'
     ZIGZAG = 'zigzag'
 
