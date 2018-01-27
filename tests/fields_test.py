@@ -267,7 +267,7 @@ def test_varint__signed_crash():
     assert str(errinfo.value).startswith("Signed integers can't be encoded")
 
 
-class test_varint__unsupported_encoding():
+def test_varint__unsupported_encoding():
     """Crash if we try using an unsupported VarInt encoding."""
     with pytest.raises(errors.FieldConfigurationError) as errinfo:
         fields.VariableLengthInteger(encoding='uleb128')
