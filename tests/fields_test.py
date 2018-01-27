@@ -150,6 +150,11 @@ def test_array__variable_in_struct():
     assert loaded.eof == 'ABC'
 
 
+def test_array__dump_basic():
+    struct = BasicStructWithSentinelArray(numbers=[1, 2, 3, 0])
+    assert struct.to_bytes() == b'\x01\x02\x03\x00ABC'
+
+
 def test_descriptor_get():
     """A field should return itself when accessed from a class, and its assigned
     value when accessed from an instance."""
@@ -251,6 +256,23 @@ def test_stringz__dump_basic():
     """Basic test of StringZ dumping."""
     field = fields.StringZ(encoding='utf-8')
     assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0'
+
+
+def test_varint__signed_crash():
+    """Crash when creating a signed variable-length integer using an encoding
+    that doesn't support signed values."""
+    with pytest.raises(errors.FieldConfigurationError) as errinfo:
+        fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ)
+
+    assert str(errinfo.value).startswith("Signed integers can't be encoded")
+
+
+class test_varint__unsupported_encoding():
+    """Crash if we try using an unsupported VarInt encoding."""
+    with pytest.raises(errors.FieldConfigurationError) as errinfo:
+        fields.VariableLengthInteger(encoding=varints.VarIntEncoding.ULEB128)
+
+    assert str(errinfo.value).startswith('Invalid or unsupported integer')
 
 
 class SubStruct(structures.Struct):
