@@ -407,11 +407,18 @@ class SerializableContainer(collections.abc.MutableMapping,
 
         :param bool fill_missing:
             If ``True``, any unassigned values in this struct will be set to
-            their defaults.
+            their defaults or :data:`UNDEFINED` if they have no defined default.
 
         :rtype: collections.OrderedDict
         """
-        raise NotImplementedError
+        dct = collections.OrderedDict()
+        for field in self.__components__.values():
+            if field.name in self.__values__:
+                dct[field.name] = self.__values__[field.name]
+            elif fill_missing:
+                dct[field.name] = field.default
+
+        return dct
 
     @classmethod
     def from_stream(cls, stream, context=None):

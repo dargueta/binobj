@@ -1,5 +1,6 @@
 """Basic tests for serialization code."""
 
+import collections
 import sys
 
 import pytest
@@ -188,3 +189,40 @@ def test_accessor__delitem__no_such_field():
 def test_len__basic(instance):
     """Get the size of an instance with only fixed-length fields."""
     assert len(instance) == 8
+
+
+def test_to_dict__all_defined():
+    """Ensure to_dict() works if all fields are defined."""
+    struct = StructWithFieldOverrides(one=1, two=2)
+    expected = collections.OrderedDict((('one', 1), ('two', 2)))
+
+    assert struct.to_dict() == expected
+    assert dict(struct) == expected
+    assert collections.OrderedDict(struct) == expected
+
+
+def test_to_dict__no_fill():
+    """to_dict() shouldn't fill undefined fields by default"""
+    struct = StructWithFieldOverrides(two=2)
+    expected = collections.OrderedDict(two=2)
+
+    assert struct.to_dict() == expected
+    assert dict(struct) == expected
+    assert collections.OrderedDict(struct) == expected
+
+
+class Basic(binobj.Struct):
+    abc = binobj.Bytes(const=b'ABC')
+    ghi = binobj.Int32()
+    jkl = binobj.Int64(default=0xbadc0ffee)
+    mno = binobj.String(size=2)
+
+
+def test_to_dict__fill_no_default():
+    """to_dict() shouldn't fill undefined fields by default"""
+    struct = Basic(mno='?!')
+    expected = collections.OrderedDict((
+        ('abc', b'ABC'), ('ghi', binobj.UNDEFINED), ('jkl', 0xbadc0ffee),
+        ('mno', '?!')))
+
+    assert struct.to_dict(fill_missing=True) == expected
