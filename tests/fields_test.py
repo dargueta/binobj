@@ -308,6 +308,15 @@ def test_varint__overflow():
         field.dumps(2**65)
 
 
+def test_varint__max_bytes():
+    """Crash if a variable-length integer takes up too many bytes."""
+    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ,
+                                         signed=False, max_bytes=2)
+
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps(100000)
+
+
 class SubStruct(structures.Struct):
     first = fields.UInt64(endian='big')
     second = fields.String(size=7)

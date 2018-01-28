@@ -335,10 +335,15 @@ class VariableLengthInteger(Integer):
     def _do_dump(self, stream, value, context):    # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
         try:
-            stream.write(self._encode_integer_fn(value))
+            data = self._encode_integer_fn(value)
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=value, reason=str(err))
+
+        if self.max_bytes is not None and len(data) > self.max_bytes:
+            raise errors.ValueSizeError(field=self, value=value)
+
+        stream.write(data)
 
 
 class UnsignedInteger(Integer):
