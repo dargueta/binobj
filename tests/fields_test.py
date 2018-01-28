@@ -275,8 +275,41 @@ def test_varint__unsupported_encoding():
     assert str(errinfo.value).startswith('Invalid or unsupported integer')
 
 
+@pytest.mark.parametrize('value,expected', (
+    (127, b'\x7f'),
+    (0x1234567890, b'\x82\xa3\xa2\xd9\xf1\x10'),
+))
+def test_varint__basic_dump(value, expected):
+    """Test VLQ dump.
+
+    We know that our codecs work (see varints_test.py) so here we're doing a
+    perfunctory test to make sure dumping works as expected.
+    """
+    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ,
+                                         signed=False)
+    assert field.dumps(value) == expected
+
+
+@pytest.mark.parametrize('data, expected', (
+    (b'\x3f', 0x3f),
+))
+def test_varint__basic_load(data, expected):
+    """Test VLQ load."""
+    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ,
+                                         signed=False)
+    assert field.loads(data) == expected
+
+
+def test_varint__overflow():
+    """Crash if we try to zigzag an integer that's too big."""
+    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.ZIGZAG)
+
+    with pytest.raises(errors.UnserializableValueError):
+        field.dumps(2**65)
+
+
 class SubStruct(structures.Struct):
-    first = fields.UInt16(endian='big')
+    first = fields.UInt64(endian='big')
     second = fields.String(size=7)
 
 
@@ -287,11 +320,12 @@ class MainStruct(structures.Struct):
 
 
 def test_nested__load_basic():
-    loaded = MainStruct.from_bytes(b'\x01\x02\x03\x04String!\x05')
+    loaded = MainStruct.from_bytes(
+        b'\x01\x02\x76\x54\x32\x10\xfe\xdc\xba\x98String!\x7f')
 
     assert loaded.before == 0x0102
-    assert loaded.after == 5
-    assert loaded.nested.first == 0x0304
+    assert loaded.after == 0x7f
+    assert loaded.nested.first == 0x76543210fedcba98
     assert loaded.nested.second == 'String!'
 
 
@@ -299,4 +333,4 @@ def test_nested__dump_basic():
     data = MainStruct(before=0x0bad, after=0x7f)
     data.nested = SubStruct(first=0x0fad, second='HllWrld')
 
-    assert bytes(data) == b'\x0b\xad\x0f\xadHllWrld\x7f'
+    assert bytes(data) == b'\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f'

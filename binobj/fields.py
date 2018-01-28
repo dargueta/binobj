@@ -330,13 +330,13 @@ class VariableLengthInteger(Integer):
 
     def _do_load(self, stream, context):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
-        return self._decode_integer_fn(self, stream)
+        return self._decode_integer_fn(stream)
 
     def _do_dump(self, stream, value, context):    # pylint: disable=unused-argument
         """Dump an integer to the given stream."""
         try:
             stream.write(self._encode_integer_fn(value))
-        except ValueError as err:
+        except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=value, reason=str(err))
 
