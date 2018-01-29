@@ -198,7 +198,6 @@ def test_to_dict__all_defined():
 
     assert struct.to_dict() == expected
     assert dict(struct) == expected
-    assert collections.OrderedDict(struct) == expected
 
 
 def test_to_dict__no_fill():
@@ -208,7 +207,6 @@ def test_to_dict__no_fill():
 
     assert struct.to_dict() == expected
     assert dict(struct) == expected
-    assert collections.OrderedDict(struct) == expected
 
 
 class Basic(binobj.Struct):

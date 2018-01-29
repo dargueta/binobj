@@ -256,7 +256,7 @@ class Serializable:
                 field=self,
                 value=None)
 
-        return bytes([0] * self.size)
+        return b'\0' * self.size
 
     def _read_exact_size(self, stream):
         """Read exactly the number of bytes this object takes up or crash.
