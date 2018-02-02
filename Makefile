@@ -6,7 +6,7 @@ DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-PYTHON_VERSIONS=3.6.4 3.5.4 3.4.7 3.3.7 pypy3.5-5.10.0
+PYTHON_VERSIONS=3.6.4 3.5.4 3.4.7 3.3.7 pypy3.5-5.10.1
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
