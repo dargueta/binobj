@@ -18,10 +18,6 @@ class Field(serialization.Serializable):
 
     :param str name:
         The name of the field.
-    :param bool required:
-        If ``True``, this value *must* be passed to the serializer for a struct.
-        If ``False``, the default value will be used if the field is missing in
-        a call to :meth:`dump`.
     :param bool allow_null:
         If ``True`` (the default) then ``None`` is an acceptable value to write
         for this field.
@@ -30,12 +26,12 @@ class Field(serialization.Serializable):
         be ``None`` if this value is encountered.
     :param default:
         The default value to use if a value for this field isn't passed to the
-        struct for serialization. If ``required`` is ``False`` and no default is
-        given, null bytes will be used to fill the space required.
+        struct for serialization, or a callable taking no arguments that will
+        return a default value.
 
-        This argument *must* be of the same type as the field, i.e. it must be
-        a string for a :class:`String`, an integer for an :class:`Integer`, and
-        so on.
+        This argument (or the return value of the callable) *must* be of the
+        same type as the field, i.e. it must be a string for a :class:`String`,
+        an integer for an :class:`Integer`, and so on.
     :param bool discard:
         When deserializing, don't include this field in the returned results.
     :param const:

@@ -290,6 +290,8 @@ class Serializable:
 
         default = self.__options__.get('default', UNDEFINED)
         if default is not UNDEFINED:
+            if callable(default):
+                return default()
             return default
 
         return UNDEFINED
@@ -366,7 +368,7 @@ class SerializableContainer(collections.abc.MutableMapping,
     __components__ = None   # type: collections.OrderedDict
 
     def __init__(self, **values):
-        extra_keys = values.keys() - self.__components__.keys()
+        extra_keys = set(values.keys() - self.__components__.keys())
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
