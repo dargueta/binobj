@@ -19,7 +19,7 @@ class FieldConfigurationError(Error):
     :param str message: A description of what's wrong with the field.
     :param ~binobj.fields.Field field: The offending field.
     """
-    def __init__(self, message, *, field):
+    def __init__(self, message=None, *, field):
         super().__init__(message)
         self.field = field
 
