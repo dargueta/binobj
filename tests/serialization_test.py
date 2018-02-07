@@ -23,9 +23,16 @@ def test_dump__unserializable():
     assert errinfo.value.value is garbage
 
 
-def test_dump__use_default():
+def test_dump__use_default_value():
+    """Test dumping when the default value is a constant."""
     field = binobj.UInt32(name='field', default=0xdeadbeef, endian='big')
     assert field.dumps() == b'\xde\xad\xbe\xef'
+
+
+def test_dump__use_default_callable():
+    """Test dumping when the default value is a callable."""
+    field = binobj.UInt32(name='field', default=lambda: 0x1234, endian='big')
+    assert field.dumps() == b'\x00\x00\x12\x34'
 
 
 def test_loads__extraneous_data_crashes():
@@ -35,6 +42,13 @@ def test_loads__extraneous_data_crashes():
         field.loads(b'\xc0\xff\xee!')
 
     assert str(errinfo.value) == 'Expected to read 3 bytes, read 4.'
+
+
+def test_loads__no_size_crashes():
+    field = binobj.String()
+
+    with pytest.raises(errors.VariableSizedFieldError):
+        field.loads(b'123')
 
 
 class BaseClassWithOptions(binobj.Struct):

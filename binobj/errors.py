@@ -116,7 +116,8 @@ class UnexpectedValueError(SerializationError):
         The struct performing the serialization.
     :param str name:
         Either a string or an iterable of strings, each being the name of a
-        field that was unexpected.
+        field that was unexpected. Don't pass :class:`~binobj.fields.Field`
+        instances.
     """
     def __init__(self, *, struct, name):
         if isinstance(name, str):
