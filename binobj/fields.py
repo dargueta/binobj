@@ -21,9 +21,14 @@ class Field(serialization.Serializable):
     :param bool allow_null:
         If ``True`` (the default) then ``None`` is an acceptable value to write
         for this field.
-    :param bytes null_value:
-        A value to use to dump ``None``. When loading, the returned value will
-        be ``None`` if this value is encountered.
+    :param const:
+        A constant value this field is expected to take. It will always have
+        this value when dumped, and will fail validation if the field isn't this
+        value when loaded. Useful for reserved fields and file tags.
+
+        This argument *must* be of the same type as the field, i.e. it must be
+        a string for a :class:`String`, an integer for an :class:`Integer`, and
+        so on.
     :param default:
         The default value to use if a value for this field isn't passed to the
         struct for serialization, or a callable taking no arguments that will
@@ -34,14 +39,9 @@ class Field(serialization.Serializable):
         an integer for an :class:`Integer`, and so on.
     :param bool discard:
         When deserializing, don't include this field in the returned results.
-    :param const:
-        A constant value this field is expected to take. It will always have
-        this value when dumped, and will fail validation if the field isn't this
-        value when loaded. Useful for reserved fields and file tags.
-
-        This argument *must* be of the same type as the field, i.e. it must be
-        a string for a :class:`String`, an integer for an :class:`Integer`, and
-        so on.
+    :param bytes null_value:
+        A value to use to dump ``None``. When loading, the returned value will
+        be ``None`` if this value is encountered.
 
     .. attribute:: name
 
@@ -57,8 +57,16 @@ class Field(serialization.Serializable):
         can't be computed (e.g. it's preceded by a variable-length field), this
         will be ``None``.
     """
-    def __init__(self, *, name=None, **kwargs):
+    def __init__(self, *, name=None, const=UNDEFINED, default=UNDEFINED,
+                 discard=False, **kwargs):
         super().__init__(**kwargs)
+
+        if default is UNDEFINED:
+            default = const
+
+        self.const = const
+        self._default = default
+        self.discard = discard
 
         if self.size is None and self.const is not UNDEFINED:
             self.size = len(self.const)
@@ -70,24 +78,16 @@ class Field(serialization.Serializable):
         self.offset = None      # type: int
 
     @property
-    def const(self):
-        """The value this field is hardcoded to, or :data:`UNDEFINED` if it's
-        not hardcoded.
-        """
-        return self.__options__.setdefault('const', UNDEFINED)
-
-    @property
     def default(self):
-        """The default value of this field, or :data:`UNDEFINED`."""
-        return self._get_default_value()
+        """The default value of this field, or :data:`UNDEFINED`.
 
-    @property
-    def discard(self):
-        """If ``True``, this field will always be discarded upon loading.
-
-        :type: bool
+        If the default value passed to the constructor was a callable, this
+        property will always give its return value. That callable is invoked on
+        each access of this property.
         """
-        return self.__options__.setdefault('discard', False)
+        if callable(self._default):
+            return self._default()
+        return self._default
 
     @property
     def required(self):
@@ -112,7 +112,7 @@ class Field(serialization.Serializable):
 
     def dump(self, stream, data=DEFAULT, context=None):  # pylint: disable=missing-docstring
         if data is DEFAULT:
-            data = self._get_default_value()
+            data = self.default
             if data in (UNDEFINED, DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
 
@@ -129,7 +129,7 @@ class Field(serialization.Serializable):
         instance.__values__[self.name] = value
 
     def __delete__(self, instance):
-        instance.__values__[self.name] = self._get_default_value()
+        instance.__values__[self.name] = self.default
 
     def __str__(self):
         return '%s(name=%r)' % (type(self).__name__, self.name)

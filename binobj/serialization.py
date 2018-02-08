@@ -283,18 +283,6 @@ class Serializable:
 
         return data_read
 
-    def _get_default_value(self):
-        const = self.__options__.get('const', UNDEFINED)
-        if const is not UNDEFINED:
-            return const
-
-        default = self.__options__.get('default', UNDEFINED)
-        if default is not UNDEFINED:
-            if callable(default):
-                return default()
-            return default
-
-        return UNDEFINED
 
 
 class SerializableContainerMeta(abc.ABCMeta):
