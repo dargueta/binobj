@@ -562,7 +562,9 @@ class SerializableContainer(collections.abc.MutableMapping,
         self.__values__.pop(field_name, None)
 
     def __iter__(self):
-        yield from iter(self.__values__)
+        for name, value in self.__values__.items():
+            if value is not UNDEFINED:
+                yield name
 
     def __len__(self):
         sizes = [f.size for f in self.__components__.values()]
