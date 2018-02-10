@@ -568,9 +568,24 @@ class SerializableContainer(collections.abc.MutableMapping,
 
     def __len__(self):
         sizes = [f.size for f in self.__components__.values()]
-        if None in sizes:
-            return len(bytes(self))
-        return sum(sizes)
+        if None not in sizes:
+            return sum(sizes)
+
+        # If we get here then there's at least one variable-length field in this
+        # struct. To find the total size, we have to add up the sizes of the
+        # fixed-length fields and then try serializing all of the variable-length
+        # fields.
+        size = 0
+        for name, field in self.__components__.items():
+            if field.size is not None:
+                size += field.size
+            else:
+                field_value = self.__values__.get(name, field.default)
+                if field_value is UNDEFINED:
+                    raise errors.VariableSizedFieldError(field=field)
+                size += len(field.dumps(field_value))
+
+        return size
 
     def __bytes__(self):
         return self.to_bytes()

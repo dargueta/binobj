@@ -205,6 +205,37 @@ def test_len__basic(instance):
     assert len(instance) == 8
 
 
+class StringZTestStruct(binobj.Struct):
+    header = binobj.UInt32()
+    string = binobj.StringZ()
+    trailer = binobj.UInt16()
+
+
+def test_len__variable__assigned():
+    """Get the size of an instance with a variable-length field that has a value
+    assigned."""
+    instance = StringZTestStruct(header=10, string='abc', trailer=11)
+    assert len(instance) == 10
+
+
+def test_len__variable__missing_some():
+    """Get the size of an instance with a variable-length field, but doesn't
+    have some constant-width values set."""
+    instance = StringZTestStruct(string='abc')
+    assert len(instance) == 10
+
+
+def test_len__variable__missing_varlen():
+    """Must crash if we're checking the length of a struct that doesn't have an
+    assigned value to a variable-length field."""
+    instance = StringZTestStruct()
+
+    with pytest.raises(errors.VariableSizedFieldError) as errinfo:
+        len(instance)
+
+    assert errinfo.value.field is StringZTestStruct.string
+
+
 def test_to_dict__all_defined():
     """Ensure to_dict() works if all fields are defined."""
     struct = StructWithFieldOverrides(one=1, two=2)
