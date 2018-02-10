@@ -1,8 +1,14 @@
 binobj
 ======
 
-.. image:: https://travis-ci.org/dargueta/binobj.svg?branch=master
-    :target: https://travis-ci.org/dargueta/binobj
+|build-status| |python-versions|
+
+.. |build-status| image:: https://travis-ci.org/dargueta/binobj.svg?branch=master
+   :alt: Build status
+   :target: https://travis-ci.org/dargueta/binobj
+
+.. |python-versions| image:: https://img.shields.io/badge/python-3.3,%203.4,%203.5,%203.6-blue.svg
+   :alt: Python versions
 
 A cross-platform Python 3 library for reading and writing structured binary data
 in an object-oriented (ish) style.
