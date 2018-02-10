@@ -4,6 +4,7 @@ python:
   - '3.4'
   - '3.5'
   - '3.6'
+  - 'pypy3'
 install:
   - pip3 install -U -r dev_requirements.txt tox-travis
 script: tox
