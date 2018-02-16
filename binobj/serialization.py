@@ -28,10 +28,7 @@ class _NamedSentinel:   # pylint: disable=too-few-public-methods
     def __deepcopy__(self, memodict=None):
         return self
 
-    def __reduce__(self):
-        return _NamedSentinel.get_sentinel, (self.name,)
-
-    def __repr__(self):
+    def __repr__(self):     # pragma: no cover
         return 'Sentinel(%r)' % self.name
 
 

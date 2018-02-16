@@ -1,6 +1,7 @@
 """Basic tests for serialization code."""
 
 import collections
+import copy
 import sys
 
 import pytest
@@ -9,6 +10,19 @@ import binobj
 from binobj import errors
 from binobj.serialization import _DEFAULT_OPTIONS
 from binobj.serialization import gather_options_for_class
+
+
+def test_sentinels_are_singletons():
+    """Verify deep copying works on sentinels.
+
+    Deep copying, at least on some versions of Python, is implemented via
+    pickling and then unpickling the container. If the sentinel class isn't
+    implemented properly, we could end up with two sentinel objects that map to
+    ``UNDEFINED`` or ``DEFAULT``.
+    """
+    assert _DEFAULT_OPTIONS['const'] is binobj.UNDEFINED
+    copied_dict = copy.deepcopy(_DEFAULT_OPTIONS)
+    assert copied_dict['const'] is binobj.UNDEFINED
 
 
 def test_dump__unserializable():
