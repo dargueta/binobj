@@ -28,7 +28,6 @@ setuptools.setup(
         'enum34>=1.0; python_version<"3.4"',
     ],
     license='BSD 3-Clause License',
-    long_description='file: README.rst',
     name='binobj',
     python_requires='>=3.3',
     packages=setuptools.find_packages(
