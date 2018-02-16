@@ -15,7 +15,7 @@ PYTHON_VERSIONS=3.6.4 3.5.4 3.4.7 3.3.7 pypy3.5-5.10.1
 	$(foreach version,$(PYTHON_VERSIONS),pyenv install -s $(version);)
 	pyenv local $(PYTHON_VERSIONS)
 
-.tox: .python-version setup.cfg dev_requirements.txt test_requirements.txt tox.ini
+.tox: .python-version setup.py dev_requirements.txt test_requirements.txt tox.ini
 	detox -r --notest
 
 # Coverage file gets changed on every test run so we can use it to see when the
