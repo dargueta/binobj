@@ -41,7 +41,7 @@ lint: $(SOURCEFILES)
 .PHONY: clean
 clean:
 	git clean -fd $(DOCSSOURCE)
-	rm -rf .tox .cache *.egg-info *.eggs .coverage $(DOCSTARGET)
+	rm -rf .tox .cache *.egg-info *.eggs .coverage $(DOCSTARGET) dist build
 	find . -name '__pycache__' -type d -exec rm -rf '{}' \+
 
 # Run the unit tests if the source code has changed.

@@ -31,7 +31,7 @@ setuptools.setup(
     name='binobj',
     python_requires='>=3.3',
     packages=setuptools.find_packages(
-        exclude=['docs', 'tests', '*.tests', '*.tests.*']),
+        exclude=['docs', 'docs.*', 'tests', 'tests.*']),
     url='https://www.github.com/dargueta/binobj',
     version='0.1.0'
 )
