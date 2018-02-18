@@ -121,4 +121,4 @@ License
 -------
 
 I'm releasing this under the terms of the `Three-Clause BSD License <https://tldrlegal.com/license/bsd-3-clause-license-(revised)>`_.
-For the full legal text, see the ``LICENSE`` file.
+For the full legal text, see `LICENSE.txt <./LICENSE.txt>`_.
