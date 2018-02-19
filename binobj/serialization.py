@@ -281,7 +281,6 @@ class Serializable:
         return data_read
 
 
-
 class SerializableContainerMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
     objects.
