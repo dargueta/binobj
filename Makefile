@@ -25,8 +25,8 @@ PYTHON_VERSIONS=3.6.4 3.5.4 3.4.7 3.3.7 pypy3.5-5.10.1
 	detox
 
 $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
-	sphinx-apidoc --ext-autodoc --ext-intersphinx -M -f -o $(DOCSSOURCE) -e $(SOURCEDIR)
-	sphinx-build $(DOCSSOURCE) $(DOCSTARGET)
+	PYTHONPATH=. sphinx-apidoc --ext-autodoc --ext-intersphinx -M -f -o $(DOCSSOURCE) -e $(SOURCEDIR)
+	PYTHONPATH=. sphinx-build $(DOCSSOURCE) $(DOCSTARGET)
 
 .PHONY: setup
 setup: .python-version dev_requirements.txt
