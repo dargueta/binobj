@@ -400,26 +400,17 @@ class String(Field):
     """A fixed-length string.
 
     :param str encoding:
-        The encoding to use for converting the string to and from bytes.
-    :param bool truncate:
-        If ``True``, strings too long to fit into the defined field size will be
-        truncated to fit. If ``False`` (the default) a :class:`ValueSizeError`
-        will be thrown.
+        The encoding to use for converting the string to and from bytes. Defaults
+        to ``'latin-1'`` (also known as ISO-8859-1).
 
-    .. note::
+    .. note ::
 
-        A fixed-width text encoding such as ASCII or ISO-8859-1 is *strongly*
-        recommended when using ``truncate`` or ``fill_byte``, since truncating
-        can result in an invalid string.
-
-        It's up to the user to ensure that the text encoding's restrictions are
-        obeyed, e.g. that the field length is a multiple of two if you select
-        ``utf-16`` as the encoding.
+        The ``size`` keyword argument indicates the field's size in *bytes*, not
+        *characters*.
     """
-    def __init__(self, *, encoding='ascii', truncate=False, **kwargs):
+    def __init__(self, *, encoding='latin-1', **kwargs):
         super().__init__(**kwargs)
         self.encoding = encoding
-        self.truncate = truncate
 
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
@@ -430,13 +421,8 @@ class String(Field):
         """Dump a fixed-length string into the stream."""
         to_dump = value.encode(self.encoding)
 
-        if len(to_dump) > self.size and not self.truncate:
+        if len(to_dump) != self.size:
             raise errors.ValueSizeError(field=self, value=to_dump)
-        elif len(to_dump) < self.size:
-            raise errors.ValueSizeError(field=self, value=to_dump)
-        else:
-            to_dump = to_dump[:self.size]
-
         stream.write(to_dump)
 
 
@@ -444,12 +430,8 @@ class StringZ(String):
     """A variable-length null-terminated string.
 
     This field currently only works for string encodings that encode a null as
-    a single byte, such as ASCII, ISO-8859-1, and UTF-8.
-
-    .. warning::
-
-        This will fail for encodings using multiple bytes to represent a null,
-        such as UTF-16 and UTF-32.
+    a single byte, such as ASCII and UTF-8. Do *not* use this field with text
+    encodings that use multiple bytes to represent a null, such as UTF-16.
     """
     def _do_load(self, stream, context):
         string = bytearray()
