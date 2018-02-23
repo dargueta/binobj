@@ -8,7 +8,6 @@ import pytest
 
 import binobj
 from binobj import errors
-from binobj.serialization import _DEFAULT_OPTIONS
 from binobj.serialization import gather_options_for_class
 
 
@@ -20,9 +19,9 @@ def test_sentinels_are_singletons():
     implemented properly, we could end up with two sentinel objects that map to
     ``UNDEFINED`` or ``DEFAULT``.
     """
-    assert _DEFAULT_OPTIONS['const'] is binobj.UNDEFINED
-    copied_dict = copy.deepcopy(_DEFAULT_OPTIONS)
-    assert copied_dict['const'] is binobj.UNDEFINED
+    dct = {'key': binobj.UNDEFINED}
+    copied_dict = copy.deepcopy(dct)
+    assert copied_dict['key'] is binobj.UNDEFINED
 
 
 def test_dump__unserializable():
@@ -96,7 +95,6 @@ class GrandchildWithOverrides(ChildClassWithOptions):
 ))
 def test_gather_options__single_class(class_object, expected):
     """Basic test for single classes that have options."""
-    expected.update(_DEFAULT_OPTIONS)
     assert gather_options_for_class(class_object) == expected
 
 
@@ -114,7 +112,6 @@ def test_gather_options__inherits__with_additional_options():
         'bar': 'baz',
         'child': True,
     }
-    expected.update(_DEFAULT_OPTIONS)
     assert gather_options_for_class(ChildClassWithOptions) == expected
 
 
@@ -125,22 +122,7 @@ def test_gather_options__inherits__with_overrides():
         'bar': 'baz',
         'child': True,
     }
-    expected.update(_DEFAULT_OPTIONS)
     assert gather_options_for_class(GrandchildWithOverrides) == expected
-
-
-class ChildWithFields(binobj.Struct):
-    class Options:
-        blah = 123
-
-    field = binobj.Int32(kw1=1, kw2=2)
-
-
-def test_gather_options__field_inherits_struct():
-    assert 'blah' in ChildWithFields.field.__options__
-    assert ChildWithFields.field.__options__['blah'] == 123
-    assert ChildWithFields.field.__options__['kw1'] == 1
-    assert ChildWithFields.field.__options__['kw2'] == 2
 
 
 NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'
@@ -157,11 +139,9 @@ class StructWithFieldOverrides(binobj.Struct):
 def test_gather_options__field_overrides_struct():
     """A field's options will override the defaults it inherited from its
     struct's options."""
-    expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': False}
-    expected_two = {'endian': sys.byteorder}    # `signed` = `True` implied
-
-    expected_one.update(_DEFAULT_OPTIONS)
-    expected_two.update(_DEFAULT_OPTIONS)
+    expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': False,
+                    'const': binobj.UNDEFINED}
+    expected_two = {'endian': sys.byteorder, 'const': binobj.UNDEFINED}
 
     assert StructWithFieldOverrides.one.__options__ == expected_one
     assert StructWithFieldOverrides.two.__options__ == expected_two

@@ -11,6 +11,7 @@ from binobj import serialization
 
 from binobj.serialization import DEFAULT
 from binobj.serialization import UNDEFINED
+from binobj.serialization import OptionProperty
 
 
 class Field(serialization.Serializable):
@@ -57,16 +58,18 @@ class Field(serialization.Serializable):
         can't be computed (e.g. it's preceded by a variable-length field), this
         will be ``None``.
     """
-    def __init__(self, *, name=None, const=UNDEFINED, default=UNDEFINED,
-                 discard=False, **kwargs):
+    allow_null = OptionProperty(default=True)
+    const = OptionProperty()
+    discard = OptionProperty(default=False)
+    null_value = OptionProperty(default=DEFAULT)
+
+    def __init__(self, *, name=None, default=UNDEFINED, **kwargs):
         super().__init__(**kwargs)
 
         if default is UNDEFINED:
-            default = const
+            default = self.const
 
-        self.const = const
         self._default = default
-        self.discard = discard
 
         if self.size is None and self.const is not UNDEFINED:
             self.size = len(self.const)
@@ -258,23 +261,12 @@ class Integer(Field):
         Indicates if this number is a signed or unsigned integer. Defaults to
         ``True``.
     """
-    @property
-    def endian(self):
-        """The endianness of the integer. Defaults to the system byte order.
+    #: The endianness of the integer. If not given, defaults to the system's
+    #: native byte order.
+    endian = OptionProperty(default=sys.byteorder)
 
-        :type: str
-        """
-        return self.__options__.setdefault('endian', sys.byteorder)
-
-    @property
-    def signed(self):
-        """``True`` if this integer is signed, ``False`` otherwise.
-
-        Defaults to ``True``.
-
-        :type: bool
-        """
-        return self.__options__.setdefault('signed', True)
+    #: The signedness of this integer. Defaults to ``True``.
+    signed = OptionProperty(default=True)
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
@@ -408,9 +400,9 @@ class String(Field):
         The ``size`` keyword argument indicates the field's size in *bytes*, not
         *characters*.
     """
-    def __init__(self, *, encoding='latin-1', **kwargs):
-        super().__init__(**kwargs)
-        self.encoding = encoding
+    #: The encoding to use for converting the string to and from bytes. Defaults
+    #: to ``'latin-1'`` (also known as ISO-8859-1).
+    encoding = OptionProperty(default='latin-1')
 
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""

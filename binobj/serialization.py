@@ -42,13 +42,36 @@ UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
 DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
 
 
-#: A read-only dictionary of predefined options for serializable objects.
-_DEFAULT_OPTIONS = {
-    'allow_null': True,
-    'const': UNDEFINED,
-    'default': UNDEFINED,
-    'null_value': DEFAULT,
-}
+class OptionProperty:
+    """An attribute on a :class:`Serializable` that's stored in its ``__options__``
+    dict.
+
+    :param default:
+        The default value for this option. If not given, will be :data:`UNDEFINED`.
+
+    .. attribute:: name
+
+        The name of this field. Its value is set by the containing object's
+        metaclass, so there's no constructor argument for it. Defaults to
+        ``None``.
+
+        :type: str
+    """
+    def __init__(self, default=UNDEFINED):
+        self.default = default
+        self.name = None
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return instance.__options__.setdefault(self.name, self.default)
+
+    def __set__(self, instance, value):
+        instance.__options__[self.name] = value
+        return value
+
+    def __repr__(self):
+        return '%s(%r, default=%r)' % (type(self).__name__, self.name, self.default)
 
 
 def gather_options_for_class(klass):
@@ -62,8 +85,7 @@ def gather_options_for_class(klass):
     :return: A dictionary of the class' defined options, plus a few defaults.
     :rtype: dict
     """
-    dct = copy.deepcopy(_DEFAULT_OPTIONS)
-    return _r_gather_options_for_class(klass, dct, set())
+    return _r_gather_options_for_class(klass, {}, set())
 
 
 def _r_gather_options_for_class(klass, options, seen):
@@ -96,7 +118,22 @@ def _r_gather_options_for_class(klass, options, seen):
     return options
 
 
-class Serializable:
+class SerializableMeta(type):
+    """The metaclass for all basic serializable objects.
+
+    All it does is set the options' names on their instances.
+    """
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
+
+        for name, obj in namespace.items():
+            if isinstance(obj, OptionProperty):
+                obj.name = name
+
+        return class_object
+
+
+class Serializable(metaclass=SerializableMeta):
     """Base class providing basic loading and dumping methods.
 
     .. attribute:: __options__
@@ -104,7 +141,6 @@ class Serializable:
         A dictionary of options used by the loading and dumping methods.
         Subclasses can override these options, and they can also be overridden
         on a per-instance basis with keyword arguments passed to the constructor.
-        Keyword arguments not recognized by a constructor will be put in here.
 
         :type: dict
 
@@ -114,10 +150,18 @@ class Serializable:
 
         :type: int
     """
+    allow_null = OptionProperty(default=True)
+    null_value = OptionProperty(default=DEFAULT)
+
     def __init__(self, *, size=None, **kwargs):
         self.size = size
-        self.__options__ = gather_options_for_class(type(self))
-        self.__options__.update(kwargs)
+        self.__options__ = {}
+
+        for name, value in kwargs.items():
+            if not hasattr(self, name):
+                raise TypeError('Unrecognized option passed to constructor: %r'
+                                % name)
+            self.__options__[name] = value
 
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -183,7 +227,7 @@ class Serializable:
         :return: The deserialized data.
         """
         loaded_value = self._do_load(stream, context)
-        if loaded_value == self.__options__['null_value']:
+        if loaded_value == self.null_value:
             return None
         return loaded_value
 
@@ -235,13 +279,13 @@ class Serializable:
         :return: The serialized form of ``None`` for this field.
         :rtype: bytes
         """
-        if not self.__options__['allow_null']:
+        if not self.allow_null:
             raise errors.UnserializableValueError(
                 reason='`None` is not an acceptable value for %s.' % self,
                 field=self,
                 value=None)
 
-        null_value = self.__options__['null_value']
+        null_value = self.null_value
         if null_value is not DEFAULT:
             return null_value
 
