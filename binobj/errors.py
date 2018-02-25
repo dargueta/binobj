@@ -94,7 +94,8 @@ class UnserializableValueError(SerializationError):
         if reason is not None:
             message = "%s can't serialize value: %s" % (field, reason)
         else:
-            message = str(field) + " can't serialize value."
+            message = "%s can't serialize value of type %r." \
+                      % (field, type(value).__name__)
         super().__init__(message, field=field, value=value)
 
 

@@ -31,7 +31,7 @@ def test_dump__unserializable():
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.dumps(garbage)
 
-    assert 'Unhandled data type: object' in str(errinfo.value)
+    assert "can't serialize value of type 'object'." in str(errinfo.value)
     assert errinfo.value.field is field
     assert errinfo.value.value is garbage
 
