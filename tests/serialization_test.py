@@ -140,8 +140,10 @@ def test_gather_options__field_overrides_struct():
     """A field's options will override the defaults it inherited from its
     struct's options."""
     expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': False,
-                    'const': binobj.UNDEFINED}
-    expected_two = {'endian': sys.byteorder, 'const': binobj.UNDEFINED}
+                    'const': binobj.UNDEFINED, 'default': binobj.UNDEFINED,
+                    'discard': False}
+    expected_two = {'endian': sys.byteorder, 'const': binobj.UNDEFINED,
+                    'default': binobj.UNDEFINED, 'discard': False}
 
     assert StructWithFieldOverrides.one.__options__ == expected_one
     assert StructWithFieldOverrides.two.__options__ == expected_two

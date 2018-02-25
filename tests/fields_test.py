@@ -40,15 +40,15 @@ def test_dump__null_with_no_def_and_varlen():
     """Crash if trying to write ``None`` when ``null_value`` is undefined and
     column is variable-length."""
     field = fields.VariableLengthInteger(name='field',
-                                         encoding=varints.VarIntEncoding.ZIGZAG)
+                                         vli_format=varints.VarIntEncoding.ZIGZAG)
 
     with pytest.raises(errors.UnserializableValueError):
         field.dumps(None)
 
 
-def test_dump__allow_null_false_crashes():
-    """Crash if we try dumping None and allow_null is False."""
-    field = fields.Bytes(name='field', size=4, allow_null=False)
+def test_dump__no_null_value_crashes():
+    """Crash if we try dumping None with no null_value set."""
+    field = fields.Bytes(name='field', size=4)
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.dumps(None)
@@ -57,17 +57,14 @@ def test_dump__allow_null_false_crashes():
     assert errinfo.value.value is None
 
 
-def test_dump__allow_null_false_with_null_value_crashes():
+def test_dump__allow_null_correctly_set():
     """We still shouldn't be able to dump None if allow_null is false and
     null_value is provided."""
-    field = fields.Bytes(name='field', size=4, allow_null=False,
-                         null_value=b' :) ')
+    field = fields.Bytes(name='field', size=4, null_value=b' :) ')
+    assert field.allow_null is True
 
-    with pytest.raises(errors.UnserializableValueError) as errinfo:
-        field.dumps(None)
-
-    assert errinfo.value.field is field
-    assert errinfo.value.value is None
+    field = fields.Bytes(name='field', size=4)
+    assert field.allow_null is False
 
 
 def test_dump__field_only__no_value_no_default():
@@ -174,38 +171,6 @@ def test_descriptor_set():
     assert instance.__values__['numbers'] == [1, 2]
 
 
-def test_descriptor_delete__no_default_to_undefined():
-    """Deleting a field should set it to its default value, or UNDEFINED."""
-    instance = BasicStructWithArray()
-
-    assert 'numbers' not in instance.__values__
-
-    instance.numbers = [1, 2]
-    assert 'numbers' in instance.__values__
-    assert instance.__values__['numbers'] == [1, 2]
-
-    del instance.numbers
-    assert instance.numbers is UNDEFINED
-
-
-def test_descriptor_delete__const_to_const():
-    """Deleting a const field should have no effect."""
-    instance = BasicStructWithArray()
-
-    assert 'header' not in instance.__values__
-    assert instance.header == b'ABC'
-    assert 'header' in instance.__values__
-    assert instance.__values__['header'] == b'ABC'
-
-    del instance.header
-
-    # Check to see if 'header' is in __values__ first because accessing 'header'
-    # from the instance will automatically set it in the dictionary.
-    assert 'header' in instance.__values__
-    assert instance.__values__['header'] == b'ABC'
-    assert instance.header == b'ABC'
-
-
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = fields.String(size=13, encoding='utf-8')
@@ -262,7 +227,7 @@ def test_varint__signed_crash():
     """Crash when creating a signed variable-length integer using an encoding
     that doesn't support signed values."""
     with pytest.raises(errors.FieldConfigurationError) as errinfo:
-        fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ)
+        fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
 
     assert str(errinfo.value).startswith("Signed integers can't be encoded")
 
@@ -270,7 +235,7 @@ def test_varint__signed_crash():
 def test_varint__unsupported_encoding():
     """Crash if we try using an unsupported VarInt encoding."""
     with pytest.raises(errors.FieldConfigurationError) as errinfo:
-        fields.VariableLengthInteger(encoding='uleb128')
+        fields.VariableLengthInteger(vli_format='uleb128')
 
     assert str(errinfo.value).startswith('Invalid or unsupported integer')
 
@@ -285,7 +250,7 @@ def test_varint__basic_dump(value, expected):
     We know that our codecs work (see varints_test.py) so here we're doing a
     perfunctory test to make sure dumping works as expected.
     """
-    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ,
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
                                          signed=False)
     assert field.dumps(value) == expected
 
@@ -295,14 +260,14 @@ def test_varint__basic_dump(value, expected):
 ))
 def test_varint__basic_load(data, expected):
     """Test VLQ load."""
-    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ,
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
                                          signed=False)
     assert field.loads(data) == expected
 
 
 def test_varint__overflow():
     """Crash if we try to zigzag an integer that's too big."""
-    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.ZIGZAG)
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.ZIGZAG)
 
     with pytest.raises(errors.UnserializableValueError):
         field.dumps(2**65)
@@ -310,7 +275,7 @@ def test_varint__overflow():
 
 def test_varint__max_bytes():
     """Crash if a variable-length integer takes up too many bytes."""
-    field = fields.VariableLengthInteger(encoding=varints.VarIntEncoding.VLQ,
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
                                          signed=False, max_bytes=2)
 
     with pytest.raises(errors.ValueSizeError):

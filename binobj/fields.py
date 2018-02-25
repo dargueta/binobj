@@ -2,26 +2,24 @@
 
 # pylint: disable=too-few-public-methods
 
+import io
 import sys
 
 from binobj import errors
 from binobj import helpers
 from binobj import varints
-from binobj import serialization
 
 from binobj.serialization import DEFAULT
 from binobj.serialization import UNDEFINED
+from binobj.serialization import FieldMeta
 from binobj.serialization import OptionProperty
 
 
-class Field(serialization.Serializable):
+class Field(metaclass=FieldMeta):
     """The base class for all struct fields.
 
     :param str name:
         The name of the field.
-    :param bool allow_null:
-        If ``True`` (the default) then ``None`` is an acceptable value to write
-        for this field.
     :param const:
         A constant value this field is expected to take. It will always have
         this value when dumped, and will fail validation if the field isn't this
@@ -44,41 +42,69 @@ class Field(serialization.Serializable):
         A value to use to dump ``None``. When loading, the returned value will
         be ``None`` if this value is encountered.
 
-    .. attribute:: name
+    .. attribute:: __options__
 
-        The name of this field.
+        A dictionary of options used by the loading and dumping methods.
+        Subclasses can override these options, and they can also be overridden
+        on a per-instance basis with keyword arguments passed to the constructor.
+
+        :type: dict
 
     .. attribute:: index
 
         The zero-based index of the field in the struct.
+
+        :type: int
 
     .. attribute:: offset
 
         The zero-based byte offset of the field in the struct. If the offset
         can't be computed (e.g. it's preceded by a variable-length field), this
         will be ``None``.
+
+        :type: int
+
+    .. attribute:: size
+
+        The size of this object, in bytes.
+
+        :type: int
     """
-    allow_null = OptionProperty(default=True)
+    #: The constant value a field should take on. The datatype must match that
+    #: of the field, i.e. it should be a string for :class:`String` fields, an
+    #: integer for :class:`Integer` fields, etc.
     const = OptionProperty()
-    discard = OptionProperty(default=False)
-    null_value = OptionProperty(default=DEFAULT)
+    discard = OptionProperty()
+    null_value = OptionProperty()
 
-    def __init__(self, *, name=None, default=UNDEFINED, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *, name=None, size=None, const=UNDEFINED,
+                 default=UNDEFINED, discard=False, null_value=UNDEFINED,
+                 **kwargs):
+        self.__options__ = {
+            'const': const,
+            'default': default if default is not UNDEFINED else const,
+            'discard': discard,
+            'null_value': null_value,
+        }
 
-        if default is UNDEFINED:
-            default = self.const
-
-        self._default = default
-
-        if self.size is None and self.const is not UNDEFINED:
+        if size is None and self.const is not UNDEFINED:
             self.size = len(self.const)
+        else:
+            self.size = size
 
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
         self.name = name        # type: str
         self.index = None       # type: int
         self.offset = None      # type: int
+
+    @property
+    def allow_null(self):
+        """Is `None` an acceptable value for this field?
+
+        :rtype: bool
+        """
+        return self.null_value is not UNDEFINED
 
     @property
     def default(self):
@@ -88,9 +114,10 @@ class Field(serialization.Serializable):
         property will always give its return value. That callable is invoked on
         each access of this property.
         """
-        if callable(self._default):
-            return self._default()
-        return self._default
+        default_value = self.__options__['default']
+        if callable(default_value):
+            return default_value()
+        return default_value
 
     @property
     def required(self):
@@ -100,39 +127,174 @@ class Field(serialization.Serializable):
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def load(self, stream, context=None):   # pylint: disable=missing-docstring
+    def load(self, stream, context=None):
+        """Load data from the given stream.
+
+        :param io.BytesIO stream:
+            The stream to load data from.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+
+        :return: The deserialized data.
+        """
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
-            loaded_value = super().load(stream, context)
+            loaded_value = self._do_load(stream, context)
         except errors.DeserializationError as err:
             err.field = self
             raise
+
+        if loaded_value == self.null_value:
+            return None
 
         # TODO (dargueta): Change this to a validator instead.
         if self.const is not UNDEFINED and loaded_value != self.const:
             raise errors.ValidationError(field=self, value=loaded_value)
         return loaded_value
 
-    def dump(self, stream, data=DEFAULT, context=None):  # pylint: disable=missing-docstring
+    def loads(self, data, context=None, exact=True):
+        """Load from the given byte string.
+
+        :param bytes data:
+            A bytes-like object to get the data from.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        :param bool exact:
+            ``data`` must contain exactly the number of bytes required. If not
+            all the bytes in ``data`` were used when reading the struct, throw
+            an exception.
+
+        :return: The deserialized data.
+        """
+        stream = io.BytesIO(data)
+        loaded_data = self.load(stream, context)
+
+        if exact and (stream.tell() < len(data)):
+            # TODO (dargueta): Better error message.
+            raise errors.ExtraneousDataError(
+                'Expected to read %d bytes, read %d.'
+                % (stream.tell(), len(data)))
+        return loaded_data
+
+    def _do_load(self, stream, context):
+        return self._read_exact_size(stream)
+
+    def dump(self, stream, data=DEFAULT, context=None):
+        """Convert the given data into bytes and write it to ``stream``.
+
+        :param io.BytesIO stream:
+            The stream to write the serialized data into.
+        :param data:
+            The data to dump. Can be omitted only if this is a constant field,
+            i.e. :attr:`const` is not :data:`UNDEFINED`.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        """
         if data is DEFAULT:
             data = self.default
             if data in (UNDEFINED, DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
+        elif data is None:
+            if not self.allow_null:
+                raise errors.UnserializableValueError(field=self, value=data)
+            data = self._get_null_value()
 
-        super().dump(stream, data, context)
+        self._do_dump(stream, data, context)
+
+    def dumps(self, data=DEFAULT, context=None):
+        """Convert the given data into bytes.
+
+        :param data:
+            The data to dump. Can be omitted only if this is a constant field,
+            i.e. ``__options__['const']`` is not :data:`UNDEFINED`.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+
+        :return: The serialized data.
+        :rtype: bytes
+        """
+        stream = io.BytesIO()
+        self.dump(stream, data, context)
+        return stream.getvalue()
+
+    def _do_dump(self, stream, data, context):
+        if isinstance(data, (bytes, bytearray)):
+            stream.write(data)
+        else:
+            raise errors.UnserializableValueError(field=self, value=data)
+
+    def _get_null_value(self):
+        """Return the serialized value for ``None``.
+
+        We need this function because there's some logic involved in determining
+        if ``None`` is a legal value, and guessing the serialization if no
+        default value is provided.
+
+        :return: The serialized form of ``None`` for this field.
+        :rtype: bytes
+        """
+        if not self.allow_null:
+            raise errors.UnserializableValueError(
+                reason='`None` is not an acceptable value for %s.' % self,
+                field=self,
+                value=None)
+
+        null_value = self.null_value
+        if null_value is UNDEFINED:
+            raise errors.FieldConfigurationError(
+                "`None` is allowed for this field but there's no serialization "
+                "defined for it. To use all null bytes, pass `null_value=DEFAULT`"
+                "to the constructor.", field=self)
+        elif null_value is not DEFAULT:
+            return null_value
+
+        # User wants us to define the null value for them.
+        if self.size is None:
+            raise errors.UnserializableValueError(
+                reason="Can't guess appropriate serialization of `None` for %s "
+                       "because it has no fixed size." % self,
+                field=self,
+                value=None)
+
+        return b'\0' * self.size
+
+    def _read_exact_size(self, stream):
+        """Read exactly the number of bytes this object takes up or crash.
+
+        :param io.BytesIO stream: The stream to read from.
+
+        :return: Exactly ``self.size`` bytes are read from the stream.
+        :rtype: bytes
+
+        :raise VariableSizedFieldError:
+            The field cannot be read directly because it's of variable size.
+        :raise UnexpectedEOFError: Not enough bytes were left in the stream.
+        """
+        offset = stream.tell()
+        n_bytes = self.size
+
+        if n_bytes is None:
+            raise errors.VariableSizedFieldError(field=self, offset=offset)
+
+        data_read = stream.read(n_bytes)
+        if len(data_read) < n_bytes:
+            raise errors.UnexpectedEOFError(
+                field=self, size=n_bytes, offset=offset)
+
+        return data_read
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
-
         return instance.__values__.setdefault(self.name, self.default)
 
     def __set__(self, instance, value):
         # TODO (dargueta): Call validators here
         instance.__values__[self.name] = value
-
-    def __delete__(self, instance):
-        instance.__values__[self.name] = self.default
 
     def __str__(self):
         return '%s(name=%r)' % (type(self).__name__, self.name)
@@ -141,7 +303,7 @@ class Field(serialization.Serializable):
 class Array(Field):
     """An array of other serializable objects.
 
-    :param binobj.serialization.Serializable component:
+    :param Field component:
         The component this array is comprised of.
     :param int count:
         Optional. The number of elements in this array. If not given, the array
@@ -153,10 +315,10 @@ class Array(Field):
         to avoid having to pass in a custom function every time.
     """
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
+        super().__init__(**kwargs)
         self.component = component
         self.count = count
         self.halt_check = halt_check or self.should_halt
-        super().__init__(**kwargs)
 
     @staticmethod
     def should_halt(seq, stream, loaded, context):    # pylint: disable=unused-argument
@@ -231,7 +393,11 @@ class Array(Field):
 
 
 class Nested(Field):
-    """Used to nest one struct inside of another."""
+    """Used to nest one struct inside of another.
+
+    :param SerializableContainer struct_class:
+        The struct class to wrap as a field. Not an instance!
+    """
     def __init__(self, struct_class, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
@@ -261,12 +427,16 @@ class Integer(Field):
         Indicates if this number is a signed or unsigned integer. Defaults to
         ``True``.
     """
-    #: The endianness of the integer. If not given, defaults to the system's
-    #: native byte order.
-    endian = OptionProperty(default=sys.byteorder)
+    #: The endianness of the integer. Defaults to the system's native byte order.
+    endian = OptionProperty()
 
-    #: The signedness of this integer. Defaults to ``True``.
-    signed = OptionProperty(default=True)
+    #: The signedness of the integer. Defaults to ``True``.
+    signed = OptionProperty()
+
+    def __init__(self, *, endian=None, signed=True, **kwargs):
+        super().__init__(**kwargs)
+        self.endian = endian or sys.byteorder
+        self.signed = signed
 
     def _do_load(self, stream, context):     # pylint: disable=unused-argument
         """Load an integer from the given stream."""
@@ -281,8 +451,8 @@ class Integer(Field):
 class VariableLengthInteger(Integer):
     """An integer of varying size.
 
-    :param VarIntEncoding encoding:
-        The encoding to use for the variable-length integer.
+    :param VarIntEncoding vli_format:
+        Required. The encoding to use for the variable-length integer.
     :param int max_bytes:
         The maximum number of bytes to use for encoding this integer. If not
         given, there's no restriction on the size.
@@ -293,8 +463,13 @@ class VariableLengthInteger(Integer):
 
         Not all integer encodings allow signed integers.
     """
-    def __init__(self, encoding, max_bytes=None, signed=True, **kwargs):
-        if encoding == varints.VarIntEncoding.VLQ and signed is True:
+    max_bytes = OptionProperty()
+    vli_format = OptionProperty()
+
+    def __init__(self, *, vli_format, max_bytes=None, **kwargs):
+        super().__init__(**kwargs)
+
+        if vli_format == varints.VarIntEncoding.VLQ and self.signed is True:
             raise errors.FieldConfigurationError(
                 "Signed integers can't be encoded with VLQ. Either pass "
                 "`signed=False` to __init__ or use an encoding that works for "
@@ -302,19 +477,16 @@ class VariableLengthInteger(Integer):
                 % varints.VarIntEncoding.COMPACT_INDICES,
                 field=self)
 
-        encoding_functions = varints.INTEGER_ENCODING_MAP.get(encoding)
+        encoding_functions = varints.INTEGER_ENCODING_MAP.get(vli_format)
         if encoding_functions is None:
             raise errors.FieldConfigurationError(
-                'Invalid or unsupported integer encoding scheme: %r' % encoding,
+                'Invalid or unsupported integer encoding scheme: %r' % vli_format,
                 field=self)
 
-        super().__init__(endian=encoding_functions['endian'], signed=signed,
-                         **kwargs)
-
+        self.vli_format = vli_format
+        self.max_bytes = max_bytes
         self._encode_integer_fn = encoding_functions['encode']
         self._decode_integer_fn = encoding_functions['decode']
-        self.encoding = encoding
-        self.max_bytes = max_bytes
 
     def _do_load(self, stream, context):   # pylint: disable=unused-argument
         """Load a variable-length integer from the given stream."""
@@ -403,6 +575,10 @@ class String(Field):
     #: The encoding to use for converting the string to and from bytes. Defaults
     #: to ``'latin-1'`` (also known as ISO-8859-1).
     encoding = OptionProperty(default='latin-1')
+
+    def __init__(self, *, encoding='latin-1', **kwargs):
+        super().__init__(**kwargs)
+        self.encoding = encoding
 
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""

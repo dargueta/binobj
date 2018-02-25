@@ -43,11 +43,11 @@ DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
 
 
 class OptionProperty:
-    """An attribute on a :class:`Serializable` that's stored in its ``__options__``
-    dict.
+    """An attribute on an object that's stored in its ``__options__`` dict.
 
     :param default:
-        The default value for this option. If not given, will be :data:`UNDEFINED`.
+        The default value for this option. If not given, the option is considered
+        a required keyword argument to the constructor.
 
     .. attribute:: name
 
@@ -57,13 +57,20 @@ class OptionProperty:
 
         :type: str
     """
-    def __init__(self, default=UNDEFINED):
-        self.default = default
-        self.name = None
+    def __init__(self, *, name=None, **kwargs):
+        self.required = 'default' not in kwargs
+        self.default = kwargs.pop('default', UNDEFINED)
+        self.name = name
+
+        if kwargs:
+            raise TypeError('Unrecognized keyword argument(s): '
+                            + ', '.join(repr(k) for k in kwargs))
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
+        elif self.required and self.name not in instance.__options__:
+            raise ValueError('No value set for option: %r' % self.name)
         return instance.__options__.setdefault(self.name, self.default)
 
     def __set__(self, instance, value):
@@ -71,7 +78,8 @@ class OptionProperty:
         return value
 
     def __repr__(self):
-        return '%s(%r, default=%r)' % (type(self).__name__, self.name, self.default)
+        return '%s(%r, required=%r, default=%r)' % (
+            type(self).__name__, self.name, self.required, self.default)
 
 
 def gather_options_for_class(klass):
@@ -118,8 +126,8 @@ def _r_gather_options_for_class(klass, options, seen):
     return options
 
 
-class SerializableMeta(type):
-    """The metaclass for all basic serializable objects.
+class FieldMeta(type):
+    """The metaclass for all fields.
 
     All it does is set the options' names on their instances.
     """
@@ -133,204 +141,12 @@ class SerializableMeta(type):
         return class_object
 
 
-class Serializable(metaclass=SerializableMeta):
-    """Base class providing basic loading and dumping methods.
-
-    .. attribute:: __options__
-
-        A dictionary of options used by the loading and dumping methods.
-        Subclasses can override these options, and they can also be overridden
-        on a per-instance basis with keyword arguments passed to the constructor.
-
-        :type: dict
-
-    .. attribute:: size
-
-        The size of this object, in bytes.
-
-        :type: int
-    """
-    allow_null = OptionProperty(default=True)
-    null_value = OptionProperty(default=DEFAULT)
-
-    def __init__(self, *, size=None, **kwargs):
-        self.size = size
-        self.__options__ = {}
-
-        for name, value in kwargs.items():
-            if not hasattr(self, name):
-                raise TypeError('Unrecognized option passed to constructor: %r'
-                                % name)
-            self.__options__[name] = value
-
-    def dump(self, stream, data=DEFAULT, context=None):
-        """Convert the given data into bytes and write it to ``stream``.
-
-        :param io.BytesIO stream:
-            The stream to write the serialized data into.
-        :param data:
-            The data to dump. Can be omitted only if this is a constant field,
-            i.e. ``__options__['const']`` is not :data:`UNDEFINED`.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
-        """
-        if data is None:
-            stream.write(self._get_null_value())
-        else:
-            self._do_dump(stream, data, context)
-
-    def _do_dump(self, stream, data, context):  # pylint: disable=unused-argument
-        """Convert the given data into bytes and write it to ``stream``.
-
-        :param io.BytesIO stream:
-            The stream to write the serialized data into.
-        :param data:
-            The data to dump. Guaranteed to not be ``None``.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
-        """
-        if isinstance(data, (bytes, bytearray)):
-            stream.write(data)
-        else:
-            raise errors.UnserializableValueError(
-                reason='Unhandled data type: ' + type(data).__name__,
-                field=self, value=data)
-
-    def dumps(self, data=DEFAULT, context=None):
-        """Convert the given data into bytes.
-
-        :param data:
-            The data to dump. Can be omitted only if this is a constant field,
-            i.e. ``__options__['const']`` is not :data:`UNDEFINED`.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
-
-        :return: The serialized data.
-        :rtype: bytes
-        """
-        stream = io.BytesIO()
-        self.dump(stream, data, context)
-        return stream.getvalue()
-
-    def load(self, stream, context=None):
-        """Load data from the given stream.
-
-        :param io.BytesIO stream:
-            The stream to load data from.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
-
-        :return: The deserialized data.
-        """
-        loaded_value = self._do_load(stream, context)
-        if loaded_value == self.null_value:
-            return None
-        return loaded_value
-
-    @abc.abstractmethod
-    def _do_load(self, stream, context):
-        """Load from the given stream.
-
-        :param io.BytesIO stream:
-            A stream to read data from.
-        :param context:
-            Additional data passed to :meth:`load`. Subclasses must ignore
-            anything they don't recognize.
-
-        :return: The deserialized data.
-        """
-
-    def loads(self, data, context=None, exact=True):
-        """Load from the given byte string.
-
-        :param bytes data:
-            A bytes-like object to get the data from.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
-        :param bool exact:
-            ``data`` must contain exactly the number of bytes required. If not
-            all the bytes in ``data`` were used when reading the struct, throw
-            an exception.
-
-        :return: The deserialized data.
-        """
-        stream = io.BytesIO(data)
-        loaded_data = self.load(stream, context)
-
-        if exact and (stream.tell() < len(data)):
-            # TODO (dargueta): Better error message.
-            raise errors.ExtraneousDataError(
-                'Expected to read %d bytes, read %d.'
-                % (stream.tell(), len(data)))
-        return loaded_data
-
-    def _get_null_value(self):
-        """Return the serialized value for ``None``.
-
-        We need this function because there's some logic involved in determining
-        if ``None`` is a legal value, and guessing the serialization if no
-        default value is provided.
-
-        :return: The serialized form of ``None`` for this field.
-        :rtype: bytes
-        """
-        if not self.allow_null:
-            raise errors.UnserializableValueError(
-                reason='`None` is not an acceptable value for %s.' % self,
-                field=self,
-                value=None)
-
-        null_value = self.null_value
-        if null_value is not DEFAULT:
-            return null_value
-
-        # User wants us to define the null value for them.
-        if self.size is None:
-            raise errors.UnserializableValueError(
-                reason="Can't guess appropriate serialization of `None` for %s "
-                       "because it has no fixed size." % self,
-                field=self,
-                value=None)
-
-        return b'\0' * self.size
-
-    def _read_exact_size(self, stream):
-        """Read exactly the number of bytes this object takes up or crash.
-
-        :param io.BytesIO stream: The stream to read from.
-
-        :return: Exactly ``self.size`` bytes are read from the stream.
-        :rtype: bytes
-
-        :raise VariableSizedFieldError:
-            The field cannot be read directly because it's of variable size.
-        :raise UnexpectedEOFError: Not enough bytes were left in the stream.
-        """
-        offset = stream.tell()
-        n_bytes = self.size
-
-        if n_bytes is None:
-            raise errors.VariableSizedFieldError(field=self, offset=offset)
-
-        data_read = stream.read(n_bytes)
-        if len(data_read) < n_bytes:
-            raise errors.UnexpectedEOFError(
-                field=self, size=n_bytes, offset=offset)
-
-        return data_read
-
-
 class SerializableContainerMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
     objects.
 
     It defines the ``__components__`` class variable and sets some values on the
-    :class:`Serializable` components such as the name and index.
+    :class:`Field` components such as the name and index.
     """
     @classmethod
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
@@ -341,7 +157,10 @@ class SerializableContainerMeta(abc.ABCMeta):
         namespace['__components__'] = collections.OrderedDict(
             (name, comp)
             for name, comp in namespace.items()
-            if isinstance(comp, Serializable)
+            if issubclass(type(type(comp)), FieldMeta)
+            # TODO (dargueta): This is a hacky way to detect a Field.
+            # Weird roundabout way of seeing if this is a field -- checks to see
+            # if the metaclass of the object is FieldMeta.
         )
 
         class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
@@ -370,27 +189,16 @@ class SerializableContainer(collections.abc.MutableMapping,
 
     .. attribute:: __components__
 
-        An :class:`~collections.OrderedDict` of the :class:`Serializable` objects
+        An :class:`~collections.OrderedDict` of the :class:`Field` objects
         comprising the container. *Never* modify or create this yourself.
 
         :type: :class:`collections.OrderedDict`
-
 
     .. attribute:: __options__
 
         A dictionary of options that all fields will inherit by default.
 
         :type: dict
-
-        When creating a subclass, you might want to provide some defaults of
-        your own. Do *not* declare ``__options__`` at the class level; instead,
-        use an internal class named ``Options``::
-
-            class MyStruct(Struct):
-                class Options:
-                    option_name = 'value'
-
-                ...
     """
     __options__ = None      # type: dict
     __components__ = None   # type: collections.OrderedDict
