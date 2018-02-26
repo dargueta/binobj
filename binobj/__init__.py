@@ -13,5 +13,4 @@ __version_info__ = tuple(int(p) for p in __version__.split('.'))
 
 from .errors import *
 from .fields import *
-from .serialization import *
 from .structures import *

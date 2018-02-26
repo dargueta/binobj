@@ -426,7 +426,7 @@ class Array(Field):
 class Nested(Field):
     """Used to nest one struct inside of another.
 
-    :param SerializableContainer struct_class:
+    :param binobj.structures.Struct struct_class:
         The struct class to wrap as a field. Not an instance!
     """
     def __init__(self, struct_class, *args, **kwargs):
