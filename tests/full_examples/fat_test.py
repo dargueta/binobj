@@ -6,9 +6,6 @@ import binobj
 
 
 class FAT12BootSector(binobj.Struct):
-    class Options:
-        endian = 'little'
-
     jump = binobj.Bytes(size=3, default=b'\xeb\x3c\x90')
     oem_name = binobj.String(size=8, default='mkdosfs ')
     bytes_per_sector = binobj.UInt16(default=512)

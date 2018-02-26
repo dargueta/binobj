@@ -13,8 +13,8 @@ class Error(Exception):
         super().__init__(message, *args)
 
 
-class FieldConfigurationError(Error):
-    """A field was misconfigured.
+class ConfigurationError(Error):
+    """A field or struct was misconfigured.
 
     :param str message: A description of what's wrong with the field.
     :param ~binobj.fields.Field field: The offending field.

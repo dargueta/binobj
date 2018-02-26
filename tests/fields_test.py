@@ -7,9 +7,8 @@ import pytest
 from binobj import errors
 from binobj import fields
 from binobj import varints
-from binobj.serialization import DEFAULT
-from binobj.serialization import UNDEFINED
 from binobj import structures
+from binobj.fields import DEFAULT
 
 
 def test_load__null_with_null_value():
@@ -226,7 +225,7 @@ def test_stringz__dump_basic():
 def test_varint__signed_crash():
     """Crash when creating a signed variable-length integer using an encoding
     that doesn't support signed values."""
-    with pytest.raises(errors.FieldConfigurationError) as errinfo:
+    with pytest.raises(errors.ConfigurationError) as errinfo:
         fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
 
     assert str(errinfo.value).startswith("Signed integers can't be encoded")
@@ -234,7 +233,7 @@ def test_varint__signed_crash():
 
 def test_varint__unsupported_encoding():
     """Crash if we try using an unsupported VarInt encoding."""
-    with pytest.raises(errors.FieldConfigurationError) as errinfo:
+    with pytest.raises(errors.ConfigurationError) as errinfo:
         fields.VariableLengthInteger(vli_format='uleb128')
 
     assert str(errinfo.value).startswith('Invalid or unsupported integer')

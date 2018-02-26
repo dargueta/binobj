@@ -4,141 +4,11 @@ data."""
 import abc
 import collections
 import collections.abc
-import copy
 import io
+import types
 
 from binobj import errors
-
-
-class _NamedSentinel:   # pylint: disable=too-few-public-methods
-    """An object type used for creating sentinel objects that can be retrieved
-    by name.
-    """
-    # A mapping of sentinels from name to instance.
-    __sentinels = {}
-
-    def __init__(self, name):
-        self.name = name
-
-    @classmethod
-    def get_sentinel(cls, name):
-        """Return the sentinel with the given name, creating it if necessary."""
-        return cls.__sentinels.setdefault(name, cls(name))
-
-    def __deepcopy__(self, memodict=None):
-        return self
-
-    def __repr__(self):     # pragma: no cover
-        return 'Sentinel(%r)' % self.name
-
-
-#: A sentinel value used to indicate that a setting or field is undefined.
-UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
-
-
-#: A sentinel value used to indicate that the default value of a setting should
-#: be used. We need this because sometimes ``None`` is a valid value for that
-#: setting.
-DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
-
-
-class OptionProperty:
-    """An attribute on an object that's stored in its ``__options__`` dict.
-
-    :param default:
-        The default value for this option. If not given, the option is considered
-        a required keyword argument to the constructor.
-
-    .. attribute:: name
-
-        The name of this field. Its value is set by the containing object's
-        metaclass, so there's no constructor argument for it. Defaults to
-        ``None``.
-
-        :type: str
-    """
-    def __init__(self, *, name=None, **kwargs):
-        self.required = 'default' not in kwargs
-        self.default = kwargs.pop('default', UNDEFINED)
-        self.name = name
-
-        if kwargs:
-            raise TypeError('Unrecognized keyword argument(s): '
-                            + ', '.join(repr(k) for k in kwargs))
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        elif self.required and self.name not in instance.__options__:
-            raise ValueError('No value set for option: %r' % self.name)
-        return instance.__options__.setdefault(self.name, self.default)
-
-    def __set__(self, instance, value):
-        instance.__options__[self.name] = value
-        return value
-
-    def __repr__(self):
-        return '%s(%r, required=%r, default=%r)' % (
-            type(self).__name__, self.name, self.required, self.default)
-
-
-def gather_options_for_class(klass):
-    """Build a dictionary of an object's settings, including values defined in
-    parent classes.
-
-    :param type klass:
-        A class object (not an instance) that we want to get the options for.
-        The class must have an internal class named ``Options``.
-
-    :return: A dictionary of the class' defined options, plus a few defaults.
-    :rtype: dict
-    """
-    return _r_gather_options_for_class(klass, {}, set())
-
-
-def _r_gather_options_for_class(klass, options, seen):
-    """Helper method for :func:`gather_options_from_class`.
-
-    :param type klass:
-    :param dict options:
-    :param set seen:
-
-    :return: The class' options, including the ones defined in its superclasses.
-    :rtype: dict
-    """
-    seen.add(klass)
-
-    # Determine all the options defined in the parent classes
-    for parent_class in reversed(klass.__bases__):
-        if parent_class not in seen:
-            _r_gather_options_for_class(parent_class, options, seen)
-        seen.add(parent_class)
-
-    if hasattr(klass, 'Options') and isinstance(klass.Options, type):
-        options_to_copy = {
-            name: value
-            for name, value in vars(klass.Options).items()
-            if not name.startswith('_')
-        }
-
-        options.update(copy.deepcopy(options_to_copy))
-
-    return options
-
-
-class FieldMeta(type):
-    """The metaclass for all fields.
-
-    All it does is set the options' names on their instances.
-    """
-    def __new__(mcs, name, bases, namespace, **kwargs):
-        class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
-
-        for name, obj in namespace.items():
-            if isinstance(obj, OptionProperty):
-                obj.name = name
-
-        return class_object
+from binobj import fields
 
 
 class SerializableContainerMeta(abc.ABCMeta):
@@ -153,27 +23,19 @@ class SerializableContainerMeta(abc.ABCMeta):
         return collections.OrderedDict()
 
     def __new__(mcs, name, bases, namespace, **kwargs):
-        # TODO (dargueta): Need to get fields from the superclasses as well.
-        namespace['__components__'] = collections.OrderedDict(
-            (name, comp)
-            for name, comp in namespace.items()
-            if issubclass(type(type(comp)), FieldMeta)
-            # TODO (dargueta): This is a hacky way to detect a Field.
-            # Weird roundabout way of seeing if this is a field -- checks to see
-            # if the metaclass of the object is FieldMeta.
+        components = collections.OrderedDict(
+            (name, item)
+            for name, item in namespace.items()
+            if isinstance(item, fields.Field)
         )
 
+        namespace['__components__'] = components
+
         class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
-        class_options = gather_options_for_class(class_object)
-        class_object.__options__ = class_options
 
         offset = 0
-        for i, (f_name, field) in enumerate(namespace['__components__'].items()):
-            field.index = i
-            field.name = f_name
-            field.offset = offset
-            field.__options__ = collections.ChainMap(field.__options__,
-                                                     class_object.__options__)
+        for i, (f_name, field) in enumerate(components.items()):
+            field.bind_to_container(f_name, i, offset)
 
             if offset is not None and field.size is not None:
                 offset += field.size
@@ -193,15 +55,8 @@ class SerializableContainer(collections.abc.MutableMapping,
         comprising the container. *Never* modify or create this yourself.
 
         :type: :class:`collections.OrderedDict`
-
-    .. attribute:: __options__
-
-        A dictionary of options that all fields will inherit by default.
-
-        :type: dict
     """
-    __options__ = None      # type: dict
-    __components__ = None   # type: collections.OrderedDict
+    __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
@@ -221,7 +76,7 @@ class SerializableContainer(collections.abc.MutableMapping,
         """
         for name, field in self.__components__.items():
             value = self.__values__.get(name, field.default)
-            if value is UNDEFINED:
+            if value is fields.UNDEFINED:
                 raise errors.MissingRequiredValueError(field=field)
 
             field.dump(stream, value, context)
@@ -378,7 +233,7 @@ class SerializableContainer(collections.abc.MutableMapping,
 
         for field in self.__components__.values():
             value = data.get(field.name, field.default)
-            if value is UNDEFINED:
+            if value is fields.UNDEFINED:
                 # Field is missing from the dump data. If the caller wants us to
                 # dump only the fields that're defined, we can bail out now.
                 if last_field is None:
@@ -411,7 +266,7 @@ class SerializableContainer(collections.abc.MutableMapping,
 
     def __iter__(self):
         for name, value in self.__values__.items():
-            if value is not UNDEFINED:
+            if value is not fields.UNDEFINED:
                 yield name
 
     def __len__(self):
@@ -429,7 +284,7 @@ class SerializableContainer(collections.abc.MutableMapping,
                 size += field.size
             else:
                 field_value = self.__values__.get(name, field.default)
-                if field_value is UNDEFINED:
+                if field_value is fields.UNDEFINED:
                     raise errors.VariableSizedFieldError(field=field)
                 size += len(field.dumps(field_value))
 

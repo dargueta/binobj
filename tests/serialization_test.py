@@ -8,7 +8,6 @@ import pytest
 
 import binobj
 from binobj import errors
-from binobj.serialization import gather_options_for_class
 
 
 def test_sentinels_are_singletons():
@@ -64,91 +63,12 @@ def test_loads__no_size_crashes():
         field.loads(b'123')
 
 
-class BaseClassWithOptions(binobj.Struct):
-    class Options:
-        foo = 'bar'
-        bar = 'baz'
-        _ignored = 'ignored'
-
-
-class BaseClassWithoutOptions(binobj.Struct):
-    pass
-
-
-class ChildClassNoOverrides(BaseClassWithOptions):
-    pass
-
-
-class ChildClassWithOptions(BaseClassWithOptions):
-    class Options:
-        child = True
-
-
-class GrandchildWithOverrides(ChildClassWithOptions):
-    class Options:
-        foo = 123456
-
-
-@pytest.mark.parametrize('class_object,expected', (
-    (BaseClassWithOptions, {'foo': 'bar', 'bar': 'baz'}),
-    (BaseClassWithoutOptions, {}),
-))
-def test_gather_options__single_class(class_object, expected):
-    """Basic test for single classes that have options."""
-    assert gather_options_for_class(class_object) == expected
-
-
-def test_gather_options__inherits__no_additional_options():
-    """A class with no options of its own inherits all options from its parent,
-    so they should have identical results."""
-    expected = gather_options_for_class(BaseClassWithOptions)
-    assert gather_options_for_class(ChildClassNoOverrides) == expected
-
-
-def test_gather_options__inherits__with_additional_options():
-    """Verify a class defining its own options also inherits its parents'."""
-    expected = {
-        'foo': 'bar',
-        'bar': 'baz',
-        'child': True,
-    }
-    assert gather_options_for_class(ChildClassWithOptions) == expected
-
-
-def test_gather_options__inherits__with_overrides():
-    """Options set in child classes should override the parents' options."""
-    expected = {
-        'foo': 123456,
-        'bar': 'baz',
-        'child': True,
-    }
-    assert gather_options_for_class(GrandchildWithOverrides) == expected
-
-
 NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'
 
 
 class StructWithFieldOverrides(binobj.Struct):
-    class Options:
-        endian = NONDEFAULT_ENDIANNESS
-
-    one = binobj.UInt32()   # Should be non-default byte order.
+    one = binobj.UInt32(endian=NONDEFAULT_ENDIANNESS)
     two = binobj.Int32(endian=sys.byteorder)
-
-
-def test_gather_options__field_overrides_struct():
-    """A field's options will override the defaults it inherited from its
-    struct's options."""
-    expected_one = {'endian': NONDEFAULT_ENDIANNESS, 'signed': False,
-                    'const': binobj.UNDEFINED, 'default': binobj.UNDEFINED,
-                    'discard': False}
-    expected_two = {'endian': sys.byteorder, 'const': binobj.UNDEFINED,
-                    'default': binobj.UNDEFINED, 'discard': False}
-
-    assert StructWithFieldOverrides.one.__options__ == expected_one
-    assert StructWithFieldOverrides.two.__options__ == expected_two
-    assert StructWithFieldOverrides.one.endian == NONDEFAULT_ENDIANNESS
-    assert StructWithFieldOverrides.two.endian == sys.byteorder
 
 
 def test_accessor__getitem():

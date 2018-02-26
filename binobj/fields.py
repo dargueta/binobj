@@ -2,6 +2,8 @@
 
 # pylint: disable=too-few-public-methods
 
+import collections
+import collections.abc
 import io
 import sys
 
@@ -9,13 +11,40 @@ from binobj import errors
 from binobj import helpers
 from binobj import varints
 
-from binobj.serialization import DEFAULT
-from binobj.serialization import UNDEFINED
-from binobj.serialization import FieldMeta
-from binobj.serialization import OptionProperty
+
+class _NamedSentinel:   # pylint: disable=too-few-public-methods
+    """An object type used for creating sentinel objects that can be retrieved
+    by name.
+    """
+    # A mapping of sentinels from name to instance.
+    __sentinels = {}
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def get_sentinel(cls, name):
+        """Return the sentinel with the given name, creating it if necessary."""
+        return cls.__sentinels.setdefault(name, cls(name))
+
+    def __deepcopy__(self, memodict=None):
+        return self
+
+    def __repr__(self):     # pragma: no cover
+        return 'Sentinel(%r)' % self.name
 
 
-class Field(metaclass=FieldMeta):
+#: A sentinel value used to indicate that a setting or field is undefined.
+UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
+
+
+#: A sentinel value used to indicate that the default value of a setting should
+#: be used. We need this because sometimes ``None`` is a valid value for that
+#: setting.
+DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
+
+
+class Field:
     """The base class for all struct fields.
 
     :param str name:
@@ -42,14 +71,6 @@ class Field(metaclass=FieldMeta):
         A value to use to dump ``None``. When loading, the returned value will
         be ``None`` if this value is encountered.
 
-    .. attribute:: __options__
-
-        A dictionary of options used by the loading and dumping methods.
-        Subclasses can override these options, and they can also be overridden
-        on a per-instance basis with keyword arguments passed to the constructor.
-
-        :type: dict
-
     .. attribute:: index
 
         The zero-based index of the field in the struct.
@@ -70,25 +91,21 @@ class Field(metaclass=FieldMeta):
 
         :type: int
     """
-    #: The constant value a field should take on. The datatype must match that
-    #: of the field, i.e. it should be a string for :class:`String` fields, an
-    #: integer for :class:`Integer` fields, etc.
-    const = OptionProperty()
-    discard = OptionProperty()
-    null_value = OptionProperty()
+    def __init__(self, *, name=None, const=UNDEFINED, default=UNDEFINED,
+                 discard=False, null_value=UNDEFINED, size=None):
+        self.const = const
+        self.discard = discard
+        self.null_value = null_value
 
-    def __init__(self, *, name=None, size=None, const=UNDEFINED,
-                 default=UNDEFINED, discard=False, null_value=UNDEFINED,
-                 **kwargs):
-        self.__options__ = {
-            'const': const,
-            'default': default if default is not UNDEFINED else const,
-            'discard': discard,
-            'null_value': null_value,
-        }
+        if default is UNDEFINED and const is not UNDEFINED:
+            # If no default is given but ``const`` is, set the default value to
+            # ``const``.
+            self._default = const
+        else:
+            self._default = default
 
-        if size is None and self.const is not UNDEFINED:
-            self.size = len(self.const)
+        if size is None and isinstance(const, collections.abc.Sized):
+            self.size = len(const)
         else:
             self.size = size
 
@@ -97,6 +114,27 @@ class Field(metaclass=FieldMeta):
         self.name = name        # type: str
         self.index = None       # type: int
         self.offset = None      # type: int
+
+    def bind_to_container(self, name, index, offset=None):
+        """Bind this field to a container class.
+
+        :param str name:
+            The name of this field.
+        :param int index:
+            The index of this field in the container.
+        :param int offset:
+            The byte offset of this field in the container, or ``None`` if
+            unknown. This is usually equal to the sum of the sizes of the fields
+            preceding this one in the container.
+        """
+        # Don't rebind this field to a different class. This can happen if a
+        # container class is subclassed.
+        if self.name is not None:
+            return
+
+        self.name = name
+        self.index = index
+        self.offset = offset
 
     @property
     def allow_null(self):
@@ -114,7 +152,7 @@ class Field(metaclass=FieldMeta):
         property will always give its return value. That callable is invoked on
         each access of this property.
         """
-        default_value = self.__options__['default']
+        default_value = self._default
         if callable(default_value):
             return default_value()
         return default_value
@@ -187,8 +225,8 @@ class Field(metaclass=FieldMeta):
         :param io.BytesIO stream:
             The stream to write the serialized data into.
         :param data:
-            The data to dump. Can be omitted only if this is a constant field,
-            i.e. :attr:`const` is not :data:`UNDEFINED`.
+            The data to dump. Can be omitted only if this is a constant field or
+            if a default value is defined.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -208,8 +246,8 @@ class Field(metaclass=FieldMeta):
         """Convert the given data into bytes.
 
         :param data:
-            The data to dump. Can be omitted only if this is a constant field,
-            i.e. ``__options__['const']`` is not :data:`UNDEFINED`.
+            The data to dump. Can be omitted only if this is a constant field or
+            a default value is defined.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -245,7 +283,7 @@ class Field(metaclass=FieldMeta):
 
         null_value = self.null_value
         if null_value is UNDEFINED:
-            raise errors.FieldConfigurationError(
+            raise errors.ConfigurationError(
                 "`None` is allowed for this field but there's no serialization "
                 "defined for it. To use all null bytes, pass `null_value=DEFAULT`"
                 "to the constructor.", field=self)
@@ -427,13 +465,7 @@ class Integer(Field):
         Indicates if this number is a signed or unsigned integer. Defaults to
         ``True``.
     """
-    #: The endianness of the integer. Defaults to the system's native byte order.
-    endian = OptionProperty()
-
-    #: The signedness of the integer. Defaults to ``True``.
-    signed = OptionProperty()
-
-    def __init__(self, *, endian=None, signed=True, **kwargs):
+    def __init__(self, endian=None, signed=True, **kwargs):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
         self.signed = signed
@@ -463,14 +495,11 @@ class VariableLengthInteger(Integer):
 
         Not all integer encodings allow signed integers.
     """
-    max_bytes = OptionProperty()
-    vli_format = OptionProperty()
-
     def __init__(self, *, vli_format, max_bytes=None, **kwargs):
         super().__init__(**kwargs)
 
         if vli_format == varints.VarIntEncoding.VLQ and self.signed is True:
-            raise errors.FieldConfigurationError(
+            raise errors.ConfigurationError(
                 "Signed integers can't be encoded with VLQ. Either pass "
                 "`signed=False` to __init__ or use an encoding that works for "
                 "signed integers, like %s."
@@ -479,7 +508,7 @@ class VariableLengthInteger(Integer):
 
         encoding_functions = varints.INTEGER_ENCODING_MAP.get(vli_format)
         if encoding_functions is None:
-            raise errors.FieldConfigurationError(
+            raise errors.ConfigurationError(
                 'Invalid or unsupported integer encoding scheme: %r' % vli_format,
                 field=self)
 
@@ -572,10 +601,6 @@ class String(Field):
         The ``size`` keyword argument indicates the field's size in *bytes*, not
         *characters*.
     """
-    #: The encoding to use for converting the string to and from bytes. Defaults
-    #: to ``'latin-1'`` (also known as ISO-8859-1).
-    encoding = OptionProperty(default='latin-1')
-
     def __init__(self, *, encoding='latin-1', **kwargs):
         super().__init__(**kwargs)
         self.encoding = encoding
