@@ -148,26 +148,6 @@ class VariableSizedFieldError(DeserializationError):
         super().__init__(msg, field=field, offset=offset)
 
 
-class UnreadableDataError(DeserializationError):
-    """Attempted to deserialize an invalid value."""
-    def __init__(self, message=None, *, field, data=None, offset=None):
-        if message is None:
-            if data is not None:
-                bytes_repr = ': %r' % data
-            else:
-                bytes_repr = ': <undefined>'
-
-            if offset is not None:
-                offset_repr = ' at offset %r' % offset
-            else:
-                offset_repr = ' at undefined offset'
-
-            message = "%s can't deserialize invalid value%s%s" \
-                      % (field, offset_repr, bytes_repr)
-
-        super().__init__(message, field=field, data=data, offset=offset)
-
-
 class UnexpectedEOFError(DeserializationError):
     """Hit EOF while reading, but expected more data.
 

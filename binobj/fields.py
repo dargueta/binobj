@@ -280,17 +280,10 @@ class Field:
                 reason='`None` is not an acceptable value for %s.' % self,
                 field=self,
                 value=None)
+        elif self.null_value is not DEFAULT:
+            return self.null_value
 
-        null_value = self.null_value
-        if null_value is UNDEFINED:
-            raise errors.ConfigurationError(
-                "`None` is allowed for this field but there's no serialization "
-                "defined for it. To use all null bytes, pass `null_value=DEFAULT`"
-                "to the constructor.", field=self)
-        elif null_value is not DEFAULT:
-            return null_value
-
-        # User wants us to define the null value for them.
+        # User wants us to use all null bytes for the default null value.
         if self.size is None:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
@@ -450,8 +443,6 @@ class Nested(Field):
 
 class Bytes(Field):
     """Raw binary data."""
-    def _do_load(self, stream, context):    # pylint: disable=unused-argument
-        return stream.read(self.size)
 
 
 class Integer(Field):
