@@ -585,12 +585,15 @@ class String(Field):
 
     :param str encoding:
         The encoding to use for converting the string to and from bytes. Defaults
-        to ``'latin-1'`` (also known as ISO-8859-1).
+        to ``'latin-1'``.
 
     .. note ::
 
         The ``size`` keyword argument indicates the field's size in *bytes*, not
-        *characters*.
+        *characters*. Since the ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs
+        add a byte order marker (BOM) at the beginning of the string, you'll
+        need to take those extra bytes into account (or use the variants that
+        don't add the BOM).
     """
     def __init__(self, *, encoding='latin-1', **kwargs):
         super().__init__(**kwargs)
@@ -613,9 +616,11 @@ class String(Field):
 class StringZ(String):
     """A variable-length null-terminated string.
 
-    This field currently only works for string encodings that encode a null as
-    a single byte, such as ASCII and UTF-8. Do *not* use this field with text
-    encodings that use multiple bytes to represent a null, such as UTF-16.
+    .. warning::
+
+        This field can dump strings in multibyte character encodings but *can't*
+        load them properly if a null is represented by more than one byte (e.g.
+        UTF-16).
     """
     def _do_load(self, stream, context):
         string = bytearray()
@@ -631,4 +636,4 @@ class StringZ(String):
         return string.decode(self.encoding)
 
     def _do_dump(self, stream, value, context):
-        stream.write(value.encode(self.encoding) + b'\0')
+        stream.write((value + '\0').encode(self.encoding))

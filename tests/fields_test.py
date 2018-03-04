@@ -222,6 +222,19 @@ def test_stringz__dump_basic():
     assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0'
 
 
+def test_stringz__dump_multibyte():
+    """Basic multibyte test dump."""
+    field = fields.StringZ(encoding='utf-32-le')
+    assert field.dumps('AbC') == b'A\x00\x00\x00b\x00\x00\x00C\x00\x00\x00\x00\x00\x00\x00'
+
+
+def test_stringz__dump_multibyte_with_bom():
+    """Ensure multibyte encodings work with StringZ as well and the BOM isn't
+    added before the null byte."""
+    field = fields.StringZ(encoding='utf-16')
+    assert field.dumps('AbCd') == b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00'
+
+
 def test_varint__signed_crash():
     """Crash when creating a signed variable-length integer using an encoding
     that doesn't support signed values."""
