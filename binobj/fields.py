@@ -2,6 +2,7 @@
 
 # pylint: disable=too-few-public-methods
 
+import abc
 import collections
 import collections.abc
 import io
@@ -216,8 +217,18 @@ class Field:
                 % (stream.tell(), len(data)))
         return loaded_data
 
+    @abc.abstractmethod
     def _do_load(self, stream, context):
-        return self._read_exact_size(stream)
+        """Load an object from the stream.
+
+        :param io.BytesIO stream:
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+
+        :return: The loaded object.
+        """
+        raise NotImplementedError
 
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -259,11 +270,19 @@ class Field:
         self.dump(stream, data, context)
         return stream.getvalue()
 
+    @abc.abstractmethod
     def _do_dump(self, stream, data, context):
-        if isinstance(data, (bytes, bytearray)):
-            stream.write(data)
-        else:
-            raise errors.UnserializableValueError(field=self, value=data)
+        """Write the given data to the byte stream.
+
+        :param io.BytesIO stream:
+            The stream to write to.
+        :param data:
+            The data to dump. Guaranteed to not be ``None``.
+        :param context:
+            Additional data to pass to this method. Subclasses must ignore
+            anything they don't recognize.
+        """
+        raise errors.UnserializableValueError(field=self, value=data)
 
     def _get_null_value(self):
         """Return the serialized value for ``None``.
@@ -443,6 +462,14 @@ class Nested(Field):
 
 class Bytes(Field):
     """Raw binary data."""
+    def _do_load(self, stream, context):
+        return self._read_exact_size(stream)
+
+    def _do_dump(self, stream, data, context):
+        if not isinstance(data, (bytes, bytearray)):
+            raise errors.UnserializableValueError(field=self, value=data)
+
+        stream.write(data)
 
 
 class Integer(Field):
