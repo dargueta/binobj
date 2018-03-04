@@ -247,8 +247,6 @@ class Field:
             if data in (UNDEFINED, DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
         elif data is None:
-            if not self.allow_null:
-                raise errors.UnserializableValueError(field=self, value=data)
             data = self._get_null_value()
 
         self._do_dump(stream, data, context)

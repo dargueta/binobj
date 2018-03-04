@@ -14,6 +14,7 @@ from binobj.fields import DEFAULT
 def test_load__null_with_null_value():
     null_value = b' :( '
     field = fields.Bytes(name='field', size=4, null_value=null_value)
+    assert field.allow_null is True
     assert field.load(io.BytesIO(null_value)) is None
 
 
@@ -26,6 +27,7 @@ def test_loads__field_insufficient_data():
 def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
+    assert field.allow_null is True
     assert field.dumps(None) == b' :( '
 
 
@@ -35,11 +37,11 @@ def test_dump__null_with_default_null():
     assert field.dumps(None) == b'\0\0\0\0'
 
 
-def test_dump__null_with_no_def_and_varlen():
-    """Crash if trying to write ``None`` when ``null_value`` is undefined and
-    column is variable-length."""
-    field = fields.VariableLengthInteger(name='field',
-                                         vli_format=varints.VarIntEncoding.ZIGZAG)
+def test_dump__null_with_default_and_varlen():
+    """Crash if trying to write ``None`` when using the default null_value and
+    column is of variable length."""
+    field = fields.StringZ(name='field', null_value=DEFAULT)
+    assert field.allow_null is True
 
     with pytest.raises(errors.UnserializableValueError):
         field.dumps(None)
@@ -48,6 +50,7 @@ def test_dump__null_with_no_def_and_varlen():
 def test_dump__no_null_value_crashes():
     """Crash if we try dumping None with no null_value set."""
     field = fields.Bytes(name='field', size=4)
+    assert not field.allow_null
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.dumps(None)
