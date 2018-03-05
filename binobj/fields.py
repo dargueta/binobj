@@ -3,6 +3,7 @@
 # pylint: disable=too-few-public-methods
 
 import abc
+import codecs
 import collections
 import collections.abc
 import io
@@ -139,7 +140,7 @@ class Field:
 
     @property
     def allow_null(self):
-        """Is `None` an acceptable value for this field?
+        """Is ``None`` an acceptable value for this field?
 
         :rtype: bool
         """
@@ -608,21 +609,38 @@ class UInt64(Int64):
 class String(Field):
     """A fixed-length string.
 
+    :param int size:
+        The field's size in *bytes*, not *characters*. For most text encodings
+        these are the same, but encodings use multiple bytes per character.
+
     :param str encoding:
         The encoding to use for converting the string to and from bytes. Defaults
         to ``'latin-1'``.
 
+    :param bytes pad:
+        A single byte to use as padding for strings that are too short to fit
+        into the field. If not given, strings that aren't exactly ``size`` bytes
+        when encoded will trigger a :class:`~binobj.errors.ValueSizeError`.
+
     .. note ::
 
-        The ``size`` keyword argument indicates the field's size in *bytes*, not
-        *characters*. Since the ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs
-        add a byte order marker (BOM) at the beginning of the string, you'll
-        need to take those extra bytes into account (or use the variants that
-        don't add the BOM).
+        The ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs add a byte order
+        marker (BOM) at the beginning of the string, so you'll need to take those
+        extra bytes into account when defining this field size. Alternatively,
+        you can use the codecs' variants that don't add the BOM, such as
+        ``utf-16-le`` or ``utf-16-be``.
     """
-    def __init__(self, *, encoding='latin-1', **kwargs):
+    def __init__(self, *, encoding='latin-1', pad_byte=None, **kwargs):
         super().__init__(**kwargs)
+
+        if pad_byte is not None:
+            if not isinstance(pad_byte, (bytes, bytearray)):
+                raise TypeError('`pad_byte` must be a bytes-like object.')
+            elif len(pad_byte) != 1:
+                raise ValueError('`pad_byte` must be exactly one byte long.')
+
         self.encoding = encoding
+        self.pad_byte = pad_byte
 
     def _do_load(self, stream, context):  # pylint: disable=unused-argument
         """Load a fixed-length string from a stream."""
@@ -631,34 +649,67 @@ class String(Field):
 
     def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
         """Dump a fixed-length string into the stream."""
-        to_dump = value.encode(self.encoding)
+        if self.size is None:
+            raise errors.ConfigurationError(
+                '`size` cannot be `None` on a fixed-length field.', field=self)
 
-        if len(to_dump) != self.size:
+        stream.write(self._encode_and_resize(value))
+
+    def _encode_and_resize(self, string):
+        """Encode a string and size it to this field.
+
+        :param str string:
+            The string to encode.
+
+        :return: ``string`` encoded as ``size`` bytes.
+        :rtype: bytes
+        """
+        to_dump = string.encode(self.encoding)
+
+        if self.size is None:
+            return to_dump
+
+        size_diff = len(to_dump) - self.size
+        if size_diff > 0:
+            # String is too long.
             raise errors.ValueSizeError(field=self, value=to_dump)
-        stream.write(to_dump)
+        elif size_diff < 0:
+            if self.pad_byte is None:
+                # String is too short and we're not padding it.
+                raise errors.ValueSizeError(field=self, value=to_dump)
+            to_dump += self.pad_byte * -size_diff
+
+        return to_dump
+
+
+def _bytes_yielder(stream, max_length=0):
+    """Wrap a stream in an iterator that yields individual bytes, not lines."""
+    n_read = 0
+
+    while not max_length or n_read < max_length:
+        this_byte = stream.read(1)
+        if this_byte == b'':
+            return
+        yield this_byte
+        n_read += 1
 
 
 class StringZ(String):
-    """A variable-length null-terminated string.
-
-    .. warning::
-
-        This field can dump strings in multibyte character encodings but *can't*
-        load them properly if a null is represented by more than one byte (e.g.
-        UTF-16).
-    """
+    """A null-terminated string."""
     def _do_load(self, stream, context):
-        string = bytearray()
-        char = stream.read(1)
+        iterator = _bytes_yielder(stream, self.size)
+        reader = codecs.iterdecode(iterator, self.encoding)
+        result = io.StringIO()
 
-        while char != b'\0':
-            if char == b'':
-                raise errors.UnexpectedEOFError(
-                    field=self, size=1, offset=stream.tell())
-            string.append(ord(char))
-            char = stream.read(1)
+        for char in reader:
+            if char == '\0':
+                return result.getvalue()
+            result.write(char)
 
-        return string.decode(self.encoding)
+        # If we get out here then we hit EOF before getting to the null terminator.
+        raise errors.DeserializationError(
+            'Hit EOF before finding the trailing null.',
+            field=self)
 
     def _do_dump(self, stream, value, context):
-        stream.write((value + '\0').encode(self.encoding))
+        stream.write(self._encode_and_resize(value + '\0'))
