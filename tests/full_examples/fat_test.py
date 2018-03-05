@@ -7,7 +7,7 @@ import binobj
 
 class FAT12BootSector(binobj.Struct):
     jump = binobj.Bytes(size=3, default=b'\xeb\x3c\x90')
-    oem_name = binobj.String(size=8, default='mkdosfs ')
+    oem_name = binobj.String(size=8, default='mkdosfs', pad_byte=b' ', encoding='ascii')
     bytes_per_sector = binobj.UInt16(default=512)
     sectors_per_cluster = binobj.UInt8()
     reserved_sectors = binobj.UInt16(default=1)
@@ -25,7 +25,7 @@ class FAT12BootSector(binobj.Struct):
     _ex_boot_signature = binobj.Bytes(const=b'\x29', discard=True)
     volume_id = binobj.UInt32(default=lambda: random.randrange(2**32))
     volume_label = binobj.String(size=11)
-    fs_type = binobj.String(size=8, default='FAT16   ')
+    fs_type = binobj.String(size=8, default='FAT16', pad_byte=b' ', encoding='ascii')
     boot_code = binobj.Bytes(size=448, default=b'\xcc' * 448)
     boot_signature = binobj.Bytes(const=b'\x55\xaa')
 

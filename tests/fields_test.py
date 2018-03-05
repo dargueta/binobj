@@ -1,6 +1,8 @@
 """Tests for fields."""
 
+import codecs
 import io
+import sys
 
 import pytest
 
@@ -192,7 +194,7 @@ def test_string__dump_too_long_before_encoding():
         assert field.dumps('abcdefg')
 
 
-def test_string__dump_to_long_after_encoding():
+def test_string__dump_too_long_after_encoding():
     """Test dumping a string that's too long only after encoding to bytes."""
     field = fields.String(size=4, encoding='utf-8')
     with pytest.raises(errors.ValueSizeError):
@@ -206,6 +208,51 @@ def test_string__dump_too_short_before_encoding():
         assert field.dumps('a')
 
 
+def test_string__dump_too_short_before_encoding__pad():
+    """Dumping a string that's too short before encoding is okay."""
+    field = fields.String(size=5, pad_byte=b' ')
+    assert field.dumps('a') == b'a    '
+
+
+def test_string__dump_too_short_after_encoding__pad():
+    """Dumping a string that's too short but uses padding is okay."""
+    field = fields.String(size=8, pad_byte=b'\0', encoding='utf-32-be')
+    assert field.dumps('a') == b'\0\0\0a\0\0\0\0'
+
+
+def test_string__dump_too_long_before_encoding__pad():
+    """``pad_byte`` shouldn't prevent a crash if a string is too long."""
+    field = fields.String(size=5, pad_byte=b'?')
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps('abcdefgh')
+
+
+def test_string__dump_too_long_after_encoding__pad():
+    """``pad_byte`` shouldn't prevent a crash if a string is too long after
+    encoding it."""
+    field = fields.String(size=3, pad_byte=b'?', encoding='utf-16-le')
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps('ab')
+
+
+def test_string__pad_byte_wrong_type():
+    """Trying to pass a regular string as pad_byte will explode."""
+    with pytest.raises(TypeError):
+        fields.String(size=4, pad_byte=' ')
+
+
+def test_string__pad_byte_too_long():
+    """The padding byte must be exactly one byte."""
+    with pytest.raises(ValueError):
+        fields.String(size=4, pad_byte=b'0123')
+
+
+def test_string__pad_default():
+    """The default value should be padded if necessary."""
+    field = fields.String(size=4, pad_byte=b' ', default='?')
+    assert field.dumps() == b'?   '
+
+
 def test_stringz__load_basic():
     """Basic test of StringZ loading."""
     field = fields.StringZ(encoding='utf-8')
@@ -215,7 +262,7 @@ def test_stringz__load_basic():
 def test_stringz__load_eof_before_null():
     """Crash if we hit the end of the data before we get a null byte."""
     field = fields.StringZ(encoding='utf-8')
-    with pytest.raises(errors.UnexpectedEOFError):
+    with pytest.raises(errors.DeserializationError):
         assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf')
 
 
@@ -235,7 +282,18 @@ def test_stringz__dump_multibyte_with_bom():
     """Ensure multibyte encodings work with StringZ as well and the BOM isn't
     added before the null byte."""
     field = fields.StringZ(encoding='utf-16')
-    assert field.dumps('AbCd') == b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00'
+
+    if sys.byteorder == 'little':
+        assert field.dumps('AbCd') == b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00'
+    else:
+        assert field.dumps('AbCd') == b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00'
+
+
+def test_stringz_load_multibyte():
+    """Test loading multibyte strings with a terminating null."""
+    field = fields.StringZ(encoding='utf-16')
+    assert field.loads(b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00') == 'AbCd'
+    assert field.loads(b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00') == 'AbCd'
 
 
 def test_varint__signed_crash():
