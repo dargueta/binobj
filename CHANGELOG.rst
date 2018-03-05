@@ -1,6 +1,34 @@
 Changelog
 =========
 
+
+0.2.0
+-----
+
+Released: 2018-03-04
+
+Bugfixes
+~~~~~~~~
+
+* ``StringZ`` can now load strings in character encodings that use more than one
+  byte to represent null, e.g. UTF-16.
+* Fixed some typos in documentation.
+
+Features
+~~~~~~~~
+
+* ``String`` and its subclasses now take a ``pad_byte`` argument that pads strings
+  with that byte if they're too short after encoding. For example:
+
+.. code-block:: python
+
+    >>> String(size=4, pad_byte=b' ').dumps('a')
+    b'a   '
+
+
 0.1.0
 -----
+
+Released: 2018-03-03
+
 Initial release.
