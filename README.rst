@@ -117,6 +117,12 @@ Running the Tests
 To run the unit tests for all supported versions of Python, run ``make test``.
 The environments will automatically be rebuilt if needed.
 
+Issues and Feature Requests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To report an issue, request a feature, or propose a change, please file a
+report on the project's GitHub page `here <https://github.com/dargueta/binobj/issues>`_.
+
 License
 -------
 
