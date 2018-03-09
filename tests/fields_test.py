@@ -381,3 +381,26 @@ def test_nested__dump_basic():
     data.nested = SubStruct(first=0x0fad, second='HllWrld')
 
     assert bytes(data) == b'\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f'
+
+
+def test_array__load_nested():
+    """Try loading an array of structs."""
+    field = fields.Array(fields.Nested(SubStruct), count=2)
+    loaded = field.loads(b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG'
+                         b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN')
+    assert loaded == [
+        {'first': 0xc0ffeedeadbeef00, 'second': 'ABCDEFG'},
+        {'first': 0xfadedbeda551ed00, 'second': 'HIJKLMN'},
+    ]
+
+
+def test_array__dump_nested():
+    """Try dumping an array of structs."""
+    field = fields.Array(fields.Nested(SubStruct), count=2)
+    dumped = field.dumps([
+        {'first': 0xc0ffeedeadbeef00, 'second': 'ABCDEFG'},
+        {'first': 0xfadedbeda551ed00, 'second': 'HIJKLMN'},
+    ])
+
+    assert dumped == b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG' \
+                     b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN'
