@@ -65,3 +65,21 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
         endian = sys.byteorder
 
     stream.write(value.to_bytes(n_bytes, endian, signed=signed))
+
+
+def iter_bytes(stream, max_bytes=0):
+    """Wrap a stream in an iterator that yields individual bytes, not lines.
+
+    :param stream:
+        A stream opened in binary mode.
+    :param int max_bytes:
+        The maximum number of bytes to read.
+    """
+    n_read = 0
+
+    while not max_bytes or n_read < max_bytes:
+        this_byte = stream.read(1)
+        if this_byte == b'':
+            return
+        yield this_byte
+        n_read += 1

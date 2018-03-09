@@ -682,22 +682,10 @@ class String(Field):
         return to_dump
 
 
-def _bytes_yielder(stream, max_length=0):
-    """Wrap a stream in an iterator that yields individual bytes, not lines."""
-    n_read = 0
-
-    while not max_length or n_read < max_length:
-        this_byte = stream.read(1)
-        if this_byte == b'':
-            return
-        yield this_byte
-        n_read += 1
-
-
 class StringZ(String):
     """A null-terminated string."""
     def _do_load(self, stream, context):
-        iterator = _bytes_yielder(stream, self.size)
+        iterator = helpers.iter_bytes(stream, self.size)
         reader = codecs.iterdecode(iterator, self.encoding)
         result = io.StringIO()
 
