@@ -1,6 +1,5 @@
 """Tests for fields."""
 
-import codecs
 import io
 import sys
 

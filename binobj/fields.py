@@ -1,6 +1,5 @@
 """Definitions of all field types that can be used in structures."""
 
-# pylint: disable=too-few-public-methods
 
 import abc
 import codecs
