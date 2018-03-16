@@ -169,7 +169,7 @@ class Field:
     def load(self, stream, context=None):
         """Load data from the given stream.
 
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
             The stream to load data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
@@ -221,7 +221,7 @@ class Field:
     def _do_load(self, stream, context):
         """Load an object from the stream.
 
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -233,7 +233,7 @@ class Field:
     def dump(self, stream, data=DEFAULT, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
             The stream to write the serialized data into.
         :param data:
             The data to dump. Can be omitted only if this is a constant field or
@@ -272,7 +272,7 @@ class Field:
     def _do_dump(self, stream, data, context):
         """Write the given data to the byte stream.
 
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
             The stream to write to.
         :param data:
             The data to dump. Guaranteed to not be ``None``.
@@ -313,7 +313,7 @@ class Field:
     def _read_exact_size(self, stream):
         """Read exactly the number of bytes this object takes up or crash.
 
-        :param io.BytesIO stream: The stream to read from.
+        :param io.RawIOBasestream: The stream to read from.
 
         :return: Exactly ``self.size`` bytes are read from the stream.
         :rtype: bytes
@@ -383,7 +383,7 @@ class Array(Field):
 
         :param Array seq:
             The sequence being checked.
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
             The data stream to read from. Except in rare circumstances, this is
             the same stream that was passed to :meth:`load`. The stream pointer
             should be returned to its original position when the function exits.
@@ -410,7 +410,7 @@ class Array(Field):
     def _do_dump(self, stream, data, context):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
             A binary stream to write the serialized data into.
         :param list data:
             The data to dump.
@@ -424,7 +424,7 @@ class Array(Field):
     def _do_load(self, stream, context=None):
         """Load a structure list from the given stream.
 
-        :param io.BytesIO stream:
+        :param io.RawIOBasestream:
             A bit stream to read data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
