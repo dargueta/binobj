@@ -10,6 +10,9 @@ from binobj import errors
 from binobj import fields
 
 
+__all__ = ['Struct']
+
+
 class StructMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
     objects.
