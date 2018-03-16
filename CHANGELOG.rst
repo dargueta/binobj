@@ -2,6 +2,26 @@ Changelog
 =========
 
 
+0.2.1
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* Changed ``BytesIO`` in documentation to ``RawIOBase`` since ``FileIO`` is also
+  a legitimate input type.
+
+Documentation
+~~~~~~~~~~~~~
+
+* Added WAV file example and unit tests.
+* Changed "end to end tests" file into a BMP file example since it was only using
+  the BMP format anyway.
+* Added tutorial on how to read WAV files.
+
+
 0.2.0
 -----
 
