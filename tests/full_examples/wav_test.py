@@ -37,16 +37,17 @@ def test_wav__basic_read(tmpdir):
     """
     file_path = str(tmpdir.join('test.wav'))
 
-    with wave.open(file_path, 'wb') as wav:
-        wav.setnchannels(1)
-        wav.setframerate(8000)
-        wav.setsampwidth(2)
+    wav = wave.open(file_path, 'wb')
+    wav.setnchannels(1)
+    wav.setframerate(8000)
+    wav.setsampwidth(2)
 
-        # Write 4 seconds of audio, each at a different tone. One frame is 16
-        # bits, 8000 frames per second -> 16000 bytes per second. Total: 64000
-        for herz in range(440, 840, 100):
-            frame = herz.to_bytes(2, 'little', signed=False)
-            wav.writeframes(frame * 8000)
+    # Write 4 seconds of audio, each at a different tone. One frame is 16
+    # bits, 8000 frames per second -> 16000 bytes per second. Total: 64000
+    for herz in range(440, 840, 100):
+        frame = herz.to_bytes(2, 'little', signed=False)
+        wav.writeframes(frame * 8000)
+    wav.close()
 
     # Audio file has been written to test.wav. Now we need to read it back and
     # verify that we get sane values in the header. We're only checking the
@@ -90,8 +91,9 @@ def test_wav__basic_write(tmpdir):
         data_chunk.to_stream(fd)
         fd.write(audio_data)
 
-    with wave.open(file_path, 'rb') as wav:
-        assert wav.getframerate() == 24000
-        assert wav.getnchannels() == 1
-        assert wav.getnframes() == 96000
-        assert wav.getsampwidth() == 2
+    wav = wave.open(file_path, 'rb')
+    assert wav.getframerate() == 24000
+    assert wav.getnchannels() == 1
+    assert wav.getnframes() == 96000
+    assert wav.getsampwidth() == 2
+    wav.close()
