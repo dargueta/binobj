@@ -1,4 +1,4 @@
-"""End-to-end tests for the entire system."""
+"""An example using a Windows BMP file."""
 
 import io
 import os
@@ -8,7 +8,7 @@ import pytest
 import binobj
 
 
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 
 class SimpleBMPFileHeader(binobj.Struct):
