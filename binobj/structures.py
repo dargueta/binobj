@@ -61,7 +61,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     def to_stream(self, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.RawIOBasestream:
+        :param io.RawIOBase stream:
             The stream to write the serialized data into.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
@@ -110,7 +110,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     def from_stream(cls, stream, context=None):
         """Load a struct from the given stream.
 
-        :param io.RawIOBasestream:
+        :param io.RawIOBase stream:
             The stream to load data from.
         :param context:
             Additional data to pass to the components' :meth:`load` methods.
@@ -163,7 +163,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         and the stream pointer will be reset to the end of the last complete
         field read.
 
-        :param io.RawIOBasestream:
+        :param io.RawIOBase stream:
             The stream to load from.
         :param str last_field:
             The name of the last field to load in the object. If given, enough
@@ -216,7 +216,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             Unfortunately, this means that unrelated validation errors can be
             thrown if other fields are invalid.
 
-        :param io.RawIOBasestream:
+        :param io.RawIOBase stream:
             The stream to read from. It's assumed that the stream pointer is
             positioned at the start of a struct. The stream pointer is returned
             to its original position even if an exception occurred.
@@ -269,7 +269,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         If ``last_field`` isn't given, as many fields will be serialized as
         possible up to the first missing one.
 
-        :param io.RawIOBasestream:
+        :param io.RawIOBase stream:
             The stream to dump into.
         :param str last_field:
             The name of the last field in the object to dump.
