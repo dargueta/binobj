@@ -47,6 +47,22 @@ class StructMeta(abc.ABCMeta):
         return class_object
 
 
+def recursive_to_dicts(item):
+    """When a :class:`Struct` is converted to a dictionary, ensure that any
+    nested structures are also converted to dictionaries.
+    """
+    if isinstance(item, collections.abc.Mapping):
+        return {
+            k: recursive_to_dicts(v)
+            for k, v in item.items()
+        }
+    elif isinstance(item, Struct):
+        return item.to_dict()
+    elif isinstance(item, collections.abc.Sequence) and not isinstance(item, str):
+        return [recursive_to_dicts(v) for v in item]
+    return item
+
+
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """An ordered collection of fields and other structures."""
     __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
@@ -104,7 +120,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             elif fill_missing:
                 dct[field.name] = field.default
 
-        return dct
+        return recursive_to_dicts(dct)
 
     @classmethod
     def from_stream(cls, stream, context=None):

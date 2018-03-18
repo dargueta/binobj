@@ -13,6 +13,8 @@ Bugfixes
 * Fixed argument names in overridden methods of some fields differing from their
   superclass' signature. Affects ``Integer``, ``String``, ``StringZ`` and
   ``VariableLengthInteger``.
+* Fixed ``to_dict()`` method of ``Struct`` so that it recurses and converts all
+  nested fields and arrays into Python dicts as well.
 * Changed ``BytesIO`` in documentation to ``BufferedIOBase`` since ``FileIO`` is
   also a legitimate input type.
 
