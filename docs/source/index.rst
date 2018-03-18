@@ -9,10 +9,11 @@ Welcome to binobj's documentation!
 .. include:: ../../README.rst
    :start-after: ======
 
+.. include:: basics.rst
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
 
 
 Indices and tables
