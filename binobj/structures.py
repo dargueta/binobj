@@ -58,7 +58,8 @@ def recursive_to_dicts(item, fill_missing=False):
             (recursive_to_dicts(k, fill_missing), recursive_to_dicts(v, fill_missing))
             for k, v in item.items()
         )
-    elif isinstance(item, collections.abc.Sequence) and not isinstance(item, str):
+    elif isinstance(item, collections.abc.Sequence) \
+            and not isinstance(item, (str, bytes)):
         return [recursive_to_dicts(v, fill_missing) for v in item]
     return item
 
