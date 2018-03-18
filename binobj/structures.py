@@ -47,19 +47,19 @@ class StructMeta(abc.ABCMeta):
         return class_object
 
 
-def recursive_to_dicts(item):
+def recursive_to_dicts(item, fill_missing=False):
     """When a :class:`Struct` is converted to a dictionary, ensure that any
     nested structures are also converted to dictionaries.
     """
-    if isinstance(item, collections.abc.Mapping):
-        return {
-            k: recursive_to_dicts(v)
+    if isinstance(item, Struct):
+        return item.to_dict(fill_missing=fill_missing)
+    elif isinstance(item, collections.abc.Mapping):
+        return collections.OrderedDict(
+            (recursive_to_dicts(k, fill_missing), recursive_to_dicts(v, fill_missing))
             for k, v in item.items()
-        }
-    elif isinstance(item, Struct):
-        return item.to_dict()
+        )
     elif isinstance(item, collections.abc.Sequence) and not isinstance(item, str):
-        return [recursive_to_dicts(v) for v in item]
+        return [recursive_to_dicts(v, fill_missing) for v in item]
     return item
 
 
@@ -120,7 +120,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             elif fill_missing:
                 dct[field.name] = field.default
 
-        return recursive_to_dicts(dct)
+        return recursive_to_dicts(dct, fill_missing)
 
     @classmethod
     def from_stream(cls, stream, context=None):
@@ -353,6 +353,11 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
                 size += len(field.dumps(field_value))
 
         return size
+
+    def __eq__(self, other):
+        if isinstance(other, Struct):
+            other = other.to_dict(fill_missing=True)
+        return self.to_dict(fill_missing=True) == other
 
     def __bytes__(self):
         return self.to_bytes()
