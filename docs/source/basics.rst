@@ -303,7 +303,7 @@ Let's look at the final version of our file:
 
 
     class Date(binobj.Field):
-        def _do_load(self, stream, context):
+        def _do_load(self, stream, context, loaded_fields):
             """Load a date from the stream."""
             date_bytes = stream.read(8)
             date_string = date_bytes.decode('ascii')
@@ -311,7 +311,7 @@ Let's look at the final version of our file:
             timestamp = datetime.datetime.strptime(date_string, '%Y%m%d')
             return timestamp.date()
 
-        def _do_dump(self, stream, data, context):
+        def _do_dump(self, stream, data, context, all_fields):
             """Dump a date into the stream."""
             # Let the user pass in a date or datetime
             if isinstance(data, datetime.datetime):
@@ -329,19 +329,20 @@ Let's look at the final version of our file:
         zip_code = fields.String(size=5)
 
 
-    def should_halt_phones(array, stream, loaded, context):
-        if loaded and loaded[-1] == '':
-            del loaded[-1]
+    def should_halt_phones(array, stream, values, context, loaded_fields):
+        if values and values[-1] == '':
+            del values[-1]
             return True
         return False
 
-    def should_halt_addrs(array, stream, loaded, context):
-        return len(loaded) < context['n_addresses']
+    def should_halt_addrs(array, stream, values, context, loaded_fields):
+        return len(values) < loaded_fields['n_addresses']
 
 
     class PersonInfo(binobj.Struct):
         first_name = fields.StringZ(encoding='utf-8')
         last_name = fields.StringZ(encoding='utf-8')
+        birthday = Date()
         phone_numbers = fields.Array(fields.StringZ(),
                                      halt_check=should_halt_phones)
         n_addresses = fields.UInt8()
@@ -355,13 +356,15 @@ Let's look at the final version of our file:
     person = PersonInfo(
         first_name='Miles',
         last_name="O'Brien",
+        birthday=datetime.date(2205, 10, 15),
         phone_numbers=['586-188-1958', '586-002-0611'],
         n_addresses=2,
         addresses=[addr_1, addr_2])
 
-    assert bytes(person) == b"Miles\x00O'Brien\x00586-188-1958\x00586-002-0611\x00" \
-                            b"\x02123 Main Street\x00Apt #104\x00Anytown\x00TX75710" \
-                            b"456 22nd Street\x00\x00Townsville\x00IL60184"
+    assert bytes(person) == b"Miles\x00O'Brien\x0022051015586-188-1958\x00" \
+                            b"586-002-0611\x00\x02123 Main Street\x00" \
+                            b"Apt #104\x00Anytown\x00TX75710456 22nd Street\x00" \
+                            b"\x00Townsville\x00IL60184"
 
     loaded = PersonInfo.from_bytes(bytes(person))
     assert loaded == person

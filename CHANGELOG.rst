@@ -10,6 +10,9 @@ Released: 2018-XX-XX
 Bugfixes
 ~~~~~~~~
 
+* Fixed argument names in overridden methods of some fields differing from their
+  superclass' signature. Affects ``Integer``, ``String``, ``StringZ`` and
+  ``VariableLengthInteger``.
 * Changed ``BytesIO`` in documentation to ``BufferedIOBase`` since ``FileIO`` is
   also a legitimate input type.
 
