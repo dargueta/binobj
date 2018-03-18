@@ -151,11 +151,11 @@ empty phone number to signal the end of the array.
 
 .. code-block:: python
 
-    def should_halt(array, stream, loaded, context):
-        if loaded and loaded[-1] == '':
+    def should_halt(array, stream, values, context, loaded_fields):
+        if values and values[-1] == '':
             # Don't forget to remove the empty phone number that we use as a
             # signal to stop.
-            del loaded[-1]
+            del values[-1]
             return True
         return False
 

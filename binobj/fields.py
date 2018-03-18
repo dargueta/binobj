@@ -166,7 +166,7 @@ class Field:
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def load(self, stream, context=None):
+    def load(self, stream, context=None, loaded_fields=None):
         """Load data from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -174,12 +174,16 @@ class Field:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict loaded_fields:
+            A dictionary of the fields that have already been loaded. This is
+            set automatically when a field is loaded by a :class:`~binobj.Struct`.
 
         :return: The deserialized data.
         """
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
-            loaded_value = self._do_load(stream, context)
+            loaded_value = self._do_load(stream, context=context,
+                                         loaded_fields=loaded_fields)
         except errors.DeserializationError as err:
             err.field = self
             raise
@@ -192,7 +196,7 @@ class Field:
             raise errors.ValidationError(field=self, value=loaded_value)
         return loaded_value
 
-    def loads(self, data, context=None, exact=True):
+    def loads(self, data, context=None, exact=True, loaded_fields=None):
         """Load from the given byte string.
 
         :param bytes data:
@@ -204,11 +208,17 @@ class Field:
             ``data`` must contain exactly the number of bytes required. If not
             all the bytes in ``data`` were used when reading the struct, throw
             an exception.
+        :param dict loaded_fields:
+            A dictionary of the fields that have already been loaded. This is
+            set automatically when a field is loaded by a :class:`~binobj.Struct`.
 
         :return: The deserialized data.
         """
+        if loaded_fields is None:
+            loaded_fields = {}
+
         stream = io.BytesIO(data)
-        loaded_data = self.load(stream, context)
+        loaded_data = self.load(stream, context=context, loaded_fields=loaded_fields)
 
         if exact and (stream.tell() < len(data)):
             # TODO (dargueta): Better error message.
@@ -218,19 +228,22 @@ class Field:
         return loaded_data
 
     @abc.abstractmethod
-    def _do_load(self, stream, context):
+    def _do_load(self, stream, context, loaded_fields):
         """Load an object from the stream.
 
         :param io.BufferedIOBase stream:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict loaded_fields:
+            A dictionary of the fields that have already been loaded. This is
+            guaranteed to not be ``None``.
 
         :return: The loaded object.
         """
         raise NotImplementedError
 
-    def dump(self, stream, data=DEFAULT, context=None):
+    def dump(self, stream, data=DEFAULT, context=None, all_fields=None):
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -241,7 +254,13 @@ class Field:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict all_fields:
+            A dictionary of the fields about to be dumped. This is set
+            automatically by the field's containing :class:`~binobj.Struct`.
         """
+        if all_fields is None:
+            all_fields = {}
+
         if data is DEFAULT:
             data = self.default
             if data in (UNDEFINED, DEFAULT):
@@ -249,9 +268,9 @@ class Field:
         elif data is None:
             data = self._get_null_value()
 
-        self._do_dump(stream, data, context)
+        self._do_dump(stream, data, context=context, all_fields=all_fields)
 
-    def dumps(self, data=DEFAULT, context=None):
+    def dumps(self, data=DEFAULT, context=None, all_fields=None):
         """Convert the given data into bytes.
 
         :param data:
@@ -260,16 +279,19 @@ class Field:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict all_fields:
+            A dictionary of the fields about to be dumped. This is set
+            automatically by the field's containing :class:`~binobj.Struct`.
 
         :return: The serialized data.
         :rtype: bytes
         """
         stream = io.BytesIO()
-        self.dump(stream, data, context)
+        self.dump(stream, data, context=context, all_fields=all_fields)
         return stream.getvalue()
 
     @abc.abstractmethod
-    def _do_dump(self, stream, data, context):
+    def _do_dump(self, stream, data, context, all_fields):
         """Write the given data to the byte stream.
 
         :param io.BufferedIOBase stream:
@@ -279,6 +301,9 @@ class Field:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict all_fields:
+            A dictionary of the fields about to be dumped. This is guaranteed to
+            not be ``None``.
         """
         raise errors.UnserializableValueError(field=self, value=data)
 
@@ -369,7 +394,7 @@ class Array(Field):
         self.halt_check = halt_check or self.should_halt
 
     @staticmethod
-    def should_halt(seq, stream, loaded, context):    # pylint: disable=unused-argument
+    def should_halt(seq, stream, values, context, loaded_fields):    # pylint: disable=unused-argument
         """Determine if the deserializer should stop reading from the input.
 
         The default implementation does the following:
@@ -387,19 +412,21 @@ class Array(Field):
             The data stream to read from. Except in rare circumstances, this is
             the same stream that was passed to :meth:`load`. The stream pointer
             should be returned to its original position when the function exits.
-        :param list loaded:
+        :param list values:
             A list of the objects that have been deserialized so far. In general
             this function *should not* modify the list. A possible exception to
             this rule is to remove a sentinel value from the end of the list.
         :param context:
             The ``context`` object passed to :meth:`load`.
+        :param dict loaded_fields:
+            The fields in the struct that have been loaded so far.
 
         :return: ``True`` if the deserializer should stop reading, ``False``
             otherwise.
         :rtype: bool
         """
         if isinstance(seq.count, int):
-            return seq.count <= len(loaded)
+            return seq.count <= len(values)
 
         offset = stream.tell()
         try:
@@ -407,7 +434,7 @@ class Array(Field):
         finally:
             stream.seek(offset)
 
-    def _do_dump(self, stream, data, context):
+    def _do_dump(self, stream, data, context, all_fields):
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -417,11 +444,15 @@ class Array(Field):
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict all_fields:
+            A dictionary of the fields about to be dumped. This is guaranteed to
+            not be ``None``.
         """
         for value in data:
-            self.component.dump(stream, value, context)
+            self.component.dump(stream, value, context=context,
+                                all_fields=all_fields)
 
-    def _do_load(self, stream, context=None):
+    def _do_load(self, stream, context, loaded_fields):
         """Load a structure list from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -429,13 +460,20 @@ class Array(Field):
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
+        :param dict loaded_fields:
+            A dictionary of the fields that have already been loaded. This is
+            guaranteed to not be ``None``.
 
         :return: The deserialized data.
         :rtype: list
         """
         result = []
-        while not self.halt_check(self, stream, result, context):
-            result.append(self.component.load(stream, context))
+        while not self.halt_check(self, stream, result, context=context,
+                                  loaded_fields=loaded_fields):
+            result.append(
+                self.component.load(stream, context=context,
+                                    loaded_fields=loaded_fields)
+            )
 
         return result
 
@@ -443,27 +481,28 @@ class Array(Field):
 class Nested(Field):
     """Used to nest one struct inside of another.
 
-    :param binobj.structures.Struct struct_class:
+    :param Type[binobj.structures.Struct] struct_class:
         The struct class to wrap as a field. Not an instance!
     """
     def __init__(self, struct_class, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
 
-    def _do_dump(self, stream, data, context):
+    def _do_dump(self, stream, data, context, all_fields):
         instance = self.struct_class(**data)
-        return instance.to_stream(stream, context)
+        return instance.to_stream(stream, context=context, all_fields=all_fields)
 
-    def _do_load(self, stream, context):
-        return self.struct_class.from_stream(stream, context)
+    def _do_load(self, stream, context, loaded_fields):
+        return self.struct_class.from_stream(stream, context=context,
+                                             loaded_fields=loaded_fields)
 
 
 class Bytes(Field):
     """Raw binary data."""
-    def _do_load(self, stream, context):
+    def _do_load(self, stream, context, loaded_fields):
         return self._read_exact_size(stream)
 
-    def _do_dump(self, stream, data, context):
+    def _do_dump(self, stream, data, context, all_fields):
         if not isinstance(data, (bytes, bytearray)):
             raise errors.UnserializableValueError(field=self, value=data)
 
@@ -486,14 +525,18 @@ class Integer(Field):
         self.endian = endian or sys.byteorder
         self.signed = signed
 
-    def _do_load(self, stream, context):     # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+
+    def _do_load(self, stream, context, loaded_fields):
         """Load an integer from the given stream."""
         return helpers.read_int(stream, self.size, self.signed, self.endian)
 
-    def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
+    def _do_dump(self, stream, data, context, all_fields):
         """Dump an integer to the given stream."""
-        return helpers.write_int(stream, value, self.size, self.signed,
+        return helpers.write_int(stream, data, self.size, self.signed,
                                  self.endian)
+
+    # pylint: enable=unused-argument
 
 
 class VariableLengthInteger(Integer):
@@ -533,22 +576,26 @@ class VariableLengthInteger(Integer):
         self._encode_integer_fn = encoding_functions['encode']
         self._decode_integer_fn = encoding_functions['decode']
 
-    def _do_load(self, stream, context):   # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+
+    def _do_load(self, stream, context, loaded_fields):
         """Load a variable-length integer from the given stream."""
         return self._decode_integer_fn(stream)
 
-    def _do_dump(self, stream, value, context):    # pylint: disable=unused-argument
+    def _do_dump(self, stream, data, context, all_fields):
         """Dump an integer to the given stream."""
         try:
-            data = self._encode_integer_fn(value)
+            encoded_int = self._encode_integer_fn(data)
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
-                field=self, value=value, reason=str(err))
+                field=self, value=data, reason=str(err))
 
-        if self.max_bytes is not None and len(data) > self.max_bytes:
-            raise errors.ValueSizeError(field=self, value=value)
+        if self.max_bytes is not None and len(encoded_int) > self.max_bytes:
+            raise errors.ValueSizeError(field=self, value=data)
 
-        stream.write(data)
+        stream.write(encoded_int)
+
+    # pylint: enable=unused-argument
 
 
 class UnsignedInteger(Integer):
@@ -641,18 +688,22 @@ class String(Field):
         self.encoding = encoding
         self.pad_byte = pad_byte
 
-    def _do_load(self, stream, context):  # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+
+    def _do_load(self, stream, context, loaded_fields):
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream)
         return to_load.decode(self.encoding)
 
-    def _do_dump(self, stream, value, context):  # pylint: disable=unused-argument
+    def _do_dump(self, stream, data, context, all_fields):
         """Dump a fixed-length string into the stream."""
         if self.size is None:
             raise errors.ConfigurationError(
                 '`size` cannot be `None` on a fixed-length field.', field=self)
 
-        stream.write(self._encode_and_resize(value))
+        stream.write(self._encode_and_resize(data))
+
+    # pylint: enable=unused-argument
 
     def _encode_and_resize(self, string):
         """Encode a string and size it to this field.
@@ -683,7 +734,7 @@ class String(Field):
 
 class StringZ(String):
     """A null-terminated string."""
-    def _do_load(self, stream, context):
+    def _do_load(self, stream, context, loaded_fields):
         iterator = helpers.iter_bytes(stream, self.size)
         reader = codecs.iterdecode(iterator, self.encoding)
         result = io.StringIO()
@@ -698,5 +749,5 @@ class StringZ(String):
             'Hit EOF before finding the trailing null.',
             field=self)
 
-    def _do_dump(self, stream, value, context):
-        stream.write(self._encode_and_resize(value + '\0'))
+    def _do_dump(self, stream, data, context, all_fields):
+        stream.write(self._encode_and_resize(data + '\0'))

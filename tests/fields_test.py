@@ -94,7 +94,7 @@ def test_array__basic_sized():
 
 def test_array__sentinel():
     """Test deserializing a sequence that has a sentinel terminator."""
-    halt = lambda _seq, _str, loaded, _ctx: loaded and (loaded[-1] == 0xdead)
+    halt = lambda _seq, _str, values, context, loaded_fields: values and (values[-1] == 0xdead)
     sequence = fields.Array(fields.UInt16(endian='little'), halt_check=halt)
 
     result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
@@ -128,13 +128,15 @@ def test_array__fixed_in_struct():
     assert struct.trailer == b'XYZ'
 
 
-def bswsa_should_halt(seq, stream, loaded, context):   # pylint: disable=unused-argument
+# pylint: disable=unused-argument
+def bswsa_should_halt(seq, stream, values, context, loaded_fields):
     """Halting function for :attr:`BasicStructWithSentinelArray.numbers`."""
-    if loaded and loaded[-1] == 0:
+    if values and values[-1] == 0:
         # Hit sentinel, remove it from the end of the array.
-        del loaded[-1]
+        del values[-1]
         return True
     return False
+# pylint: enable=unused-argument
 
 
 class BasicStructWithSentinelArray(structures.Struct):
@@ -142,9 +144,27 @@ class BasicStructWithSentinelArray(structures.Struct):
     eof = fields.String(const='ABC')
 
 
-def test_array__variable_in_struct():
+def test_array__variable_length_sentinel_in_struct():
     stream = io.BytesIO(b'\x01\x02\x7f\x00ABC')
     loaded = BasicStructWithSentinelArray.from_stream(stream)
+
+    assert loaded.numbers == [1, 2, 0x7f]
+    assert loaded.eof == 'ABC'
+
+
+def bswasf_should_halt(seq, stream, values, context, loaded_fields):
+    return len(values) >= loaded_fields['n_numbers']
+
+
+class BasicStructWithArraySizeField(structures.Struct):
+    n_numbers = fields.UInt8()
+    numbers = fields.Array(fields.UInt8(), halt_check=bswasf_should_halt)
+    eof = fields.String(const='ABC')
+
+
+def test_array__variable_length_size_in_struct():
+    stream = io.BytesIO(b'\x03\x01\x02\x7fABC')
+    loaded = BasicStructWithArraySizeField.from_stream(stream)
 
     assert loaded.numbers == [1, 2, 0x7f]
     assert loaded.eof == 'ABC'

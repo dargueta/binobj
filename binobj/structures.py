@@ -75,7 +75,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         self.__values__ = values
 
-    def to_stream(self, stream, context=None):
+    def to_stream(self, stream, context=None, all_fields=None):
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -84,12 +84,14 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
+        my_fields = dict(self)
+
         for name, field in self.__components__.items():
             value = self.__values__.get(name, field.default)
             if value is fields.UNDEFINED:
                 raise errors.MissingRequiredValueError(field=field)
 
-            field.dump(stream, value, context)
+            field.dump(stream, value, context=context, all_fields=my_fields)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.
@@ -101,8 +103,10 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :return: The serialized data.
         :rtype: bytes
         """
+        my_fields = dict(self)
+
         stream = io.BytesIO()
-        self.to_stream(stream, context)
+        self.to_stream(stream, context=context, all_fields=my_fields)
         return stream.getvalue()
 
     def to_dict(self, fill_missing=False):
@@ -124,7 +128,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return recursive_to_dicts(dct, fill_missing)
 
     @classmethod
-    def from_stream(cls, stream, context=None):
+    def from_stream(cls, stream, context=None, loaded_fields=None):
         """Load a struct from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -138,12 +142,13 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         results = {}
 
         for name, field in cls.__components__.items():
-            results[name] = field.load(stream, context)
+            results[name] = field.load(stream, context=context,
+                                       loaded_fields=results)
 
         return cls(**results)
 
     @classmethod
-    def from_bytes(cls, data, context=None, exact=True):
+    def from_bytes(cls, data, context=None, exact=True, loaded_fields=None):
         """Load a struct from the given byte string.
 
         :param bytes data:
@@ -159,12 +164,13 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :return: The loaded struct.
         """
         stream = io.BytesIO(data)
-        loaded_data = cls.from_stream(stream, context)
+        loaded_data = cls.from_stream(stream, context=context,
+                                      loaded_fields=loaded_fields)
 
         if exact and (stream.tell() < len(data) - 1):
-            # TODO (dargueta): Better error message.
             raise errors.ExtraneousDataError(
-                'Expected %d bytes, got %d.' % (len(data), stream.tell() + 1),
+                'Read %d bytes, but there are %d in the input data.'
+                % (stream.tell() + 1, len(data)),
                 offset=stream.tell())
         return loaded_data
 
@@ -202,7 +208,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             offset = stream.tell()
 
             try:
-                value = field.load(stream, context)
+                value = field.load(stream, context=context, loaded_fields=result)
             except errors.UnexpectedEOFError:
                 if last_field is not None:
                     # Hit EOF before we read all the fields we were supposed to.
@@ -263,7 +269,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         if field.offset is not None:
             try:
                 stream.seek(original_offset + field.offset)
-                return field.load(stream, context)
+                return field.load(stream, context=context, loaded_fields={})
             finally:
                 stream.seek(original_offset)
 
