@@ -5,7 +5,7 @@ Changelog
 0.2.1
 -----
 
-Released: 2018-XX-XX
+Released: 2018-03-18
 
 
 Bugfixes
