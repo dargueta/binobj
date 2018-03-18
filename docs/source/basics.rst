@@ -336,7 +336,7 @@ Let's look at the final version of our file:
         return False
 
     def should_halt_addrs(array, stream, values, context, loaded_fields):
-        return len(values) < loaded_fields['n_addresses']
+        return len(values) >= loaded_fields['n_addresses']
 
 
     class PersonInfo(binobj.Struct):
@@ -357,16 +357,20 @@ Let's look at the final version of our file:
         first_name='Miles',
         last_name="O'Brien",
         birthday=datetime.date(2205, 10, 15),
-        phone_numbers=['586-188-1958', '586-002-0611'],
+        phone_numbers=['586-188-1958', '586-002-0611', ''],
         n_addresses=2,
         addresses=[addr_1, addr_2])
 
     assert bytes(person) == b"Miles\x00O'Brien\x0022051015586-188-1958\x00" \
-                            b"586-002-0611\x00\x02123 Main Street\x00" \
+                            b"586-002-0611\x00\x00\x02123 Main Street\x00" \
                             b"Apt #104\x00Anytown\x00TX75710456 22nd Street\x00" \
                             b"\x00Townsville\x00IL60184"
 
     loaded = PersonInfo.from_bytes(bytes(person))
+
+    # We need to append the sentinel value to the phone numbers because it gets
+    # stripped out when loading, but we had to put it in manually in ``person``.
+    loaded.phone_numbers.append('')
     assert loaded == person
 
 
