@@ -8,7 +8,7 @@ from binobj import errors
 def read_int(stream, n_bytes, signed=True, endian=None):
     """Read an integer from the given byte stream.
 
-    :param io.RawIOBase stream:
+    :param io.BufferedIOBase stream:
         The stream to read from.
     :param int n_bytes:
         The number of bytes to read for this integer.
@@ -40,7 +40,7 @@ def read_int(stream, n_bytes, signed=True, endian=None):
 def write_int(stream, value, n_bytes, signed=True, endian=None):
     """Write an integer to a stream.
 
-    :param io.RawIOBase stream:
+    :param io.BufferedIOBase stream:
         The stream to write the integer to.
     :param int value:
         The integer to dump into the stream.

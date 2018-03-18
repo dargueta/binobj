@@ -10,8 +10,8 @@ Released: 2018-XX-XX
 Bugfixes
 ~~~~~~~~
 
-* Changed ``BytesIO`` in documentation to ``RawIOBase`` since ``FileIO`` is also
-  a legitimate input type.
+* Changed ``BytesIO`` in documentation to ``BufferedIOBase`` since ``FileIO`` is
+  also a legitimate input type.
 
 Documentation
 ~~~~~~~~~~~~~
