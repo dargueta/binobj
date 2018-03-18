@@ -19,7 +19,7 @@ Documentation
 * Added WAV file example and unit tests.
 * Changed "end to end tests" file into a BMP file example since it was only using
   the BMP format anyway.
-* Added tutorial on how to read WAV files.
+* Added comprehensive tutorial on basics with a bit of intermediate stuff.
 
 
 0.2.0
