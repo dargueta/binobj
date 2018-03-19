@@ -1,6 +1,43 @@
 Changelog
 =========
 
+0.3.0
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+None...yet.
+
+Features
+~~~~~~~~
+
+1. ``Array`` can now take another ``Field`` or a string naming a ``Field`` as its
+   ``count`` argument. This lets you avoid having to write a halting function:
+
+.. code-block:: python
+
+    # As of 0.3.0:
+    class MyStruct(Struct):
+        n_numbers = UInt16()
+        numbers = Array(UInt16(), count=n_numbers)
+
+    # For earlier versions:
+
+    def halt_n_numbers(seq, stream, values, context, loaded_fields):
+        return len(values) >= loaded_fields['n_numbers']
+
+    class MyStruct(Struct):
+        n_numbers = UInt16()
+        numbers = Array(UInt16(), halt_check=halt_n_numbers)
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+None.
+
 
 0.2.1
 -----
@@ -74,6 +111,11 @@ Features
 
     >>> String(size=4, pad_byte=b' ').dumps('a')
     b'a   '
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+None.
 
 
 0.1.0

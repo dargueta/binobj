@@ -695,6 +695,8 @@ class String(Field):
         into the field. If not given, strings that aren't exactly ``size`` bytes
         when encoded will trigger a :class:`~binobj.errors.ValueSizeError`.
 
+        .. versionadded:: 0.2.0
+
     .. note ::
 
         The ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs add a byte order
