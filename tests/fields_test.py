@@ -152,13 +152,9 @@ def test_array__variable_length_sentinel_in_struct():
     assert loaded.eof == 'ABC'
 
 
-def bswasf_should_halt(seq, stream, values, context, loaded_fields):
-    return len(values) >= loaded_fields['n_numbers']
-
-
 class BasicStructWithArraySizeField(structures.Struct):
     n_numbers = fields.UInt8()
-    numbers = fields.Array(fields.UInt8(), halt_check=bswasf_should_halt)
+    numbers = fields.Array(fields.UInt8(), count=n_numbers)
     eof = fields.String(const='ABC')
 
 
