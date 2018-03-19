@@ -223,26 +223,24 @@ Can you make arrays of nested structs? Absolutely! We can take advantage of that
 to support multiple addresses for a single person. We'll indicate the number of
 addresses a person has using an integer field.
 
+As of version 0.3.0 you can use a :class:`~binobj.fields.Field` as the array size,
+so instead of creating a halting function like we did with ``phone_numbers``, we
+can pass ``n_addresses`` as the value for ``count``:
 
 .. code-block:: python
 
     # USAddress stays the same
-
-    def should_halt_addrs(array, stream, loaded, context):
-        return len(loaded) < context['n_addresses']
-
 
     class PersonInfo(binobj.Struct):
         first_name = fields.StringZ(encoding='utf-8')
         last_name = fields.StringZ(encoding='utf-8')
         phone_numbers = fields.Array(fields.StringZ(), halt_check=should_halt)
         n_addresses = fields.UInt8()    # 0-255 addresses
-        addresses = fields.Array(fields.Nested(USAddress),
-                                 halt_check=should_halt_addrs)
+        addresses = fields.Array(fields.Nested(USAddress), count=n_addresses)
 
     # Now let's write it to a file.
     addresses = USAddress(line_1='123 Main Street', city='Anytown', state='CA',
-                     zip_code='94199')
+                          zip_code='94199')
     person = PersonInfo(first_name='Jadzia', last_name='Dax', phone_numbers=[''],
                         n_addresses=1, addresses=[addr])
 

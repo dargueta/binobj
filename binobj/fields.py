@@ -387,6 +387,11 @@ class Array(Field):
           this array in the same struct.
         * A string naming a field fitting the above criteria. You'll need this
           if your size field's name is a Python keyword.
+
+        .. versionadded:: 0.3.0
+
+            ``count`` can now be a :class:`Field` or string.
+
     :param callable halt_check:
         A function taking five arguments. See :meth:`should_halt` for the
         default implementation. Subclasses can override this function if desired
