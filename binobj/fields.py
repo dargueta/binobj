@@ -128,14 +128,14 @@ class Field:
             unknown. This is usually equal to the sum of the sizes of the fields
             preceding this one in the container.
         """
-        # Don't rebind this field to a different class. This can happen if a
-        # container class is subclassed.
-        if self.name is not None:
-            return
-
-        self.name = name
         self.index = index
         self.offset = offset
+
+        # Don't rebind this field to a different class. This can happen if a
+        # container class is subclassed, or if ``name`` was explicitly given in
+        # the constructor.
+        if self.name is None:
+            self.name = name
 
     @property
     def allow_null(self):
@@ -378,12 +378,17 @@ class Array(Field):
 
     :param Field component:
         The component this array is comprised of.
-    :param int count:
-        Optional. The number of elements in this array. If not given, the array
-        is of variable size and ``halt_check`` should be passed in to indicate
-        when the array ends.
+    :param count:
+        Optional. Some way of indicating the number of elements in this array.
+        The value for this argument can be one of the following:
+
+        * An integer. The array always contains this many elements.
+        * A :class:`Field` instance that must 1) be an integer; 2) occur before
+          this array in the same struct.
+        * A string naming a field fitting the above criteria. You'll need this
+          if your size field's name is a Python keyword.
     :param callable halt_check:
-        A function taking four arguments. See :meth:`should_halt` for the
+        A function taking five arguments. See :meth:`should_halt` for the
         default implementation. Subclasses can override this function if desired
         to avoid having to pass in a custom function every time.
     """
@@ -393,15 +398,18 @@ class Array(Field):
         self.count = count
         self.halt_check = halt_check or self.should_halt
 
+        if count is not None and isinstance(count, (int, str, Field)):
+            raise TypeError('`count` must be an integer, string, or a `Field`.')
+
     @staticmethod
     def should_halt(seq, stream, values, context, loaded_fields):    # pylint: disable=unused-argument
         """Determine if the deserializer should stop reading from the input.
 
         The default implementation does the following:
 
-        - If the object has an integer attribute called ``count``, it compares
-          ``count`` against the length of ``loaded``. If ``len(loaded)`` is less
-          than ``count`` it'll return ``True`` (halt), ``False`` otherwise.
+        - If the ``Array`` has an integer ``count``, it compares ``count``
+          against the length of ``values``. If ``len(values)`` is equal to or
+          more than ``count`` it'll return ``True`` (halt), ``False`` otherwise.
         - If the object *doesn't* have an attribute called ``count``, or
           ``count`` isn't an integer, the function returns ``True`` if there's
           any data left in the stream.
@@ -427,6 +435,20 @@ class Array(Field):
         """
         if isinstance(seq.count, int):
             return seq.count <= len(values)
+        elif isinstance(seq.count, Field):
+            return loaded_fields[seq.count.name] <= len(values)
+        elif isinstance(seq.count, str):
+            # The number of fields in this array is a field that should already
+            # have been loaded.
+            if seq.count not in loaded_fields:
+                # Instead of throwing a KeyError, we'll throw a more helpful
+                # exception.
+                raise errors.ConfigurationError(
+                    "%r is either not a field in this struct or hasn't been "
+                    "loaded yet." % seq.count, field=seq)
+            return loaded_fields[seq.count] <= len(values)
+
+        # Else: count is None. Our only option is to check to see if we hit EOF.
 
         offset = stream.tell()
         try:
