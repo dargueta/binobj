@@ -39,6 +39,12 @@ Breaking Changes
 None.
 
 
+Documentation
+~~~~~~~~~~~~~
+
+Changed development stage from alpha stage to beta.
+
+
 0.2.1
 -----
 
