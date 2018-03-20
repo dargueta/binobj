@@ -199,3 +199,17 @@ def test_partial_dump__missing_values():
 
     with pytest.raises(errors.MissingRequiredValueError):
         struct.partial_dump(stream, 'uint24')
+
+
+class InheritedStruct(BasicStruct):
+    """Extension of BasicStruct with additional fields."""
+    other_string = binobj.StringZ(encoding='utf-16-le')
+
+
+def test_inheritance__basic_dump():
+    """Ensure that inheritance works properly, i.e. the struct inherits all fields
+    and then extends them."""
+    struct = InheritedStruct(string=' ' * 7, int64=0xdeadbeef, uint24=0xface11,
+                             other_string='AbCd!')
+    assert bytes(struct) == b'       \0\0\0\0\xde\xad\xbe\xef\x11\xce\xfa' \
+                            b'A\0b\0C\0d\0!\0\0\0'

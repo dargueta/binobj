@@ -25,11 +25,22 @@ class StructMeta(abc.ABCMeta):
         return collections.OrderedDict()
 
     def __new__(mcs, name, bases, namespace, **kwargs):
-        components = collections.OrderedDict(
-            (name, item)
-            for name, item in namespace.items()
-            if isinstance(item, fields.Field)
-        )
+        components = collections.OrderedDict()
+
+        for base in bases:
+            if hasattr(base, '__components__'):
+                for comp_name, item in base.__components__.items():
+                    if isinstance(item, fields.Field):
+                        if comp_name in components:
+                            raise errors.ConfigurationError(
+                                '%r redefines field %r declared in its parent '
+                                'struct %r.' % (name, comp_name, base.__name__),
+                                field=item)
+                        components[comp_name] = item
+
+        for name, item in namespace.items():
+            if isinstance(item, fields.Field):
+                components[name] = item
 
         namespace['__components__'] = components
 
