@@ -398,6 +398,15 @@ def test_nested__dump_basic():
     assert bytes(data) == b'\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f'
 
 
+def test_nested__dump_basic_as_dict():
+    """Test dumping where we pass a dictionary for the nested value instead of a
+    Struct instance.
+    """
+    data = MainStruct(before=0x0bad, after=0x7f,
+                      nested={'first': 0x0fad, 'second': 'HllWrld'})
+    assert bytes(data) == b'\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f'
+
+
 def test_array__load_nested():
     """Try loading an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)

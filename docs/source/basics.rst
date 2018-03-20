@@ -82,10 +82,10 @@ be UTF-8:
         last_name = fields.String(size=8, encoding='utf-8')
         phone = fields.String(size=12)
 
-    person = PersonInfo(first_name='Renée  ', last_name='Duchamps',
+    person = PersonInfo(first_name='Renée  ', last_name='Duchamp ',
                         phone='123-456-7890')
 
-    assert bytes(person) == b'Ren\xc3\xa9e  Duchamps123-456-7890'
+    assert bytes(person) == b'Ren\xc3\xa9e  Duchamp 123-456-7890'
 
 .. note::
 
@@ -215,6 +215,28 @@ inside another.
 
     loaded = PersonInfo.from_bytes(bytes(person))
     assert loaded == person
+
+If creating a bunch of ``USAddress`` objects and nesting them manually gets
+inconvenient, you can also pass in an entire dictionary:
+
+.. code-block:: python
+
+    info = {
+        'first_name': 'Jadzia',
+        'last_name': 'Dax',
+        'phone_numbers': [''],
+        'address': {
+            'line_1': '123 Main Street',
+            'line_2': '',
+            'city': 'Anytown',
+            'state': 'CA',
+            'zip_code': '94199',
+        }
+    }
+
+    person = PersonInfo(**info)
+    bytes(person)
+
 
 Arrays of Structs
 ~~~~~~~~~~~~~~~~~
