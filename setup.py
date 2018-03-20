@@ -11,7 +11,7 @@ setuptools.setup(
     author='Diego Argueta',
     author_email='dargueta@users.noreply.github.com',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
