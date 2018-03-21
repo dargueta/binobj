@@ -41,11 +41,14 @@ Features
    when a field reference can't be resolved. It's a subclass of ``ConfigurationError``
    so this isn't a breaking change.
 
+4. Added ``struct`` and ``obj`` keyword arguments to ``ConfigurationError`` to
+   give more flexibility in what errors it and its subclasses can be used for.
+
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
-* ``field`` argument to ``ConfigurationError`` renamed to ``obj``.
+None.
 
 
 Documentation

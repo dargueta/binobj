@@ -30,7 +30,7 @@ class StructMeta(abc.ABCMeta):
         struct_bases = [b for b in bases if issubclass(type(b), mcs)]
 
         if len(struct_bases) > 1:
-            raise errors.MultipleInheritanceError(obj=class_name)
+            raise errors.MultipleInheritanceError(struct=class_name)
 
         components = collections.OrderedDict()
 
@@ -61,7 +61,7 @@ class StructMeta(abc.ABCMeta):
             if not isinstance(item, fields.Field):
                 continue
             elif item_name in components:
-                raise errors.FieldRedefinedError(obj=class_name, field=item)
+                raise errors.FieldRedefinedError(struct=class_name, field=item)
 
             item.bind_to_container(item_name, field_index, offset)
             if offset is not None and item.size is not None:

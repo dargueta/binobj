@@ -14,13 +14,37 @@ class Error(Exception):
 
 
 class ConfigurationError(Error):
-    """A field or struct was misconfigured.
+    """A field, struct, or other object was misconfigured.
 
-    :param str message: A description of what's wrong with the field.
-    :param obj: The offending field, struct, or a name.
+    :param str message: A description of what's wrong.
+    :param field:
+        The misconfigured :class:`~binobj.fields.Field` or its name.
+    :param struct:
+        The misconfigured :class:`~binobj.structures.Struct` or its name.
+    :param obj:
+        If the misconfigured object is neither a field nor a struct, pass it or
+        its name here.
+
+    .. versionadded:: 0.3.0
+
+        The ``struct`` and ``obj`` arguments.
     """
-    def __init__(self, message=None, *, obj):
+    def __init__(self, message=None, *, field=None, struct=None, obj=None):
+        if not (field or struct or obj):
+            raise ValueError('At least one of `field`, `struct`, or `obj` must '
+                             'be passed to the constructor.')
+
+        if not message:
+            if field:
+                message = 'The field %r was misconfigured.' % field
+            elif struct:
+                message = 'The struct %r was misconfigured.' % struct
+            else:
+                message = 'The object %r was misconfigured.' % obj
+
         super().__init__(message)
+        self.field = field
+        self.struct = struct
         self.obj = obj
 
 
@@ -98,12 +122,10 @@ class MultipleInheritanceError(ConfigurationError):
 
 class FieldRedefinedError(ConfigurationError):
     """A struct has a field already defined in a parent class."""
-    def __init__(self, *, obj, field):
+    def __init__(self, *, struct, field):
         super().__init__(
             'Struct %s defines field %r already defined in its parent class.'
-            % (obj, field),
-            obj=obj)
-        self.field = field
+            % (struct, field), struct=struct, field=field)
 
 
 class UnserializableValueError(SerializationError):

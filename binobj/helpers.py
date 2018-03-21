@@ -74,6 +74,8 @@ def iter_bytes(stream, max_bytes=0):
         A stream opened in binary mode.
     :param int max_bytes:
         The maximum number of bytes to read.
+
+    .. versionadded:: 0.2.1
     """
     n_read = 0
 

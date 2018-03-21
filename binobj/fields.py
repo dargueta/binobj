@@ -670,13 +670,13 @@ class VariableLengthInteger(Integer):
                 "`signed=False` to __init__ or use an encoding that works for "
                 "signed integers, like %s."
                 % varints.VarIntEncoding.COMPACT_INDICES,
-                obj=self)
+                field=self)
 
         encoding_functions = varints.INTEGER_ENCODING_MAP.get(vli_format)
         if encoding_functions is None:
             raise errors.ConfigurationError(
                 'Invalid or unsupported integer encoding scheme: %r' % vli_format,
-                obj=self)
+                field=self)
 
         self.vli_format = vli_format
         self.max_bytes = max_bytes
@@ -808,7 +808,7 @@ class String(Field):
         """Dump a fixed-length string into the stream."""
         if self.size is None:
             raise errors.ConfigurationError(
-                '`size` cannot be `None` on a fixed-length field.', obj=self)
+                '`size` cannot be `None` on a fixed-length field.', field=self)
 
         stream.write(self._encode_and_resize(data))
 
