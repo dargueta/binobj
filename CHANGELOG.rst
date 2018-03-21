@@ -33,10 +33,15 @@ Features
         n_numbers = UInt16()
         numbers = Array(UInt16(), halt_check=halt_n_numbers)
 
+2. ``Array`` now throws a ``FieldReferenceError`` instead of a ``ConfigurationError``
+   when a field reference can't be resolved. It's a subclass of ``ConfigurationError``
+   so this isn't a breaking change.
+
+
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
-None.
+* ``field`` argument to ``ConfigurationError`` renamed to ``obj``.
 
 
 Documentation
