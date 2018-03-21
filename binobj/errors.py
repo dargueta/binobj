@@ -16,7 +16,13 @@ class Error(Exception):
 class ConfigurationError(Error):
     """A field, struct, or other object was misconfigured.
 
-    :param str message: A description of what's wrong.
+    At least one of the ``field``, ``struct``, or ``obj`` keyword arguments must
+    be passed to the constructor.
+
+    :param str message:
+        Optional. A description of what's wrong. If not given, a generic error
+        message will be chosen depending on which of the ``field``, ``struct``,
+        or ``obj`` keyword arguments is passed.
     :param field:
         The misconfigured :class:`~binobj.fields.Field` or its name.
     :param struct:
@@ -28,6 +34,10 @@ class ConfigurationError(Error):
     .. versionadded:: 0.3.0
 
         The ``struct`` and ``obj`` arguments.
+
+    :raise ValueError:
+        None of the ``field``, ``struct``, or ``obj`` keyword arguments were
+        passed.
     """
     def __init__(self, message=None, *, field=None, struct=None, obj=None):
         if not (field or struct or obj):
@@ -36,11 +46,16 @@ class ConfigurationError(Error):
 
         if not message:
             if field:
-                message = 'The field %r was misconfigured.' % field
+                if struct:
+                    message = 'Field {f!r} in struct {s!r} was misconfigured.'
+                else:
+                    message = 'The field {f!r} was misconfigured.'
             elif struct:
-                message = 'The struct %r was misconfigured.' % struct
+                message = 'The struct {s!r} was misconfigured.'
             else:
-                message = 'The object %r was misconfigured.' % obj
+                message = 'The object {o!r} was misconfigured.'
+
+            message = message.format(f=field, s=struct, o=obj)
 
         super().__init__(message)
         self.field = field
