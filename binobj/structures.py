@@ -25,37 +25,61 @@ class StructMeta(abc.ABCMeta):
         return collections.OrderedDict()
 
     def __new__(mcs, name, bases, namespace, **kwargs):
+        # Build a list of all of the base classes that appear to be Structs. If
+        # anything else uses StructMeta as a metaclass then we're in trouble.
+        struct_bases = [b for b in bases if issubclass(type(b), mcs)]
+
+        if len(struct_bases) > 1:
+            raise errors.ConfigurationError(
+                "A Struct can't inherit from more than one Struct, since the "
+                "field ordering could be ambiguous.",
+                field=None)
+
         components = collections.OrderedDict()
 
-        for base in bases:
-            if hasattr(base, '__components__'):
-                for comp_name, item in base.__components__.items():
-                    if isinstance(item, fields.Field):
-                        if comp_name in components:
-                            raise errors.ConfigurationError(
-                                '%r redefines field %r declared in its parent '
-                                'struct %r.' % (name, comp_name, base.__name__),
-                                field=item)
-                        components[comp_name] = item
+        if struct_bases:
+            # Build a dictionary of all of the fields in the parent struct first,
+            # then add in the fields defined in this struct.
+            base = struct_bases[0]
 
-        for name, item in namespace.items():
-            if isinstance(item, fields.Field):
-                components[name] = item
+            for comp_name, item in base.__components__.items():
+                if isinstance(item, fields.Field):
+                    if comp_name in components:
+                        raise errors.ConfigurationError(
+                            '%r redefines field %r declared in its parent '
+                            'struct %r.' % (name, comp_name, base.__name__),
+                            field=item)
+                    components[comp_name] = item
 
-        namespace['__components__'] = components
+            # Start the byte offset at the end of the base class. We won't be able
+            # to do this if the base class has variable-length fields.
+            offset = base.get_size()
+        else:
+            # Else: This struct doesn't inherit from another struct, so we're
+            # starting at offset 0.
+            offset = 0
 
-        class_object = super().__new__(mcs, name, bases, namespace, **kwargs)
+        field_index = len(components)
 
-        offset = 0
-        for i, (f_name, field) in enumerate(components.items()):
-            field.bind_to_container(f_name, i, offset)
+        # Bind all of this struct's fields to this struct. It's HIGHLY important
+        # that we don't accidentally bind the superclass' fields to this struct.
+        # That's why we're iterating over ``namespace`` and *then* adding the
+        # field into the ``components`` dict.
+        for item_name, item in namespace.items():
+            if not isinstance(item, fields.Field):
+                continue
 
-            if offset is not None and field.size is not None:
-                offset += field.size
+            item.bind_to_container(item_name, field_index, offset)
+            if offset is not None and item.size is not None:
+                offset += item.size
             else:
                 offset = None
 
-        return class_object
+            components[item_name] = item
+            field_index += 1
+
+        namespace['__components__'] = components
+        return super().__new__(mcs, name, bases, namespace, **kwargs)
 
 
 def recursive_to_dicts(item, fill_missing=False):
@@ -330,6 +354,26 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             if field.name == last_field:
                 return
 
+    @classmethod
+    def get_size(cls):
+        """Return the size of this struct in bytes, or ``None`` if there are
+        variable-sized fields that can't be resolved.
+
+        Do *not* use this on instances; use ``len(instance)`` instead.
+
+        :return: The struct's size, in bytes.
+        :rtype: int
+
+        .. versionadded:: 0.3.0
+        """
+        sizes = [f.size for f in cls.__components__.values()]
+
+        # Don't try summing the sizes of the fields if anything in there isn't
+        # an integer.
+        if all(isinstance(s, int) for s in sizes):
+            return sum(sizes)
+        return None
+
     # Container methods
     def __getitem__(self, item):
         return self.__values__[item]
@@ -353,7 +397,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     def __len__(self):
         sizes = [f.size for f in self.__components__.values()]
-        if None not in sizes:
+        if all(isinstance(s, int) for s in sizes):
             return sum(sizes)
 
         # If we get here then there's at least one variable-length field in this
