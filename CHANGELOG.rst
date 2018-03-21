@@ -9,7 +9,8 @@ Released: 2018-XX-XX
 Bugfixes
 ~~~~~~~~
 
-None...yet.
+* Fixed field redefinition detection. Subclassing wasn't supported in earlier
+  versions but the code was still there.
 
 Features
 ~~~~~~~~
