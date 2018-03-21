@@ -24,13 +24,13 @@ class StructMeta(abc.ABCMeta):
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
         return collections.OrderedDict()
 
-    def __new__(mcs, name, bases, namespace, **kwargs):
+    def __new__(mcs, class_name, bases, namespace, **kwargs):
         # Build a list of all of the base classes that appear to be Structs. If
         # anything else uses StructMeta as a metaclass then we're in trouble.
         struct_bases = [b for b in bases if issubclass(type(b), mcs)]
 
         if len(struct_bases) > 1:
-            raise errors.MultipleInheritanceError(obj=name)
+            raise errors.MultipleInheritanceError(obj=class_name)
 
         components = collections.OrderedDict()
 
@@ -61,7 +61,8 @@ class StructMeta(abc.ABCMeta):
             if not isinstance(item, fields.Field):
                 continue
             elif item_name in components:
-                raise errors.FieldRedefinedError(obj=name, field=item)
+                # FIXME (dargueta): Doesn't work on <= 3.4.6 or <= 3.3.6?!
+                raise errors.FieldRedefinedError(obj=class_name, field=item)
 
             item.bind_to_container(item_name, field_index, offset)
             if offset is not None and item.size is not None:
@@ -73,7 +74,7 @@ class StructMeta(abc.ABCMeta):
             field_index += 1
 
         namespace['__components__'] = components
-        return super().__new__(mcs, name, bases, namespace, **kwargs)
+        return super().__new__(mcs, class_name, bases, namespace, **kwargs)
 
 
 def recursive_to_dicts(item, fill_missing=False):
