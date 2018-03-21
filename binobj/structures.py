@@ -85,6 +85,12 @@ class StructMeta(abc.ABCMeta):
 def recursive_to_dicts(item, fill_missing=False):
     """When a :class:`Struct` is converted to a dictionary, ensure that any
     nested structures are also converted to dictionaries.
+
+    :param item:
+        Anything. If it's an unsupported type it'll get returned as-is.
+    :param bool fill_missing:
+        The ``fill_missing`` argument value to pass to a struct's ``to_dict()``
+        method.
     """
     if isinstance(item, Struct):
         return item.to_dict(fill_missing=fill_missing)
