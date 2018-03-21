@@ -41,8 +41,6 @@ class StructMeta(abc.ABCMeta):
 
             for comp_name, item in base.__components__.items():
                 if isinstance(item, fields.Field):
-                    if comp_name in components:
-                        raise errors.FieldRedefinedError(obj=name, field=item)
                     components[comp_name] = item
 
             # Start the byte offset at the end of the base class. We won't be able
@@ -62,6 +60,8 @@ class StructMeta(abc.ABCMeta):
         for item_name, item in namespace.items():
             if not isinstance(item, fields.Field):
                 continue
+            elif item_name in components:
+                raise errors.FieldRedefinedError(obj=name, field=item)
 
             item.bind_to_container(item_name, field_index, offset)
             if offset is not None and item.size is not None:
