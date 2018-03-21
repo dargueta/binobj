@@ -37,11 +37,7 @@ Features
 2. New field type ``Union`` allows you to emulate C's ``union`` storage class
    using fields, structs, or any combination of the two.
 
-3. ``Array`` now throws a ``FieldReferenceError`` instead of a ``ConfigurationError``
-   when a field reference can't be resolved. It's a subclass of ``ConfigurationError``
-   so this isn't a breaking change.
-
-4. Added ``struct`` and ``obj`` keyword arguments to ``ConfigurationError`` to
+3. Added ``struct`` and ``obj`` keyword arguments to ``ConfigurationError`` to
    give more flexibility in what errors it and its subclasses can be used for.
 
 
