@@ -61,7 +61,6 @@ class StructMeta(abc.ABCMeta):
             if not isinstance(item, fields.Field):
                 continue
             elif item_name in components:
-                # FIXME (dargueta): Doesn't work on <= 3.4.6 or <= 3.3.6?!
                 raise errors.FieldRedefinedError(obj=class_name, field=item)
 
             item.bind_to_container(item_name, field_index, offset)
