@@ -524,6 +524,71 @@ class Nested(Field):
                                              loaded_fields=loaded_fields)
 
 
+class OneOf(Field):
+    """A field for nesting a field that can be one of several different types of
+    structs.
+
+    :param Type[binobj.structures.Struct] struct_classes:
+        The struct classes that can be used for loading and dumping.
+
+    :param callable load_decider:
+        A function that decides which :class:`Struct` class to use for loading
+        the input. It must take four arguments:
+
+        * ``stream``: The stream being loaded from.
+        * ``struct_classes``: A list of classes that can be used for loading.
+        * ``context``: Additional data to pass directly to the selected class'
+          ``from_Stream()`` method.
+        * ``loaded_fields``: A dictionary of the fields that have already been
+          loaded. This is guaranteed to not be ``None``.
+
+    :param callable dump_decider:
+        A function that decides which :class:`Struct` class to use for dumping
+        the given data. It must take four arguments:
+
+        * ``data``: A :class:`dict` containing the data to dump.
+        * ``struct_classes``: A list of classes that can be used for dumping.
+        * ``context``: Additional data to pass directly to the selected class'
+          ``to_stream()`` method.
+        * ``all_fields``: A dictionary of the fields about to be dumped. This is
+          guaranteed to not be ``None``.
+
+    .. versionadded:: 0.3.0
+
+    Usage::
+
+        def load_decider(stream, struct_classes, context, loaded_fields):
+            data_type_id = loaded_fields['data_type']
+            return struct_classes[data_type_id]
+
+        def dump_decider(data, struct_classes, context, all_fields):
+            data_type_id = all_fields['data_type']
+            return struct_classes[data_type_id]
+
+        class MyStruct(Struct):
+            data_type = UInt8()
+            data = OneOf(UserInfo, FileInfo, SystemInfo,
+                         load_decider=load_decider, dump_decider=dump_decider)
+    """
+    def __init__(self, *struct_classes, load_decider, dump_decider, **kwargs):
+        super().__init__(**kwargs)
+        self.struct_classes = struct_classes
+        self.load_decider = load_decider
+        self.dump_decider = dump_decider
+
+    def _do_dump(self, stream, data, context, all_fields):
+        dump_class = self.dump_decider(data, self.struct_classes, context,
+                                       all_fields)
+
+        instance = dump_class(**data)
+        instance.to_stream(stream, context, all_fields)
+
+    def _do_load(self, stream, context, loaded_fields):
+        load_class = self.load_decider(stream, self.struct_classes, context,
+                                       loaded_fields)
+        return load_class.from_stream(stream, context, loaded_fields)
+
+
 class Bytes(Field):
     """Raw binary data."""
     def _do_load(self, stream, context, loaded_fields):

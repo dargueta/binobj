@@ -5,6 +5,7 @@ import sys
 
 import pytest
 
+import binobj
 from binobj import errors
 from binobj import fields
 from binobj import varints
@@ -447,3 +448,59 @@ def test_array__dump_nested():
 
     assert dumped == b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG' \
                      b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN'
+
+
+class UnionItemA(binobj.Struct):
+    _id = fields.UInt8(const=0xff)
+    value = fields.StringZ()
+
+
+class UnionItemB(binobj.Struct):
+    _id = fields.UInt8(const=0x7f)
+    other = fields.UInt16(endian='little')
+
+
+def load_decider(stream, struct_classes, context, loaded_fields):
+    data_type_id = loaded_fields['data_type']
+    return struct_classes[data_type_id]
+
+
+def dump_decider(data, struct_classes, context, all_fields):
+    data_type_id = all_fields['data_type']
+    return struct_classes[data_type_id]
+
+
+class UnionContainer(binobj.Struct):
+    data_type = fields.UInt8()
+    item = fields.OneOf(UnionItemA, UnionItemB, load_decider=load_decider,
+                        dump_decider=dump_decider)
+
+
+def test_oneof__dump_basic():
+    """Basic test of dumping the OneOf field type."""
+    struct = UnionContainer(data_type=0, item={'value': 'asdf'})
+    assert struct.to_bytes() == b'\0\xffasdf\0'
+
+    struct = UnionContainer(data_type=1, item={'other': 0xaa55})
+    assert struct.to_bytes() == b'\x01\x7f\x55\xaa'
+
+
+def test_oneof__load_basic():
+    """Basic test of loading the OneOf field type."""
+    struct = UnionContainer.from_bytes(b'\0\xffasdf\0')
+    assert struct.to_dict() == {
+        'data_type': 0,
+        'item': {
+            '_id': 0xff,
+            'value': 'asdf',
+        }
+    }
+
+    struct = UnionContainer.from_bytes(b'\x01\x7f\x55\xaa')
+    assert struct.to_dict() == {
+        'data_type': 1,
+        'item': {
+            '_id': 0x7f,
+            'other': 0xaa55,
+        }
+    }

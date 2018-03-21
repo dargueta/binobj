@@ -423,6 +423,3 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     def __bytes__(self):
         return self.to_bytes()
-
-
-# TODO (dargueta): Implement unions and bitfields.
