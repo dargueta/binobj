@@ -166,6 +166,19 @@ class BasicStructWithDefaults(binobj.Struct):
     uint24 = binobj.UnsignedInteger(size=3, endian='little')
 
 
+class VarlenStruct(binobj.Struct):
+    n_items = binobj.Int32()
+    items = binobj.Array(binobj.Int32(), count=n_items)
+
+
+def test_struct_size__basic():
+    assert BasicStruct.get_size() == 18
+
+
+def test_struct_size__varlen_returns_none():
+    assert VarlenStruct.get_size() is None
+
+
 def test_partial_dump__full():
     """Test basic partial dump with all fields present or with defaults."""
     struct = BasicStructWithDefaults(string='AbCdEfG', uint24=65535)
@@ -213,3 +226,18 @@ def test_inheritance__basic_dump():
                              other_string='AbCd!')
     assert bytes(struct) == b'       \0\0\0\0\xde\xad\xbe\xef\x11\xce\xfa' \
                             b'A\0b\0C\0d\0!\0\0\0'
+
+
+def test_inheritance__multiple_struct_inheritance_crashes():
+    """Crash if we try inheriting from multiple Struct classes."""
+
+    with pytest.raises(errors.MultipleInheritanceError):
+        class _Crash(BasicStruct, BasicStructWithDefaults):
+            pass
+
+
+def test_inheritance__field_redefinition_crashes():
+    """Trying to redefine the"""
+    with pytest.raises(errors.FieldRedefinedError):
+        class _Crash(BasicStruct):
+            string = binobj.String(size=7)

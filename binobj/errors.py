@@ -17,11 +17,11 @@ class ConfigurationError(Error):
     """A field or struct was misconfigured.
 
     :param str message: A description of what's wrong with the field.
-    :param ~binobj.fields.Field field: The offending field.
+    :param obj: The offending field, struct, or a name.
     """
-    def __init__(self, message=None, *, field):
+    def __init__(self, message=None, *, obj):
         super().__init__(message)
-        self.field = field
+        self.obj = obj
 
 
 class SerializationError(Error):
@@ -83,9 +83,27 @@ class ValidationError(Error):
 
 class FieldReferenceError(Error):
     """An error occurred while computing a field reference."""
+    def __init__(self, message=None, *, field):
+        super().__init__(message)
+        self.field = field
 
 
 ################################################################################
+
+
+class MultipleInheritanceError(ConfigurationError):
+    """A Struct can't inherit from more than one Struct, since the field order
+    could be ambiguous."""
+
+
+class FieldRedefinedError(ConfigurationError):
+    """A struct has a field already defined in a parent class."""
+    def __init__(self, *, obj, field):
+        super().__init__(
+            'Struct %s defines field %r already defined in its parent class.'
+            % (obj, field),
+            obj=obj)
+        self.field = field
 
 
 class UnserializableValueError(SerializationError):

@@ -448,9 +448,9 @@ class Array(Field):
             if seq.count not in loaded_fields:
                 # Instead of throwing a KeyError, we'll throw a more helpful
                 # exception.
-                raise errors.ConfigurationError(
+                raise errors.FieldReferenceError(
                     "%r is either not a field in this struct or hasn't been "
-                    "loaded yet." % seq.count, field=seq)
+                    "loaded yet." % seq.count, field=seq.count)
             return loaded_fields[seq.count] <= len(values)
 
         # Else: count is None. Our only option is to check to see if we hit EOF.
@@ -590,13 +590,13 @@ class VariableLengthInteger(Integer):
                 "`signed=False` to __init__ or use an encoding that works for "
                 "signed integers, like %s."
                 % varints.VarIntEncoding.COMPACT_INDICES,
-                field=self)
+                obj=self)
 
         encoding_functions = varints.INTEGER_ENCODING_MAP.get(vli_format)
         if encoding_functions is None:
             raise errors.ConfigurationError(
                 'Invalid or unsupported integer encoding scheme: %r' % vli_format,
-                field=self)
+                obj=self)
 
         self.vli_format = vli_format
         self.max_bytes = max_bytes
@@ -728,7 +728,7 @@ class String(Field):
         """Dump a fixed-length string into the stream."""
         if self.size is None:
             raise errors.ConfigurationError(
-                '`size` cannot be `None` on a fixed-length field.', field=self)
+                '`size` cannot be `None` on a fixed-length field.', obj=self)
 
         stream.write(self._encode_and_resize(data))
 

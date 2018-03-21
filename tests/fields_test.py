@@ -158,12 +158,31 @@ class BasicStructWithArraySizeField(structures.Struct):
     eof = fields.String(const='ABC')
 
 
-def test_array__variable_length_size_in_struct():
+class BasicStructWithArraySizeFieldAsName(structures.Struct):
+    n_numbers = fields.UInt8()
+    numbers = fields.Array(fields.UInt8(), count='n_numbers')
+    eof = fields.String(const='ABC')
+
+
+@pytest.mark.parametrize('cls', (
+        BasicStructWithArraySizeField, BasicStructWithArraySizeFieldAsName))
+def test_array__variable_length_size_in_struct(cls):
     stream = io.BytesIO(b'\x03\x01\x02\x7fABC')
-    loaded = BasicStructWithArraySizeField.from_stream(stream)
+    loaded = cls.from_stream(stream)
 
     assert loaded.numbers == [1, 2, 0x7f]
     assert loaded.eof == 'ABC'
+
+
+def test_array__variable_length_forward_reference_crashes():
+    """A forward reference to a field must crash."""
+    class _Crash(structures.Struct):
+        n_numbers = fields.UInt8()
+        numbers = fields.Array(fields.UInt8(), count='eof')
+        eof = fields.String(const='ABC')
+
+    with pytest.raises(errors.FieldReferenceError):
+        _Crash.from_bytes(b'\0\0ABC')
 
 
 def test_array__dump_basic():

@@ -30,10 +30,7 @@ class StructMeta(abc.ABCMeta):
         struct_bases = [b for b in bases if issubclass(type(b), mcs)]
 
         if len(struct_bases) > 1:
-            raise errors.ConfigurationError(
-                "A Struct can't inherit from more than one Struct, since the "
-                "field ordering could be ambiguous.",
-                field=None)
+            raise errors.MultipleInheritanceError(obj=name)
 
         components = collections.OrderedDict()
 
@@ -45,10 +42,7 @@ class StructMeta(abc.ABCMeta):
             for comp_name, item in base.__components__.items():
                 if isinstance(item, fields.Field):
                     if comp_name in components:
-                        raise errors.ConfigurationError(
-                            '%r redefines field %r declared in its parent '
-                            'struct %r.' % (name, comp_name, base.__name__),
-                            field=item)
+                        raise errors.FieldRedefinedError(obj=name, field=item)
                     components[comp_name] = item
 
             # Start the byte offset at the end of the base class. We won't be able
