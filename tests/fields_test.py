@@ -460,24 +460,24 @@ class UnionItemB(binobj.Struct):
     other = fields.UInt16(endian='little')
 
 
-def load_decider(stream, struct_classes, context, loaded_fields):
+def struct_load_decider(stream, choices, context, loaded_fields):
     data_type_id = loaded_fields['data_type']
-    return struct_classes[data_type_id]
+    return choices[data_type_id]
 
 
-def dump_decider(data, struct_classes, context, all_fields):
+def struct_dump_decider(data, choices, context, all_fields):
     data_type_id = all_fields['data_type']
-    return struct_classes[data_type_id]
+    return choices[data_type_id]
 
 
 class UnionContainer(binobj.Struct):
     data_type = fields.UInt8()
-    item = fields.OneOf(UnionItemA, UnionItemB, load_decider=load_decider,
-                        dump_decider=dump_decider)
+    item = fields.Union(UnionItemA, UnionItemB, load_decider=struct_load_decider,
+                        dump_decider=struct_dump_decider)
 
 
-def test_oneof__dump_basic():
-    """Basic test of dumping the OneOf field type."""
+def test_union__structs__dump_basic():
+    """Basic test of dumping the Union field type."""
     struct = UnionContainer(data_type=0, item={'value': 'asdf'})
     assert struct.to_bytes() == b'\0\xffasdf\0'
 
@@ -485,8 +485,8 @@ def test_oneof__dump_basic():
     assert struct.to_bytes() == b'\x01\x7f\x55\xaa'
 
 
-def test_oneof__load_basic():
-    """Basic test of loading the OneOf field type."""
+def test_union__structs__load_basic():
+    """Basic test of loading the Union field type."""
     struct = UnionContainer.from_bytes(b'\0\xffasdf\0')
     assert struct.to_dict() == {
         'data_type': 0,
@@ -503,4 +503,47 @@ def test_oneof__load_basic():
             '_id': 0x7f,
             'other': 0xaa55,
         }
+    }
+
+
+def fields_load_decider(stream, choices, context, loaded_fields):
+    data_type_id = loaded_fields['data_type']
+    return choices[data_type_id]
+
+
+def fields_dump_decider(data, choices, context, all_fields):
+    if isinstance(all_fields['item'], str):
+        return choices[0]
+    return choices[1]
+
+
+class FieldsUnionContainer(binobj.Struct):
+    data_type = fields.UInt8()
+    item = fields.Union(fields.StringZ(),
+                        fields.UInt16(endian='little'),
+                        load_decider=fields_load_decider,
+                        dump_decider=fields_dump_decider)
+
+
+def test_union__fields__dump_basic():
+    """Basic test of dumping the Union field type."""
+    struct = FieldsUnionContainer(data_type=0, item='asdf')
+    assert struct.to_bytes() == b'\0asdf\0'
+
+    struct = FieldsUnionContainer(data_type=1, item=0xaa55)
+    assert struct.to_bytes() == b'\x01\x55\xaa'
+
+
+def test_union__fields__load_basic():
+    """Basic test of loading the Union field type."""
+    struct = FieldsUnionContainer.from_bytes(b'\0asdf\0')
+    assert struct.to_dict() == {
+        'data_type': 0,
+        'item': 'asdf',
+    }
+
+    struct = FieldsUnionContainer.from_bytes(b'\x01\x55\xaa')
+    assert struct.to_dict() == {
+        'data_type': 1,
+        'item': 0xaa55,
     }

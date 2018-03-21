@@ -524,30 +524,32 @@ class Nested(Field):
                                              loaded_fields=loaded_fields)
 
 
-class OneOf(Field):
-    """A field for nesting a field that can be one of several different types of
-    structs.
+class Union(Field):
+    """A field that can be one of several different types of structs or fields.
 
-    :param Type[binobj.structures.Struct] struct_classes:
-        The struct classes that can be used for loading and dumping.
+    :param choices:
+        One or more :class:`~binobj.structure.Struct` classes or :class:`Field`
+        instances that can be used for loading and dumping.
 
     :param callable load_decider:
-        A function that decides which :class:`Struct` class to use for loading
-        the input. It must take four arguments:
+        A function that decides which :class:`~binobj.structure.Struct` class or
+        :class:`Field` instance to use for loading the input. It must take four
+        arguments:
 
         * ``stream``: The stream being loaded from.
-        * ``struct_classes``: A list of classes that can be used for loading.
+        * ``classes``: A list of classes that can be used for loading.
         * ``context``: Additional data to pass directly to the selected class'
           ``from_Stream()`` method.
         * ``loaded_fields``: A dictionary of the fields that have already been
           loaded. This is guaranteed to not be ``None``.
 
     :param callable dump_decider:
-        A function that decides which :class:`Struct` class to use for dumping
-        the given data. It must take four arguments:
+        A function that decides which :class:`~binobj.structure.Struct` class or
+        :class:`Field` instance to use for dumping the given data. It must take
+        four arguments:
 
         * ``data``: A :class:`dict` containing the data to dump.
-        * ``struct_classes``: A list of classes that can be used for dumping.
+        * ``classes``: A list of classes that can be used for dumping.
         * ``context``: Additional data to pass directly to the selected class'
           ``to_stream()`` method.
         * ``all_fields``: A dictionary of the fields about to be dumped. This is
@@ -555,38 +557,44 @@ class OneOf(Field):
 
     .. versionadded:: 0.3.0
 
-    Usage::
+    Usage with Structs::
 
-        def load_decider(stream, struct_classes, context, loaded_fields):
+        def load_decider(stream, classes, context, loaded_fields):
             data_type_id = loaded_fields['data_type']
-            return struct_classes[data_type_id]
+            return classes[data_type_id]
 
-        def dump_decider(data, struct_classes, context, all_fields):
+        def dump_decider(data, classes, context, all_fields):
             data_type_id = all_fields['data_type']
-            return struct_classes[data_type_id]
+            return classes[data_type_id]
 
         class MyStruct(Struct):
             data_type = UInt8()
             data = OneOf(UserInfo, FileInfo, SystemInfo,
                          load_decider=load_decider, dump_decider=dump_decider)
+
+    Usage with Fields:
     """
-    def __init__(self, *struct_classes, load_decider, dump_decider, **kwargs):
+    def __init__(self, *choices, load_decider, dump_decider, **kwargs):
         super().__init__(**kwargs)
-        self.struct_classes = struct_classes
+        self.choices = choices
         self.load_decider = load_decider
         self.dump_decider = dump_decider
 
     def _do_dump(self, stream, data, context, all_fields):
-        dump_class = self.dump_decider(data, self.struct_classes, context,
-                                       all_fields)
+        dumper = self.dump_decider(data, self.choices, context, all_fields)
+        if isinstance(dumper, Field):
+            return dumper.dump(stream, data, context, all_fields)
 
-        instance = dump_class(**data)
-        instance.to_stream(stream, context, all_fields)
+        # Else: Dumper is not a Field instance, assume this is a Struct.
+        return dumper(**data).to_stream(stream, context, all_fields)
 
     def _do_load(self, stream, context, loaded_fields):
-        load_class = self.load_decider(stream, self.struct_classes, context,
-                                       loaded_fields)
-        return load_class.from_stream(stream, context, loaded_fields)
+        loader = self.load_decider(stream, self.choices, context, loaded_fields)
+        if isinstance(loader, Field):
+            return loader.load(stream, context, loaded_fields)
+
+        # Else: loader is not a Field instance, assume this is a Struct.
+        return loader.from_stream(stream, context, loaded_fields)
 
 
 class Bytes(Field):

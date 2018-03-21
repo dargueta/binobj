@@ -34,7 +34,8 @@ Features
         n_numbers = UInt16()
         numbers = Array(UInt16(), halt_check=halt_n_numbers)
 
-2. New field type ``OneOf`` allows you to emulate C's ``union`` storage class.
+2. New field type ``OneOf`` allows you to emulate C's ``union`` storage class
+   using fields, structs, or any combination of the two.
 
 3. ``Array`` now throws a ``FieldReferenceError`` instead of a ``ConfigurationError``
    when a field reference can't be resolved. It's a subclass of ``ConfigurationError``
