@@ -528,30 +528,30 @@ class Union(Field):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:
-        One or more :class:`~binobj.structure.Struct` classes or :class:`Field`
+        One or more :class:`~binobj.structures.Struct` classes or :class:`Field`
         instances that can be used for loading and dumping.
 
     :param callable load_decider:
-        A function that decides which :class:`~binobj.structure.Struct` class or
+        A function that decides which :class:`~binobj.structures.Struct` class or
         :class:`Field` instance to use for loading the input. It must take four
         arguments:
 
         * ``stream``: The stream being loaded from.
         * ``classes``: A list of classes that can be used for loading.
-        * ``context``: Additional data to pass directly to the selected class'
-          ``from_Stream()`` method.
+        * ``context``: Additional data to pass directly to the loader selected
+          from ``classes``.
         * ``loaded_fields``: A dictionary of the fields that have already been
           loaded. This is guaranteed to not be ``None``.
 
     :param callable dump_decider:
-        A function that decides which :class:`~binobj.structure.Struct` class or
+        A function that decides which :class:`~binobj.structures.Struct` class or
         :class:`Field` instance to use for dumping the given data. It must take
         four arguments:
 
         * ``data``: A :class:`dict` containing the data to dump.
         * ``classes``: A list of classes that can be used for dumping.
-        * ``context``: Additional data to pass directly to the selected class'
-          ``to_stream()`` method.
+        * ``context``: Additional data to pass directly to the dumper selected
+          from ``classes``.
         * ``all_fields``: A dictionary of the fields about to be dumped. This is
           guaranteed to not be ``None``.
 
@@ -569,10 +569,17 @@ class Union(Field):
 
         class MyStruct(Struct):
             data_type = UInt8()
-            data = OneOf(UserInfo, FileInfo, SystemInfo,
+            data = Union(UserInfo, FileInfo, SystemInfo,
                          load_decider=load_decider, dump_decider=dump_decider)
 
-    Usage with Fields:
+    Usage with Fields::
+
+        class FieldsUnionContainer(binobj.Struct):
+            data_type = fields.UInt8()
+            item = fields.Union(fields.StringZ(),
+                                fields.UInt16(endian='little'),
+                                load_decider=fields_load_decider,
+                                dump_decider=fields_dump_decider)
     """
     def __init__(self, *choices, load_decider, dump_decider, **kwargs):
         super().__init__(**kwargs)
