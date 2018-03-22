@@ -1,5 +1,5 @@
-Tutorial: The Basics
---------------------
+A Crash Course
+--------------
 
 ``binobj`` allows you to create classes to declare the structure of binary files
 or streams in a convenient object-oriented way. It supports a variety of field
