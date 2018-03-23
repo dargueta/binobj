@@ -134,7 +134,7 @@ def decode_integer_vlq(stream):
 
 
 def encode_integer_zigzag(value):
-    """Encode an integer with the Google ProtoBuff's "ZigZag" encoding.
+    """Encode an integer with the Google Protobuf's "ZigZag" encoding.
 
     :param int value:
         The value to encode.

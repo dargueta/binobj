@@ -50,7 +50,8 @@ None.
 Documentation
 ~~~~~~~~~~~~~
 
-Changed development stage from alpha stage to beta.
+* Changed development stage from alpha stage to beta.
+* Expanded documentation of existing code, fixed inter-module references.
 
 
 0.2.1

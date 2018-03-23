@@ -121,7 +121,13 @@ class ValidationError(Error):
 
 
 class FieldReferenceError(Error):
-    """An error occurred while computing a field reference."""
+    """An error occurred while computing a field reference.
+
+    :param str message:
+        Optional. A more detailed error message, if desired.
+    :param str field:
+        The name of the field that failed to be referenced.
+    """
     def __init__(self, message=None, *, field):
         super().__init__(message)
         self.field = field
@@ -136,7 +142,13 @@ class MultipleInheritanceError(ConfigurationError):
 
 
 class FieldRedefinedError(ConfigurationError):
-    """A struct has a field already defined in a parent class."""
+    """A struct has a field already defined in a parent class.
+
+    :param str struct:
+        The name of the struct that has the redefined field.
+    :param field:
+        The :class:`~binobj.fields.Field` that's been redefined, or its name.
+    """
     def __init__(self, *, struct, field):
         super().__init__(
             'Struct %s defines field %r already defined in its parent class.'
@@ -144,7 +156,15 @@ class FieldRedefinedError(ConfigurationError):
 
 
 class UnserializableValueError(SerializationError):
-    """The value couldn't be serialized."""
+    """The value couldn't be serialized.
+
+    :param ~binobj.fields.Field field:
+        The field that failed to serialize the given value.
+    :param value:
+        The value that can't be serialized.
+    :param str reason:
+        Optional. The reason for the failure.
+    """
     def __init__(self, *, field, value, reason=None):
         if reason is not None:
             message = "%s can't serialize value: %s" % (field, reason)
@@ -157,7 +177,7 @@ class UnserializableValueError(SerializationError):
 class MissingRequiredValueError(SerializationError):
     """No value was passed for a required field.
 
-    :param ~binobj.fields.Field field:
+    :param field:
         The missing field, or its name.
     """
     def __init__(self, *, field):
@@ -189,14 +209,26 @@ class UnexpectedValueError(SerializationError):
 
 
 class ValueSizeError(UnserializableValueError):
-    """The value can't be serialized because it doesn't fit into the field."""
+    """The value can't be serialized because it doesn't fit into the field.
+
+    :param ~binobj.fields.Field field:
+        The field that failed to serialize the given value.
+    :param value:
+        The value that's too big.
+    """
     def __init__(self, *, field, value):
         super().__init__(reason="Value doesn't fit into %r bytes." % field.size,
                          field=field, value=value)
 
 
 class VariableSizedFieldError(DeserializationError):
-    """Expected a fixed-length field but the field is of a variable size."""
+    """Expected a fixed-length field but the field is of a variable size.
+
+    :param ~binobj.fields.Field field:
+        The field that failed to serialize the given value.
+    :param int offset:
+        Optional. The byte offset in the stream where the read failure occurred.
+    """
     def __init__(self, *, field, offset=None):
         msg = "Can't read fixed number of bytes from variable-length field: " \
             + str(field)

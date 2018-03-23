@@ -176,7 +176,8 @@ class Field:
             anything they don't recognize.
         :param dict loaded_fields:
             A dictionary of the fields that have already been loaded. This is
-            set automatically when a field is loaded by a :class:`~binobj.Struct`.
+            set automatically when a field is loaded by a
+            :class:`~binobj.structures.Struct`.
 
         :return: The deserialized data.
         """
@@ -210,7 +211,8 @@ class Field:
             an exception.
         :param dict loaded_fields:
             A dictionary of the fields that have already been loaded. This is
-            set automatically when a field is loaded by a :class:`~binobj.Struct`.
+            set automatically when a field is loaded by a
+            :class:`~binobj.structures.Struct`.
 
         :return: The deserialized data.
         """
@@ -255,8 +257,9 @@ class Field:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         :param dict all_fields:
-            A dictionary of the fields about to be dumped. This is set
-            automatically by the field's containing :class:`~binobj.Struct`.
+            A dictionary of the fields about to be dumped. This is automatically
+            set automatically by the field's containing
+            :class:`~binobj.structures.Struct`.
         """
         if all_fields is None:
             all_fields = {}
@@ -280,8 +283,9 @@ class Field:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         :param dict all_fields:
-            A dictionary of the fields about to be dumped. This is set
-            automatically by the field's containing :class:`~binobj.Struct`.
+            A dictionary of the fields about to be dumped. This is automatically
+            set automatically by the field's containing
+            :class:`~binobj.structures.Struct`.
 
         :return: The serialized data.
         :rtype: bytes
@@ -548,7 +552,7 @@ class Union(Field):
         :class:`Field` instance to use for dumping the given data. It must take
         four arguments:
 
-        * ``data``: A :class:`dict` containing the data to dump.
+        * ``data``: A dictionary containing the data to dump.
         * ``classes``: A list of classes that can be used for dumping.
         * ``context``: Additional data to pass directly to the dumper selected
           from ``classes``.

@@ -149,7 +149,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         :param bool fill_missing:
             If ``True``, any unassigned values in this struct will be set to
-            their defaults or :data:`UNDEFINED` if they have no defined default.
+            their defaults or :data:`~binobj.fields.UNDEFINED` if they have no
+            defined default.
 
         :rtype: collections.OrderedDict
         """
