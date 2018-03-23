@@ -128,14 +128,9 @@ class Field:
             unknown. This is usually equal to the sum of the sizes of the fields
             preceding this one in the container.
         """
+        self.name = name
         self.index = index
         self.offset = offset
-
-        # Don't rebind this field to a different class. This can happen if a
-        # container class is subclassed, or if ``name`` was explicitly given in
-        # the constructor.
-        if self.name is None:
-            self.name = name
 
     @property
     def allow_null(self):
