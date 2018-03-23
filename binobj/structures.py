@@ -161,6 +161,12 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             defined default.
 
         :rtype: collections.OrderedDict
+
+        .. versionchanged:: 0.3.0
+
+            The function now recursively calls :meth:`to_dict` on all nested
+            structs and arrays so that the returned dictionary is completely
+            converted, not just the first level.
         """
         dct = collections.OrderedDict()
         for field in self.__components__.values():

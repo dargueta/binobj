@@ -1,4 +1,7 @@
-"""Helpful decorators for adding functionality."""
+"""Helpful decorators for adding functionality.
+
+.. versionadded:: 0.3.0
+"""
 
 from binobj import errors
 
@@ -25,10 +28,15 @@ def computes(field):
             def _assign_n_numbers(self, all_fields):
                 return len(all_fields['numbers'])
 
-    .. note::
+    Some usage notes:
 
-        The computing function will *not* be called if a value is explicitly
-        set for the field by the calling code.
+    * The computing function will *not* be called if a value is explicitly set
+      for the field by the calling code.
+    * Computed fields are executed in the order that the fields are dumped, so
+      a computed field must *not* rely on the value of another computed field
+      occurring after it.
+
+    .. versionadded:: 0.3.0
     """
     if not isinstance(field, str):
         field = field.name

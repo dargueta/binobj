@@ -34,10 +34,13 @@ Features
         n_numbers = UInt16()
         numbers = Array(UInt16(), halt_check=halt_n_numbers)
 
-2. New field type ``Union`` allows you to emulate C's ``union`` storage class
+2. The new ``computes`` decorator gives you the ability to use a function to
+   compute the value of a field when serializing.
+
+3. New field type ``Union`` allows you to emulate C's ``union`` storage class
    using fields, structs, or any combination of the two.
 
-3. Added ``struct`` and ``obj`` keyword arguments to ``ConfigurationError`` to
+4. Added ``struct`` and ``obj`` keyword arguments to ``ConfigurationError`` to
    give more flexibility in what errors it and its subclasses can be used for.
 
 

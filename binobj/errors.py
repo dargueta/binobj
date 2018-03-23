@@ -138,7 +138,10 @@ class FieldReferenceError(Error):
 
 class MultipleInheritanceError(ConfigurationError):
     """A Struct can't inherit from more than one Struct, since the field order
-    could be ambiguous."""
+    could be ambiguous.
+
+    .. versionadded:: 0.3.0
+    """
 
 
 class FieldRedefinedError(ConfigurationError):
@@ -148,6 +151,8 @@ class FieldRedefinedError(ConfigurationError):
         The name of the struct that has the redefined field.
     :param field:
         The :class:`~binobj.fields.Field` that's been redefined, or its name.
+
+    .. versionadded:: 0.3.0
     """
     def __init__(self, *, struct, field):
         super().__init__(
