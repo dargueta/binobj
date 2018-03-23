@@ -166,7 +166,7 @@ class BasicStructWithArraySizeFieldAsName(structures.Struct):
 
 
 @pytest.mark.parametrize('cls', (
-        BasicStructWithArraySizeField, BasicStructWithArraySizeFieldAsName))
+    BasicStructWithArraySizeField, BasicStructWithArraySizeFieldAsName))
 def test_array__variable_length_size_in_struct(cls):
     stream = io.BytesIO(b'\x03\x01\x02\x7fABC')
     loaded = cls.from_stream(stream)
@@ -460,6 +460,7 @@ class UnionItemB(binobj.Struct):
     other = fields.UInt16(endian='little')
 
 
+# pylint: disable=unused-argument
 def struct_load_decider(stream, choices, context, loaded_fields):
     data_type_id = loaded_fields['data_type']
     return choices[data_type_id]
@@ -468,6 +469,7 @@ def struct_load_decider(stream, choices, context, loaded_fields):
 def struct_dump_decider(data, choices, context, all_fields):
     data_type_id = all_fields['data_type']
     return choices[data_type_id]
+# pylint: enable=unused-argument
 
 
 class UnionContainer(binobj.Struct):
@@ -506,6 +508,7 @@ def test_union__structs__load_basic():
     }
 
 
+# pylint: disable=unused-argument
 def fields_load_decider(stream, choices, context, loaded_fields):
     data_type_id = loaded_fields['data_type']
     return choices[data_type_id]
@@ -515,6 +518,7 @@ def fields_dump_decider(data, choices, context, all_fields):
     if isinstance(all_fields['item'], str):
         return choices[0]
     return choices[1]
+# pylint: enable=unused-argument
 
 
 class FieldsUnionContainer(binobj.Struct):

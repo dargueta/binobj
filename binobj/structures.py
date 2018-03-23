@@ -120,9 +120,10 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
+        # pylint: disable=unused-argument
         my_fields = self.to_dict(fill_missing=False)
 
-        for name, field in self.__components__.items():
+        for field in self.__components__.values():
             value = field.compute_value_for_dump(my_fields)
             field.dump(stream, value, context=context, all_fields=my_fields)
 
@@ -179,6 +180,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         :return: The loaded struct.
         """
+        # pylint: disable=unused-argument
         results = {}
 
         for name, field in cls.__components__.items():

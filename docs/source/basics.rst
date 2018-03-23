@@ -377,7 +377,6 @@ Let's look at the final version of our file:
         last_name="O'Brien",
         birthday=datetime.date(2205, 10, 15),
         phone_numbers=['586-188-1958', '586-002-0611', ''],
-        n_addresses=2,
         addresses=[addr_1, addr_2])
 
     assert bytes(person) == b"Miles\x00O'Brien\x0022051015586-188-1958\x00" \
