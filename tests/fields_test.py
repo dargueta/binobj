@@ -186,6 +186,12 @@ def test_array__variable_length_forward_reference_crashes():
         _Crash.from_bytes(b'\0\0ABC')
 
 
+@pytest.mark.parametrize('count', (True, False, object()))
+def test_array__bogus_count(count):
+    with pytest.raises(TypeError):
+        fields.Array(fields.UInt8(), count=count)
+
+
 def test_array__dump_basic():
     struct = BasicStructWithSentinelArray(numbers=[1, 2, 3, 0])
     assert struct.to_bytes() == b'\x01\x02\x03\x00ABC'

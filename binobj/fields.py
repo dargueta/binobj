@@ -464,7 +464,10 @@ class Array(Field):
         self.count = count
         self.halt_check = halt_check or self.should_halt
 
-        if count is not None and not isinstance(count, (int, str, Field)):
+        if (count is not None and not isinstance(count, (int, str, Field))) \
+                or isinstance(count, bool):
+            # The isinstance bool check is necessary because `bool` is a subclass
+            # of `int`.
             raise TypeError('`count` must be an integer, string, or a `Field`.')
 
     @staticmethod
