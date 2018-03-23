@@ -123,17 +123,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         my_fields = self.to_dict(fill_missing=False)
 
         for name, field in self.__components__.items():
-            value = self.__values__.get(name, field.default)
-
-            if value is fields.UNDEFINED:
-                # No value passed for this field, and the field doesn't have a
-                # default value either. If it has a compute function, use that.
-                # Otherwise, crash.
-                if name not in self.__computed_fields__:
-                    raise errors.MissingRequiredValueError(field=field)
-
-                value = self.__computed_fields__[name](my_fields)
-
+            value = field.compute_value_for_dump(my_fields)
             field.dump(stream, value, context=context, all_fields=my_fields)
 
     def to_bytes(self, context=None):

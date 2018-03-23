@@ -364,7 +364,7 @@ Let's look at the final version of our file:
         n_addresses = fields.UInt8()
         addresses = fields.Array(fields.Nested(USAddress), count=n_addresses)
 
-        @decorators.computes(n_addresses)
+        @n_addresses.computes
         def _n_addresses(self, all_fields):
             return len(all_fields['addresses'])
 

@@ -115,6 +115,7 @@ class Field:
         self.name = name        # type: str
         self.index = None       # type: int
         self.offset = None      # type: int
+        self._compute_fn = None     # type: callable
 
     def bind_to_container(self, name, index, offset=None):
         """Bind this field to a container class.
@@ -131,6 +132,67 @@ class Field:
         self.name = name
         self.index = index
         self.offset = offset
+
+    def compute_value_for_dump(self, all_values):
+        """Calculate the value for this field upon dumping.
+
+        :param dict all_values:
+            The dictionary of all the field data that's about to be dumped.
+
+        :return: The value the dumper will use for this field.
+
+        :raise binobj.errors.MissingRequiredValueError:
+            No value could be derived for this field. It's missing in the input
+            data, there's no default defined, and it doesn't have a compute
+            function defined either.
+        """
+        if self.name in all_values:
+            return all_values[self.name]
+        elif self._default is not UNDEFINED:
+            return self.default
+        elif self._compute_fn is not None:
+            return self._compute_fn(self, all_values)
+
+        raise errors.MissingRequiredValueError(field=self)
+
+    def computes(self, method):
+        """Decorator that marks a function as computing the value for a field.
+
+        You can use this for automatically assigning values based on other fields.
+        For example, suppose we have this struct::
+
+            class MyStruct(Struct):
+                n_numbers = UInt8()
+                numbers = Array(UInt8(), count=n_numbers)
+
+        This works great for loading, but when we're dumping we have to pass in a
+        value for ``n_numbers`` explicitly. We can use the ``computes`` decorator
+        to relieve us of that burden::
+
+            class MyStruct(Struct):
+                n_numbers = UInt8()
+                numbers = Array(UInt8(), count=n_numbers)
+
+                @n_numbers.computes
+                def _assign_n_numbers(self, all_fields):
+                    return len(all_fields['numbers'])
+
+        Some usage notes:
+
+        * The computing function will *not* be called if
+          * A value is explicitly set for the field by the calling code.
+          * The field has a ``default`` or ``const`` value.
+        * Computed fields are executed in the order that the fields are dumped,
+          so a computed field must *not* rely on the value of another computed
+          field occurring after it.
+
+        .. versionadded:: 0.3.0
+        """
+        if self._compute_fn:
+            raise errors.ConfigurationError(
+                "Cannot define two computing functions for field %r." % self,
+                field=self)
+        self._compute_fn = method
 
     @property
     def allow_null(self):
