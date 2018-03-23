@@ -22,7 +22,7 @@ class StructMeta(abc.ABCMeta):
     """
     @classmethod
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
-        return collections.OrderedDict()
+        return collections.OrderedDict(__computed_fields__={})
 
     def __new__(mcs, class_name, bases, namespace, **kwargs):
         # Build a list of all of the base classes that appear to be Structs. If
@@ -102,6 +102,7 @@ def recursive_to_dicts(item, fill_missing=False):
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """An ordered collection of fields and other structures."""
     __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
+    __computed_fields__ = types.MappingProxyType({})    # type: dict
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
@@ -119,12 +120,19 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
-        my_fields = dict(self)
+        my_fields = self.to_dict(fill_missing=False)
 
         for name, field in self.__components__.items():
             value = self.__values__.get(name, field.default)
+
             if value is fields.UNDEFINED:
-                raise errors.MissingRequiredValueError(field=field)
+                # No value passed for this field, and the field doesn't have a
+                # default value either. If it has a compute function, use that.
+                # Otherwise, crash.
+                if name not in self.__computed_fields__:
+                    raise errors.MissingRequiredValueError(field=field)
+
+                value = self.__computed_fields__[name](my_fields)
 
             field.dump(stream, value, context=context, all_fields=my_fields)
 

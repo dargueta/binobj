@@ -355,10 +355,6 @@ Let's look at the final version of our file:
             return True
         return False
 
-    def should_halt_addrs(array, stream, values, context, loaded_fields):
-        return len(values) >= loaded_fields['n_addresses']
-
-
     class PersonInfo(binobj.Struct):
         first_name = fields.StringZ(encoding='utf-8')
         last_name = fields.StringZ(encoding='utf-8')
@@ -366,8 +362,11 @@ Let's look at the final version of our file:
         phone_numbers = fields.Array(fields.StringZ(),
                                      halt_check=should_halt_phones)
         n_addresses = fields.UInt8()
-        addresses = fields.Array(fields.Nested(USAddress),
-                                 halt_check=should_halt_addrs)
+        addresses = fields.Array(fields.Nested(USAddress), count=n_addresses)
+
+        @decorators.computes(n_addresses)
+        def _n_addresses(self, all_fields):
+            return len(all_fields['addresses'])
 
     addr_1 = USAddress(line_1='123 Main Street', line_2='Apt #104', city='Anytown',
                        state='TX', zip_code='75710')
