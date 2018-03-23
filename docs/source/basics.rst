@@ -1,5 +1,5 @@
 A Crash Course
---------------
+==============
 
 ``binobj`` allows you to create classes to declare the structure of binary files
 or streams in a convenient object-oriented way. It supports a variety of field
@@ -8,7 +8,7 @@ types, and if you need something a bit more specialized you can always subclass
 you need.
 
 Plain Old Strings
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Suppose you want to create an address book application in Python, and want to
 store people's information in a file. Each person has a first name, a last name,
@@ -68,7 +68,7 @@ That worked! Let's read the record back.
 Looks like we got our data back correctly.
 
 Text and Encodings
-~~~~~~~~~~~~~~~~~~
+------------------
 
 ``binobj`` allows you to specify the character encoding of strings individually.
 Suppose you want to internationalize your app and make it handle names with
@@ -94,7 +94,7 @@ be UTF-8:
 
 
 Variable-Length Fields
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 It can get a bit tedious to remember to pad strings with spaces just so we can
 save the file without errors. Also: what happens if you need to store info for
@@ -122,7 +122,7 @@ string with a null byte to signal the end, like in C.
         person.to_stream(fdesc)
 
 Arrays
-~~~~~~
+------
 
 Let's add a new feature to allow people to have two phone numbers. You can use
 an :class:`~binobj.fields.Array` for this.
@@ -181,7 +181,7 @@ empty phone number to signal the end of the array.
     know how to do that for you (yet).
 
 Nested Structs
-~~~~~~~~~~~~~~
+--------------
 
 Let's kick this up a notch and add support for addresses. You could store an
 address as a single string, which is fine, but what if we want to make it a bit
@@ -239,7 +239,7 @@ inconvenient, you can also pass in an entire dictionary:
 
 
 Arrays of Structs
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Can you make arrays of nested structs? Absolutely! We can take advantage of that
 to support multiple addresses for a single person. We'll indicate the number of
@@ -273,7 +273,7 @@ can pass ``n_addresses`` as the value for ``count``:
 
 
 Creating Custom Fields
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 Suppose we want to give users the ability to record someone's birthday. ``binobj``
 doesn't have a ``Date`` type, so we're going to have to roll our own. There's a
@@ -310,7 +310,7 @@ your strings accordingly.
             stream.write(date_string.encode('ascii'))
 
 Putting It All Together
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 Let's look at the final version of our file:
 
