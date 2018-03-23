@@ -461,13 +461,14 @@ class Array(Field):
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
         super().__init__(**kwargs)
         self.component = component
-        self.count = count
         self.halt_check = halt_check or self.should_halt
 
-        if (count is not None and not isinstance(count, (int, str, Field))) \
-                or isinstance(count, bool):
-            # The isinstance bool check is necessary because `bool` is a subclass
+        if count is None or (isinstance(count, (int, str, Field))
+                             and not isinstance(count, bool)):
+            # The isinstance bool check is needed because `bool` is a subclass
             # of `int`.
+            self.count = count
+        else:
             raise TypeError('`count` must be an integer, string, or a `Field`.')
 
     @staticmethod
