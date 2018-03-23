@@ -35,7 +35,8 @@ Features
         numbers = Array(UInt16(), halt_check=halt_n_numbers)
 
 2. The new ``computes`` decorator gives you the ability to use a function to
-   compute the value of a field when serializing.
+   dynamically compute the value of a field when serializing, instead of passing
+   it in yourself.
 
 3. New field type ``Union`` allows you to emulate C's ``union`` storage class
    using fields, structs, or any combination of the two.

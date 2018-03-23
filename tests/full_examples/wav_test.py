@@ -23,6 +23,16 @@ class WAVFormatChunk(binobj.Struct):
     block_alignment = binobj.UInt16(endian='little')
     bits_per_sample = binobj.UInt16(endian='little')
 
+    @byte_rate.computes
+    def _byte_rate(self, all_fields):
+        return (
+            all_fields['sample_rate'] * all_fields['n_channels']
+            * all_fields['bits_per_sample'] // 8)
+
+    @block_alignment.computes
+    def _block_alignment(self, all_fields):
+        return all_fields['n_channels'] * all_fields['bits_per_sample'] // 8
+
 
 class WAVDataChunk(binobj.Struct):
     chunk_id = binobj.Bytes(const=b'data')
@@ -75,8 +85,7 @@ def test_wav__basic_write(tmpdir):
     file_path = str(tmpdir.join('test.wav'))
 
     format_chunk = WAVFormatChunk(
-        audio_format=1, n_channels=1, sample_rate=24000, byte_rate=48000,
-        block_alignment=2, bits_per_sample=16)
+        audio_format=1, n_channels=1, sample_rate=24000, bits_per_sample=16)
 
     # 24000 samples/s, 2 bytes/sample, 4s of audio = 192000B
     data_chunk = WAVDataChunk(size=192000)
