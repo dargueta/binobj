@@ -244,6 +244,13 @@ def test_string__dump_basic():
     assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf'
 
 
+def test_string__dump_no_size():
+    """Try dumping a string without its size set."""
+    field = fields.String()
+    with pytest.raises(errors.ConfigurationError):
+        field.dumps('asdf')
+
+
 def test_string__dump_too_long_before_encoding():
     """Basic test of dumping a string that's too long into a String."""
     field = fields.String(size=5, encoding='utf-8')
@@ -470,6 +477,28 @@ def test_array__dump_nested():
 
     assert dumped == b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG' \
                      b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN'
+
+
+class BadField(fields.Field):
+    """This field subclass doesn't override its required methods properly."""
+    def _do_load(self, stream, context, loaded_fields):
+        return super()._do_load(stream, context, loaded_fields)
+
+    def _do_dump(self, stream, data, context, all_fields):
+        return super()._do_dump(stream, data, context, all_fields)
+
+
+def test_field_subclass_super_delegation():
+    """Any delegation to super() by a Field subclass' load/dump functions must
+    crash.
+    """
+    field = BadField()
+
+    with pytest.raises(NotImplementedError):
+        field.loads(b' ')
+
+    with pytest.raises(errors.UnserializableValueError):
+        field.dumps(b' ')
 
 
 class UnionItemA(binobj.Struct):
