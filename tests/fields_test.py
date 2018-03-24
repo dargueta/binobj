@@ -232,6 +232,13 @@ def test_bytes__dump_too_long():
         field.dumps(b'!' * 11)
 
 
+def test_bytes__size_is_none():
+    with pytest.raises(errors.ConfigurationError) as errinfo:
+        fields.Bytes().dumps(b'')
+
+    assert 'fixed-length field' in str(errinfo.value)
+
+
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = fields.String(size=13, encoding='utf-8')

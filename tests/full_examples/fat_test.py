@@ -21,7 +21,7 @@ class FAT12BootSector(binobj.Struct):
     num_hidden_sectors = binobj.UInt32(default=0)
     total_logical_sectors_32 = binobj.UInt32()
     drive_number = binobj.UInt8()
-    _reserved = binobj.Bytes(default=b'\0', discard=True)
+    _reserved = binobj.Bytes(default=b'\0', discard=True, size=1)
     _ex_boot_signature = binobj.Bytes(const=b'\x29', discard=True)
     volume_id = binobj.UInt32(default=lambda: random.randrange(2**32))
     volume_label = binobj.String(size=11)

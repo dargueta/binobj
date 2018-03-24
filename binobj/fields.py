@@ -677,7 +677,10 @@ class Bytes(Field):
     def _do_dump(self, stream, data, context, all_fields):
         if not isinstance(data, (bytes, bytearray)):
             raise errors.UnserializableValueError(field=self, value=data)
-        elif self.size is not None and len(data) != self.size:
+        elif self.size is None:
+            raise errors.ConfigurationError(
+                '`size` cannot be `None` on a fixed-length field.', field=self)
+        elif len(data) != self.size:
             raise errors.ValueSizeError(field=self, value=data)
 
         stream.write(data)
