@@ -1,6 +1,18 @@
 Changelog
 =========
 
+0.3.1
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* Fixed bug where ``Bytes`` wasn't checking how many bytes it was writing when
+  dumping.
+
+
 0.3.0
 -----
 

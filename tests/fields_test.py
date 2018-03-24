@@ -216,6 +216,22 @@ def test_descriptor_set():
     assert instance.__values__['numbers'] == [1, 2]
 
 
+def test_bytes__dump_too_short():
+    """Crash if we try dumping a Bytes field without enough bytes."""
+    field = fields.Bytes(size=4)
+
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps(b'')
+
+
+def test_bytes__dump_too_long():
+    """Crash if we try dumping a Bytes field too many bytes."""
+    field = fields.Bytes(size=4)
+
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps(b'!' * 11)
+
+
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = fields.String(size=13, encoding='utf-8')
