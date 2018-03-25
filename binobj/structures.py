@@ -111,7 +111,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         self.__values__ = values
 
-    def to_stream(self, stream, context=None, all_fields=None):
+    def to_stream(self, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -120,7 +120,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
-        # pylint: disable=unused-argument
         my_fields = self.to_dict(fill_missing=False)
 
         for field in self.__components__.values():
@@ -137,10 +136,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :return: The serialized data.
         :rtype: bytes
         """
-        my_fields = dict(self)
-
         stream = io.BytesIO()
-        self.to_stream(stream, context=context, all_fields=my_fields)
+        self.to_stream(stream, context)
         return stream.getvalue()
 
     def to_dict(self, fill_missing=False):
@@ -169,7 +166,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return recursive_to_dicts(dct, fill_missing)
 
     @classmethod
-    def from_stream(cls, stream, context=None, loaded_fields=None):
+    def from_stream(cls, stream, context=None):
         """Load a struct from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -190,7 +187,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return cls(**results)
 
     @classmethod
-    def from_bytes(cls, data, context=None, exact=True, loaded_fields=None):
+    def from_bytes(cls, data, context=None, exact=True):
         """Load a struct from the given byte string.
 
         :param bytes data:
@@ -206,8 +203,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :return: The loaded struct.
         """
         stream = io.BytesIO(data)
-        loaded_data = cls.from_stream(stream, context=context,
-                                      loaded_fields=loaded_fields)
+        loaded_data = cls.from_stream(stream, context)
 
         if exact and (stream.tell() < len(data) - 1):
             raise errors.ExtraneousDataError(

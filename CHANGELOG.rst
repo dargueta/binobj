@@ -19,6 +19,9 @@ Other Changes
 * ``VariableSizedFieldError`` has been **deprecated**, and will be replaced by
   ``UndefinedSizeError``. This is because the exception name and error message
   was misleadingly narrow in scope.
+* Removed undocumented ``loaded_fields`` and ``all_fields`` arguments from the
+  loading and dumping methods in ``Struct``. They were left in by mistake and
+  never used.
 
 
 0.3.0

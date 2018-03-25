@@ -582,11 +582,10 @@ class Nested(Field):
 
     def _do_dump(self, stream, data, context, all_fields):
         instance = self.struct_class(**data)
-        return instance.to_stream(stream, context=context, all_fields=all_fields)
+        return instance.to_stream(stream, context)
 
     def _do_load(self, stream, context, loaded_fields):
-        return self.struct_class.from_stream(stream, context=context,
-                                             loaded_fields=loaded_fields)
+        return self.struct_class.from_stream(stream, context)
 
 
 class Union(Field):
@@ -658,7 +657,7 @@ class Union(Field):
             return dumper.dump(stream, data, context, all_fields)
 
         # Else: Dumper is not a Field instance, assume this is a Struct.
-        return dumper(**data).to_stream(stream, context, all_fields)
+        return dumper(**data).to_stream(stream, context)
 
     def _do_load(self, stream, context, loaded_fields):
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
@@ -666,7 +665,7 @@ class Union(Field):
             return loader.load(stream, context, loaded_fields)
 
         # Else: loader is not a Field instance, assume this is a Struct.
-        return loader.from_stream(stream, context, loaded_fields)
+        return loader.from_stream(stream, context)
 
 
 class Bytes(Field):
