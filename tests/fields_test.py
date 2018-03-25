@@ -26,6 +26,14 @@ def test_loads__field_insufficient_data():
         fields.String(size=17).loads(b'abc')
 
 
+def test_dump_default():
+    """Dump with only default value and no size should still be fine."""
+    field = fields.Bytes(default=b'\0\0')
+
+    with pytest.raises(errors.UndefinedSizeError):
+        field.dumps()
+
+
 def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
@@ -233,10 +241,8 @@ def test_bytes__dump_too_long():
 
 
 def test_bytes__size_is_none():
-    with pytest.raises(errors.ConfigurationError) as errinfo:
+    with pytest.raises(errors.UndefinedSizeError):
         fields.Bytes().dumps(b'')
-
-    assert 'fixed-length field' in str(errinfo.value)
 
 
 def test_string__load_basic():
@@ -254,7 +260,7 @@ def test_string__dump_basic():
 def test_string__dump_no_size():
     """Try dumping a string without its size set."""
     field = fields.String()
-    with pytest.raises(errors.ConfigurationError):
+    with pytest.raises(errors.UndefinedSizeError):
         field.dumps('asdf')
 
 

@@ -13,6 +13,14 @@ Bugfixes
   dumping.
 
 
+Other Changes
+~~~~~~~~~~~~~
+
+* ``VariableSizedFieldError`` has been **deprecated**, and will be replaced by
+  ``UndefinedSizeError``. This is because the exception name and error message
+  was misleadingly narrow in scope.
+
+
 0.3.0
 -----
 

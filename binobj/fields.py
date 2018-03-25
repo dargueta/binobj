@@ -678,8 +678,7 @@ class Bytes(Field):
         if not isinstance(data, (bytes, bytearray)):
             raise errors.UnserializableValueError(field=self, value=data)
         elif self.size is None:
-            raise errors.ConfigurationError(
-                '`size` cannot be `None` on a fixed-length field.', field=self)
+            raise errors.UndefinedSizeError(field=self)
         elif len(data) != self.size:
             raise errors.ValueSizeError(field=self, value=data)
 
@@ -877,8 +876,7 @@ class String(Field):
     def _do_dump(self, stream, data, context, all_fields):
         """Dump a fixed-length string into the stream."""
         if self.size is None:
-            raise errors.ConfigurationError(
-                '`size` cannot be `None` on a fixed-length field.', field=self)
+            raise errors.UndefinedSizeError(field=self)
 
         stream.write(self._encode_and_resize(data))
 

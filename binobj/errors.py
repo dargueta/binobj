@@ -160,6 +160,25 @@ class FieldRedefinedError(ConfigurationError):
             % (struct, field), struct=struct, field=field)
 
 
+class UndefinedSizeError(ConfigurationError):
+    """The size of the field couldn't be determined, possibly due to misconfiguration.
+
+    All new code should throw this exception when needed instead of
+    :class:`VariableSizedFieldError`.
+
+    :param field:
+        The :class:`~binobj.fields.Field` that's missing its size, or the name
+        of that field.
+
+    .. versionadded:: 0.3.1
+    """
+    def __init__(self, *, field):
+        super().__init__(
+            "Size of field %r couldn't be determined. The field might not have "
+            "had its `size` set, or a variable-sized field has a bug."
+            % field, field=field)
+
+
 class UnserializableValueError(SerializationError):
     """The value couldn't be serialized.
 
@@ -230,9 +249,18 @@ class VariableSizedFieldError(DeserializationError):
     """Expected a fixed-length field but the field is of a variable size.
 
     :param ~binobj.fields.Field field:
-        The field that failed to serialize the given value.
+        The field that failed to load.
     :param int offset:
         Optional. The byte offset in the stream where the read failure occurred.
+
+    .. deprecated:: 0.3.1
+
+        The exception name and error message can be misleading, as a null ``size``
+        can be caused either by misconfiguration *or* a field being of variable
+        size.
+
+        All instances of this will be replaced with :class:`UndefinedSizeError`
+        in the future.
     """
     def __init__(self, *, field, offset=None):
         msg = "Can't read fixed number of bytes from variable-length field: " \
