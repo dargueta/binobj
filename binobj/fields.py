@@ -3,8 +3,6 @@
 
 import abc
 import codecs
-import collections
-import collections.abc
 import io
 import sys
 

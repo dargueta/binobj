@@ -6,6 +6,7 @@ class Error(Exception):
 
     Do not throw this exception directly.
     """
+    # pylint: disable=keyword-arg-before-vararg
     def __init__(self, message=None, *args):
         # If there is no error message, use the first line of the docstring.
         if message is None:
