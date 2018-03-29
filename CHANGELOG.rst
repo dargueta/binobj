@@ -11,6 +11,9 @@ Bugfixes
 
 * Fixed bug where ``Bytes`` wasn't checking how many bytes it was writing when
   dumping.
+* Fixed bug where ``Field.size`` was incorrectly computed for fields where
+  ``len(const)`` wasn't equivalent to the field size, e.g. for ``String`` fields
+  using a UTF-16 encoding.
 
 
 Other Changes
