@@ -25,7 +25,7 @@ def test_computes__basic():
 def test_computes__rebind_fails():
     """You can't create two compute functions for a field."""
     with pytest.raises(errors.ConfigurationError):
-        class Class(binobj.Struct):
+        class Class(binobj.Struct):     # pylint: disable=unused-variable
             n_items = fields.UInt16(endian='little')
             items = fields.Array(fields.UInt16(endian='little'), count=n_items)
 

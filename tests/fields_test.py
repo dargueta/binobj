@@ -26,6 +26,73 @@ def test_loads__field_insufficient_data():
         fields.String(size=17).loads(b'abc')
 
 
+def test_dump_default():
+    """Dump with only default value and no size should still be fine."""
+    field = fields.Bytes(default=b'\0\0')
+
+    with pytest.raises(errors.UndefinedSizeError):
+        field.dumps()
+
+
+def test_const_sets_size__bytes():
+    """Ensure passing `const` will set the size of a field if not given.
+
+    In this case we assume the simple case where len(const) == size.
+    """
+    field = fields.Bytes(const=b'abcdef')
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 6, 'Size is incorrect.'
+
+
+def test_default_doesnt_set_size__bytes():
+    """Ensure passing `default` will NOT set the size of a field."""
+    field = fields.Bytes(default=b'asdfghjk')
+    assert field.size is None, "Size was set."
+
+
+def test_const_set_size__string_ascii():
+    """Passing `const` will set the size of a string correctly for single byte
+    encodings.
+    """
+    field = fields.String(const='asdfghjkl')
+
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 9, 'Size is incorrect.'
+
+
+def test_const_set_size__string_utf16():
+    """Passing `const` will set the size of a string correctly for multi-byte
+    encodings.
+    """
+    field = fields.String(const='asdf', encoding='utf-16-le')
+
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 8, 'Size is incorrect.'
+
+
+def test_const_set_size__sized_int_works():
+    """Already-sized integers shouldn't have a problem with the size override
+    code.
+    """
+    field = fields.Int64(const=1234567890)
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 8, 'Size is incorrect.'
+
+
+def test_const_set_size__varint():
+    """Variable integers should NOT set their size when ``const`` is defined."""
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
+                                         const=987654321, signed=False)
+    assert field.size is None, 'Size was set.'
+
+
+def test_const_set_size__stringz():
+    """Variable-length strings MUST set their size with ``const``."""
+    field = fields.StringZ(const='asdf')
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 4, 'Size is incorrect.'
+
+
 def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
@@ -216,6 +283,27 @@ def test_descriptor_set():
     assert instance.__values__['numbers'] == [1, 2]
 
 
+def test_bytes__dump_too_short():
+    """Crash if we try dumping a Bytes field without enough bytes."""
+    field = fields.Bytes(size=4)
+
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps(b'')
+
+
+def test_bytes__dump_too_long():
+    """Crash if we try dumping a Bytes field too many bytes."""
+    field = fields.Bytes(size=4)
+
+    with pytest.raises(errors.ValueSizeError):
+        field.dumps(b'!' * 11)
+
+
+def test_bytes__size_is_none():
+    with pytest.raises(errors.UndefinedSizeError):
+        fields.Bytes().dumps(b'')
+
+
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = fields.String(size=13, encoding='utf-8')
@@ -226,6 +314,13 @@ def test_string__dump_basic():
     """Basic test of dumping a String"""
     field = fields.String(size=13, encoding='utf-8')
     assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf'
+
+
+def test_string__dump_no_size():
+    """Try dumping a string without its size set."""
+    field = fields.String()
+    with pytest.raises(errors.UndefinedSizeError):
+        field.dumps('asdf')
 
 
 def test_string__dump_too_long_before_encoding():
@@ -454,6 +549,29 @@ def test_array__dump_nested():
 
     assert dumped == b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG' \
                      b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN'
+
+
+class BadField(fields.Field):
+    """This field subclass doesn't override its required methods properly."""
+    # pylint: disable=useless-super-delegation
+    def _do_load(self, stream, context, loaded_fields):
+        return super()._do_load(stream, context, loaded_fields)
+
+    def _do_dump(self, stream, data, context, all_fields):
+        return super()._do_dump(stream, data, context, all_fields)
+
+
+def test_field_subclass_super_delegation():
+    """Any delegation to super() by a Field subclass' load/dump functions must
+    crash.
+    """
+    field = BadField()
+
+    with pytest.raises(NotImplementedError):
+        field.loads(b' ')
+
+    with pytest.raises(errors.UnserializableValueError):
+        field.dumps(b' ')
 
 
 class UnionItemA(binobj.Struct):

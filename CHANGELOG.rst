@@ -1,6 +1,32 @@
 Changelog
 =========
 
+0.3.1
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* Fixed bug where ``Bytes`` wasn't checking how many bytes it was writing when
+  dumping.
+* Fixed bug where ``Field.size`` was incorrectly computed for fields where
+  ``len(const)`` wasn't equivalent to the field size, e.g. for ``String`` fields
+  using a UTF-16 encoding.
+
+
+Other Changes
+~~~~~~~~~~~~~
+
+* ``VariableSizedFieldError`` has been **deprecated**, and will be replaced by
+  ``UndefinedSizeError``. This is because the exception name and error message
+  was misleadingly narrow in scope.
+* Removed undocumented ``loaded_fields`` and ``all_fields`` arguments from the
+  loading and dumping methods in ``Struct``. They were left in by mistake and
+  never used.
+
+
 0.3.0
 -----
 

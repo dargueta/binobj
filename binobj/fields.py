@@ -3,8 +3,6 @@
 
 import abc
 import codecs
-import collections
-import collections.abc
 import io
 import sys
 
@@ -88,7 +86,9 @@ class Field:
 
     .. attribute:: size
 
-        The size of this object, in bytes.
+        The size of this object, in bytes. Builtin fields set this automatically
+        if ``const`` is given but you'll need to override :meth:`_size_for_value`
+        in custom fields.
 
         :type: int
     """
@@ -97,6 +97,7 @@ class Field:
         self.const = const
         self.discard = discard
         self.null_value = null_value
+        self._size = size
 
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
@@ -105,17 +106,23 @@ class Field:
         else:
             self._default = default
 
-        if size is None and isinstance(const, collections.abc.Sized):
-            self.size = len(const)
-        else:
-            self.size = size
-
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
         self.name = name        # type: str
         self.index = None       # type: int
         self.offset = None      # type: int
         self._compute_fn = None     # type: callable
+
+    @property
+    def size(self):
+        """The size of this field, in bytes.
+
+        :type: int
+        """
+        # Part of the _size_for_value() hack.
+        if self._size is None and self.const is not UNDEFINED:
+            self._size = self._size_for_value(self.const)
+        return self._size
 
     def bind_to_container(self, name, index, offset=None):
         """Bind this field to a container class.
@@ -222,6 +229,24 @@ class Field:
         :type: bool
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
+
+    def _size_for_value(self, value):   # pylint: disable=no-self-use,unused-argument
+        """Return the size of the serialized value in bytes, or ``None`` if it
+        can't be computed.
+
+        This is an ugly hack for computing ``size`` properly when only ``const``
+        is given. It's *HIGHLY DISCOURAGED* to implement this function in your
+        own field subclasses.
+
+        :param value:
+            The value to serialize.
+
+        :return:
+            The size of ``value`` when serialized, in bytes. If the size cannot
+            be computed, return ``None``.
+        :rtype: int
+        """
+        return None
 
     def load(self, stream, context=None, loaded_fields=None):
         """Load data from the given stream.
@@ -582,11 +607,10 @@ class Nested(Field):
 
     def _do_dump(self, stream, data, context, all_fields):
         instance = self.struct_class(**data)
-        return instance.to_stream(stream, context=context, all_fields=all_fields)
+        return instance.to_stream(stream, context)
 
     def _do_load(self, stream, context, loaded_fields):
-        return self.struct_class.from_stream(stream, context=context,
-                                             loaded_fields=loaded_fields)
+        return self.struct_class.from_stream(stream, context)
 
 
 class Union(Field):
@@ -658,7 +682,7 @@ class Union(Field):
             return dumper.dump(stream, data, context, all_fields)
 
         # Else: Dumper is not a Field instance, assume this is a Struct.
-        return dumper(**data).to_stream(stream, context, all_fields)
+        return dumper(**data).to_stream(stream, context)
 
     def _do_load(self, stream, context, loaded_fields):
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
@@ -666,7 +690,7 @@ class Union(Field):
             return loader.load(stream, context, loaded_fields)
 
         # Else: loader is not a Field instance, assume this is a Struct.
-        return loader.from_stream(stream, context, loaded_fields)
+        return loader.from_stream(stream, context)
 
 
 class Bytes(Field):
@@ -677,8 +701,15 @@ class Bytes(Field):
     def _do_dump(self, stream, data, context, all_fields):
         if not isinstance(data, (bytes, bytearray)):
             raise errors.UnserializableValueError(field=self, value=data)
+        elif self.size is None:
+            raise errors.UndefinedSizeError(field=self)
+        elif len(data) != self.size:
+            raise errors.ValueSizeError(field=self, value=data)
 
         stream.write(data)
+
+    def _size_for_value(self, value):
+        return len(value)
 
 
 class Integer(Field):
@@ -872,8 +903,7 @@ class String(Field):
     def _do_dump(self, stream, data, context, all_fields):
         """Dump a fixed-length string into the stream."""
         if self.size is None:
-            raise errors.ConfigurationError(
-                '`size` cannot be `None` on a fixed-length field.', field=self)
+            raise errors.UndefinedSizeError(field=self)
 
         stream.write(self._encode_and_resize(data))
 
@@ -904,6 +934,9 @@ class String(Field):
             to_dump += self.pad_byte * -size_diff
 
         return to_dump
+
+    def _size_for_value(self, value):
+        return len(value.encode(self.encoding))
 
 
 class StringZ(String):
