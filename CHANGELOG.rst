@@ -4,7 +4,7 @@ Changelog
 0.3.1
 -----
 
-Released: 2018-XX-XX
+Released: 2018-03-28
 
 Bugfixes
 ~~~~~~~~
