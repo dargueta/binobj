@@ -34,6 +34,65 @@ def test_dump_default():
         field.dumps()
 
 
+def test_const_sets_size__bytes():
+    """Ensure passing `const` will set the size of a field if not given.
+
+    In this case we assume the simple case where len(const) == size.
+    """
+    field = fields.Bytes(const=b'abcdef')
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 6, 'Size is incorrect.'
+
+
+def test_default_doesnt_set_size__bytes():
+    """Ensure passing `default` will NOT set the size of a field."""
+    field = fields.Bytes(default=b'asdfghjk')
+    assert field.size is None, "Size was set."
+
+
+def test_const_set_size__string_ascii():
+    """Passing `const` will set the size of a string correctly for single byte
+    encodings.
+    """
+    field = fields.String(const='asdfghjkl')
+
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 9, 'Size is incorrect.'
+
+
+def test_const_set_size__string_utf16():
+    """Passing `const` will set the size of a string correctly for multi-byte
+    encodings.
+    """
+    field = fields.String(const='asdf', encoding='utf-16-le')
+
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 8, 'Size is incorrect.'
+
+
+def test_const_set_size__sized_int_works():
+    """Already-sized integers shouldn't have a problem with the size override
+    code.
+    """
+    field = fields.Int64(const=1234567890)
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 8, 'Size is incorrect.'
+
+
+def test_const_set_size__varint():
+    """Variable integers should NOT set their size when ``const`` is defined."""
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
+                                         const=987654321, signed=False)
+    assert field.size is None, 'Size was set.'
+
+
+def test_const_set_size__stringz():
+    """Variable-length strings MUST set their size with ``const``."""
+    field = fields.StringZ(const='asdf')
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 4, 'Size is incorrect.'
+
+
 def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
