@@ -22,7 +22,7 @@ class StructMeta(abc.ABCMeta):
     """
     @classmethod
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
-        return collections.OrderedDict(__computed_fields__={})
+        return collections.OrderedDict()
 
     def __new__(mcs, class_name, bases, namespace, **kwargs):
         # Build a list of all of the base classes that appear to be Structs. If
@@ -102,7 +102,6 @@ def recursive_to_dicts(item, fill_missing=False):
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """An ordered collection of fields and other structures."""
     __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
-    __computed_fields__ = types.MappingProxyType({})    # type: dict
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())

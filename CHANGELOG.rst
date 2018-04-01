@@ -6,6 +6,12 @@ Changelog
 
 Released: 2018-XX-XX
 
+Bugfixes
+~~~~~~~~
+
+Removed unused ``__computed_fields__`` property from ``Struct`` classes. It was
+accidentally left in.
+
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
