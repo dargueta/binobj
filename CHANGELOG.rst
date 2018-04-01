@@ -1,6 +1,22 @@
 Changelog
 =========
 
+0.4.0
+-----
+
+Released: 2018-XX-XX
+
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+Dropped support for EOL Python 3.3.
+
+Other Changes
+~~~~~~~~~~~~~
+
+Start testing on Python 3.7.
+
 0.3.1
 -----
 

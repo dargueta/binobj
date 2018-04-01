@@ -7,7 +7,7 @@ binobj
    :alt: Build status
    :target: https://travis-ci.org/dargueta/binobj
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.3,%203.4,%203.5,%203.6-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.4,%203.5,%203.6,%203.7-blue.svg
    :alt: Python versions
 
 A cross-platform Python 3 library for reading and writing structured binary data
@@ -60,7 +60,7 @@ System Requirements
 
 - This package will *not* work on a mixed-endian system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on Python 3.3, 3.4, 3.5, 3.6, and PyPy3.5.
+- This has been tested on Python 3.4-3.7, and PyPy3.5.
 
 Sorry, I have no intention of supporting Python 2. Feel free to fork this and do
 a backport if you like! I'd be interested to see it and might even contribute.

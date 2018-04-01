@@ -1,9 +1,9 @@
 language: python
 python:
-  - '3.3'
   - '3.4'
   - '3.5'
   - '3.6'
+  - '3.7-dev'
   - 'pypy3'
 install:
   - pip3 install -U -r dev_requirements.txt tox-travis
