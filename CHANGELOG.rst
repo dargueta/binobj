@@ -16,7 +16,10 @@ accidentally left in.
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
-Dropped support for EOL Python 3.3.
+* Dropped support for Python 3.3, which has been deprecated. Please upgrade to a
+  newer version of Python.
+* ``VariableSizedFieldError`` was deprecated in 0.3.1. It has been removed and
+  completely replaced by ``UndefinedSizeError``.
 
 Other Changes
 ~~~~~~~~~~~~~
