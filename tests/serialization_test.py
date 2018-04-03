@@ -59,7 +59,7 @@ def test_loads__extraneous_data_crashes():
 def test_loads__no_size_crashes():
     field = binobj.String()
 
-    with pytest.raises(errors.VariableSizedFieldError):
+    with pytest.raises(errors.UndefinedSizeError):
         field.loads(b'123')
 
 
@@ -146,7 +146,7 @@ def test_len__variable__missing_varlen():
     assigned value to a variable-length field."""
     instance = StringZTestStruct()
 
-    with pytest.raises(errors.VariableSizedFieldError) as errinfo:
+    with pytest.raises(errors.UndefinedSizeError) as errinfo:
         len(instance)
 
     assert errinfo.value.field is StringZTestStruct.string

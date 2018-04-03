@@ -429,7 +429,7 @@ class Field:
         :return: Exactly ``self.size`` bytes are read from the stream.
         :rtype: bytes
 
-        :raise VariableSizedFieldError:
+        :raise UndefinedSizeError:
             The field cannot be read directly because it's of variable size.
         :raise UnexpectedEOFError: Not enough bytes were left in the stream.
         """
@@ -437,7 +437,7 @@ class Field:
         n_bytes = self.size
 
         if n_bytes is None:
-            raise errors.VariableSizedFieldError(field=self, offset=offset)
+            raise errors.UndefinedSizeError(field=self)
 
         data_read = stream.read(n_bytes)
         if len(data_read) < n_bytes:

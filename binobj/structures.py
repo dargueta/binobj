@@ -413,7 +413,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             else:
                 field_value = self.__values__.get(name, field.default)
                 if field_value is fields.UNDEFINED:
-                    raise errors.VariableSizedFieldError(field=field)
+                    raise errors.UndefinedSizeError(field=field)
                 size += len(field.dumps(field_value))
 
         return size
