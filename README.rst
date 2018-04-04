@@ -25,35 +25,44 @@ Take a look at this example taken from the README of ``construct`` library:
 
 .. code-block:: python
 
-    format = Struct(
-        "signature" / Const(b"BMP"),
-        "width" / Int8ub,
-        "height" / Int8ub,
-        "pixels" / Array(this.width * this.height, Byte),
-    )
-
-    format.build(dict(width=3,height=2,pixels=[7,8,9,11,12,13]))
+    data = (b'BM', 1024, 0, 12, 40, 32, 32, 1, 1, 0, 0, 72, 72, 2, 2)
+    header_bytes = struct.pack('<2sIIIIiiHHIIiiII', *data)
+    loaded = struct.unpack('<2sIIIIiiHHIIiiII', header_bytes)
+    n_pixels = loaded[5] * loaded[6]
 
 
 The same example rewritten using ``binobj``:
 
 .. code-block:: python
 
-    class BMPFile(Struct):
-        signature = Bytes(const=b'BMP')
-        width = UInt8()
-        height = UInt8()
-        pixels = Array(UInt8(), count=width * height)
+    class BMP(binobj.Struct):
+        magic = binobj.Bytes(const=b'BM')
+        file_size = binobj.UInt32()
+        _reserved = binobj.Bytes(size=4, discard=True, default=b'\0\0\0\0')
+        pixels_offset = binobj.UInt32()
 
-    bmp_file = BMPFile(width=3, height=2, pixels=[7,8,9,11,12,13])
-    bytes(bmp_file)
+        # Legacy DIB header
+        header_size = binobj.UInt32(const=40)
+        image_width = binobj.Int32()
+        image_height = binobj.Int32()
+        n_color_planes = binobj.UInt16()
+        n_bits_per_pixel = binobj.UInt16()
+        compression_method = binobj.UInt32(default=0)
+        bitmap_size = binobj.UInt32()
+        v_resolution = binobj.Int32()
+        h_resolution = binobj.Int32()
+        n_palette_colors = binobj.UInt32()
+        n_important_colors = binobj.UInt32()
+
+    bmp = BMP(file_size=1024, pixels_offset=12, image_width=32, image_height=32, ...)
+    header_bytes = bytes(bmp)
+    loaded = BMP.from_bytes(header_bytes)
+    n_pixels = loaded.image_width * loaded.image_height
 
 
 ``binobj`` also has other advantages in that it supports strings in any encoding
 Python supports, toggling endianness on a per-field basis (necessary for ISO 9660
 images), a variety of integer encodings, computed fields, validation, and more.
-
-Note: Size expressions are currently not implemented but they're in the works.
 
 System Requirements
 -------------------
@@ -68,7 +77,7 @@ a backport if you like! I'd be interested to see it and might even contribute.
 Installation
 ------------
 
-Once I get this up on PyPI, you can install it with ``pip`` like so:
+You can install this with ``pip`` like so:
 
 .. code-block:: sh
 
