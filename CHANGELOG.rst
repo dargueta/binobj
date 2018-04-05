@@ -24,7 +24,11 @@ Breaking Changes
 Other Changes
 ~~~~~~~~~~~~~
 
-Start testing on Python 3.7.
+* Start testing on Python 3.7.
+* Fixes to README.
+* Assigning directly to the ``__values__`` dict in a ``Struct`` is **deprecated**,
+  as it circumvents validators. ``__values__`` will be removed in a future
+  release.
 
 0.3.1
 -----
