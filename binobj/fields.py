@@ -3,6 +3,7 @@
 
 import abc
 import codecs
+import collections.abc
 import io
 import sys
 
@@ -69,6 +70,12 @@ class Field:
     :param bytes null_value:
         A value to use to dump ``None``. When loading, the returned value will
         be ``None`` if this value is encountered.
+    :param validate:
+        A callable or list of callables that validates a given value for this
+        field. The callable(s) will always be passed the deserialized value, so
+        a validator for an :class:`Integer` field will always be passed an
+        :class:`int`, a :class:`String` validator will always be passed a
+        :class:`str`, and so on.
 
     .. attribute:: index
 
@@ -93,11 +100,16 @@ class Field:
         :type: int
     """
     def __init__(self, *, name=None, const=UNDEFINED, default=UNDEFINED,
-                 discard=False, null_value=UNDEFINED, size=None):
+                 discard=False, null_value=UNDEFINED, size=None, validate=()):
         self.const = const
         self.discard = discard
         self.null_value = null_value
         self._size = size
+
+        if isinstance(validate, collections.abc.Iterable):
+            self.validators = list(validate)
+        else:
+            self.validators = [validate]
 
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
@@ -277,6 +289,10 @@ class Field:
         # TODO (dargueta): Change this to a validator instead.
         if self.const is not UNDEFINED and loaded_value != self.const:
             raise errors.ValidationError(field=self, value=loaded_value)
+
+        for validator in self.validators:
+            validator(self, loaded_value)
+
         return loaded_value
 
     def loads(self, data, context=None, exact=True, loaded_fields=None):
@@ -352,6 +368,9 @@ class Field:
                 raise errors.MissingRequiredValueError(field=self)
         elif data is None:
             data = self._get_null_value()
+
+        for validator in self.validators:
+            validator(self, data)
 
         self._do_dump(stream, data, context=context, all_fields=all_fields)
 
@@ -452,7 +471,8 @@ class Field:
         return instance.__values__.setdefault(self.name, self.default)
 
     def __set__(self, instance, value):
-        # TODO (dargueta): Call validators here
+        for validator in self.validators:
+            validator(self, value)
         instance.__values__[self.name] = value
 
     def __str__(self):

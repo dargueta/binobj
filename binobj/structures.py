@@ -8,6 +8,7 @@ import types
 
 from binobj import errors
 from binobj import fields
+from binobj import validation
 
 
 __all__ = ['Struct']
@@ -72,7 +73,19 @@ class StructMeta(abc.ABCMeta):
             components[item_name] = item
             field_index += 1
 
+        # Build a mapping of field names to a list of the validators to be
+        # invoked on them. We can't do this as part of the namespace loop above
+        # because we want to allow subclasses to attach additional validators
+        # to fields defined by their base classes.
+        validators = collections.defaultdict(list)
+
+        for item in namespace.values():
+            if isinstance(item, validation.ValidatorMethodWrapper):
+                for f_name in item.field_names:
+                    validators[f_name].append(item)
+
         namespace['__components__'] = components
+        namespace['__validators__'] = validators
         return super().__new__(mcs, class_name, bases, namespace, **kwargs)
 
 
@@ -102,6 +115,7 @@ def recursive_to_dicts(item, fill_missing=False):
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """An ordered collection of fields and other structures."""
     __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
+    __validators__ = types.MappingProxyType({})  # type: dict
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())

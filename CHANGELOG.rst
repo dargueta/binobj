@@ -12,6 +12,11 @@ Bugfixes
 Removed unused ``__computed_fields__`` property from ``Struct`` classes. It was
 accidentally left in.
 
+Features
+~~~~~~~~
+
+Added support for adding validators on fields, both as methods in their ``Struct``
+and passed in to the constructor.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
