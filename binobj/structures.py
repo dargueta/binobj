@@ -77,15 +77,25 @@ class StructMeta(abc.ABCMeta):
         # invoked on them. We can't do this as part of the namespace loop above
         # because we want to allow subclasses to attach additional validators
         # to fields defined by their base classes.
-        validators = collections.defaultdict(list)
+        field_validators = collections.defaultdict(list)
+        struct_validators = []
 
         for item in namespace.values():
-            if isinstance(item, validation.ValidatorMethodWrapper):
-                for f_name in item.field_names:
-                    validators[f_name].append(item)
+            if not isinstance(item, validation.ValidatorMethodWrapper):
+                continue
+
+            if item.field_names:
+                # Attach this validator to each named field.
+                for field_name in item.field_names:
+                    field_validators[field_name].append(item)
+            else:
+                # Validator doesn't define any fields, must be a validator for
+                # the entire struct.
+                struct_validators.append(item)
 
         namespace['__components__'] = components
-        namespace['__validators__'] = validators
+        namespace['__field_validators__'] = field_validators
+        namespace['__struct_validators__'] = struct_validators
         return super().__new__(mcs, class_name, bases, namespace, **kwargs)
 
 
@@ -114,8 +124,20 @@ def recursive_to_dicts(item, fill_missing=False):
 
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """An ordered collection of fields and other structures."""
+    #: An ordered mapping of the field names to their :class:`Field` object
+    #: definitions.
     __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
-    __validators__ = types.MappingProxyType({})  # type: dict
+
+    #: A mapping of field names to a list of the functions that validate their
+    #: values.
+    #:
+    #: ..versionadded:: 0.4.0
+    __field_validators__ = types.MappingProxyType({})   # type: dict
+
+    #: A list of validator functions that validate the entire struct.
+    #:
+    #: .. versionadded:: 0.4.0
+    __struct_validators__ = ()      # type: list
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
@@ -123,6 +145,29 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
         self.__values__ = values
+
+    def validate_contents(self, partial=False):
+        """Validate the stored values in this struct.
+
+        :param bool partial:
+            If ``True``, this struct is incomplete and only validators for the
+            already-assigned fields will be called.
+
+        :raise binobj.errors.ValidationError: Validation failed.
+
+        .. versionadded:: 0.4.0
+        """
+        for f_name, validators in self.__field_validators__.items():
+            if partial and f_name not in self.__values__:
+                continue
+
+            f_obj = self.__components__[f_name]
+
+            for validator in validators:
+                validator(self, f_obj, self.__values__[f_name])
+
+        for validator in self.__struct_validators__:
+            validator(self, partial)
 
     def to_stream(self, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -133,6 +178,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
         """
+        self.validate_contents()
         my_fields = self.to_dict(fill_missing=False)
 
         for field in self.__components__.values():
@@ -190,14 +236,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         :return: The loaded struct.
         """
-        # pylint: disable=unused-argument
         results = {}
 
         for name, field in cls.__components__.items():
             results[name] = field.load(stream, context=context,
                                        loaded_fields=results)
 
-        return cls(**results)
+        instance = cls(**results)
+        instance.validate_contents()
+        return instance
 
     @classmethod
     def from_bytes(cls, data, context=None, exact=True):
@@ -236,6 +283,11 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         be loaded from ``stream``. Any partially loaded fields will be discarded
         and the stream pointer will be reset to the end of the last complete
         field read.
+
+        .. note::
+
+            Because the struct is only partially loaded, struct validators are
+            *not* executed. Field validators still are.
 
         :param io.BufferedIOBase stream:
             The stream to load from.
@@ -277,7 +329,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             if field.name == last_field:
                 break
 
-        return cls(**result)
+        instance = cls(**result)
+        instance.validate_contents(True)
+        return instance
 
     @classmethod
     def get_field(cls, stream, name, context=None):
