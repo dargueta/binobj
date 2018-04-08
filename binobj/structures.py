@@ -77,7 +77,12 @@ class StructMeta(abc.ABCMeta):
         # invoked on them. We can't do this as part of the namespace loop above
         # because we want to allow subclasses to attach additional validators
         # to fields defined by their base classes.
-        field_validators = collections.defaultdict(list)
+
+        field_validators = {
+            f_name: list(field.validators)
+            for f_name, field in components.items()
+        }
+
         struct_validators = []
 
         for item in namespace.values():
@@ -123,21 +128,40 @@ def recursive_to_dicts(item, fill_missing=False):
 
 
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
-    """An ordered collection of fields and other structures."""
-    #: An ordered mapping of the field names to their :class:`Field` object
-    #: definitions.
-    __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
+    """An ordered collection of fields and other structures.
 
-    #: A mapping of field names to a list of the functions that validate their
-    #: values.
-    #:
-    #: ..versionadded:: 0.4.0
+
+    .. attribute:: __components__
+
+        An ordered mapping of the field names to their :class:`~binobj.fields.Field`
+        object definitions.
+
+        :type: collections.OrderedDict
+
+    .. attribute:: __field_validators__
+
+        A mapping of field names to a list of validator functions for that field.
+        Functions passed to the :class:`binobj.fields.Field` constructor are at
+        the beginning of the list; validator methods defined in the struct follow
+        in the order they were declared.
+
+        :type: dict[str, list]
+
+        .. versionadded:: 0.4.0
+
+        .. seealso:: :func:`binobj.decorators.validates`
+
+    .. attribute:: __struct_validators__
+
+        A list of instance methods that validate the entire struct.
+
+        .. versionadded:: 0.4.0
+
+        :type: list
+    """
+    __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
     __field_validators__ = types.MappingProxyType({})   # type: dict
-
-    #: A list of validator functions that validate the entire struct.
-    #:
-    #: .. versionadded:: 0.4.0
-    __struct_validators__ = ()      # type: list
+    __struct_validators__ = ()
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
