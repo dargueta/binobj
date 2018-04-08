@@ -16,12 +16,12 @@ in an object-oriented (ish) style.
 Why use ``binobj``?
 -------------------
 
-You may have seen other libraries like `Construct <https://github.com/construct/construct>`_
-that accomplish the same job. ``binobj`` is different in that it's heavily inspired
-by `Marshmallow <http://marshmallow.readthedocs.io/en/latest/>`_ and takes a
-more class-based approach to declaring binary structures.
+You may have used Python's built-in ``struct`` library to load and dump binary
+data. It's unwieldy for larger or more complex data structures, and the format
+strings are easy to get wrong. ``binobj`` is different in that it takes a class-based
+approach to declaring binary structures.
 
-Take a look at this example taken from the README of ``construct`` library:
+Take a look at this example using ``struct``:
 
 .. code-block:: python
 
