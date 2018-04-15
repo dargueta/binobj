@@ -19,7 +19,7 @@ def validates(*field_names):
         raise TypeError('At least one field name must be given.')
     elif not all(isinstance(n, str) for n in field_names):
         raise TypeError('All field names given to this decorator must be strings.'
-                        'Do not pass field objects.')
+                        'Do not pass Field objects.')
 
     def decorator(func):
         return validation.ValidatorMethodWrapper(func, field_names)

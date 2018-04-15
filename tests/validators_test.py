@@ -74,3 +74,32 @@ def test_validator_method__load_crashes():
 
     with pytest.raises(errors.ValidationError):
         Class.from_bytes(b'!\0')
+
+
+def test_validator__both_invoked():
+    """If a field has validators on it, both it and a method validator must be
+    invoked."""
+    class Class(binobj.Struct):
+        text = fields.StringZ(validate=alnum_validator)
+
+        @decorators.validates('text')
+        def validate_text(self, field, value):
+            if len(value) % 2 != 0:
+                raise errors.ValidationError(
+                    'Invalid length.', field=field, value=value)
+
+    # Must crash -- length is even, but string's not alphanumeric
+    with pytest.raises(errors.ValidationError) as errinfo:
+        Class(text='??').to_bytes()
+
+    assert 'alphanumeric' in str(errinfo.value)
+
+    # Must crash -- string's alphanumeric but the length is odd
+    with pytest.raises(errors.ValidationError) as errinfo:
+        Class(text='asd').to_bytes()
+
+    assert 'length' in str(errinfo.value)
+
+    # Must crash -- length is odd and string's not alphanumeric.
+    with pytest.raises(errors.ValidationError):
+        Class(text='crash?').to_bytes()

@@ -212,7 +212,7 @@ class UnexpectedValueError(SerializationError):
 
     :param ~binobj.structures.Struct struct:
         The struct performing the serialization.
-    :param str name:
+    :param name:
         Either a string or an iterable of strings, each being the name of a
         field that was unexpected. Don't pass :class:`~binobj.fields.Field`
         instances.

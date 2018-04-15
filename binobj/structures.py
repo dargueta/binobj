@@ -79,7 +79,7 @@ class StructMeta(abc.ABCMeta):
         # to fields defined by their base classes.
 
         field_validators = {
-            f_name: list(field.validators)
+            f_name: []
             for f_name, field in components.items()
         }
 
@@ -140,10 +140,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     .. attribute:: __field_validators__
 
-        A mapping of field names to a list of validator functions for that field.
-        Functions passed to the :class:`binobj.fields.Field` constructor are at
-        the beginning of the list; validator methods defined in the struct follow
-        in the order they were declared.
+        A mapping of field names to a list of validator methods defined in the
+        struct for that field. Validators passed to the :class:`binobj.fields.Field`
+        constructor are *not* in this list.
 
         :type: dict[str, list]
 
@@ -161,7 +160,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """
     __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
     __field_validators__ = types.MappingProxyType({})   # type: dict
-    __struct_validators__ = ()
+    __struct_validators__ = ()                          # type: list
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
@@ -182,6 +181,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         .. versionadded:: 0.4.0
         """
         for f_name, validators in self.__field_validators__.items():
+            # If this is only a partial validation ignore fields that haven't
+            # been assigned yet.
             if partial and f_name not in self.__values__:
                 continue
 
