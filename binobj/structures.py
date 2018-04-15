@@ -5,6 +5,7 @@ import collections
 import collections.abc
 import io
 import types
+import warnings
 
 from binobj import errors
 from binobj import fields
@@ -176,21 +177,30 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             If ``True``, this struct is incomplete and only validators for the
             already-assigned fields will be called.
 
-        :raise binobj.errors.ValidationError: Validation failed.
+        :raise ~binobj.errors.ValidationError: Validation failed.
 
         .. versionadded:: 0.4.0
         """
         for f_name, validators in self.__field_validators__.items():
-            # If this is only a partial validation ignore fields that haven't
-            # been assigned yet.
-            if partial and f_name not in self.__values__:
-                continue
-
             f_obj = self.__components__[f_name]
 
-            for validator in validators:
-                validator(self, f_obj, self.__values__[f_name])
+            try:
+                value = f_obj.compute_value_for_dump(self)
+            except errors.MissingRequiredValueError:
+                if partial:
+                    continue
+                raise
 
+            # First, invoke the validators defined on the field object.
+            for validator in f_obj.validators:
+                validator(value)
+
+            # Second, invoke the validator methods for the field defined on this
+            # Struct.
+            for validator in validators:
+                validator(self, f_obj, value)
+
+        # Validate the entirety of the struct.
         for validator in self.__struct_validators__:
             validator(self, partial)
 
@@ -227,25 +237,46 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     def to_dict(self, fill_missing=False):
         """Convert this struct into a dictionary.
 
+        The primary use for this method is converting a loaded :class:`Struct`
+        into native Python types. As such, validation is *not* performed since
+        that was done while loading.
+
         :param bool fill_missing:
-            If ``True``, any unassigned values in this struct will be set to
-            their defaults or :data:`~binobj.fields.UNDEFINED` if they have no
-            defined default.
+            Controls what to do about required values that haven't been set on
+            the struct yet.
+
+            If ``False`` (the default), unassigned values in this struct are
+            omitted from the returned dictionary. If ``True``, they're included
+            but set to :data:`~binobj.fields.UNDEFINED`.
 
         :rtype: collections.OrderedDict
 
+        .. deprecated:: 0.4.0
+
+            Support for ignoring missing required values will be removed in a
+            future version, as this method is mostly supposed to be used after
+            loading. Calling ``to_dict()`` with an unassigned required value
+            will trigger a :class:`~binobj.errors.MissingRequiredValueError`
+            exception.
+
         .. versionchanged:: 0.3.0
 
-            The function now recursively calls :meth:`to_dict` on all nested
-            structs and arrays so that the returned dictionary is completely
-            converted, not just the first level.
+            This now recursively calls :meth:`to_dict` on all nested structs and
+            arrays so that the returned dictionary is completely converted, not
+            just the first level.
         """
+        if fill_missing:
+            warnings.warn(
+                'Support for ignoring missing values will be removed from '
+                'to_dict() in a future release.', DeprecationWarning)
+
         dct = collections.OrderedDict()
         for field in self.__components__.values():
-            if field.name in self.__values__:
-                dct[field.name] = self.__values__[field.name]
-            elif fill_missing:
-                dct[field.name] = field.default
+            try:
+                dct[field.name] = field.compute_value_for_dump(self)
+            except errors.MissingRequiredValueError:
+                if fill_missing:
+                    dct[field.name] = fields.UNDEFINED
 
         return recursive_to_dicts(dct, fill_missing)
 
