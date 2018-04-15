@@ -4,6 +4,7 @@
 import abc
 import codecs
 import collections.abc
+import functools
 import io
 import sys
 
@@ -106,10 +107,10 @@ class Field:
         self.null_value = null_value
         self._size = size
 
-        if isinstance(validate, collections.abc.Iterable):
-            self.validators = list(validate)
+        if isinstance(validate, collections.Iterable):
+            self.validators = [functools.partial(v, self) for v in validate]
         else:
-            self.validators = [validate]
+            self.validators = [functools.partial(validate, self)]
 
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
@@ -291,7 +292,7 @@ class Field:
             raise errors.ValidationError(field=self, value=loaded_value)
 
         for validator in self.validators:
-            validator(self, loaded_value)
+            validator(loaded_value)
 
         return loaded_value
 
@@ -370,7 +371,7 @@ class Field:
             data = self._get_null_value()
 
         for validator in self.validators:
-            validator(self, data)
+            validator(data)
 
         self._do_dump(stream, data, context=context, all_fields=all_fields)
 
@@ -472,7 +473,7 @@ class Field:
 
     def __set__(self, instance, value):
         for validator in self.validators:
-            validator(self, value)
+            validator(value)
         instance.__values__[self.name] = value
 
     def __str__(self):
