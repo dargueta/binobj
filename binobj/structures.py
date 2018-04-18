@@ -45,13 +45,28 @@ class StructMeta(abc.ABCMeta):
                 if isinstance(item, fields.Field):
                     components[comp_name] = item
 
+            # Copy the dict of field validators for the parent struct, making a
+            # separate copy of the validator list for this class. This is so
+            # that child classes can add validators for fields defined in the
+            # parent class without affecting the parent class.
+            field_validators = {
+                f_name: list(v_list)
+                for f_name, v_list in base.__field_validators__.items()
+            }
+
+            # Similarly, make a copy of the struct validators of the parent class.
+            struct_validators = list(base.__struct_validators__)
+
             # Start the byte offset at the end of the base class. We won't be able
             # to do this if the base class has variable-length fields.
             offset = base.get_size()
         else:
             # Else: This struct doesn't inherit from another struct, so we're
-            # starting at offset 0.
+            # starting at offset 0. There are no field or struct validators to
+            # copy.
             offset = 0
+            field_validators = {}
+            struct_validators = []
 
         field_index = len(components)
 
@@ -72,19 +87,11 @@ class StructMeta(abc.ABCMeta):
                 offset = None
 
             components[item_name] = item
+            field_validators[item_name] = []
+
             field_index += 1
 
-        # Build a mapping of field names to a list of the validators to be
-        # invoked on them. We can't do this as part of the namespace loop above
-        # because we want to allow subclasses to attach additional validators
-        # to fields defined by their base classes.
-
-        field_validators = {
-            f_name: []
-            for f_name, field in components.items()
-        }
-
-        struct_validators = []
+        # Iterate through all fields on the child class
 
         for item in namespace.values():
             if not isinstance(item, validation.ValidatorMethodWrapper):
@@ -137,7 +144,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         An ordered mapping of the field names to their :class:`~binobj.fields.Field`
         object definitions.
 
-        :type: collections.OrderedDict
+        :type: :class:`collections.OrderedDict`
 
     .. attribute:: __field_validators__
 
@@ -156,6 +163,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         A list of instance methods that validate the entire struct.
 
         .. versionadded:: 0.4.0
+
+        .. seealso:: :func:`binobj.decorators.validates_struct`
 
         :type: list
     """

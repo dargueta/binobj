@@ -103,3 +103,73 @@ def test_validator__both_invoked():
     # Must crash -- length is odd and string's not alphanumeric.
     with pytest.raises(errors.ValidationError):
         Class(text='crash?').to_bytes()
+
+
+def test_struct_validator__basic():
+    class Class(binobj.Struct):
+        string = fields.StringZ()
+        integer = fields.Int8()
+
+        @decorators.validates_struct
+        def validator(self):
+            if self['string'] != str(self['integer']):
+                raise errors.ValidationError(
+                    'Strings not equal', field='integer', value=self['integer'])
+
+    with pytest.raises(errors.ValidationError):
+        Class(string='123', integer=456).to_bytes()
+
+
+def test_struct_validator__inheriting():
+    """Ensure that validation methods are inherited."""
+    class Class(binobj.Struct):
+        string = fields.StringZ()
+        integer = fields.Int8()
+
+        @decorators.validates_struct
+        def validator(self):
+            if self['string'] != str(self['integer']):
+                raise errors.ValidationError(
+                    'Strings not equal', field='integer', value=self['integer'])
+
+    class Subclass(Class):
+        const = fields.Bytes(const=b'asdf')
+
+    with pytest.raises(errors.ValidationError):
+        Subclass(string='123', integer=456).to_bytes()
+
+
+def test_struct_validator__child_field_doesnt_affect_parent():
+    """A child should be able to add validators to fields defined in the parent
+    without affecting the parent."""
+    class Class(binobj.Struct):
+        string = fields.StringZ()
+        integer = fields.Int8()
+
+        @decorators.validates('integer')
+        def validator(self, field, value):
+            if value > 126:
+                raise errors.ValidationError('high', field=field, value=value)
+
+    class Subclass(Class):
+        const = fields.Bytes(const=b'asdf')
+
+        @decorators.validates('string')
+        def validator_2(self, field, value):
+            if len(value) % 2 != 0:
+                raise errors.ValidationError('modulo', field=field, value=value)
+
+
+    with pytest.raises(errors.ValidationError) as errinfo:
+        Subclass(string='123', integer=123).to_bytes()
+    assert 'modulo' in str(errinfo.value)
+
+    with pytest.raises(errors.ValidationError) as errinfo:
+        Subclass(string='1234', integer=4567).to_bytes()
+    assert 'high' in str(errinfo.value)
+
+    # Parent class doesn't have even length restriction so this shouldn't crash.
+    try:
+        assert Class(string='123', integer=123).to_bytes() == b'123\x00\x7b'
+    except errors.ValidationError:
+        pytest.fail('Parent class crashed with child class validation error.')
