@@ -37,20 +37,20 @@ def validates(*field_names):
 def validates_struct(func):
     """A decorator that marks a method as a validator for the entire struct.
 
-    The method being decorated should take two arguments, the class object and
-    a dictionary of the struct. The validator is invoked right after it's been
-    loaded, or right before it's dumped.
+    The method being decorated should take no arguments aside from ``self``.
+    The validator is invoked right after it's been loaded, or right before it's
+    dumped.
 
-    It's highly inadvisable to modify the dictionary, because it's easy to
-    create invalid results. For example, if a struct has a field giving the
-    length of the array and you change the length of that array, the length field
-    *will not* update to compensate. You must do that yourself.
+    It's highly inadvisable to modify the contents, because it's easy to create
+    invalid results. For example, if a struct has a field giving the length of
+    the array and you change the length of that array, the length field *won't*
+    update to compensate. You must do that yourself.
 
     Usage::
 
         @validates_struct
-        def validator(cls, struct_dict):
-            if struct_dict['foo'] % 2 != 0:
+        def validator(self):
+            if self['foo'] % 2 != 0:
                 raise ValidationError("'foo' must be even", field='foo')
     """
-    return classmethod(validation.ValidatorMethodWrapper(func, ()))
+    return validation.ValidatorMethodWrapper(func, ())
