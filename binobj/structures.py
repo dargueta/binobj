@@ -200,9 +200,10 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             for validator in validators:
                 validator(self, f_obj, value)
 
-        # Validate the entirety of the struct.
-        for validator in self.__struct_validators__:
-            validator(self, partial)
+        if not partial:
+            # Validate the entirety of the struct.
+            for validator in self.__struct_validators__:
+                validator(self)
 
     def to_stream(self, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
