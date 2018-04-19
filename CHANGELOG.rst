@@ -16,7 +16,8 @@ Features
 ~~~~~~~~
 
 Added support for adding validators on fields, both as methods in their ``Struct``
-and passed in to the constructor.
+and passed in to the constructor. You can also have validator methods that
+validate the entire ``Struct`` just after loading or just before dumping.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~

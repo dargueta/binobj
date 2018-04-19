@@ -9,6 +9,10 @@ def validates(*field_names):
     :param field_names:
         One or more names of fields that this validator should be activated for.
 
+    If you specify multiple validator methods, the order in which they execute
+    is *not* guaranteed. If you need a specific ordering of checks, you must put
+    them in the same function.
+
     Usage::
 
         @validates('foo', 'bar')
@@ -19,9 +23,8 @@ def validates(*field_names):
 
     .. note::
 
-        If you specify multiple validator methods, the order in which they
-        execute is *not* guaranteed. If you need a specific ordering of checks,
-        you must put them in the same function.
+        Only functions and instance methods are supported. Class methods and
+        static methods will cause a crash.
     """
     if not field_names:
         raise TypeError('At least one field name must be given.')
@@ -37,9 +40,9 @@ def validates(*field_names):
 def validates_struct(func):
     """A decorator that marks a method as a validator for the entire struct.
 
-    The method being decorated should take no arguments aside from ``self``.
-    The validator is invoked right after it's been loaded, or right before it's
-    dumped.
+    The method being decorated should take a single aside from ``self``, the
+    dict to validate. The validator is invoked right after it's been loaded, or
+    right before it's dumped.
 
     It's highly inadvisable to modify the contents, because it's easy to create
     invalid results. For example, if a struct has a field giving the length of
@@ -49,8 +52,13 @@ def validates_struct(func):
     Usage::
 
         @validates_struct
-        def validator(self):
-            if self['foo'] % 2 != 0:
+        def validator(self, struct_dict):
+            if struct_dict['foo'] % 2 != 0:
                 raise ValidationError("'foo' must be even", field='foo')
+
+    .. note::
+
+        Only functions and instance methods are supported. Class methods and
+        static methods will cause a crash.
     """
     return validation.ValidatorMethodWrapper(func, ())

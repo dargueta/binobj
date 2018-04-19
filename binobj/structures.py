@@ -163,26 +163,21 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         self.__values__ = values
 
-    def validate_contents(self, partial=False):
+    def validate_contents(self):
         """Validate the stored values in this struct.
-
-        :param bool partial:
-            If ``True``, this struct is incomplete and only validators for the
-            already-assigned fields will be called.
 
         :raise ~binobj.errors.ValidationError: Validation failed.
 
         .. versionadded:: 0.4.0
         """
+        full_struct = {
+            f_name: f_obj.compute_value_for_dump(self)
+            for f_name, f_obj in self.__components__.items()
+        }
+
         for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
-
-            try:
-                value = f_obj.compute_value_for_dump(self)
-            except errors.MissingRequiredValueError:
-                if partial:
-                    continue
-                raise
+            value = full_struct[f_name]
 
             # First, invoke the validators defined on the field object.
             for validator in f_obj.validators:
@@ -193,10 +188,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             for validator in validators:
                 validator(self, f_obj, value)
 
-        if not partial:
-            # Validate the entirety of the struct.
-            for validator in self.__validators__['struct']:
-                validator(self)
+        # Validate the entirety of the struct.
+        for validator in self.__validators__['struct']:
+            validator(self, full_struct)
 
     def to_stream(self, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -336,8 +330,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         .. note::
 
-            Because the struct is only partially loaded, struct validators are
-            *not* executed. Field validators still are.
+            Because the struct is only partially loaded, validators are *not*
+            executed.
 
         :param io.BufferedIOBase stream:
             The stream to load from.
@@ -380,7 +374,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
                 break
 
         instance = cls(**result)
-        instance.validate_contents(True)
         return instance
 
     @classmethod

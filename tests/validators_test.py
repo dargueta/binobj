@@ -111,10 +111,10 @@ def test_struct_validator__basic():
         integer = fields.Int8()
 
         @decorators.validates_struct
-        def validator(self):
-            if self['string'] != str(self['integer']):
+        def validator(self, dct):
+            if dct['string'] != str(dct['integer']):
                 raise errors.ValidationError(
-                    'Strings not equal', field='integer', value=self['integer'])
+                    'Strings not equal', field='integer', value=dct['integer'])
 
     with pytest.raises(errors.ValidationError):
         Class(string='123', integer=456).to_bytes()
@@ -127,10 +127,10 @@ def test_struct_validator__inheriting():
         integer = fields.Int8()
 
         @decorators.validates_struct
-        def validator(self):
-            if self['string'] != str(self['integer']):
+        def validator(self, dct):
+            if dct['string'] != str(dct['integer']):
                 raise errors.ValidationError(
-                    'Strings not equal', field='integer', value=self['integer'])
+                    'Strings not equal', field='integer', value=dct['integer'])
 
     class Subclass(Class):
         const = fields.Bytes(const=b'asdf')
