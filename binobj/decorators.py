@@ -29,7 +29,7 @@ def validates(*field_names):
         raise TypeError('All field names given to this decorator must be strings.'
                         'Do not pass Field objects.')
 
-    def decorator(func):
+    def decorator(func):    # pylint: disable=missing-docstring
         return validation.ValidatorMethodWrapper(func, field_names)
     return decorator
 

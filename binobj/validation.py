@@ -3,7 +3,7 @@
 import functools
 
 
-class ValidatorMethodWrapper:
+class ValidatorMethodWrapper:   # pylint: disable=too-few-public-methods
     """A wrapper around a validator method for one or more fields.
 
     :param callable func:
