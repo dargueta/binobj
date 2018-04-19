@@ -19,8 +19,9 @@ class StructMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
     objects.
 
-    It defines the ``__components__`` class variable and sets some values on the
-    :class:`Field` components such as the name and index.
+    It defines the ``__components__`` and ``__validators__`` class variables
+    and sets some values on the :class:`~binobj.fields.Field` components such as
+    the name and index.
     """
     @classmethod
     def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
@@ -45,17 +46,20 @@ class StructMeta(abc.ABCMeta):
                 if isinstance(item, fields.Field):
                     components[comp_name] = item
 
-            # Copy the dict of field validators for the parent struct, making a
-            # separate copy of the validator list for this class. This is so
-            # that child classes can add validators for fields defined in the
-            # parent class without affecting the parent class.
-            field_validators = {
-                f_name: list(v_list)
-                for f_name, v_list in base.__field_validators__.items()
-            }
+            validators = {
+                # Copy the dict of field validators for the parent struct,
+                # making a separate copy of the validator list for this class.
+                # This is so that child classes can add validators for fields
+                # defined in the parent class without affecting the parent class.
+                'fields': {
+                    f_name: list(v_list)
+                    for f_name, v_list in base.__validators__['fields'].items()
+                },
 
-            # Similarly, make a copy of the struct validators of the parent class.
-            struct_validators = list(base.__struct_validators__)
+                # Similarly, make a copy of the struct validators of the parent
+                # class.
+                'struct': list(base.__validators__['struct']),
+            }
 
             # Start the byte offset at the end of the base class. We won't be able
             # to do this if the base class has variable-length fields.
@@ -65,8 +69,10 @@ class StructMeta(abc.ABCMeta):
             # starting at offset 0. There are no field or struct validators to
             # copy.
             offset = 0
-            field_validators = {}
-            struct_validators = []
+            validators = {
+                'fields': {},
+                'struct': [],
+            }
 
         field_index = len(components)
 
@@ -87,11 +93,11 @@ class StructMeta(abc.ABCMeta):
                 offset = None
 
             components[item_name] = item
-            field_validators[item_name] = []
+            validators['fields'][item_name] = []
 
             field_index += 1
 
-        # Iterate through all fields on the child class
+        # Iterate through all fields on the child class and set the validators.
 
         for item in namespace.values():
             if not isinstance(item, validation.ValidatorMethodWrapper):
@@ -100,15 +106,14 @@ class StructMeta(abc.ABCMeta):
             if item.field_names:
                 # Attach this validator to each named field.
                 for field_name in item.field_names:
-                    field_validators[field_name].append(item)
+                    validators['fields'][field_name].append(item)
             else:
                 # Validator doesn't define any fields, must be a validator for
                 # the entire struct.
-                struct_validators.append(item)
+                validators['struct'].append(item)
 
         namespace['__components__'] = components
-        namespace['__field_validators__'] = field_validators
-        namespace['__struct_validators__'] = struct_validators
+        namespace['__validators__'] = validators
         return super().__new__(mcs, class_name, bases, namespace, **kwargs)
 
 
@@ -138,39 +143,18 @@ def recursive_to_dicts(item, fill_missing=False):
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
     """An ordered collection of fields and other structures.
 
-
     .. attribute:: __components__
 
         An ordered mapping of the field names to their :class:`~binobj.fields.Field`
         object definitions.
 
         :type: :class:`collections.OrderedDict`
-
-    .. attribute:: __field_validators__
-
-        A mapping of field names to a list of validator methods defined in the
-        struct for that field. Validators passed to the :class:`binobj.fields.Field`
-        constructor are *not* in this list.
-
-        :type: dict[str, list]
-
-        .. versionadded:: 0.4.0
-
-        .. seealso:: :func:`binobj.decorators.validates`
-
-    .. attribute:: __struct_validators__
-
-        A list of instance methods that validate the entire struct.
-
-        .. versionadded:: 0.4.0
-
-        .. seealso:: :func:`binobj.decorators.validates_struct`
-
-        :type: list
     """
     __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
-    __field_validators__ = types.MappingProxyType({})   # type: dict
-    __struct_validators__ = ()                          # type: list
+    __validators__ = types.MappingProxyType({       # type: dict
+        'fields': types.MappingProxyType({}),
+        'struct': (),
+    })
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
@@ -190,7 +174,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
-        for f_name, validators in self.__field_validators__.items():
+        for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
 
             try:
@@ -211,7 +195,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         if not partial:
             # Validate the entirety of the struct.
-            for validator in self.__struct_validators__:
+            for validator in self.__validators__['struct']:
                 validator(self)
 
     def to_stream(self, stream, context=None):
