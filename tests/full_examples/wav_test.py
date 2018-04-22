@@ -1,5 +1,7 @@
 """An example using WAV audio."""
 
+import io
+import math
 import wave
 
 import binobj
@@ -52,11 +54,20 @@ def test_wav__basic_read(tmpdir):
     wav.setframerate(8000)
     wav.setsampwidth(2)
 
-    # Write 4 seconds of audio, each at a different tone. One frame is 16
-    # bits, 8000 frames per second -> 16000 bytes per second. Total: 64000
-    for herz in range(440, 840, 100):
-        frame = herz.to_bytes(2, 'little', signed=False)
-        wav.writeframes(frame * 8000)
+    # Write 4 seconds of audio, each second with a different tone. One frame is
+    # 16 bits, 8000 frames per second -> 16000 bytes per second. Total: 64000
+    this_frame = io.BytesIO()
+
+    for herz in (440, 540, 640, 740):
+        for frame_i in range(8000):
+            theta = (frame_i / 8000) * (2 * math.pi) * herz
+            sample = int(16384 * math.sin(theta)) + 16384
+            this_frame.write(sample.to_bytes(2, 'little', signed=False))
+
+        wav.writeframes(this_frame.getvalue())
+
+        this_frame.seek(0)
+        this_frame.truncate()
     wav.close()
 
     # Audio file has been written to test.wav. Now we need to read it back and

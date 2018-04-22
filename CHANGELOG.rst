@@ -9,8 +9,10 @@ Released: 2018-XX-XX
 Bugfixes
 ~~~~~~~~
 
-Removed unused ``__computed_fields__`` property from ``Struct`` classes. It was
-accidentally left in.
+* Removed unused ``__computed_fields__`` property from ``Struct`` classes. It was
+  accidentally left in.
+* Fixed WAV file generation in the examples. It was writing the frequency of the
+  wave to the file, not the amplitude.
 
 Features
 ~~~~~~~~
