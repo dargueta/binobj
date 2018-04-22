@@ -30,5 +30,5 @@ setuptools.setup(
     packages=setuptools.find_packages(
         exclude=['docs', 'docs.*', 'tests', 'tests.*']),
     url='https://www.github.com/dargueta/binobj',
-    version='0.3.1'
+    version='0.4.0'
 )
