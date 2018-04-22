@@ -13,6 +13,7 @@ Bugfixes
   accidentally left in.
 * Fixed WAV file generation in the examples. It was writing the frequency of the
   wave to the file, not the amplitude.
+* Miscellaneous tweaks and typo corrections in documentation.
 
 Features
 ~~~~~~~~
@@ -33,7 +34,6 @@ Other Changes
 ~~~~~~~~~~~~~
 
 * Start testing on Python 3.7.
-* Fixes to README.
 * Assigning directly to the ``__values__`` dict in a ``Struct`` is **deprecated**,
   as it circumvents validators. ``__values__`` will be removed in a future
   release.

@@ -200,8 +200,10 @@ class Field:
         Some usage notes:
 
         * The computing function will *not* be called if
+
           * A value is explicitly set for the field by the calling code.
           * The field has a ``default`` or ``const`` value.
+
         * Computed fields are executed in the order that the fields are dumped,
           so a computed field must *not* rely on the value of another computed
           field occurring after it.
@@ -218,7 +220,7 @@ class Field:
     def allow_null(self):
         """Is ``None`` an acceptable value for this field?
 
-        :rtype: bool
+        :type: bool
         """
         return self.null_value is not UNDEFINED
 
