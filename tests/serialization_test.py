@@ -79,6 +79,18 @@ def test_accessor__getitem():
     assert struct.one == 1
 
 
+def test_accessor__getitem__no_such_field():
+    """Get a better error message if we try to get a field that doesn't exist."""
+    struct = StructWithFieldOverrides()
+
+    with pytest.raises(KeyError) as errinfo:
+        struct['asdf'] = 1
+
+    assert str(errinfo.value) == \
+        '"Struct \'StructWithFieldOverrides\' has no field named \'asdf\'."'
+
+
+
 def test_accessor__setitem():
     struct = StructWithFieldOverrides(one=1)
     struct['two'] = 2

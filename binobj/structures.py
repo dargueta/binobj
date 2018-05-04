@@ -488,8 +488,11 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return None
 
     # Container methods
-    def __getitem__(self, item):
-        return self.__values__[item]
+    def __getitem__(self, field_name):
+        if field_name not in self.__components__:
+            raise KeyError('Struct %r has no field named %r.'
+                           % (type(self).__name__, field_name))
+        return self.__values__[field_name]
 
     def __setitem__(self, field_name, value):
         if field_name not in self.__components__:
