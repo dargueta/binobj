@@ -1,6 +1,29 @@
 Changelog
 =========
 
+0.4.1
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* Fixed bug where the struct size couldn't be calculated if the struct contained
+  computed fields or had to use the default value for any field.
+* ``len()`` now throws a ``MissingRequiredValueError`` exception if the struct
+  size couldn't be computed. ``UndefinedSizeError`` is a configuration error and
+  in retrospect made no sense to throw there.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* A better error message is shown when accessing a ``Struct`` using a field name
+  that doesn't exist.
+* Bump tested CPython versions to the latest release, i.e. 3.4.7 -> 3.4.8, etc.
+* Bump PyPy3.5 5.10 to v6.0
+
+
 0.4.0
 -----
 

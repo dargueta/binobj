@@ -512,22 +512,12 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
                 yield name
 
     def __len__(self):
-        sizes = [f.size for f in self.__components__.values()]
-        if all(isinstance(s, int) for s in sizes):
-            return sum(sizes)
-
-        # If we get here then there's at least one variable-length field in this
-        # struct. To find the total size, we have to add up the sizes of the
-        # fixed-length fields and then try serializing all of the variable-length
-        # fields.
         size = 0
-        for name, field in self.__components__.items():
+        for field in self.__components__.values():
             if field.size is not None:
                 size += field.size
             else:
-                field_value = self.__values__.get(name, field.default)
-                if field_value is fields.UNDEFINED:
-                    raise errors.UndefinedSizeError(field=field)
+                field_value = field.compute_value_for_dump(self)
                 size += len(field.dumps(field_value))
 
         return size

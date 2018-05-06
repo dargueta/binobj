@@ -90,6 +90,22 @@ def test_accessor__getitem__no_such_field():
         '"Struct \'StructWithFieldOverrides\' has no field named \'asdf\'."'
 
 
+class ComputedLengthStruct(binobj.Struct):
+    """A struct whose length can be computed if values are defined."""
+    int_value = binobj.UInt32()
+    value = binobj.StringZ()
+
+    @value.computes
+    def _compute_value(self, all_fields):
+        return str(all_fields['int_value'])
+
+
+def test_computable_field_length():
+    """Test getting the length of a variable-length struct that requires values
+    to be set."""
+    struct = ComputedLengthStruct(int_value=1234)
+    assert len(struct) == 9
+
 
 def test_accessor__setitem():
     struct = StructWithFieldOverrides(one=1)
@@ -158,7 +174,7 @@ def test_len__variable__missing_varlen():
     assigned value to a variable-length field."""
     instance = StringZTestStruct()
 
-    with pytest.raises(errors.UndefinedSizeError) as errinfo:
+    with pytest.raises(errors.MissingRequiredValueError) as errinfo:
         len(instance)
 
     assert errinfo.value.field is StringZTestStruct.string
