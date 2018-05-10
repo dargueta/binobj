@@ -176,6 +176,24 @@ class BasicStructWithArray(structures.Struct):
     trailer = fields.Bytes(const=b'XYZ')
 
 
+def test_set_const_crashes__setattr():
+    """Attempting to set a const field via attribute access crashes.
+
+    Only use attribute access to avoid interaction with __setitem__.
+    """
+    with pytest.raises(errors.ImmutableFieldError):
+        BasicStructWithArray().header = b'ABC'
+
+
+def test_set_const_crashes__setitem():
+    """Attempting to set a const field via dictionary access crashes.
+
+    Only use dictionary access to avoid interaction with __set__.
+    """
+    with pytest.raises(errors.ImmutableFieldError):
+        BasicStructWithArray()['header'] = b'ABC'
+
+
 def test_load__invalid_const():
     data = b'ASDFGHJXYZ'
 
