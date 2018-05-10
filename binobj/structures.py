@@ -170,13 +170,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
-        full_struct = {
-            f_name: f_obj.compute_value_for_dump(self)
-            for f_name, f_obj in self.__components__.items()
-        }
+        full_struct = self.to_dict()
 
         for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
+
+            # Remove once to_dump(fill_missing=True) is gone
+            if f_name not in full_struct:
+                raise errors.MissingRequiredValueError(field=f_obj)
+
             value = full_struct[f_name]
 
             # First, invoke the validators defined on the field object.
@@ -202,11 +204,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             anything they don't recognize.
         """
         self.validate_contents()
-        my_fields = self.to_dict(fill_missing=False)
+        all_fields = self.to_dict(True)
 
-        for field in self.__components__.values():
-            value = field.compute_value_for_dump(my_fields)
-            field.dump(stream, value, context=context, all_fields=my_fields)
+        for field_name, value in all_fields.items():
+            # Remove once to_dump(fill_missing=True) is gone
+            if value is fields.UNDEFINED:
+                raise errors.MissingRequiredValueError(field=field_name)
+
+            field_obj = self.__components__[field_name]
+            field_obj.dump(stream, value, context=context, all_fields=all_fields)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.
@@ -373,8 +379,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             if field.name == last_field:
                 break
 
-        instance = cls(**result)
-        return instance
+        return cls(**result)
 
     @classmethod
     def get_field(cls, stream, name, context=None):
