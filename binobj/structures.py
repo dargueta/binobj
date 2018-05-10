@@ -488,17 +488,23 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return None
 
     # Container methods
+
+    # DO NOT remove this. It prevents the infinite recursion that the default
+    # implementation in MutableMapping would trigger.
+    def __contains__(self, item):
+        return item in self.__values__
+
     def __getitem__(self, field_name):
         if field_name not in self.__components__:
             raise KeyError('Struct %r has no field named %r.'
                            % (type(self).__name__, field_name))
-        return self.__values__[field_name]
+        return getattr(self, field_name)
 
     def __setitem__(self, field_name, value):
         if field_name not in self.__components__:
             raise KeyError('Struct %r has no field named %r.'
                            % (type(self).__name__, field_name))
-        self.__values__[field_name] = value
+        setattr(self, field_name, value)
 
     def __delitem__(self, field_name):
         if field_name not in self.__components__:
