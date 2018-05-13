@@ -1,6 +1,44 @@
 Changelog
 =========
 
+0.4.1
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* Struct size couldn't be calculated if the struct contained computed fields or
+  had to use the default value for any field.
+* Setting the value of a computed or const field would persist until that field
+  was deleted. Trying to modify a computed or const field will now trigger a
+  ``ImmutableFieldError``.
+* Accessing a field as an attribute no longer sets the field to its default
+  value if the field hasn't been assigned yet. This made sense before computed
+  fields were added, since ostensibly changing one field wouldn't affect any
+  others.
+* Values assigned to a struct using dictionary notation were not validated.
+* ``len()`` now throws a ``MissingRequiredValueError`` exception if the struct
+  size couldn't be computed. ``UndefinedSizeError`` is a configuration error and
+  in retrospect made no sense to throw there.
+* A better error message is shown when accessing a ``Struct`` using a field name
+  that doesn't exist.
+* Attempting to get the value of a field that hasn't been set yet via dictionary
+  access used to throw a ``KeyError`` even if it was a computed field. Now it
+  throws the expected ``MissingRequiredValueError``.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Dictionary methods on ``Struct`` like ``get``, ``setdefault``, etc. are
+  **deprecated** and should not be used anymore. They will be removed in 0.5.0.
+* Validator decorators now detect when they're being misused (i.e. called as
+  ``@validator`` instead of ``@validator()`` and throw a helpful exception.
+* Bump tested CPython versions to the latest release, i.e. 3.4.7 -> 3.4.8, etc.
+* Bump PyPy3.5 5.10 to v6.0
+
+
 0.4.0
 -----
 

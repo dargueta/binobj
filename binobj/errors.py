@@ -134,7 +134,21 @@ class FieldReferenceError(Error):
         self.field = field
 
 
+class IllegalOperationError(Error):
+    """The attempted operation is disallowed.
+
+    .. versionadded:: 0.4.1
+    """
+
+
 ################################################################################
+
+
+class ImmutableFieldError(IllegalOperationError):
+    """Cannot assign to an immutable or computed field.
+
+    .. versionadded:: 0.4.1
+    """
 
 
 class MultipleInheritanceError(ConfigurationError):

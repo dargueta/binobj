@@ -471,9 +471,14 @@ class Field:
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return instance.__values__.setdefault(self.name, self.default)
+        elif self.name in instance.__values__:
+            return instance.__values__[self.name]
+        return self.compute_value_for_dump(instance)
 
     def __set__(self, instance, value):
+        if self._compute_fn or self.const is not UNDEFINED:
+            raise errors.ImmutableFieldError()
+
         for validator in self.validators:
             validator(value)
         instance.__values__[self.name] = value

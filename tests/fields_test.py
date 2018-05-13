@@ -176,6 +176,24 @@ class BasicStructWithArray(structures.Struct):
     trailer = fields.Bytes(const=b'XYZ')
 
 
+def test_set_const_crashes__setattr():
+    """Attempting to set a const field via attribute access crashes.
+
+    Only use attribute access to avoid interaction with __setitem__.
+    """
+    with pytest.raises(errors.ImmutableFieldError):
+        BasicStructWithArray().header = b'ABC'
+
+
+def test_set_const_crashes__setitem():
+    """Attempting to set a const field via dictionary access crashes.
+
+    Only use dictionary access to avoid interaction with __set__.
+    """
+    with pytest.raises(errors.ImmutableFieldError):
+        BasicStructWithArray()['header'] = b'ABC'
+
+
 def test_load__invalid_const():
     data = b'ASDFGHJXYZ'
 
@@ -262,6 +280,92 @@ def test_array__bogus_count(count):
 def test_array__dump_basic():
     struct = BasicStructWithSentinelArray(numbers=[1, 2, 3, 0])
     assert struct.to_bytes() == b'\x01\x02\x03\x00ABC'
+
+
+class StructWithComputedSizeArray(structures.Struct):
+    half_size = fields.UInt8()
+    size = fields.UInt8()
+    stuff = fields.Array(fields.UInt8(), count=size)
+
+    @size.computes
+    def compute_size(self, all_fields):
+        return all_fields['half_size'] * 2
+
+
+def test_array__computed_size():
+    """The array should still work if the size is computed."""
+    struct = StructWithComputedSizeArray(half_size=3, stuff=[1, 1, 2, 3, 5, 8])
+    assert struct.size == 6
+    assert bytes(struct) == b'\x03\x06\x01\x01\x02\x03\x05\x08'
+
+
+def test_set_computed_field__setattr():
+    """Crash when trying to set a computed field via attribute access."""
+    struct = StructWithComputedSizeArray()
+
+    with pytest.raises(errors.ImmutableFieldError):
+        struct.size = 123
+
+
+def test_set_computed_field__setitem():
+    """Crash when trying to set a computed field via attribute access."""
+    struct = StructWithComputedSizeArray()
+
+    with pytest.raises(errors.ImmutableFieldError):
+        struct['size'] = 123
+
+
+class CircularReferenceComputedSize(structures.Struct):
+    """A struct with a size field and array that reference each other."""
+    count = fields.UInt16(endian='big')
+    stuff = fields.Array(fields.StringZ(), count=count)
+
+    @count.computes
+    def compute_count(self, all_fields):
+        return len(all_fields['stuff'])
+
+
+def test_circular_reference__load():
+    """The array can load even though it relies on a computed field to determine
+    its length."""
+    loaded = CircularReferenceComputedSize.from_bytes(b'\x00\x03abc\x00\x00defg\x00')
+    assert loaded.count == 3
+    assert loaded.stuff == ['abc', '', 'defg']
+
+
+def test_circular_reference__dump():
+    """The array can dump even though it relies on a computed field that relies
+    on it."""
+    struct = CircularReferenceComputedSize(stuff=['a', 'bc', 'def', ''])
+    assert struct.count == 4
+    assert struct['count'] == 4
+    assert struct.to_bytes() == b'\x00\x04a\0bc\0def\0\0'
+
+
+def test_circular_reference__updates__getattr():
+    """Ensure computed fields update when a value changes.
+
+    We'll only use attribute access to avoid masking errors if __getitem__
+    misbehaves.
+    """
+    struct = CircularReferenceComputedSize(stuff=['a', 'bc', 'def', ''])
+    assert struct.count == 4
+
+    struct.stuff = ['qwerty', 'uiop']
+    assert struct.count == 2
+
+
+def test_circular_reference__updates__getitem():
+    """Ensure computed fields update when a value changes.
+
+    We'll only use dictionary access to avoid masking errors if __get__
+    misbehaves.
+    """
+    struct = CircularReferenceComputedSize(stuff=['a', 'bc', 'def', ''])
+    assert struct['count'] == 4
+
+    struct.stuff = ['qwerty', 'uiop']
+    assert struct['count'] == 2
 
 
 def test_descriptor_get():

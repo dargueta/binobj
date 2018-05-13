@@ -170,13 +170,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
-        full_struct = {
-            f_name: f_obj.compute_value_for_dump(self)
-            for f_name, f_obj in self.__components__.items()
-        }
+        full_struct = self.to_dict()
 
         for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
+
+            # Remove once to_dump(fill_missing=True) is gone
+            if f_name not in full_struct:
+                raise errors.MissingRequiredValueError(field=f_obj)
+
             value = full_struct[f_name]
 
             # First, invoke the validators defined on the field object.
@@ -202,11 +204,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             anything they don't recognize.
         """
         self.validate_contents()
-        my_fields = self.to_dict(fill_missing=False)
+        all_fields = self.to_dict(True)
 
-        for field in self.__components__.values():
-            value = field.compute_value_for_dump(my_fields)
-            field.dump(stream, value, context=context, all_fields=my_fields)
+        for field_name, value in all_fields.items():
+            # Remove once to_dump(fill_missing=True) is gone
+            if value is fields.UNDEFINED:
+                raise errors.MissingRequiredValueError(field=field_name)
+
+            field_obj = self.__components__[field_name]
+            field_obj.dump(stream, value, context=context, all_fields=all_fields)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.
@@ -373,8 +379,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             if field.name == last_field:
                 break
 
-        instance = cls(**result)
-        return instance
+        return cls(**result)
 
     @classmethod
     def get_field(cls, stream, name, context=None):
@@ -488,14 +493,23 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return None
 
     # Container methods
-    def __getitem__(self, item):
-        return self.__values__[item]
+
+    # DO NOT remove this. It prevents the infinite recursion that the default
+    # implementation in MutableMapping would trigger.
+    def __contains__(self, item):
+        return item in self.__values__
+
+    def __getitem__(self, field_name):
+        if field_name not in self.__components__:
+            raise KeyError('Struct %r has no field named %r.'
+                           % (type(self).__name__, field_name))
+        return getattr(self, field_name)
 
     def __setitem__(self, field_name, value):
         if field_name not in self.__components__:
             raise KeyError('Struct %r has no field named %r.'
                            % (type(self).__name__, field_name))
-        self.__values__[field_name] = value
+        setattr(self, field_name, value)
 
     def __delitem__(self, field_name):
         if field_name not in self.__components__:
@@ -509,22 +523,12 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
                 yield name
 
     def __len__(self):
-        sizes = [f.size for f in self.__components__.values()]
-        if all(isinstance(s, int) for s in sizes):
-            return sum(sizes)
-
-        # If we get here then there's at least one variable-length field in this
-        # struct. To find the total size, we have to add up the sizes of the
-        # fixed-length fields and then try serializing all of the variable-length
-        # fields.
         size = 0
-        for name, field in self.__components__.items():
+        for field in self.__components__.values():
             if field.size is not None:
                 size += field.size
             else:
-                field_value = self.__values__.get(name, field.default)
-                if field_value is fields.UNDEFINED:
-                    raise errors.UndefinedSizeError(field=field)
+                field_value = field.compute_value_for_dump(self)
                 size += len(field.dumps(field_value))
 
         return size

@@ -6,7 +6,7 @@ DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-PYTHON_VERSIONS=3.6.4 3.5.4 3.4.7 3.7.0b3 pypy3.5-5.10.1
+PYTHON_VERSIONS=3.6.5 3.5.5 3.4.8 3.7.0b4 pypy3.5-6.0.0
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
@@ -41,7 +41,7 @@ lint: $(SOURCEFILES)
 .PHONY: clean
 clean:
 	git clean -fd $(DOCSSOURCE)
-	rm -rf .tox .cache *.egg-info *.eggs .coverage $(DOCSTARGET) dist build
+	rm -rf .tox .cache .pytest_cache *.egg-info *.eggs .coverage $(DOCSTARGET) dist build
 	find . -name '__pycache__' -type d -exec rm -rf '{}' \+
 
 # Run the unit tests if the source code has changed.

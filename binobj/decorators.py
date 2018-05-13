@@ -27,10 +27,15 @@ def validates(*field_names):
         static methods will cause a crash.
     """
     if not field_names:
+        # Called as `@validates()`
         raise TypeError('At least one field name must be given.')
+    elif len(field_names) == 1 and callable(field_names[0]):
+        # Common mistake -- called as `@validates` (no trailing parens)
+        raise TypeError('Missing field name arguments.')
     elif not all(isinstance(n, str) for n in field_names):
-        raise TypeError('All field names given to this decorator must be strings.'
-                        'Do not pass Field objects.')
+        raise TypeError(
+            'All field names given to this decorator must be strings. Do not '
+            'pass Field objects.')
 
     def decorator(func):    # pylint: disable=missing-docstring
         return validation.ValidatorMethodWrapper(func, field_names)
