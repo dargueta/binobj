@@ -33,6 +33,8 @@ Other Changes
 
 * Dictionary methods on ``Struct`` like ``get``, ``setdefault``, etc. are
   **deprecated** and should not be used anymore. They will be removed in 0.5.0.
+* Validator decorators now detect when they're being misused (i.e. called as
+  ``@validator`` instead of ``@validator()`` and throw a helpful exception.
 * Bump tested CPython versions to the latest release, i.e. 3.4.7 -> 3.4.8, etc.
 * Bump PyPy3.5 5.10 to v6.0
 
