@@ -3,6 +3,7 @@
 import pytest
 
 import binobj
+from binobj import decorators
 from binobj import errors
 from binobj import fields
 
@@ -36,3 +37,39 @@ def test_computes__rebind_fails():
             @n_items.computes
             def _n_items_2(self, all_fields):   # pylint: disable=no-self-use
                 pass
+
+
+def test_validates__crash_if_not_called():
+    """Detonate if a validator decorator is used without calling."""
+    with pytest.raises(TypeError) as errinfo:
+        class Class(binobj.Struct):     # pylint: disable=unused-variable
+            @decorators.validates
+            def _n_items(self, all_fields):     # pylint: disable=no-self-use
+                pass
+
+    assert str(errinfo.value) == 'Missing field name arguments.'
+
+
+def test_validates__crash_if_no_fields():
+    """Detonate if a validator decorator is used with no field names."""
+    with pytest.raises(TypeError) as errinfo:
+        class Class(binobj.Struct):     # pylint: disable=unused-variable
+            @decorators.validates()
+            def _n_items(self, all_fields):     # pylint: disable=no-self-use
+                pass
+
+    assert str(errinfo.value) == 'At least one field name must be given.'
+
+
+def test_validates__crash_if_not_strings():
+    """Detonate if a validator decorator is used with one or more field names
+    that aren't strings."""
+    with pytest.raises(TypeError) as errinfo:
+        class Class(binobj.Struct):     # pylint: disable=unused-variable
+            n_items = fields.UInt16(endian='little')
+
+            @decorators.validates(n_items)
+            def _n_items(self, all_fields):     # pylint: disable=no-self-use
+                pass
+
+    assert 'Do not pass Field objects.' in str(errinfo.value)
