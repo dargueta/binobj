@@ -1,6 +1,18 @@
 Changelog
 =========
 
+0.4.2
+-----
+
+Released: 2018-XX-XX
+
+Other Changes
+~~~~~~~~~~~~~
+
+* ``Union`` now throws a ``ConfigurationError`` if it gets a ``Field`` class
+  instead of an instance of a ``Field`` class. This would otherwise result in
+  hard to debug ``TypeError``\s being thrown when trying to load or dump.
+
 0.4.1
 -----
 

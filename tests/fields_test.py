@@ -779,3 +779,11 @@ def test_union__fields__load_basic():
         'data_type': 1,
         'item': 0xaa55,
     }
+
+
+def test_union__field_class_crashes():
+    """Passing a Field class to a Union should crash."""
+    with pytest.raises(errors.ConfigurationError) as errinfo:
+        fields.Union(fields.StringZ, load_decider=None, dump_decider=None)
+
+    assert str(errinfo.value) == 'You must pass an instance of a Field, not a class.'
