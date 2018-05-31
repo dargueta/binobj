@@ -214,6 +214,9 @@ class Field:
             raise errors.ConfigurationError(
                 "Cannot define two computing functions for field %r." % self,
                 field=self)
+        elif self.const is not UNDEFINED:
+            raise errors.ConfigurationError(
+                'Cannot set compute function for a const field.', field=self)
         self._compute_fn = method
 
     @property

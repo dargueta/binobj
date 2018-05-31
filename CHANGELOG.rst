@@ -12,6 +12,8 @@ Other Changes
 * ``Union`` now throws a ``ConfigurationError`` if it gets a ``Field`` class
   instead of an instance of a ``Field`` class. This would otherwise result in
   hard to debug ``TypeError``\s being thrown when trying to load or dump.
+* Trying to use a ``computes`` decorator on a const field will trigger a
+  ``ConfigurationError``.
 
 0.4.1
 -----
