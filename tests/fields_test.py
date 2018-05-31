@@ -80,10 +80,10 @@ def test_const_set_size__sized_int_works():
 
 
 def test_const_set_size__varint():
-    """Variable integers should NOT set their size when ``const`` is defined."""
+    """Variable integers should set their size when ``const`` is defined."""
     field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
                                          const=987654321, signed=False)
-    assert field.size is None, 'Size was set.'
+    assert field.size == 5
 
 
 def test_const_set_size__stringz():

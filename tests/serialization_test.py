@@ -8,6 +8,7 @@ import pytest
 
 import binobj
 from binobj import errors
+from binobj import varints
 
 
 def test_sentinels_are_singletons():
@@ -213,3 +214,19 @@ def test_to_dict__fill_no_default():
         ('mno', '?!')))
 
     assert struct.to_dict(fill_missing=True) == expected
+
+
+class VLenBytes(binobj.Struct):
+    length = binobj.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
+                                          signed=False)
+    data = binobj.Bytes(size=length)
+
+    @length.computes
+    def _compute_length(self, all_fields):
+        return len(all_fields['data'])
+
+
+def test_vli_write_size__dumps():
+    """Test what happens when the write size is a VLI"""
+    struct = VLenBytes(data=b'asdfghjkl;')
+    assert struct.to_bytes() == b'\x0aasdfghjkl;'
