@@ -1,7 +1,7 @@
 SOURCEDIR=binobj
 SOURCEFILES=$(SOURCEDIR)/*.py
 TESTDIR=tests
-TESTFILES=$(TESTDIR)/*.py tox.ini test_requirements.txt
+TESTFILES=$(TESTDIR)/*.py tox.ini setup.py
 DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
@@ -15,7 +15,7 @@ PYTHON_VERSIONS=3.6.5 3.5.5 3.4.8 3.7.0b4 pypy3.5-6.0.0
 	$(foreach version,$(PYTHON_VERSIONS),pyenv install -s $(version);)
 	pyenv local $(PYTHON_VERSIONS)
 
-.tox: .python-version setup.py dev_requirements.txt test_requirements.txt tox.ini
+.tox: .python-version setup.py tox.ini
 	detox -r --notest
 
 # Coverage file gets changed on every test run so we can use it to see when the
@@ -29,8 +29,8 @@ $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 	PYTHONPATH=. sphinx-build $(DOCSSOURCE) $(DOCSTARGET)
 
 .PHONY: setup
-setup: .python-version dev_requirements.txt
-	pip3 install -U -r dev_requirements.txt
+setup: .python-version setup.py
+	pip3 install -Ue .[dev]
 
 .PHONY: lint
 lint: $(SOURCEFILES)
