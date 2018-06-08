@@ -703,7 +703,6 @@ class Union(Field):
     """
     def __init__(self, *choices, load_decider, dump_decider, **kwargs):
         super().__init__(**kwargs)
-
         if any(isinstance(c, type) and issubclass(c, Field) for c in choices):
             raise errors.ConfigurationError(
                 'You must pass an instance of a Field, not a class.', field=self)

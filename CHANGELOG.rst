@@ -6,6 +6,13 @@ Changelog
 
 Released: 2018-XX-XX
 
+Bugfixes
+~~~~~~~~
+
+Variable-length integer fields now set their ``size`` attribute if ``const`` is
+defined. *Not* doing so was apparently a deliberate decision, which I no longer
+understand.
+
 Other Changes
 ~~~~~~~~~~~~~
 
@@ -14,6 +21,9 @@ Other Changes
   hard to debug ``TypeError``\s being thrown when trying to load or dump.
 * Trying to use a ``computes`` decorator on a const field will trigger a
   ``ConfigurationError``.
+* ``Bytes`` no longer crashes with an ``UndefinedSizeError`` if it isn't given a
+  size. I'm not sure why I ever thought that ``Bytes`` should only be a fixed
+  length.
 
 0.4.1
 -----
