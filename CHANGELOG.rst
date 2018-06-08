@@ -4,7 +4,7 @@ Changelog
 0.4.2
 -----
 
-Released: 2018-XX-XX
+Released: 2018-06-07
 
 Bugfixes
 ~~~~~~~~
