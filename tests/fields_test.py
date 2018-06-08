@@ -29,9 +29,7 @@ def test_loads__field_insufficient_data():
 def test_dump_default():
     """Dump with only default value and no size should still be fine."""
     field = fields.Bytes(default=b'\0\0')
-
-    with pytest.raises(errors.UndefinedSizeError):
-        field.dumps()
+    assert field.dumps() == b'\0\0'
 
 
 def test_const_sets_size__bytes():
@@ -401,11 +399,6 @@ def test_bytes__dump_too_long():
 
     with pytest.raises(errors.ValueSizeError):
         field.dumps(b'!' * 11)
-
-
-def test_bytes__size_is_none():
-    with pytest.raises(errors.UndefinedSizeError):
-        fields.Bytes().dumps(b'')
 
 
 def test_string__load_basic():

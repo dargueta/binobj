@@ -219,7 +219,7 @@ def test_to_dict__fill_no_default():
 class VLenBytes(binobj.Struct):
     length = binobj.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
                                           signed=False)
-    data = binobj.Bytes(size=length)
+    data = binobj.Bytes()
 
     @length.computes
     def _compute_length(self, all_fields):

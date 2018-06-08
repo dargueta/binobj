@@ -51,4 +51,3 @@ test: .coverage
 # Build the Sphinx documentation for the library.
 .PHONY: docs
 docs: $(DOCSTARGET)
-
