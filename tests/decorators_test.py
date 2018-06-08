@@ -39,6 +39,17 @@ def test_computes__rebind_fails():
                 pass
 
 
+def test_computes__const_field_fails():
+    """Can't set a compute function for a field with a defined const value."""
+    with pytest.raises(errors.ConfigurationError):
+        class Class(binobj.Struct):     # pylint: disable=unused-variable
+            blah = fields.UInt16(const=1234)
+
+            @blah.computes
+            def _blah(self, all_fields):     # pylint: disable=no-self-use,unused-argument
+                return 5678
+
+
 def test_validates__crash_if_not_called():
     """Detonate if a validator decorator is used without calling."""
     with pytest.raises(TypeError) as errinfo:

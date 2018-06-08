@@ -24,6 +24,21 @@ setuptools.setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     description='A Python library for reading and writing structured binary data.',
+    extras_require={
+        'dev': [
+            'bumpversion==0.5.3',
+            'detox>=0.10',
+            'Sphinx>=1.6',
+            'sphinx_rtd_theme>=0.2',
+            'tox>=2.8, <3.0',   # 3.x breaks some plugins
+            'tox-pyenv>=1.0',
+        ],
+        'test': [
+            'pytest>=3.0, !=3.2.0, !=3.3.0',
+            'pytest-cov>=2.0',
+            'pytest-randomly>=1.0',
+        ],
+    },
     license='BSD 3-Clause License',
     name='binobj',
     python_requires='>=3.4',

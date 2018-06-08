@@ -214,6 +214,9 @@ class Field:
             raise errors.ConfigurationError(
                 "Cannot define two computing functions for field %r." % self,
                 field=self)
+        elif self.const is not UNDEFINED:
+            raise errors.ConfigurationError(
+                'Cannot set compute function for a const field.', field=self)
         self._compute_fn = method
 
     @property
@@ -700,6 +703,10 @@ class Union(Field):
     """
     def __init__(self, *choices, load_decider, dump_decider, **kwargs):
         super().__init__(**kwargs)
+        if any(isinstance(c, type) and issubclass(c, Field) for c in choices):
+            raise errors.ConfigurationError(
+                'You must pass an instance of a Field, not a class.', field=self)
+
         self.choices = choices
         self.load_decider = load_decider
         self.dump_decider = dump_decider
@@ -727,11 +734,13 @@ class Bytes(Field):
         return self._read_exact_size(stream)
 
     def _do_dump(self, stream, data, context, all_fields):
+        if self.const is not UNDEFINED:
+            stream.write(self.const)
+            return
+
         if not isinstance(data, (bytes, bytearray)):
             raise errors.UnserializableValueError(field=self, value=data)
-        elif self.size is None:
-            raise errors.UndefinedSizeError(field=self)
-        elif len(data) != self.size:
+        elif self.size is not None and len(data) != self.size:
             raise errors.ValueSizeError(field=self, value=data)
 
         stream.write(data)
@@ -827,6 +836,9 @@ class VariableLengthInteger(Integer):
         stream.write(encoded_int)
 
     # pylint: enable=unused-argument
+
+    def _size_for_value(self, value):
+        return len(self._encode_integer_fn(value))
 
 
 class UnsignedInteger(Integer):

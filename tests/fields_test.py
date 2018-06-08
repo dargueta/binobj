@@ -29,9 +29,7 @@ def test_loads__field_insufficient_data():
 def test_dump_default():
     """Dump with only default value and no size should still be fine."""
     field = fields.Bytes(default=b'\0\0')
-
-    with pytest.raises(errors.UndefinedSizeError):
-        field.dumps()
+    assert field.dumps() == b'\0\0'
 
 
 def test_const_sets_size__bytes():
@@ -80,10 +78,10 @@ def test_const_set_size__sized_int_works():
 
 
 def test_const_set_size__varint():
-    """Variable integers should NOT set their size when ``const`` is defined."""
+    """Variable integers should set their size when ``const`` is defined."""
     field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
                                          const=987654321, signed=False)
-    assert field.size is None, 'Size was set.'
+    assert field.size == 5
 
 
 def test_const_set_size__stringz():
@@ -401,11 +399,6 @@ def test_bytes__dump_too_long():
 
     with pytest.raises(errors.ValueSizeError):
         field.dumps(b'!' * 11)
-
-
-def test_bytes__size_is_none():
-    with pytest.raises(errors.UndefinedSizeError):
-        fields.Bytes().dumps(b'')
 
 
 def test_string__load_basic():
@@ -779,3 +772,11 @@ def test_union__fields__load_basic():
         'data_type': 1,
         'item': 0xaa55,
     }
+
+
+def test_union__field_class_crashes():
+    """Passing a Field class to a Union should crash."""
+    with pytest.raises(errors.ConfigurationError) as errinfo:
+        fields.Union(fields.StringZ, load_decider=None, dump_decider=None)
+
+    assert str(errinfo.value) == 'You must pass an instance of a Field, not a class.'

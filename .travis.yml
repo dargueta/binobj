@@ -6,6 +6,5 @@ python:
   - '3.7-dev'
   - 'pypy3'
 install:
-  - pip3 install -U -r dev_requirements.txt tox-travis
+  - pip3 install -Ue .[test] tox-travis
 script: tox
-
