@@ -780,3 +780,39 @@ def test_union__field_class_crashes():
         fields.Union(fields.StringZ, load_decider=None, dump_decider=None)
 
     assert str(errinfo.value) == 'You must pass an instance of a Field, not a class.'
+
+
+@pytest.mark.parametrize('value, expected', (
+    (3.141592654, b'\xdb\x0f\x49\x40'),
+    (100, b'\x00\x00\xc8\x42'),
+    (2 ** 31, b'\x00\x00\x00\x4f'),
+    (float('inf'), b'\x00\x00\x80\x7f'),
+    (-float('inf'), b'\x00\x00\x80\xff'),
+    (float('nan'), b'\x00\x00\xc0\x7f'),
+))
+def test_float32__dumps__basic_le(value, expected):
+    field = fields.Float32(endian='little')
+    assert field.dumps(value) == expected
+
+
+def test_float32__dumps__basic_be():
+    field = fields.Float32(endian='big')
+    assert field.dumps(2 ** 31) == b'\x4f\x00\x00\x00'
+
+
+@pytest.mark.parametrize('value, expected', (
+    (3.141592654, b'\x40\x09\x21\xfb\x54\x52\x45\x50'),
+    (100, b'\x40\x59\x00\x00\x00\x00\x00\x00'),
+    (2 ** 31, b'\x41\xe0\x00\x00\x00\x00\x00\x00'),
+    (float('inf'), b'\x7f\xf0\x00\x00\x00\x00\x00\x00'),
+    (-float('inf'), b'\xff\xf0\x00\x00\x00\x00\x00\x00'),
+    (float('nan'), b'\x7f\xf8\x00\x00\x00\x00\x00\x00'),
+))
+def test_float64__dumps__basic_be(value, expected):
+    field = fields.Float64(endian='big')
+    assert field.dumps(value) == expected
+
+
+def test_float64__dumps__basic_le():
+    field = fields.Float64(endian='little')
+    assert field.dumps(2 ** 31) == b'\x00\x00\x00\x00\x00\x00\xe0\x41'
