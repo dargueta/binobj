@@ -769,7 +769,7 @@ class Float(Field):
         if self.endian == 'big':
             self.format_string = '>' + format_string
         elif self.endian == 'little':
-            self._endian_string = '<' + format_string
+            self.format_string = '<' + format_string
         else:
             raise ValueError("`endian` must be 'big' or 'little', got %r."
                              % endian)
@@ -797,53 +797,15 @@ class Float16(Float):
         except struct.error:
             # This version of Python doesn't support binary16 so we need to do
             # it ourselves.
-            pass
-
-        bits = int.from_bytes(self._read_exact_size(stream),
-                              byteorder=self.endian, signed=False)
-
-        significand = (bits & 0x3ff)
-        exponent = (bits >> 10) & 0x1f
-        sign = (bits >> 15) & 1
-
-        if exponent == 0:
-            return (-1 ** sign) * (2 ** -14) * (bits & 0x3ff)
-        elif exponent < 31:
-            return (-1 ** sign) * (2 ** (exponent - 15)) * (significand + 0x400)
-        elif significand == 0:
-            return (-1 ** sign) * float('inf')
-        return float('nan')
+            return helpers.read_float16(stream, self.endian)
 
     def _do_dump(self, stream, data, context, all_fields):
         try:
-            return super()._do_dump(stream, data, context, all_fields)
+            super()._do_dump(stream, data, context, all_fields)
         except struct.error:
             # This version of Python doesn't support binary16 so we need to do
             # it ourselves.
-            pass
-
-        if math.isinf(data):
-            if data < 0:
-                dump_value = 0b1111110000000000
-            else:
-                dump_value = 0b0111110000000000
-            stream.write(dump_value.to_bytes(2, self.endian, signed=False))
-            return
-        elif math.isnan(data):
-            stream.write(0b0111111111111111.to_bytes(2, self.endian, signed=False))
-            return
-
-        significand, exponent = math.frexp(data)
-
-        if exponent < -15 or exponent > 15:
-            raise OverflowError("Can't represent %f as a short float." % data)
-
-        biased_exponent = exponent + 15
-        sign = 0x8000 if data < 0 else 0
-        scaled_significand = abs(significand) * (2 ** exponent)
-
-        dump_value = sign | int(biased_exponent << 10) | int(scaled_significand)
-        stream.write(dump_value.to_bytes(2, self.endian, signed=False))
+            helpers.write_float16(stream, data, self.endian)
 
 
 class Float32(Float):
