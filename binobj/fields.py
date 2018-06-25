@@ -6,7 +6,6 @@ import codecs
 import collections.abc
 import functools
 import io
-import math
 import struct
 import sys
 

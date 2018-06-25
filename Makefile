@@ -35,7 +35,7 @@ setup: .python-version setup.py
 .PHONY: lint
 lint: $(SOURCEFILES)
 	pylint --disable=fixme,too-many-ancestors $(SOURCEDIR) || true
-	pylint --disable=missing-docstring,blacklisted-name,too-few-public-methods,invalid-name,redefined-outer-name,too-many-ancestors $(TESTDIR) || true
+	pylint --disable=missing-docstring,blacklisted-name,too-few-public-methods,invalid-name,redefined-outer-name,too-many-ancestors,no-self-use $(TESTDIR) || true
 
 # TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean
