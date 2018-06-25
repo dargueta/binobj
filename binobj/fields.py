@@ -6,6 +6,8 @@ import codecs
 import collections.abc
 import functools
 import io
+import math
+import struct
 import sys
 
 from binobj import errors
@@ -749,8 +751,117 @@ class Bytes(Field):
         return len(value)
 
 
+class Float(Field):
+    """A floating-point number in IEEE-754:2008 interchange format.
+
+    This is a base class and should not be used directly.
+
+    :param str endian:
+        The endianness to use to load/store the float. Either 'big' or 'little'.
+        If not given, defaults to the system's native byte ordering as given by
+        :data:`sys.byteorder`.
+    """
+    def __init__(self, *, format_string, endian=None, **kwargs):
+        super().__init__(**kwargs)
+
+        self.endian = endian or sys.byteorder
+
+        if self.endian == 'big':
+            self.format_string = '>' + format_string
+        elif self.endian == 'little':
+            self._endian_string = '<' + format_string
+        else:
+            raise ValueError("`endian` must be 'big' or 'little', got %r."
+                             % endian)
+
+    def _do_load(self, stream, context, loaded_fields):
+        data = self._read_exact_size(stream)
+        return struct.unpack(self.format_string, data)[0]
+
+    def _do_dump(self, stream, data, context, all_fields):
+        serialized = struct.pack(self.format_string, data)
+        stream.write(serialized)
+
+    def _size_for_value(self, value):
+        return struct.calcsize(self.format_string)
+
+
+class Float16(Float):
+    """A floating-point number stored in IEEE-754 binary16 format."""
+    def __init__(self, **kwargs):
+        super().__init__(format_string='e', **kwargs)
+
+    def _do_load(self, stream, context, loaded_fields):
+        try:
+            return super()._do_load(stream, context, loaded_fields)
+        except struct.error:
+            # This version of Python doesn't support binary16 so we need to do
+            # it ourselves.
+            pass
+
+        bits = int.from_bytes(self._read_exact_size(stream),
+                              byteorder=self.endian, signed=False)
+
+        significand = (bits & 0x3ff)
+        exponent = (bits >> 10) & 0x1f
+        sign = (bits >> 15) & 1
+
+        if exponent == 0:
+            return (-1 ** sign) * (2 ** -14) * (bits & 0x3ff)
+        elif exponent < 31:
+            return (-1 ** sign) * (2 ** (exponent - 15)) * (significand + 0x400)
+        elif significand == 0:
+            return (-1 ** sign) * float('inf')
+        return float('nan')
+
+    def _do_dump(self, stream, data, context, all_fields):
+        try:
+            return super()._do_dump(stream, data, context, all_fields)
+        except struct.error:
+            # This version of Python doesn't support binary16 so we need to do
+            # it ourselves.
+            pass
+
+        if math.isinf(data):
+            if data < 0:
+                dump_value = 0b1111110000000000
+            else:
+                dump_value = 0b0111110000000000
+            stream.write(dump_value.to_bytes(2, self.endian, signed=False))
+            return
+        elif math.isnan(data):
+            stream.write(0b0111111111111111.to_bytes(2, self.endian, signed=False))
+            return
+
+        significand, exponent = math.frexp(data)
+
+        if exponent < -15 or exponent > 15:
+            raise OverflowError("Can't represent %f as a short float." % data)
+
+        biased_exponent = exponent + 15
+        sign = 0x8000 if data < 0 else 0
+        scaled_significand = abs(significand) * (2 ** exponent)
+
+        dump_value = sign | int(biased_exponent << 10) | int(scaled_significand)
+        stream.write(dump_value.to_bytes(2, self.endian, signed=False))
+
+
+class Float32(Float):
+    """A floating-point number stored in IEEE-754 binary32 format."""
+    def __init__(self, **kwargs):
+        super().__init__(format_string='f', **kwargs)
+
+
+class Float64(Float):
+    """A floating-point number stored in IEEE-754 binary64 format."""
+    def __init__(self, **kwargs):
+        super().__init__(format_string='d', **kwargs)
+
+
 class Integer(Field):
     """An integer.
+
+    This is a base class and should not be used directly.
 
     :param str endian:
         The endianness to use to load/store the integer. Either 'big' or 'little'.
