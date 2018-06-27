@@ -775,10 +775,17 @@ class Float(Field):
 
     def _do_load(self, stream, context, loaded_fields):
         data = self._read_exact_size(stream)
-        return struct.unpack(self.format_string, data)[0]
+        try:
+            return struct.unpack(self.format_string, data)[0]
+        except struct.error as exc:
+            raise errors.DeserializationError(
+                message=str(exc), field=self, data=data)
 
     def _do_dump(self, stream, data, context, all_fields):
-        serialized = struct.pack(self.format_string, data)
+        try:
+            serialized = struct.pack(self.format_string, data)
+        except struct.error as exc:
+            raise errors.SerializationError(message=str(exc), field=self)
         stream.write(serialized)
 
     def _size_for_value(self, value):
