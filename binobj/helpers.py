@@ -1,6 +1,5 @@
 """Various helper functions for stream I/O."""
 
-import math
 import sys
 
 from binobj import errors
@@ -86,46 +85,3 @@ def iter_bytes(stream, max_bytes=0):
             return
         yield this_byte
         n_read += 1
-
-
-def read_float16(stream, endian=None):
-    """Read a 16-bit floating-point number from the given byte stream."""
-    bits = read_int(stream, 2, endian)
-
-    significand = (bits & 0x3ff)
-    exponent = (bits >> 10) & 0x1f
-    sign = (bits >> 15) & 1
-
-    if exponent == 0:
-        return (-1 ** sign) * (2 ** -14) * (bits & 0x3ff)
-    elif exponent < 31:
-        return (-1 ** sign) * (2 ** (exponent - 15)) * (significand + 0x400)
-    elif significand == 0:
-        return (-1 ** sign) * float('inf')
-    return float('nan')
-
-
-def write_float16(stream, value, endian=None):
-    """Write a 16-bit floating-point number to the given byte stream."""
-    if math.isinf(value):
-        if value < 0:
-            write_int(stream, 0b1111110000000000, 2, False, endian)
-        else:
-            write_int(stream, 0b0111110000000000, 2, False, endian)
-        return
-    elif math.isnan(value):
-        write_int(stream, 0b0111111111111111, 2, False, endian)
-        return
-
-    significand, exponent = math.frexp(value)
-
-    if exponent < -15 or exponent > 15:
-        raise OverflowError("Can't represent %f as a short float." % value)
-
-    biased_exponent = exponent + 15
-    sign = 0x8000 if value < 0 else 0
-    scaled_significand = abs(significand) * (2 ** exponent)
-
-    write_int(
-        stream, sign | int(biased_exponent << 10) | int(scaled_significand), 2,
-        False, endian)

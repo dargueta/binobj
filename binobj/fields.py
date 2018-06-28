@@ -764,7 +764,6 @@ class Float(Field):
         super().__init__(**kwargs)
 
         self.endian = endian or sys.byteorder
-
         if self.endian == 'big':
             self.format_string = '>' + format_string
         elif self.endian == 'little':
@@ -790,28 +789,6 @@ class Float(Field):
 
     def _size_for_value(self, value):
         return struct.calcsize(self.format_string)
-
-
-class Float16(Float):
-    """A floating-point number stored in IEEE-754 binary16 format."""
-    def __init__(self, **kwargs):
-        super().__init__(format_string='e', **kwargs)
-
-    def _do_load(self, stream, context, loaded_fields):
-        try:
-            return super()._do_load(stream, context, loaded_fields)
-        except struct.error:
-            # This version of Python doesn't support binary16 so we need to do
-            # it ourselves.
-            return helpers.read_float16(stream, self.endian)
-
-    def _do_dump(self, stream, data, context, all_fields):
-        try:
-            super()._do_dump(stream, data, context, all_fields)
-        except struct.error:
-            # This version of Python doesn't support binary16 so we need to do
-            # it ourselves.
-            helpers.write_float16(stream, data, self.endian)
 
 
 class Float32(Float):
