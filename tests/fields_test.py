@@ -529,15 +529,6 @@ def test_stringz_load_multibyte():
     assert field.loads(b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00') == 'AbCd'
 
 
-def test_varint__signed_crash():
-    """Crash when creating a signed variable-length integer using an encoding
-    that doesn't support signed values."""
-    with pytest.raises(errors.ConfigurationError) as errinfo:
-        fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
-
-    assert str(errinfo.value).startswith("Signed integers can't be encoded")
-
-
 def test_varint__unsupported_encoding():
     """Crash if we try using an unsupported VarInt encoding."""
     with pytest.raises(errors.ConfigurationError) as errinfo:

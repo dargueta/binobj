@@ -8,6 +8,7 @@ import functools
 import io
 import struct
 import sys
+import warnings
 
 from binobj import errors
 from binobj import helpers
@@ -843,34 +844,57 @@ class VariableLengthInteger(Integer):
     :param int max_bytes:
         The maximum number of bytes to use for encoding this integer. If not
         given, there's no restriction on the size.
+    :param str endian:
+
+        .. deprecated:: 0.4.3
+
+            Since variable-length integer formats all specify an endianness, this
+            argument is now ignored and will be removed in a later version.
+
     :param bool signed:
         If ``True``, this field is a signed integer.
 
-    .. note::
+        .. deprecated:: 0.4.3
 
-        Not all integer encodings allow signed integers.
+            Since variable-length integer formats all specify a signedness, this
+            argument is now ignored and will be removed in a later version.
     """
-    def __init__(self, *, vli_format, max_bytes=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *, vli_format, max_bytes=None, endian=None, signed=None,
+                 **kwargs):
+        encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
 
-        if vli_format == varints.VarIntEncoding.VLQ and self.signed is True:
-            raise errors.ConfigurationError(
-                "Signed integers can't be encoded with VLQ. Either pass "
-                "`signed=False` to __init__ or use an encoding that works for "
-                "signed integers, like %s."
-                % varints.VarIntEncoding.COMPACT_INDICES,
-                field=self)
-
-        encoding_functions = varints.INTEGER_ENCODING_MAP.get(vli_format)
-        if encoding_functions is None:
+        if encoding_info is None:
             raise errors.ConfigurationError(
                 'Invalid or unsupported integer encoding scheme: %r' % vli_format,
                 field=self)
 
+        format_endianness = encoding_info['endian']
+        format_signedness = encoding_info['signed']
+
+        if signed is not None and signed != format_signedness:
+            raise errors.ConfigurationError(
+                "%s integers are %s by default, but signed=%r was passed to "
+                "the constructor."
+                % (vli_format, 'signed' if format_signedness else 'unsigned', signed),
+                field=self)
+        elif endian is not None and endian != format_endianness:
+            raise errors.ConfigurationError(
+                "%s integers are %s endian by default, but endian=%r was passed "
+                "to the constructor." % (vli_format, format_endianness, endian),
+                field=self)
+
+        if signed is not None or endian is not None:
+            warnings.warn('The `signed` and `endian` arguments are deprecated '
+                          'and will be removed in a later version.',
+                          DeprecationWarning)
+
+        super().__init__(endian=format_endianness, signed=format_signedness,
+                         **kwargs)
+
         self.vli_format = vli_format
         self.max_bytes = max_bytes
-        self._encode_integer_fn = encoding_functions['encode']
-        self._decode_integer_fn = encoding_functions['decode']
+        self._encode_integer_fn = encoding_info['encode']
+        self._decode_integer_fn = encoding_info['decode']
 
     # pylint: disable=unused-argument
 
