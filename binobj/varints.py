@@ -13,14 +13,11 @@ from binobj import helpers
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
     COMPACT_INDICES = 'compact'
-    # GIT_VLQ = 'git'       # Not implemented
-    # LEB128 = 'leb128'     # Not implemented
-    # ULEB128 = 'uleb128'   # Not implemented
+    LEB128 = 'leb128'
+    ULEB128 = 'uleb128'
     VLQ = 'vlq'
     ZIGZAG = 'zigzag'
 
-
-# TODO (dargueta): Implement the rest of the encodings.
 
 def _read_uint8(stream):
     """Read an unsigned 8-bit integer from the given byte stream."""
@@ -186,21 +183,145 @@ def decode_integer_zigzag(stream):
             return (value >> 1) ^ (-(value & 1))
 
 
+def encode_integer_uleb128(value):
+    """Encode an integer with unsigned LEB128 encoding.
+
+    :param int value:
+        The value to encode.
+
+    :return: ``value`` encoded as a variable-length integer in ULEB128 format.
+    :rtype: bytes
+    """
+    if value < 0:
+        raise ValueError(
+            "The ULEB128 integer encoding doesn't support negative numbers.")
+    elif value == 0:
+        return b'\0'
+
+    output = bytearray()
+
+    while value > 0:
+        continue_bit = 0x80 if value > 127 else 0
+        output.append(continue_bit | (value & 0x7f))
+        value >>= 7
+
+    return bytes(output)
+
+
+def decode_integer_uleb128(stream):
+    """Decode an unsigned LEB128-encoded integer from the given stream.
+
+    :param io.BufferedIOBase stream:
+        The stream to read from.
+
+    :return: The decoded integer.
+    :rtype: int
+    """
+    value = 0
+    bits_read = 0
+
+    while True:
+        int8 = _read_uint8(stream)
+        value |= (int8 & 0x7f) << bits_read
+        bits_read += 7
+
+        if not (int8 & 0x80):
+            return value
+
+
+def encode_integer_leb128(value):
+    """Encode an integer with signed LEB128 encoding.
+
+    :param int value:
+        The value to encode.
+
+    :return: ``value`` encoded as a variable-length integer in LEB128 format.
+    :rtype: bytes
+    """
+    if value == 0:
+        return b'\0'
+
+    # Calculate the number of bits in the integer and round up to the nearest
+    # multiple of 7. We need to add 1 bit because bit_length() only returns the
+    # number of bits required to encode the magnitude, but not the sign.
+
+    n_bits = value.bit_length() + 1
+    if n_bits % 7:
+        n_bits += 7 - (n_bits % 7)
+
+    # Bit operations force a negative integer to its unsigned twos-complement
+    # representation, e.g. -127 & 0xff = 0x80, -10 & 0xfff = 0xff6, etc. We use
+    # this to sign-extend the number *and* make it unsigned. Once it's unsigned,
+    # we can use ULEB128.
+    mask = (1 << n_bits) - 1
+    value &= mask
+
+    output = bytearray(n_bits // 7)
+
+    for i in range(n_bits // 7):
+        output[i] = 0x80 | (value & 0x7f)
+        value >>= 7
+
+    # Last byte shouldn't have the high bit set.
+    output[-1] &= 0x7f
+    return bytes(output)
+
+
+def decode_integer_leb128(stream):
+    """Decode a signed LEB128-encoded integer from the given stream.
+
+    :param io.BufferedIOBase stream:
+        The stream to read from.
+
+    :return: The decoded integer.
+    :rtype: int
+    """
+    starting_offset = stream.tell()
+    value = decode_integer_uleb128(stream)
+    if value == 0:
+        return 0
+
+    n_bytes_read = stream.tell() - starting_offset
+    n_bits_read = n_bytes_read * 7
+    n_value_bits = value.bit_length()
+
+    if n_bits_read > n_value_bits:
+        return value
+
+    # `value` is negative.
+    return -((1 << n_bits_read) - value)
+
+
 #: A mapping of encoding enums to encode/decode functions.
 INTEGER_ENCODING_MAP = {
     VarIntEncoding.COMPACT_INDICES: {
         'encode': encode_integer_compact,
         'decode': decode_integer_compact,
         'endian': 'big',
+        'signed': True,
+    },
+    VarIntEncoding.LEB128: {
+        'encode': encode_integer_leb128,
+        'decode': decode_integer_leb128,
+        'endian': 'little',
+        'signed': True,
+    },
+    VarIntEncoding.ULEB128: {
+        'encode': encode_integer_uleb128,
+        'decode': decode_integer_uleb128,
+        'endian': 'little',
+        'signed': False,
     },
     VarIntEncoding.VLQ: {
         'encode': encode_integer_vlq,
         'decode': decode_integer_vlq,
         'endian': 'big',
+        'signed': False,
     },
     VarIntEncoding.ZIGZAG: {
         'encode': encode_integer_zigzag,
         'decode': decode_integer_zigzag,
         'endian': 'little',
-    }
+        'signed': True,
+    },
 }
