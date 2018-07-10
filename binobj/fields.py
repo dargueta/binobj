@@ -873,14 +873,13 @@ class VariableLengthInteger(Integer):
 
         if signed is not None and signed != format_signedness:
             raise errors.ConfigurationError(
-                "%s integers are %s by default, but signed=%r was passed to "
-                "the constructor."
+                "%s integers are %s, but signed=%r was passed to __init__()."
                 % (vli_format, 'signed' if format_signedness else 'unsigned', signed),
                 field=self)
         elif endian is not None and endian != format_endianness:
             raise errors.ConfigurationError(
-                "%s integers are %s endian by default, but endian=%r was passed "
-                "to the constructor." % (vli_format, format_endianness, endian),
+                "%s integers are %s endian, but endian=%r was passed to __init__()."
+                % (vli_format, format_endianness, endian),
                 field=self)
 
         if signed is not None or endian is not None:

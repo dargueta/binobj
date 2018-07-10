@@ -529,6 +529,36 @@ def test_stringz_load_multibyte():
     assert field.loads(b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00') == 'AbCd'
 
 
+def test_varint__signed_crash():
+    """Crash when creating a signed variable-length integer using an encoding
+    that doesn't support signed values."""
+    with pytest.raises(errors.ConfigurationError) as errinfo:
+        fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
+                                     signed=True)
+
+    assert str(errinfo.value).startswith("VarIntEncoding.VLQ integers are unsigned")
+
+
+def test_varint__endian_crash():
+    """Crash when creating a little-endian variable-length integer using a big-
+    endian encoding."""
+    with pytest.raises(errors.ConfigurationError) as errinfo:
+        fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
+                                     endian='little')
+
+    assert str(errinfo.value).startswith("VarIntEncoding.VLQ integers are big endian")
+
+
+@pytest.mark.parametrize('kwargs', (
+    {'vli_format': varints.VarIntEncoding.LEB128, 'endian': 'little'},
+    {'vli_format': varints.VarIntEncoding.VLQ, 'signed': False},
+))
+def test_varint__explicit_signed_or_endian_warns(kwargs):
+    """The signed and endian kwargs are deprecated for varints."""
+    with pytest.warns(DeprecationWarning):
+        fields.VariableLengthInteger(**kwargs)
+
+
 def test_varint__unsupported_encoding():
     """Crash if we try using an unsupported VarInt encoding."""
     with pytest.raises(errors.ConfigurationError) as errinfo:
