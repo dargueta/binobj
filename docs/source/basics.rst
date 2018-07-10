@@ -46,7 +46,6 @@ This is because ``James`` is only five bytes long. Hm. We could pad the strings
 with trailing spaces and remove the trailing spaces when loading a record. Let's
 try that.
 
-
 .. code-block:: python
 
     person = PersonInfo(first_name='James   ', last_name='Kirk    ',
@@ -91,7 +90,6 @@ be UTF-8:
 
     Be careful with multibyte encodings! The ``size`` argument specifies the size
     of the field in *bytes*, not *characters*!
-
 
 Variable-Length Fields
 ----------------------
@@ -292,7 +290,7 @@ your strings accordingly.
     import datetime
 
     class Date(binobj.Field):
-        def _do_load(self, stream, context):
+        def _do_load(self, stream, context, loaded_fields):
             """Load a date from the stream."""
             date_bytes = stream.read(8)
             date_string = date_bytes.decode('ascii')
@@ -300,7 +298,7 @@ your strings accordingly.
             timestamp = datetime.datetime.strptime(date_string, '%Y%m%d')
             return timestamp.date()
 
-        def _do_dump(self, stream, data, context):
+        def _do_dump(self, stream, data, context, all_fields):
             """Dump a date into the stream."""
             # Let the user pass in a date or datetime
             if isinstance(data, datetime.datetime):
