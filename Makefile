@@ -6,7 +6,7 @@ DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-PYTHON_VERSIONS=3.6.5 3.5.5 3.4.8 3.7.0b4 pypy3.5-6.0.0
+PYTHON_VERSIONS=3.6.5 3.5.5 3.4.8 3.7.0 pypy3.5-6.0.0
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
@@ -35,7 +35,7 @@ setup: .python-version setup.py
 .PHONY: lint
 lint: $(SOURCEFILES)
 	pylint --disable=fixme,too-many-ancestors $(SOURCEDIR) || true
-	pylint --disable=missing-docstring,blacklisted-name,too-few-public-methods,invalid-name,redefined-outer-name,too-many-ancestors $(TESTDIR) || true
+	pylint --disable=missing-docstring,blacklisted-name,too-few-public-methods,invalid-name,redefined-outer-name,too-many-ancestors,no-self-use $(TESTDIR) || true
 
 # TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean

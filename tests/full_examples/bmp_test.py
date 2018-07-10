@@ -20,7 +20,7 @@ class SimpleBMPFileHeader(binobj.Struct):
     """
     magic = binobj.Bytes(const=b'BM')
     file_size = binobj.UInt32()
-    _reserved = binobj.Bytes(size=4, discard=True, default=b'\0\0\0\0')
+    _reserved = binobj.Bytes(const=b'\0\0\0\0', discard=True)
     pixels_offset = binobj.UInt32()
 
     # Legacy DIB header
