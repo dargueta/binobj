@@ -225,7 +225,7 @@ def decode_integer_uleb128(stream):
         value |= (int8 & 0x7f) << bits_read
         bits_read += 7
 
-        if not (int8 & 0x80):
+        if not int8 & 0x80:
             return value
 
 

@@ -4,7 +4,6 @@ import io
 
 import pytest
 
-from binobj import errors
 from binobj import varints
 
 
