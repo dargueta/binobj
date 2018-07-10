@@ -26,7 +26,7 @@ setuptools.setup(
     description='A Python library for reading and writing structured binary data.',
     extras_require={
         'dev': [
-            'bumpversion==0.5.3',
+            'bumpversion==0.5.*',
             'detox>=0.10',
             'Sphinx>=1.6',
             'tox>=2.8, <3.0',   # 3.x breaks some plugins
