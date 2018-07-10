@@ -80,7 +80,7 @@ def test_const_set_size__sized_int_works():
 def test_const_set_size__varint():
     """Variable integers should set their size when ``const`` is defined."""
     field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
-                                         const=987654321, signed=False)
+                                         const=987654321)
     assert field.size == 5
 
 
@@ -547,8 +547,7 @@ def test_varint__basic_dump(value, expected):
     We know that our codecs work (see varints_test.py) so here we're doing a
     perfunctory test to make sure dumping works as expected.
     """
-    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
-                                         signed=False)
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
     assert field.dumps(value) == expected
 
 
@@ -557,8 +556,7 @@ def test_varint__basic_dump(value, expected):
 ))
 def test_varint__basic_load(data, expected):
     """Test VLQ load."""
-    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
-                                         signed=False)
+    field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
     assert field.loads(data) == expected
 
 
@@ -573,7 +571,7 @@ def test_varint__overflow():
 def test_varint__max_bytes():
     """Crash if a variable-length integer takes up too many bytes."""
     field = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,
-                                         signed=False, max_bytes=2)
+                                         max_bytes=2)
 
     with pytest.raises(errors.ValueSizeError):
         field.dumps(100000)
