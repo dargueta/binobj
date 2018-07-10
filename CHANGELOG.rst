@@ -1,6 +1,50 @@
 Changelog
 =========
 
+0.4.3
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* You no longer need to specify the signedness of variable-length integer fields,
+  since those are hard-coded by the standards anyway.
+* Outdated documentation was missing some arguments in ``_do_load`` and ``_do_dump``
+  examples.
+
+Features
+~~~~~~~~
+
+* Added the ``Float32`` and ``Float64`` fields. These support 32- and 64-bit
+  floating-point numbers stored in IEEE-754:2008 interchange format.
+* Added support for signed and unsigned `LEB128 <https://en.wikipedia.org/wiki/LEB128>`_
+  variable-length integers.
+
+Deprecations
+~~~~~~~~~~~~
+
+* Passing the ``signed`` or ``endian`` keyword arguments to a ``VariableLengthInteger``
+  is now superfluous, and will cause a ``DeprecationWarning``. These arguments
+  will be removed in a future version.
+* Importing ``Field`` objects *directly* from ``binobj`` is deprecated. Import
+  them from ``binobj.fields`` instead. This will reduce namespace clutter.
+
+.. code-block:: python
+
+    # Deprecated:
+    from binobj import String
+
+    # Do this instead:
+    from binobj.fields import String
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Use the "Alabaster" theme for documentation instead of RTD.
+* Relax the dependency on ``bumpversion``.
+
 0.4.2
 -----
 
