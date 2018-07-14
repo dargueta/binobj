@@ -1,6 +1,25 @@
 Changelog
 =========
 
+0.4.4
+-----
+
+Released: 2018-XX-XX
+
+This release is a significant rearrangement of the code, but no behavior has
+changed.
+
+``binobj.fields`` was split from a module into a subpackage, with the following
+modules:
+
+* ``base``: The ``Field`` base class and a few other things.
+* ``containers``: The fields used to nest other schemas and fields, such as
+  ``Array`` and ``Nested``.
+* ``numeric``: All fields representing numeric values, such as integers and
+   floats.
+* ``stringlike``: All fields that are text strings or bytes.
+
+
 0.4.3
 -----
 
