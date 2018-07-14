@@ -1,3 +1,5 @@
+import struct
+
 import pytest
 
 from binobj import errors
@@ -90,37 +92,56 @@ def test_varint__max_bytes():
         field.dumps(100000)
 
 
-@pytest.mark.parametrize('value, expected', (
-    (3.141592654, b'\xdb\x0f\x49\x40'),
-    (100, b'\x00\x00\xc8\x42'),
-    (2 ** 31, b'\x00\x00\x00\x4f'),
-    (float('inf'), b'\x00\x00\x80\x7f'),
-    (-float('inf'), b'\x00\x00\x80\xff'),
-    (float('nan'), b'\x00\x00\xc0\x7f'),
+def test_float_bad_endian_crashes():
+    """Endianness must be either 'little' or 'big'."""
+    with pytest.raises(ValueError):
+        numeric.Float64(endian='broken')
+
+
+@pytest.mark.parametrize('field_object, fmt_string', (
+    (numeric.Float32(endian='little'), '<f'),
+    (numeric.Float64(endian='little'), '<d'),
+    (numeric.Float32(endian='big'), '>f'),
+    (numeric.Float64(endian='big'), '>d'),
 ))
-def test_float32__dumps__basic_le(value, expected):
-    field = numeric.Float32(endian='little')
-    assert field.dumps(value) == expected
-
-
-def test_float32__dumps__basic_be():
-    field = numeric.Float32(endian='big')
-    assert field.dumps(2 ** 31) == b'\x4f\x00\x00\x00'
-
-
-@pytest.mark.parametrize('value, expected', (
-    (3.141592654, b'\x40\x09\x21\xfb\x54\x52\x45\x50'),
-    (100, b'\x40\x59\x00\x00\x00\x00\x00\x00'),
-    (2 ** 31, b'\x41\xe0\x00\x00\x00\x00\x00\x00'),
-    (float('inf'), b'\x7f\xf0\x00\x00\x00\x00\x00\x00'),
-    (-float('inf'), b'\xff\xf0\x00\x00\x00\x00\x00\x00'),
-    (float('nan'), b'\x7f\xf8\x00\x00\x00\x00\x00\x00'),
+@pytest.mark.parametrize('value', (
+    3.141592654,
+    float('inf'),
+    -float('inf'),
+    float('nan')
 ))
-def test_float64__dumps__basic_be(value, expected):
-    field = numeric.Float64(endian='big')
-    assert field.dumps(value) == expected
+def test_float__dumps(value, field_object, fmt_string):
+    assert field_object.dumps(value) == struct.pack(fmt_string, value)
 
 
-def test_float64__dumps__basic_le():
-    field = numeric.Float64(endian='little')
-    assert field.dumps(2 ** 31) == b'\x00\x00\x00\x00\x00\x00\xe0\x41'
+@pytest.mark.parametrize('field_object, fmt_string', (
+    (numeric.Float32(endian='little'), '<f'),
+    (numeric.Float64(endian='little'), '<d'),
+    (numeric.Float32(endian='big'), '>f'),
+    (numeric.Float64(endian='big'), '>d'),
+))
+@pytest.mark.parametrize('value', (
+    3.141592654,
+    float('inf'),
+    -float('inf'),
+))
+def test_float__loads(value, field_object, fmt_string):
+    assert field_object.loads(struct.pack(fmt_string, value)) == pytest.approx(value)
+
+
+def test_float__loads__exception_translation(mocker):
+    """:class:`struct.error` must be translated."""
+    pack_mock = mocker.patch('binobj.fields.numeric.struct.unpack')
+    pack_mock.side_effect = struct.error('Some error happened')
+
+    with pytest.raises(errors.DeserializationError):
+        numeric.Float32().loads(b'1234')
+
+
+def test_float__dumps__exception_translation(mocker):
+    """:class:`struct.error` must be translated."""
+    pack_mock = mocker.patch('binobj.fields.numeric.struct.pack')
+    pack_mock.side_effect = struct.error('Some error happened')
+
+    with pytest.raises(errors.SerializationError):
+        numeric.Float32().dumps(1234)
