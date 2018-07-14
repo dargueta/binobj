@@ -35,6 +35,7 @@ setuptools.setup(
         'test': [
             'pytest>=3.0, !=3.2.0, !=3.3.0',
             'pytest-cov>=2.0',
+            'pytest-mock>=1.3.0',
             'pytest-randomly>=1.0',
         ],
     },
