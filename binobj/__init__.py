@@ -11,6 +11,8 @@ __version__ = '0.4.3'
 __version_info__ = tuple(int(p) for p in __version__.split('.'))
 
 
+# pylint: disable=wildcard-import
+
 from .errors import *
 from .fields import *
 from .structures import *

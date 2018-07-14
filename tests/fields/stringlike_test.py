@@ -148,4 +148,3 @@ def test_stringz_load_multibyte():
     field = stringlike.StringZ(encoding='utf-16')
     assert field.loads(b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00') == 'AbCd'
     assert field.loads(b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00') == 'AbCd'
-

@@ -490,4 +490,3 @@ class Field:
 
     def __str__(self):
         return '%s(name=%r)' % (type(self).__name__, self.name)
-
