@@ -8,6 +8,13 @@ import io
 from binobj import errors
 
 
+__all__ = [
+    'DEFAULT',
+    'UNDEFINED',
+    'Field',
+]
+
+
 class _NamedSentinel:   # pylint: disable=too-few-public-methods
     """An object type used for creating sentinel objects that can be retrieved
     by name.
