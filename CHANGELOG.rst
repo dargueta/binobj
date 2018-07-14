@@ -6,6 +6,16 @@ Changelog
 
 Released: 2018-XX-XX
 
+Bugfixes
+~~~~~~~~
+
+* Loading floats didn't work at all because ``size`` wasn't set in the constructor.
+* Fixed minor typo in the documentation.
+
+
+Other Changes
+~~~~~~~~~~~~~
+
 This release is a significant rearrangement of the code, but no behavior has
 changed.
 
