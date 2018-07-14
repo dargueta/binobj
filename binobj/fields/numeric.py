@@ -55,9 +55,6 @@ class Float(Field):
             raise errors.SerializationError(message=str(exc), field=self)
         stream.write(serialized)
 
-    def _size_for_value(self, value):
-        return struct.calcsize(self.format_string)
-
 
 class Float32(Float):
     """A floating-point number stored in IEEE-754 binary32 format."""
