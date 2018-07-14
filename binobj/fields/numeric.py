@@ -14,7 +14,7 @@ __all__ = [
     'Float32', 'Float64',
     'Int8', 'Int16', 'Int32', 'Int64',
     'UInt8', 'UInt16', 'UInt32', 'UInt64',
-    'VariableLengthInteger',
+    'Integer', 'UnsignedInteger', 'VariableLengthInteger',
 ]
 
 
@@ -29,7 +29,7 @@ class Float(Field):
         :data:`sys.byteorder`.
     """
     def __init__(self, *, format_string, endian=None, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(size=struct.calcsize(format_string), **kwargs)
 
         self.endian = endian or sys.byteorder
         if self.endian == 'big':
