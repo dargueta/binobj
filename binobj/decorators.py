@@ -45,9 +45,9 @@ def validates(*field_names):
 def validates_struct(func):
     """A decorator that marks a method as a validator for the entire struct.
 
-    The method being decorated should take a single aside from ``self``, the
-    dict to validate. The validator is invoked right after it's been loaded, or
-    right before it's dumped.
+    The method being decorated should take a single argument aside from ``self``,
+    the dict to validate. The validator is invoked right after it's been loaded,
+    or right before it's dumped.
 
     It's highly inadvisable to modify the contents, because it's easy to create
     invalid results. For example, if a struct has a field giving the length of
