@@ -3,8 +3,9 @@ python:
   - '3.4'
   - '3.5'
   - '3.6'
-  - '3.7-dev'
+  - '3.7'
+  - '3.8-dev'
   - 'pypy3'
 install:
-  - pip3 install -Ue .[test] tox-travis
+  - pip3 install -U .[test] tox-travis
 script: tox
