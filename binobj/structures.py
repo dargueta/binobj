@@ -71,13 +71,15 @@ class StructMeta(abc.ABCMeta):
             # copy.
             offset = 0
             validators = {
-                'fields': {
-                    obj: []
-                    for name, obj in namespace.items()
-                    if isinstance(obj, fields.Field)
-                },
+                'fields': {},
                 'struct': [],
             }
+
+        validators['fields'].update({
+            name: []
+            for name, obj in namespace.items()
+            if isinstance(obj, fields.Field)
+        })
 
         field_index = len(components)
 
