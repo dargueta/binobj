@@ -78,7 +78,14 @@ def test_const_set_size__stringz():
     """Variable-length strings MUST set their size with ``const``."""
     field = fields.StringZ(const='asdf')
     assert field.size is not None, "Size wasn't set."
-    assert field.size == 4, 'Size is incorrect.'
+    assert field.size == 5, 'Size is incorrect.'
+
+
+def test_const_set_size__stringz_utf16():
+    """Variable-length strings MUST set their size with ``const``."""
+    field = fields.StringZ(const='wxyz', encoding='utf-16')
+    assert field.size is not None, "Size wasn't set."
+    assert field.size == 12, 'Size is incorrect.'
 
 
 def test_dump__null_with_null_value():

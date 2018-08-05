@@ -139,3 +139,6 @@ class StringZ(String):
 
     def _do_dump(self, stream, data, context, all_fields):
         stream.write(self._encode_and_resize(data + '\0'))
+
+    def _size_for_value(self, value):
+        return len((value + '\0').encode(self.encoding))
