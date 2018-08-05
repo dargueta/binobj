@@ -66,13 +66,35 @@ class Field:
         return a default value.
 
         This argument (or the return value of the callable) *must* be of the
-        same type as the field, i.e. it must be a string for a :class:`String`,
-        an integer for an :class:`Integer`, and so on.
+        same type as the field, i.e. it must be a string for a
+        :class:`~binobj.fields.stringlike.String`, an integer for an
+        :class:`~binobj.fields.numeric.Integer`, and so on.
     :param bool discard:
         When deserializing, don't include this field in the returned results.
     :param bytes null_value:
         A value to use to dump ``None``. When loading, the returned value will
         be ``None`` if this value is encountered.
+    :param callable present:
+        Optional. A callable that, when called, returns a boolean indicating if
+        this field is "present" and should be loaded or dumped. For example, if
+        we have a ``flags`` field that's a bitmap indicating what fields come
+        next, we could have something like this::
+
+            flags = fields.UInt16()
+            foo = fields.StringZ(present=lambda v, *_: v['flags'] & 0x8000)
+            bar = fields.StringZ(present=lambda v, *_: v['flags'] & 0x4000)
+
+        Thus, if and only if ``flags`` has bit 15 set, ``foo`` will be read from
+        the stream next. If ``flags`` has bit 15 clear, ``foo`` will be assigned
+        :data:`~binobj.fields.base.UNDEFINED`.
+
+        The callable takes three positional arguments:
+
+        - A dict of the fields that have already been loaded or are about to be
+          dumped.
+        - The ``context`` object passed to :meth:`load` or :meth:`dump`.
+        - When loading, the stream being loaded from. The stream pointer MUST
+          be reset to its original position before the function returns.
     :param validate:
         A callable or list of callables that validates a given value for this
         field. The callable(s) will always be passed the deserialized value, so
@@ -103,10 +125,12 @@ class Field:
         :type: int
     """
     def __init__(self, *, name=None, const=UNDEFINED, default=UNDEFINED,
-                 discard=False, null_value=UNDEFINED, size=None, validate=()):
+                 discard=False, null_value=UNDEFINED, size=None, validate=(),
+                 present=None):
         self.const = const
         self.discard = discard
         self.null_value = null_value
+        self.present = present or (lambda *_: True)
         self._size = size
 
         if isinstance(validate, collections.Iterable):
@@ -283,6 +307,9 @@ class Field:
 
         :return: The deserialized data.
         """
+        if not self.present(loaded_fields, context, stream):
+            return UNDEFINED
+
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
             loaded_value = self._do_load(stream, context=context,
@@ -364,11 +391,13 @@ class Field:
             anything they don't recognize.
         :param dict all_fields:
             A dictionary of the fields about to be dumped. This is automatically
-            set automatically by the field's containing
-            :class:`~binobj.structures.Struct`.
+            set by the field's containing :class:`~binobj.structures.Struct`.
         """
         if all_fields is None:
             all_fields = {}
+
+        if not self.present(all_fields, context, None):
+            return
 
         if data is DEFAULT:
             data = self.default

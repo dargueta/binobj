@@ -1,6 +1,25 @@
 Changelog
 =========
 
+0.4.5
+-----
+
+Released: 2018-XX-XX
+
+Bugfixes
+~~~~~~~~
+
+* ``StringZ`` failed to include the trailing null when reporting its size.
+* ``pylint`` was missing from the development dependencies.
+
+Features
+~~~~~~~~
+
+Added ``present`` argument to ``Field`` that accepts a callable returning a
+boolean indicating if the field is present. This is useful for optional
+structures whose presence in a stream is dependent on a bit flag somewhere
+searlier in the stream.
+
 0.4.4
 -----
 
