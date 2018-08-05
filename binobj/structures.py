@@ -216,15 +216,11 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             anything they don't recognize.
         """
         self.validate_contents()
-        all_fields = self.to_dict(True)
 
-        for field_name, value in all_fields.items():
-            # Remove once to_dump(fill_missing=True) is gone
-            if value is fields.UNDEFINED:
-                raise errors.MissingRequiredValueError(field=field_name)
-
-            field_obj = self.__components__[field_name]
-            field_obj.dump(stream, value, context=context, all_fields=all_fields)
+        for field_name, field in self.__components__.items():
+            value = field.compute_value_for_dump(self)
+            if value is not fields.NOT_PRESENT:
+                field.dump(stream, value, context=context, all_fields=self)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.

@@ -285,3 +285,49 @@ def test_field_subclass_super_delegation():
 
     with pytest.raises(errors.UnserializableValueError):
         field.dumps(b' ')
+
+
+class BasicPresentStruct(binobj.Struct):
+    flags = fields.UInt16(endian='little')
+    thing = fields.StringZ(present=lambda f, *_: f['flags'] & 0x8000)
+    other_thing = fields.UInt16(const=0x1234, endian='little')
+
+    @flags.computes
+    def _flags(self, all_values):
+        existing = all_values.get('flags', 0)
+        if 'thing' in all_values:
+            return existing | 0x8000
+        return existing
+
+
+def test_present__load__not_present():
+    data = b'\xff\x7f\x34\x12'
+    struct = BasicPresentStruct.from_bytes(data)
+
+    assert struct == {
+        'flags': 0x7fff,
+        'thing': fields.NOT_PRESENT,
+        'other_thing': 0x1234,
+    }
+
+
+def test_present__load__present():
+    data = b'\xff\xffhello!\x00\x34\x12'
+    struct = BasicPresentStruct.from_bytes(data)
+
+    assert struct == {
+        'flags': 0xffff,
+        'thing': 'hello!',
+        'other_thing': 0x1234,
+    }
+
+
+def test_present__dump__not_present_not_given():
+    struct = BasicPresentStruct(flags=1, other_thing=0x1337)
+    assert struct.to_bytes() == b'\x01\x00\x37\x13'
+
+
+@pytest.mark.parametrize('thing', (fields.UNDEFINED, fields.NOT_PRESENT))
+def test_present__dump_not_present_given_something(thing):
+    struct = BasicPresentStruct(flags=1, thing=thing, other_thing=0x1337)
+    assert struct.to_bytes() == b'\x01\x00\x37\x13'

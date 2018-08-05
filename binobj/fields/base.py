@@ -10,6 +10,7 @@ from binobj import errors
 
 __all__ = [
     'DEFAULT',
+    'NOT_PRESENT',
     'UNDEFINED',
     'Field',
 ]
@@ -45,6 +46,11 @@ UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
 #: be used. We need this because sometimes ``None`` is a valid value for that
 #: setting.
 DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
+
+#: A sentinel value used to indicate that a field is not present.
+#:
+#: ..versionadded:: 0.4.5
+NOT_PRESENT = _NamedSentinel.get_sentinel('NOT_PRESENT')
 
 
 class Field:
@@ -86,7 +92,7 @@ class Field:
 
         Thus, if and only if ``flags`` has bit 15 set, ``foo`` will be read from
         the stream next. If ``flags`` has bit 15 clear, ``foo`` will be assigned
-        :data:`~binobj.fields.base.UNDEFINED`.
+        :data:`NOT_PRESENT`.
 
         The callable takes three positional arguments:
 
@@ -185,13 +191,17 @@ class Field:
         :param dict all_values:
             The dictionary of all the field data that's about to be dumped.
 
-        :return: The value the dumper will use for this field.
+        :return:
+            The value the dumper will use for this field, or :data:`NOT_PRESENT`
+            if the field shouldn't be serialized.
 
         :raise binobj.errors.MissingRequiredValueError:
             No value could be derived for this field. It's missing in the input
             data, there's no default defined, and it doesn't have a compute
             function defined either.
         """
+        if not self.present(all_values):
+            return NOT_PRESENT
         if self.name in all_values:
             return all_values[self.name]
         elif self._default is not UNDEFINED:
@@ -308,7 +318,7 @@ class Field:
         :return: The deserialized data.
         """
         if not self.present(loaded_fields, context, stream):
-            return UNDEFINED
+            return NOT_PRESENT
 
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
@@ -395,9 +405,6 @@ class Field:
         """
         if all_fields is None:
             all_fields = {}
-
-        if not self.present(all_fields, context, None):
-            return
 
         if data is DEFAULT:
             data = self.default
