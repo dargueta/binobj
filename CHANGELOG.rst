@@ -18,7 +18,18 @@ Features
 Added ``present`` argument to ``Field`` that accepts a callable returning a
 boolean indicating if the field is present. This is useful for optional
 structures whose presence in a stream is dependent on a bit flag somewhere
-searlier in the stream.
+earlier in the stream:
+
+.. code-block:: python
+
+    class MyStruct(binobj.Struct):
+        flags = fields.UInt8()
+        name = fields.StringZ(present=lambda f, *_: f['flags'] & 0x80)
+
+    MyStruct.from_bytes(b'\0') == {
+        'flags': 0,
+        'name': fields.NOT_PRESENT,
+    }
 
 0.4.4
 -----
