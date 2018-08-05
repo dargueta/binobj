@@ -24,13 +24,14 @@ class StructMeta(abc.ABCMeta):
     the name and index.
     """
     @classmethod
-    def __prepare__(mcs, name, bases):      # pylint: disable=unused-argument
+    def __prepare__(cls, name, bases):      # pylint: disable=unused-argument
         return collections.OrderedDict()
 
-    def __new__(mcs, class_name, bases, namespace, **kwargs):
+    def __new__(cls, class_name, bases, namespace, **kwargs):
         # Build a list of all of the base classes that appear to be Structs. If
-        # anything else uses StructMeta as a metaclass then we're in trouble.
-        struct_bases = [b for b in bases if issubclass(type(b), mcs)]
+        # anything else uses StructMeta as a metaclass then we're in trouble,
+        # since this will detect that as a second base class.
+        struct_bases = [b for b in bases if issubclass(type(b), cls)]
 
         if len(struct_bases) > 1:
             raise errors.MultipleInheritanceError(struct=class_name)
@@ -70,16 +71,29 @@ class StructMeta(abc.ABCMeta):
             # copy.
             offset = 0
             validators = {
-                'fields': {},
+                'fields': {
+                    obj: []
+                    for name, obj in namespace.items()
+                    if isinstance(obj, fields.Field)
+                },
                 'struct': [],
             }
 
         field_index = len(components)
 
-        # Bind all of this struct's fields to this struct. It's HIGHLY important
-        # that we don't accidentally bind the superclass' fields to this struct.
-        # That's why we're iterating over ``namespace`` and *then* adding the
-        # field into the ``components`` dict.
+        cls._bind_fields(class_name, namespace, components, field_index, offset)
+        cls._bind_validators(namespace, validators)
+
+        namespace['__components__'] = components
+        namespace['__validators__'] = validators
+        return super().__new__(cls, class_name, bases, namespace, **kwargs)
+
+    @staticmethod
+    def _bind_fields(class_name, namespace, components, field_index, offset):
+        """Bind all of this struct's fields to this struct."""
+        # It's HIGHLY important that we don't accidentally bind the superclass'
+        # fields to this struct. That's why we're iterating over ``namespace``
+        # and adding the field into the ``components`` dict *inside* the loop.
         for item_name, item in namespace.items():
             if not isinstance(item, fields.Field):
                 continue
@@ -93,12 +107,12 @@ class StructMeta(abc.ABCMeta):
                 offset = None
 
             components[item_name] = item
-            validators['fields'][item_name] = []
 
             field_index += 1
 
-        # Iterate through all fields on the child class and set the validators.
-
+    @staticmethod
+    def _bind_validators(namespace, validators):
+        """Find all defined validators and assign them to their fields."""
         for item in namespace.values():
             if not isinstance(item, validation.ValidatorMethodWrapper):
                 continue
@@ -111,10 +125,6 @@ class StructMeta(abc.ABCMeta):
                 # Validator doesn't define any fields, must be a validator for
                 # the entire struct.
                 validators['struct'].append(item)
-
-        namespace['__components__'] = components
-        namespace['__validators__'] = validators
-        return super().__new__(mcs, class_name, bases, namespace, **kwargs)
 
 
 def recursive_to_dicts(item, fill_missing=False):
