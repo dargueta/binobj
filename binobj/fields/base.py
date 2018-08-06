@@ -199,14 +199,16 @@ class Field:
             No value could be derived for this field. It's missing in the input
             data, there's no default defined, and it doesn't have a compute
             function defined either.
+
+        .. versionadded:: 0.3.1
         """
         if not self.present(all_values):
             return NOT_PRESENT
         if self.name in all_values:
             return all_values[self.name]
-        elif self._default is not UNDEFINED:
+        if self._default is not UNDEFINED:
             return self.default
-        elif self._compute_fn is not None:
+        if self._compute_fn is not None:
             return self._compute_fn(self, all_values)
 
         raise errors.MissingRequiredValueError(field=self)
@@ -290,7 +292,9 @@ class Field:
 
         This is an ugly hack for computing ``size`` properly when only ``const``
         is given. It's *HIGHLY DISCOURAGED* to implement this function in your
-        own field subclasses.
+        own field subclasses, since it *must not* call :meth:`load`, :meth:`loads`,
+        :meth:`dump`, or :meth:`dumps`. Doing so could result in infinite
+        recursion.
 
         :param value:
             The value to serialize.
@@ -512,7 +516,7 @@ class Field:
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        elif self.name in instance.__values__:
+        if self.name in instance.__values__:
             return instance.__values__[self.name]
         return self.compute_value_for_dump(instance)
 

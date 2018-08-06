@@ -141,12 +141,12 @@ def recursive_to_dicts(item, fill_missing=False):
     """
     if isinstance(item, Struct):
         return item.to_dict(fill_missing=fill_missing)
-    elif isinstance(item, collections.abc.Mapping):
+    if isinstance(item, collections.abc.Mapping):
         return collections.OrderedDict(
             (recursive_to_dicts(k, fill_missing), recursive_to_dicts(v, fill_missing))
             for k, v in item.items()
         )
-    elif isinstance(item, collections.abc.Sequence) \
+    if isinstance(item, collections.abc.Sequence) \
             and not isinstance(item, (str, bytes)):
         return [recursive_to_dicts(v, fill_missing) for v in item]
     return item
@@ -182,6 +182,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
+        # WARNING: Converting to a dictionary first is required to avoid infinite
+        # recursion problems. We can't use `self`.
         full_struct = self.to_dict()
 
         for f_name, validators in self.__validators__['fields'].items():
@@ -217,7 +219,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         """
         self.validate_contents()
 
-        for field_name, field in self.__components__.items():
+        for field in self.__components__.values():
             value = field.compute_value_for_dump(self)
             if value is not fields.NOT_PRESENT:
                 field.dump(stream, value, context=context, all_fields=self)
@@ -470,7 +472,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
                 # dump only the fields that're defined, we can bail out now.
                 if last_field is None:
                     return
-                elif field.required:
+                if field.required:
                     # Caller wants us to dump up to and including ``last_field``
                     # so we need to crash.
                     raise errors.MissingRequiredValueError(field=field)

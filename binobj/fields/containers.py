@@ -76,9 +76,9 @@ class Array(Field):
         """
         if isinstance(seq.count, int):
             return seq.count <= len(values)
-        elif isinstance(seq.count, Field):
+        if isinstance(seq.count, Field):
             return loaded_fields[seq.count.name] <= len(values)
-        elif isinstance(seq.count, str):
+        if isinstance(seq.count, str):
             # The number of fields in this array is a field that should already
             # have been loaded.
             if seq.count not in loaded_fields:
