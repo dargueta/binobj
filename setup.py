@@ -30,7 +30,7 @@ setuptools.setup(
             'detox>=0.10',
             'pylint>=2.0',
             'Sphinx>=1.6',
-            'tox>=2.8, <3.0',   # 3.x breaks some plugins
+            'tox>=2.8',
             'tox-pyenv>=1.0',
         ],
         'test': [
