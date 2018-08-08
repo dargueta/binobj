@@ -34,7 +34,7 @@ setuptools.setup(
             'tox-pyenv>=1.0',
         ],
         'test': [
-            'pytest>=3.0, !=3.2.0, !=3.3.0',
+            'pytest>=3.1, !=3.2.0, !=3.3.0',
             'pytest-cov>=2.0',
             'pytest-mock>=1.3.0',
             'pytest-randomly>=1.0',

@@ -3,6 +3,7 @@
 import abc
 import collections
 import collections.abc
+import functools
 import io
 import types
 import warnings
@@ -150,6 +151,17 @@ def recursive_to_dicts(item, fill_missing=False):
             and not isinstance(item, (str, bytes)):
         return [recursive_to_dicts(v, fill_missing) for v in item]
     return item
+
+
+def _deprecated_method(method):
+    @functools.wraps(method)
+    def _wrapper(*args, **kwargs):
+        warnings.warn(
+            '%r is a deprecated method and should not be used. It will be '
+            'removed in a future version.' % method.__name__,
+            DeprecationWarning)
+        return method(*args, **kwargs)
+    return _wrapper
 
 
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
@@ -502,11 +514,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     # Container methods
 
-    # DO NOT remove this. It prevents the infinite recursion that the default
-    # implementation in MutableMapping would trigger.
-    def __contains__(self, item):
-        return item in self.__values__
-
     def __getitem__(self, field_name):
         if field_name not in self.__components__:
             raise KeyError('Struct %r has no field named %r.'
@@ -548,3 +555,47 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     def __bytes__(self):
         return self.to_bytes()
+
+    # These are deprecated and should not be used. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    # DO NOT remove this. It prevents the infinite recursion that the default
+    # implementation in MutableMapping would trigger.
+    @_deprecated_method
+    def __contains__(self, item):
+        return item in self.__values__
+
+    @_deprecated_method
+    def keys(self, *args, **kwargs):
+        return super().keys(*args, **kwargs)
+
+    @_deprecated_method
+    def items(self, *args, **kwargs):
+        return super().items(*args, **kwargs)
+
+    @_deprecated_method
+    def values(self, *args, **kwargs):
+        return super().values(*args, **kwargs)
+
+    @_deprecated_method
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
+
+    @_deprecated_method
+    def pop(self, *args, **kwargs):
+        return super().pop(*args, **kwargs)
+
+    @_deprecated_method
+    def popitem(self, *args, **kwargs):
+        return super().popitem(*args, **kwargs)
+
+    @_deprecated_method
+    def clear(self, *args, **kwargs):
+        return super().clear(*args, **kwargs)
+
+    @_deprecated_method
+    def update(self, *args, **kwargs):
+        return super().update(*args, **kwargs)
+
+    @_deprecated_method
+    def setdefault(self, *args, **kwargs):
+        return super().setdefault(*args, **kwargs)
