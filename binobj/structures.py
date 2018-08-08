@@ -256,7 +256,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :rtype: collections.OrderedDict
 
         .. deprecated:: 0.4.0
-
             Support for ignoring missing required values will be removed in a
             future version, as this method is mostly supposed to be used after
             loading. Calling ``to_dict()`` with an unassigned required value
@@ -264,7 +263,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             exception.
 
         .. versionchanged:: 0.3.0
-
             This now recursively calls :meth:`to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
             just the first level.

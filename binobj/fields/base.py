@@ -49,7 +49,7 @@ DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
 
 #: A sentinel value used to indicate that a field is not present.
 #:
-#: ..versionadded:: 0.4.5
+#: .. versionadded:: 0.4.5
 NOT_PRESENT = _NamedSentinel.get_sentinel('NOT_PRESENT')
 
 
@@ -104,9 +104,9 @@ class Field:
     :param validate:
         A callable or list of callables that validates a given value for this
         field. The callable(s) will always be passed the deserialized value, so
-        a validator for an :class:`Integer` field will always be passed an
-        :class:`int`, a :class:`String` validator will always be passed a
-        :class:`str`, and so on.
+        a validator for an :class:`~binobj.fields.numeric.Integer` field will
+        always be passed an integer, a :class:`~binobj.fields.stringlike.String`
+        validator will always be passed a string, and so on.
 
     .. attribute:: index
 
@@ -125,7 +125,7 @@ class Field:
     .. attribute:: size
 
         The size of this object, in bytes. Builtin fields set this automatically
-        if ``const`` is given but you'll need to override :meth:`_size_for_value`
+        if ``const`` is given but you'll need to implement :meth:`_size_for_value`
         in custom fields.
 
         :type: int

@@ -33,7 +33,6 @@ class ConfigurationError(Error):
         its name here.
 
     .. versionadded:: 0.3.0
-
         The ``struct`` and ``obj`` arguments.
 
     :raise ValueError:
