@@ -7,5 +7,5 @@ python:
   - 'pypy3'
 install:
   - pip3 install -U pip setuptools tox-travis
-  - pip3 install -Ue .[test]
+  - pip3 install .[test]
 script: tox
