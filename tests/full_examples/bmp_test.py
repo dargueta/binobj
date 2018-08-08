@@ -18,16 +18,16 @@ class SimpleBMPFileHeader(binobj.Struct):
     header. Validation will fail if this isn't true, even if the BMP file itself
     is valid.
     """
-    magic = binobj.Bytes(const=b'BM')
+    magic = binobj.Bytes(const=b'BM', discard=True)
     file_size = binobj.UInt32()
     _reserved = binobj.Bytes(const=b'\0\0\0\0', discard=True)
     pixels_offset = binobj.UInt32()
 
-    # Legacy DIB header
-    header_size = binobj.UInt32(const=40)
+    # Legacy DIB header (BITMAPINFOHEADER)
+    header_size = binobj.UInt32(const=40, discard=True)
     image_width = binobj.Int32()
     image_height = binobj.Int32()
-    n_color_planes = binobj.UInt16()
+    n_color_planes = binobj.UInt16(const=1)
     n_bits_per_pixel = binobj.UInt16()
     compression_method = binobj.UInt32()
     bitmap_size = binobj.UInt32()
@@ -46,20 +46,11 @@ def bmp_file():
         return fdesc.read()
 
 
-@pytest.fixture(scope='session')
-def png_file():
-    """Return the test PNG file as :class:`bytes`."""
-    with open(os.path.join(TEST_DATA_DIR, 'test_image.png'), 'rb') as fdesc:
-        return fdesc.read()
-
-
 def test_basic_bmp__loads(bmp_file):
     output = SimpleBMPFileHeader.from_bytes(bmp_file, exact=False)
 
-    assert output.magic == b'BM'
     assert output.file_size == len(bmp_file)
     assert output.pixels_offset == 54
-    assert output.header_size == 40
     assert output.image_width == 80
     assert output.image_height == 60
     assert output.n_color_planes == 1
@@ -77,10 +68,8 @@ def test_basic_bmp__load(bmp_file):
     stream = io.BytesIO(bmp_file)
     output = SimpleBMPFileHeader.from_stream(stream)
 
-    assert output.magic == b'BM'
     assert output.file_size == len(bmp_file)
     assert output.pixels_offset == 54
-    assert output.header_size == 40
     assert output.image_width == 80
     assert output.image_height == 60
     assert output.n_color_planes == 1
