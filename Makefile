@@ -1,5 +1,5 @@
 SOURCEDIR=binobj
-SOURCEFILES=$(SOURCEDIR)/*.py
+SOURCEFILES=$(SOURCEDIR)/*.py $(SOURCEDIR)/fields/*.py
 TESTDIR=tests
 TESTFILES=$(TESTDIR)/*.py tox.ini setup.py
 DOCSDIR=docs
