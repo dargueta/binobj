@@ -565,37 +565,37 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return item in self.__values__
 
     @_deprecated_method
-    def keys(self, *args, **kwargs):
-        return super().keys(*args, **kwargs)
+    def keys(self):
+        return super().keys()
 
     @_deprecated_method
-    def items(self, *args, **kwargs):
-        return super().items(*args, **kwargs)
+    def items(self):
+        return super().items()
 
     @_deprecated_method
-    def values(self, *args, **kwargs):
-        return super().values(*args, **kwargs)
+    def values(self):
+        return super().values()
 
     @_deprecated_method
-    def get(self, *args, **kwargs):
-        return super().get(*args, **kwargs)
+    def get(self, key, default=None):
+        return super().get(key, default)
 
     @_deprecated_method
-    def pop(self, *args, **kwargs):
-        return super().pop(*args, **kwargs)
+    def pop(self, *args):
+        return super().pop(*args)
 
     @_deprecated_method
-    def popitem(self, *args, **kwargs):
-        return super().popitem(*args, **kwargs)
+    def popitem(self):
+        return super().popitem()
 
     @_deprecated_method
-    def clear(self, *args, **kwargs):
-        return super().clear(*args, **kwargs)
+    def clear(self):
+        return super().clear()
 
     @_deprecated_method
-    def update(self, *args, **kwargs):
-        return super().update(*args, **kwargs)
+    def update(self, other, **kwargs):
+        return super().update(other, **kwargs)
 
     @_deprecated_method
-    def setdefault(self, *args, **kwargs):
-        return super().setdefault(*args, **kwargs)
+    def setdefault(self, key, default=None):
+        return super().setdefault(key, default)
