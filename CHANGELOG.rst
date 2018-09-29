@@ -1,6 +1,32 @@
 Changelog
 =========
 
+0.4.6
+-----
+
+Released: 2018-09-28
+
+Bugfixes
+~~~~~~~~
+
+* A fair number of documentation fixes -- better explanations, formatting fixes,
+  broken internal links.
+* Fix bug in Makefile introduced in 0.4.4 where ``fields`` submodule wasn't
+  detected as a dependency for testing and documentation building.
+* Work around installation crash while testing on Python 3.4, due to a known race
+  condition in ``setuptools``.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Dependencies:
+  * Bump Python 3.6 testing version to 3.6.6.
+  * Minimum required ``pytest`` version is now 3.1.
+  * Now compatible with ``tox`` 3.x.
+* Use 3.7.0 as the default version for running stuff and testing.
+* Add deprecation warnings for (almost) all dictionary methods in ``Struct``.
+  They've been deprecated since 0.4.1 but I didn't add the warnings.
+
 0.4.5
 -----
 
@@ -41,7 +67,6 @@ Bugfixes
 
 * Loading floats didn't work at all because ``size`` wasn't set in the constructor.
 * Fixed minor typo in the documentation.
-
 
 Other Changes
 ~~~~~~~~~~~~~
