@@ -3,6 +3,7 @@
 import abc
 import collections
 import collections.abc
+import functools
 import io
 import types
 import warnings
@@ -141,15 +142,26 @@ def recursive_to_dicts(item, fill_missing=False):
     """
     if isinstance(item, Struct):
         return item.to_dict(fill_missing=fill_missing)
-    elif isinstance(item, collections.abc.Mapping):
+    if isinstance(item, collections.abc.Mapping):
         return collections.OrderedDict(
             (recursive_to_dicts(k, fill_missing), recursive_to_dicts(v, fill_missing))
             for k, v in item.items()
         )
-    elif isinstance(item, collections.abc.Sequence) \
+    if isinstance(item, collections.abc.Sequence) \
             and not isinstance(item, (str, bytes)):
         return [recursive_to_dicts(v, fill_missing) for v in item]
     return item
+
+
+def _deprecated_method(method):
+    @functools.wraps(method)
+    def _wrapper(*args, **kwargs):
+        warnings.warn(
+            '%r is a deprecated method and should not be used. It will be '
+            'removed in a future version.' % method.__name__,
+            DeprecationWarning)
+        return method(*args, **kwargs)
+    return _wrapper
 
 
 class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
@@ -182,6 +194,8 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
+        # WARNING: Converting to a dictionary first is required to avoid infinite
+        # recursion problems. We can't use `self`.
         full_struct = self.to_dict()
 
         for f_name, validators in self.__validators__['fields'].items():
@@ -217,7 +231,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         """
         self.validate_contents()
 
-        for field_name, field in self.__components__.items():
+        for field in self.__components__.values():
             value = field.compute_value_for_dump(self)
             if value is not fields.NOT_PRESENT:
                 field.dump(stream, value, context=context, all_fields=self)
@@ -254,7 +268,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :rtype: collections.OrderedDict
 
         .. deprecated:: 0.4.0
-
             Support for ignoring missing required values will be removed in a
             future version, as this method is mostly supposed to be used after
             loading. Calling ``to_dict()`` with an unassigned required value
@@ -262,7 +275,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             exception.
 
         .. versionchanged:: 0.3.0
-
             This now recursively calls :meth:`to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
             just the first level.
@@ -470,7 +482,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
                 # dump only the fields that're defined, we can bail out now.
                 if last_field is None:
                     return
-                elif field.required:
+                if field.required:
                     # Caller wants us to dump up to and including ``last_field``
                     # so we need to crash.
                     raise errors.MissingRequiredValueError(field=field)
@@ -501,11 +513,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return None
 
     # Container methods
-
-    # DO NOT remove this. It prevents the infinite recursion that the default
-    # implementation in MutableMapping would trigger.
-    def __contains__(self, item):
-        return item in self.__values__
 
     def __getitem__(self, field_name):
         if field_name not in self.__components__:
@@ -548,3 +555,47 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     def __bytes__(self):
         return self.to_bytes()
+
+    # These are deprecated and should not be used. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    # DO NOT remove this. It prevents the infinite recursion that the default
+    # implementation in MutableMapping would trigger.
+    @_deprecated_method
+    def __contains__(self, item):
+        return item in self.__values__
+
+    @_deprecated_method
+    def keys(self):
+        return super().keys()
+
+    @_deprecated_method
+    def items(self):
+        return super().items()
+
+    @_deprecated_method
+    def values(self):
+        return super().values()
+
+    @_deprecated_method
+    def get(self, key, default=None):
+        return super().get(key, default)
+
+    @_deprecated_method
+    def pop(self, *args):
+        return super().pop(*args)
+
+    @_deprecated_method
+    def popitem(self):
+        return super().popitem()
+
+    @_deprecated_method
+    def clear(self):
+        return super().clear()
+
+    @_deprecated_method
+    def update(self, other, **kwargs):
+        return super().update(other, **kwargs)
+
+    @_deprecated_method
+    def setdefault(self, key, default=None):
+        return super().setdefault(key, default)

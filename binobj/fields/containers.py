@@ -15,14 +15,13 @@ class Array(Field):
         The value for this argument can be one of the following:
 
         * An integer. The array always contains this many elements.
-        * A :class:`Field` instance that must 1) be an integer; 2) occur before
-          this array in the same struct.
+        * A :class:`~binobj.fields.base.Field` instance that must 1) be an
+          integer; 2) occur before this array in the same struct.
         * A string naming a field fitting the above criteria. You'll need this
           if your size field's name is a Python keyword.
 
-        .. versionadded:: 0.3.0
-
-            ``count`` can now be a :class:`Field` or string.
+        .. versionchanged:: 0.3.0
+            ``count`` can now be a :class:`~binobj.fields.base.Field` or string.
 
     :param callable halt_check:
         A function taking five arguments. See :meth:`should_halt` for the
@@ -76,9 +75,9 @@ class Array(Field):
         """
         if isinstance(seq.count, int):
             return seq.count <= len(values)
-        elif isinstance(seq.count, Field):
+        if isinstance(seq.count, Field):
             return loaded_fields[seq.count.name] <= len(values)
-        elif isinstance(seq.count, str):
+        if isinstance(seq.count, str):
             # The number of fields in this array is a field that should already
             # have been loaded.
             if seq.count not in loaded_fields:
@@ -163,13 +162,14 @@ class Union(Field):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:
-        One or more :class:`~binobj.structures.Struct` classes or :class:`Field`
-        instances that can be used for loading and dumping.
+        One or more :class:`~binobj.structures.Struct` classes or
+        :class:`~binobj.fields.base.Field` instances that can be used for
+        loading and dumping.
 
     :param callable load_decider:
         A function that decides which :class:`~binobj.structures.Struct` class or
-        :class:`Field` instance to use for loading the input. It must take four
-        arguments:
+        :class:`~binobj.fields.base.Field` instance to use for loading the input.
+        It must take four arguments:
 
         * ``stream``: The stream being loaded from.
         * ``classes``: A list of classes that can be used for loading.
@@ -180,8 +180,8 @@ class Union(Field):
 
     :param callable dump_decider:
         A function that decides which :class:`~binobj.structures.Struct` class or
-        :class:`Field` instance to use for dumping the given data. It must take
-        four arguments:
+        :class:`~binobj.fields.base.Field` instance to use for dumping the given
+        data. It must take four arguments:
 
         * ``data``: A dictionary containing the data to dump.
         * ``classes``: A list of classes that can be used for dumping.

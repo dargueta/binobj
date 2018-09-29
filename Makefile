@@ -1,12 +1,12 @@
 SOURCEDIR=binobj
-SOURCEFILES=$(SOURCEDIR)/*.py
+SOURCEFILES=$(SOURCEDIR)/*.py $(SOURCEDIR)/fields/*.py
 TESTDIR=tests
 TESTFILES=$(TESTDIR)/*.py tox.ini setup.py
 DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-PYTHON_VERSIONS=3.6.5 3.5.5 3.4.8 3.7.0 pypy3.5-6.0.0
+PYTHON_VERSIONS=3.7.0 3.6.6 3.5.5 3.4.8 pypy3.5-6.0.0
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
