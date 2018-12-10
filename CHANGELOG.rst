@@ -1,6 +1,26 @@
 Changelog
 =========
 
+0.4.7
+-----
+
+Released: 2018-XX-XX
+
+Deprecations
+~~~~~~~~~~~~
+
+Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
+feature added when I was trying different variable-length integer formats. It's
+highly specific to Protobuf_ and just doesn't seem useful to have here.
+
+.. _Protobuf: https://developers.google.com/protocol-buffers/
+
+
+Other Changes
+~~~~~~~~~~~~~
+
+Trivial fixes to documentation to fix broken links.
+
 0.4.6
 -----
 
@@ -13,8 +33,10 @@ Bugfixes
   broken internal links.
 * Fix bug in Makefile introduced in 0.4.4 where ``fields`` submodule wasn't
   detected as a dependency for testing and documentation building.
-* Work around installation crash while testing on Python 3.4, due to a known race
+* Work around installation crash while testing on Python 3.4, due to a known_ race
   condition in ``setuptools``.
+
+.. _known: https://github.com/pypa/setuptools/issues/951
 
 Other Changes
 ~~~~~~~~~~~~~
