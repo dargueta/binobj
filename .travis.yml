@@ -1,11 +1,12 @@
+dist: xenial
 language: python
 python:
   - '3.4'
   - '3.5'
   - '3.6'
-  - '3.7-dev'
+  - '3.7'
   - 'pypy3'
 install:
   - pip3 install -U pip setuptools tox-travis
-  - pip3 install .[test]
+  - pip3 install .[dev]
 script: tox
