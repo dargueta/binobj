@@ -150,6 +150,9 @@ class VariableLengthInteger(Integer):
             warnings.warn('The `signed` and `endian` arguments are deprecated '
                           'and will be removed in a later version.',
                           DeprecationWarning)
+        if vli_format is varints.VarIntEncoding.ZIGZAG:
+            warnings.warn('Support for zigzag integer encoding is deprecated.',
+                          DeprecationWarning)
 
         super().__init__(endian=format_endianness, signed=format_signedness,
                          **kwargs)
