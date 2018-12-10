@@ -25,7 +25,7 @@ class ConfigurationError(Error):
         message will be chosen depending on which of the ``field``, ``struct``,
         or ``obj`` keyword arguments is passed.
     :param field:
-        The misconfigured :class:`~binobj.fields.Field` or its name.
+        The misconfigured :class:`~binobj.fields.base.Field` or its name.
     :param struct:
         The misconfigured :class:`~binobj.structures.Struct` or its name.
     :param obj:
@@ -70,7 +70,7 @@ class SerializationError(Error):
         An error message explaining the problem.
     :param ~binobj.structures.Struct struct:
         The struct that contains the field that failed to be serialized.
-    :param ~binobj.fields.Field field:
+    :param ~binobj.fields.base.Field field:
         The field that failed to be serialized.
     :param value:
         The value that caused the crash.
@@ -87,7 +87,7 @@ class DeserializationError(Error):
 
     :param str message:
         An error message explaining the problem.
-    :param ~binobj.fields.Field field:
+    :param ~binobj.fields.base.Field field:
         The field that failed to load.
     :param bytes data:
         The raw data that was read that led to the crash.
@@ -106,7 +106,7 @@ class ValidationError(Error):
 
     :param str message:
         An error message explaining the problem.
-    :param ~binobj.fields.Field field:
+    :param ~binobj.fields.base.Field field:
         The field that failed validation.
     :param value:
         The invalid value.
@@ -164,7 +164,7 @@ class FieldRedefinedError(ConfigurationError):
     :param str struct:
         The name of the struct that has the redefined field.
     :param field:
-        The :class:`~binobj.fields.Field` that's been redefined, or its name.
+        The :class:`~binobj.fields.base.Field` that's been redefined, or its name.
 
     .. versionadded:: 0.3.0
     """
@@ -178,7 +178,7 @@ class UndefinedSizeError(ConfigurationError):
     """The size of the field couldn't be determined, possibly due to misconfiguration.
 
     :param field:
-        The :class:`~binobj.fields.Field` that's missing its size, or the name
+        The :class:`~binobj.fields.base.Field` that's missing its size, or the name
         of that field.
 
     .. versionadded:: 0.3.1
@@ -193,7 +193,7 @@ class UndefinedSizeError(ConfigurationError):
 class UnserializableValueError(SerializationError):
     """The value couldn't be serialized.
 
-    :param ~binobj.fields.Field field:
+    :param ~binobj.fields.base.Field field:
         The field that failed to serialize the given value.
     :param value:
         The value that can't be serialized.
@@ -227,7 +227,7 @@ class UnexpectedValueError(SerializationError):
         The struct performing the serialization.
     :param name:
         Either a string or an iterable of strings, each being the name of a
-        field that was unexpected. Don't pass :class:`~binobj.fields.Field`
+        field that was unexpected. Don't pass :class:`~binobj.fields.base.Field`
         instances.
     """
     def __init__(self, *, struct, name):
@@ -246,7 +246,7 @@ class UnexpectedValueError(SerializationError):
 class ValueSizeError(UnserializableValueError):
     """The value can't be serialized because it doesn't fit into the field.
 
-    :param ~binobj.fields.Field field:
+    :param ~binobj.fields.base.Field field:
         The field that failed to serialize the given value.
     :param value:
         The value that's too big.
@@ -259,7 +259,7 @@ class ValueSizeError(UnserializableValueError):
 class UnexpectedEOFError(DeserializationError):
     """Hit EOF while reading, but expected more data.
 
-    :param ~binobj.fields.Field field:
+    :param ~binobj.fields.base.Field field:
         The field that failed to be deserialized.
     :param int size:
         The number of bytes that were attempted to be read.

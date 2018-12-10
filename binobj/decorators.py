@@ -22,7 +22,6 @@ def validates(*field_names):
                                       field=field)
 
     .. note::
-
         Only functions and instance methods are supported. Class methods and
         static methods will cause a crash.
     """
@@ -62,7 +61,6 @@ def validates_struct(func):
                 raise ValidationError("'foo' must be even", field='foo')
 
     .. note::
-
         Only functions and instance methods are supported. Class methods and
         static methods will cause a crash.
     """

@@ -21,8 +21,8 @@ class StructMeta(abc.ABCMeta):
     objects.
 
     It defines the ``__components__`` and ``__validators__`` class variables
-    and sets some values on the :class:`~binobj.fields.Field` components such as
-    the name and index.
+    and sets some values on the :class:`~binobj.fields.base.Field` components
+    such as the name and index.
     """
     @classmethod
     def __prepare__(cls, name, bases):      # pylint: disable=unused-argument
@@ -137,7 +137,7 @@ def recursive_to_dicts(item, fill_missing=False):
     :param item:
         Anything. If it's an unsupported type it'll get returned as-is.
     :param bool fill_missing:
-        The ``fill_missing`` argument value to pass to a struct's ``to_dict()``
+        The ``fill_missing`` argument value to pass to a struct's :meth:`~Struct.to_dict`
         method.
     """
     if isinstance(item, Struct):
@@ -169,7 +169,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
     .. attribute:: __components__
 
-        An ordered mapping of the field names to their :class:`~binobj.fields.Field`
+        An ordered mapping of the field names to their :class:`~binobj.fields.base.Field`
         object definitions.
 
         :type: :class:`collections.OrderedDict`
@@ -263,19 +263,19 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
 
             If ``False`` (the default), unassigned values in this struct are
             omitted from the returned dictionary. If ``True``, they're included
-            but set to :data:`~binobj.fields.UNDEFINED`.
+            but set to :data:`~binobj.fields.base.UNDEFINED`.
 
         :rtype: collections.OrderedDict
 
         .. deprecated:: 0.4.0
             Support for ignoring missing required values will be removed in a
             future version, as this method is mostly supposed to be used after
-            loading. Calling ``to_dict()`` with an unassigned required value
+            loading. Calling :meth:`.to_dict` with an unassigned required value
             will trigger a :class:`~binobj.errors.MissingRequiredValueError`
             exception.
 
         .. versionchanged:: 0.3.0
-            This now recursively calls :meth:`to_dict` on all nested structs and
+            This now recursively calls :meth:`.to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
             just the first level.
         """
@@ -301,8 +301,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :param io.BufferedIOBase stream:
             The stream to load data from.
         :param context:
-            Additional data to pass to the components' :meth:`load` methods.
-            Subclasses must ignore anything they don't recognize.
+            Additional data to pass to the components'
+            :meth:`~binobj.fields.base.Field.load` methods. Subclasses must
+            ignore anything they don't recognize.
 
         :return: The loaded struct.
         """
@@ -355,7 +356,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         field read.
 
         .. note::
-
             Because the struct is only partially loaded, validators are *not*
             executed.
 
@@ -367,7 +367,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             stream.
         :param context:
             Any object containing extra information to pass to the fields'
-            :meth:`load` method.
+            :meth:`~binobj.fields.base.Field.load` method.
 
         :return: The loaded struct.
         """
@@ -420,9 +420,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             The name of the field to retrieve.
         :param context:
             Optional. Any object containing extra information to pass to the
-            :meth:`load` method of the field. For fields located at a variable
-            offset, this will be passed to the :meth:`load` method of *each*
-            field read.
+            :meth:`~binobj.fields.base.Field.load` method of the field. For fields
+            located at a variable offset, this will be passed to the
+            :meth:`~binobj.fields.base.Field.load` method of *each* field read.
 
         :return: The value of the field in the struct data.
 
@@ -471,7 +471,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             The name of the last field in the object to dump.
         :param context:
             Any object containing extra information to pass to the fields'
-            :meth:`load` methods.
+            :meth:`~binobj.fields.base.Field.load` methods.
         """
         data = self.__values__
 
