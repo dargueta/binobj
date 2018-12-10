@@ -5,7 +5,7 @@ python:
   - '3.5'
   - '3.6'
   - '3.7'
-  - 'pypy3'
+  - 'pypy3.5'
 install:
   - pip3 install -U pip setuptools tox-travis
   - pip3 install .[dev]
