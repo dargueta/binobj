@@ -108,23 +108,8 @@ class VariableLengthInteger(Integer):
     :param int max_bytes:
         The maximum number of bytes to use for encoding this integer. If not
         given, there's no restriction on the size.
-    :param str endian:
-
-        .. deprecated:: 0.4.3
-
-            Since variable-length integer formats all specify an endianness, this
-            argument is now ignored and will be removed in a later version.
-
-    :param bool signed:
-        If ``True``, this field is a signed integer.
-
-        .. deprecated:: 0.4.3
-
-            Since variable-length integer formats all specify a signedness, this
-            argument is now ignored and will be removed in a later version.
     """
-    def __init__(self, *, vli_format, max_bytes=None, endian=None, signed=None,
-                 **kwargs):
+    def __init__(self, *, vli_format, max_bytes=None, **kwargs):
         encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
 
         if encoding_info is None:
@@ -135,21 +120,6 @@ class VariableLengthInteger(Integer):
         format_endianness = encoding_info['endian']
         format_signedness = encoding_info['signed']
 
-        if signed is not None and signed != format_signedness:
-            raise errors.ConfigurationError(
-                "%s integers are %s, but signed=%r was passed to __init__()."
-                % (vli_format, 'signed' if format_signedness else 'unsigned', signed),
-                field=self)
-        elif endian is not None and endian != format_endianness:
-            raise errors.ConfigurationError(
-                "%s integers are %s endian, but endian=%r was passed to __init__()."
-                % (vli_format, format_endianness, endian),
-                field=self)
-
-        if signed is not None or endian is not None:
-            warnings.warn('The `signed` and `endian` arguments are deprecated '
-                          'and will be removed in a later version.',
-                          DeprecationWarning)
         if vli_format is varints.VarIntEncoding.ZIGZAG:
             warnings.warn('Support for zigzag integer encoding is deprecated.',
                           DeprecationWarning)
