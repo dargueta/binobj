@@ -332,7 +332,7 @@ class Field:
             err.field = self
             raise
 
-        if loaded_value == self.null_value:
+        if self.null_value is not UNDEFINED and loaded_value == self.null_value:
             return None
 
         # TODO (dargueta): Change this to a validator instead.

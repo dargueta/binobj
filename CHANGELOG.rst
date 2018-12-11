@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.4.7
+0.5.0
 -----
 
 Released: 2018-XX-XX
@@ -15,6 +15,14 @@ highly specific to Protobuf_ and just doesn't seem useful to have here.
 
 .. _Protobuf: https://developers.google.com/protocol-buffers/
 
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+* The ``endian`` and ``signed`` keyword arguments to ``VariableLengthInteger``
+  were deprecated in version 0.4.3 and have been removed.
+* The ``fill_missing`` argument to ``Struct.to_dict()`` was deprecated in version
+  0.4.0 and has been removed.
 
 Other Changes
 ~~~~~~~~~~~~~

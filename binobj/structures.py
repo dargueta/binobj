@@ -130,26 +130,23 @@ class StructMeta(abc.ABCMeta):
                 validators['struct'].append(item)
 
 
-def recursive_to_dicts(item, fill_missing=False):
+def recursive_to_dicts(item):
     """When a :class:`Struct` is converted to a dictionary, ensure that any
     nested structures are also converted to dictionaries.
 
     :param item:
-        Anything. If it's an unsupported type it'll get returned as-is.
-    :param bool fill_missing:
-        The ``fill_missing`` argument value to pass to a struct's :meth:`~Struct.to_dict`
-        method.
+        Anything. If it's an unsupported type it'll get returned as is.
     """
     if isinstance(item, Struct):
-        return item.to_dict(fill_missing=fill_missing)
+        return item.to_dict()
     if isinstance(item, collections.abc.Mapping):
         return collections.OrderedDict(
-            (recursive_to_dicts(k, fill_missing), recursive_to_dicts(v, fill_missing))
+            (recursive_to_dicts(k), recursive_to_dicts(v))
             for k, v in item.items()
         )
     if isinstance(item, collections.abc.Sequence) \
-            and not isinstance(item, (str, bytes)):
-        return [recursive_to_dicts(v, fill_missing) for v in item]
+            and not isinstance(item, (str, bytes, bytearray)):
+        return [recursive_to_dicts(v) for v in item]
     return item
 
 
@@ -250,49 +247,28 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(self, fill_missing=False):
+    def to_dict(self):
         """Convert this struct into a dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct`
         into native Python types. As such, validation is *not* performed since
         that was done while loading.
 
-        :param bool fill_missing:
-            Controls what to do about required values that haven't been set on
-            the struct yet.
-
-            If ``False`` (the default), unassigned values in this struct are
-            omitted from the returned dictionary. If ``True``, they're included
-            but set to :data:`~binobj.fields.base.UNDEFINED`.
-
         :rtype: collections.OrderedDict
 
-        .. deprecated:: 0.4.0
-            Support for ignoring missing required values will be removed in a
-            future version, as this method is mostly supposed to be used after
-            loading. Calling :meth:`.to_dict` with an unassigned required value
-            will trigger a :class:`~binobj.errors.MissingRequiredValueError`
-            exception.
+        :raise ~binobj.errors.MissingRequiredValueError:
+            One or more fields don't have assigned values.
 
         .. versionchanged:: 0.3.0
             This now recursively calls :meth:`.to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
             just the first level.
         """
-        if fill_missing:
-            warnings.warn(
-                'Support for ignoring missing values will be removed from '
-                'to_dict() in a future release.', DeprecationWarning)
-
-        dct = collections.OrderedDict()
-        for field in self.__components__.values():
-            try:
-                dct[field.name] = field.compute_value_for_dump(self)
-            except errors.MissingRequiredValueError:
-                if fill_missing:
-                    dct[field.name] = fields.UNDEFINED
-
-        return recursive_to_dicts(dct, fill_missing)
+        dct = collections.OrderedDict(
+            (field.name, field.compute_value_for_dump(self))
+            for field in self.__components__.values()
+        )
+        return recursive_to_dicts(dct)
 
     @classmethod
     def from_stream(cls, stream, context=None):
@@ -549,9 +525,22 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return size
 
     def __eq__(self, other):
-        if isinstance(other, Struct):
-            other = other.to_dict(fill_missing=True)
-        return self.to_dict(fill_missing=True) == other
+        # Compare only defined values by using __iter__ to get the keys that are
+        # defined.
+        self_values = recursive_to_dicts({n: self[n] for n in list(self)})
+
+        # Allow comparison to UNDEFINED. The result is True if all fields in this
+        # struct are undefined, False otherwise.
+        if other is fields.UNDEFINED:
+            return bool(self_values)
+
+        if not isinstance(other, (Struct, collections.abc.Mapping)):
+            raise TypeError(
+                "Can't compare Struct to a %s, only another Struct, dict, or "
+                "UNDEFINED." % type(other).__name__)
+
+        other_values = recursive_to_dicts({n: other[n] for n in list(other)})
+        return other_values == self_values
 
     def __bytes__(self):
         return self.to_bytes()
