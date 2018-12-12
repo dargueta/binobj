@@ -187,7 +187,6 @@ def test_to_dict__all_defined():
     expected = collections.OrderedDict((('one', 1), ('two', 2)))
 
     assert struct.to_dict() == expected
-    assert dict(struct) == expected
 
 
 def test_to_dict__crash_on_undefined():

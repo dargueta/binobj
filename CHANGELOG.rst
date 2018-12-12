@@ -6,12 +6,22 @@ Changelog
 
 Released: 2018-XX-XX
 
+Features
+~~~~~~~~
+
+Comparing a ``Struct`` instance to ``UNDEFINED`` is now True if and only if the
+struct has all of its fields undefined. Previously a struct would never compare
+equal to ``UNDEFINED``.
+
 Deprecations
 ~~~~~~~~~~~~
 
-Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
-feature added when I was trying different variable-length integer formats. It's
-highly specific to Protobuf_ and just doesn't seem useful to have here.
+* Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
+  feature added when I was trying different variable-length integer formats. It's
+  highly specific to Protobuf_ and just doesn't seem useful to have here.
+* Comparing a struct to anything but another Struct instance or a mapping doesn't
+  really make sense. Until now this comparison has always returned False; in the
+  future, it will throw a TypeError. For the time being it will issue a warning.
 
 .. _Protobuf: https://developers.google.com/protocol-buffers/
 
@@ -23,6 +33,15 @@ Breaking Changes
   were deprecated in version 0.4.3 and have been removed.
 * The ``fill_missing`` argument to ``Struct.to_dict()`` was deprecated in version
   0.4.0 and has been removed.
+* ``Struct`` no longer behaves as a `MutableMapping`_. All dictionary mixin
+  methods have been removed. This was deprecated in 0.4.1. Several behaviors were
+  broken by this change, namely that
+  * ``dict(struct_instance)`` no longer works and will cause a ``TypeError``.
+    Use ``struct_instance.to_dict()``.
+  * Dictionary expansion like ``**struct_instance`` will also no longer work. Use
+    ``**struct_instance.to_dict()``.
+
+.. _MutableMapping: https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping
 
 Other Changes
 ~~~~~~~~~~~~~

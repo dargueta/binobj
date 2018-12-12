@@ -161,7 +161,7 @@ def _deprecated_method(method):
     return _wrapper
 
 
-class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
+class Struct(metaclass=StructMeta):
     """An ordered collection of fields and other structures.
 
     .. attribute:: __components__
@@ -170,6 +170,14 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         object definitions.
 
         :type: :class:`collections.OrderedDict`
+
+    .. versionchanged:: 0.5.0
+        A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
+        and only if all of its fields are also undefined.
+
+    .. deprecated:: 0.5.0
+        Comparison to anything other than another Struct or mapping is deprecated.
+        In the future, it will trigger a :class:`TypeError`.
     """
     __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
     __validators__ = types.MappingProxyType({       # type: dict
@@ -228,10 +236,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         """
         self.validate_contents()
 
+        # We can't pass `self` to all_fields because Structs can't be used with
+        # dictionary expansion (e.g. **kwargs). It'd be a nasty surprise for
+        # fields expecting a dictionary.
+        all_fields = self.to_dict()
+
         for field in self.__components__.values():
-            value = field.compute_value_for_dump(self)
+            value = field.compute_value_for_dump(all_fields)
             if value is not fields.NOT_PRESENT:
-                field.dump(stream, value, context=context, all_fields=self)
+                field.dump(stream, value, context=context, all_fields=all_fields)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.
@@ -535,56 +548,14 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             return bool(self_values)
 
         if not isinstance(other, (Struct, collections.abc.Mapping)):
-            raise TypeError(
-                "Can't compare Struct to a %s, only another Struct, dict, or "
-                "UNDEFINED." % type(other).__name__)
+            warnings.warn(
+                'Comparing a Struct to anything but another Struct or mapping '
+                'is deprecated and will throw a TypeError in the future.',
+                DeprecationWarning)
+            return self_values == other
 
         other_values = recursive_to_dicts({n: other[n] for n in list(other)})
         return other_values == self_values
 
     def __bytes__(self):
         return self.to_bytes()
-
-    # These are deprecated and should not be used. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    # DO NOT remove this. It prevents the infinite recursion that the default
-    # implementation in MutableMapping would trigger.
-    @_deprecated_method
-    def __contains__(self, item):
-        return item in self.__values__
-
-    @_deprecated_method
-    def keys(self):
-        return super().keys()
-
-    @_deprecated_method
-    def items(self):
-        return super().items()
-
-    @_deprecated_method
-    def values(self):
-        return super().values()
-
-    @_deprecated_method
-    def get(self, key, default=None):
-        return super().get(key, default)
-
-    @_deprecated_method
-    def pop(self, *args):
-        return super().pop(*args)
-
-    @_deprecated_method
-    def popitem(self):
-        return super().popitem()
-
-    @_deprecated_method
-    def clear(self):
-        return super().clear()
-
-    @_deprecated_method
-    def update(self, other, **kwargs):
-        return super().update(other, **kwargs)
-
-    @_deprecated_method
-    def setdefault(self, key, default=None):
-        return super().setdefault(key, default)
