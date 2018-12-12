@@ -17,7 +17,7 @@ class VarIntEncoding(enum.Enum):
     ULEB128 = 'uleb128'
     VLQ = 'vlq'
 
-    #: .. deprecated:: 0.4.7
+    #: .. deprecated:: 0.5.0
     ZIGZAG = 'zigzag'
 
 
@@ -141,7 +141,7 @@ def encode_integer_zigzag(value):
     :return: ``value`` encoded as a variable-length integer in "ZigZag" format.
     :rtype: bytes
 
-    .. deprecated:: 0.4.7
+    .. deprecated:: 0.5.0
     """
     if value == 0:
         return b'\0'
@@ -176,7 +176,7 @@ def decode_integer_zigzag(stream):
     :return: The decoded integer.
     :rtype: int
 
-    .. deprecated:: 0.4.7
+    .. deprecated:: 0.5.0
     """
     value = 0
     bits_read = 0
