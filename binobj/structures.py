@@ -3,10 +3,8 @@
 import abc
 import collections
 import collections.abc
-import functools
 import io
 import types
-import warnings
 
 from binobj import errors
 from binobj import fields
@@ -21,8 +19,8 @@ class StructMeta(abc.ABCMeta):
     objects.
 
     It defines the ``__components__`` and ``__validators__`` class variables
-    and sets some values on the :class:`~binobj.fields.Field` components such as
-    the name and index.
+    and sets some values on the :class:`~binobj.fields.base.Field` components
+    such as the name and index.
     """
     @classmethod
     def __prepare__(cls, name, bases):      # pylint: disable=unused-argument
@@ -130,49 +128,43 @@ class StructMeta(abc.ABCMeta):
                 validators['struct'].append(item)
 
 
-def recursive_to_dicts(item, fill_missing=False):
+def recursive_to_dicts(item):
     """When a :class:`Struct` is converted to a dictionary, ensure that any
     nested structures are also converted to dictionaries.
 
     :param item:
-        Anything. If it's an unsupported type it'll get returned as-is.
-    :param bool fill_missing:
-        The ``fill_missing`` argument value to pass to a struct's ``to_dict()``
-        method.
+        Anything. If it's an unsupported type it'll get returned as is.
     """
     if isinstance(item, Struct):
-        return item.to_dict(fill_missing=fill_missing)
+        return item.to_dict()
     if isinstance(item, collections.abc.Mapping):
         return collections.OrderedDict(
-            (recursive_to_dicts(k, fill_missing), recursive_to_dicts(v, fill_missing))
+            (recursive_to_dicts(k), recursive_to_dicts(v))
             for k, v in item.items()
         )
     if isinstance(item, collections.abc.Sequence) \
-            and not isinstance(item, (str, bytes)):
-        return [recursive_to_dicts(v, fill_missing) for v in item]
+            and not isinstance(item, (str, bytes, bytearray)):
+        return [recursive_to_dicts(v) for v in item]
     return item
 
 
-def _deprecated_method(method):
-    @functools.wraps(method)
-    def _wrapper(*args, **kwargs):
-        warnings.warn(
-            '%r is a deprecated method and should not be used. It will be '
-            'removed in a future version.' % method.__name__,
-            DeprecationWarning)
-        return method(*args, **kwargs)
-    return _wrapper
-
-
-class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
+class Struct(metaclass=StructMeta):
     """An ordered collection of fields and other structures.
 
     .. attribute:: __components__
 
-        An ordered mapping of the field names to their :class:`~binobj.fields.Field`
+        An ordered mapping of the field names to their :class:`~binobj.fields.base.Field`
         object definitions.
 
         :type: :class:`collections.OrderedDict`
+
+    .. versionchanged:: 0.5.0
+        A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
+        and only if all of its fields are also undefined.
+
+    .. deprecated:: 0.5.0
+        Comparison to anything other than another Struct or mapping is deprecated.
+        In the future, it will trigger a :class:`TypeError`.
     """
     __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
     __validators__ = types.MappingProxyType({       # type: dict
@@ -201,10 +193,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
 
-            # Remove once to_dump(fill_missing=True) is gone
-            if f_name not in full_struct:
-                raise errors.MissingRequiredValueError(field=f_obj)
-
             value = full_struct[f_name]
 
             # First, invoke the validators defined on the field object.
@@ -231,10 +219,15 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         """
         self.validate_contents()
 
+        # We can't pass `self` to all_fields because Structs can't be used with
+        # dictionary expansion (e.g. **kwargs). It'd be a nasty surprise for
+        # fields expecting a dictionary.
+        all_fields = self.to_dict()
+
         for field in self.__components__.values():
-            value = field.compute_value_for_dump(self)
+            value = field.compute_value_for_dump(all_fields)
             if value is not fields.NOT_PRESENT:
-                field.dump(stream, value, context=context, all_fields=self)
+                field.dump(stream, value, context=context, all_fields=all_fields)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.
@@ -250,49 +243,28 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(self, fill_missing=False):
+    def to_dict(self):
         """Convert this struct into a dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct`
         into native Python types. As such, validation is *not* performed since
         that was done while loading.
 
-        :param bool fill_missing:
-            Controls what to do about required values that haven't been set on
-            the struct yet.
-
-            If ``False`` (the default), unassigned values in this struct are
-            omitted from the returned dictionary. If ``True``, they're included
-            but set to :data:`~binobj.fields.UNDEFINED`.
-
         :rtype: collections.OrderedDict
 
-        .. deprecated:: 0.4.0
-            Support for ignoring missing required values will be removed in a
-            future version, as this method is mostly supposed to be used after
-            loading. Calling ``to_dict()`` with an unassigned required value
-            will trigger a :class:`~binobj.errors.MissingRequiredValueError`
-            exception.
+        :raise ~binobj.errors.MissingRequiredValueError:
+            One or more fields don't have assigned values.
 
         .. versionchanged:: 0.3.0
-            This now recursively calls :meth:`to_dict` on all nested structs and
+            This now recursively calls :meth:`.to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
             just the first level.
         """
-        if fill_missing:
-            warnings.warn(
-                'Support for ignoring missing values will be removed from '
-                'to_dict() in a future release.', DeprecationWarning)
-
-        dct = collections.OrderedDict()
-        for field in self.__components__.values():
-            try:
-                dct[field.name] = field.compute_value_for_dump(self)
-            except errors.MissingRequiredValueError:
-                if fill_missing:
-                    dct[field.name] = fields.UNDEFINED
-
-        return recursive_to_dicts(dct, fill_missing)
+        dct = collections.OrderedDict(
+            (field.name, field.compute_value_for_dump(self))
+            for field in self.__components__.values()
+        )
+        return recursive_to_dicts(dct)
 
     @classmethod
     def from_stream(cls, stream, context=None):
@@ -301,8 +273,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         :param io.BufferedIOBase stream:
             The stream to load data from.
         :param context:
-            Additional data to pass to the components' :meth:`load` methods.
-            Subclasses must ignore anything they don't recognize.
+            Additional data to pass to the components'
+            :meth:`~binobj.fields.base.Field.load` methods. Subclasses must
+            ignore anything they don't recognize.
 
         :return: The loaded struct.
         """
@@ -355,7 +328,6 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         field read.
 
         .. note::
-
             Because the struct is only partially loaded, validators are *not*
             executed.
 
@@ -367,7 +339,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             stream.
         :param context:
             Any object containing extra information to pass to the fields'
-            :meth:`load` method.
+            :meth:`~binobj.fields.base.Field.load` method.
 
         :return: The loaded struct.
         """
@@ -420,9 +392,9 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             The name of the field to retrieve.
         :param context:
             Optional. Any object containing extra information to pass to the
-            :meth:`load` method of the field. For fields located at a variable
-            offset, this will be passed to the :meth:`load` method of *each*
-            field read.
+            :meth:`~binobj.fields.base.Field.load` method of the field. For fields
+            located at a variable offset, this will be passed to the
+            :meth:`~binobj.fields.base.Field.load` method of *each* field read.
 
         :return: The value of the field in the struct data.
 
@@ -471,7 +443,7 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
             The name of the last field in the object to dump.
         :param context:
             Any object containing extra information to pass to the fields'
-            :meth:`load` methods.
+            :meth:`~binobj.fields.base.Field.load` methods.
         """
         data = self.__values__
 
@@ -549,53 +521,20 @@ class Struct(collections.abc.MutableMapping, metaclass=StructMeta):
         return size
 
     def __eq__(self, other):
-        if isinstance(other, Struct):
-            other = other.to_dict(fill_missing=True)
-        return self.to_dict(fill_missing=True) == other
+        # Allow comparison to UNDEFINED. The result is True if all fields in this
+        # struct are undefined, False otherwise.
+        if other is fields.UNDEFINED:
+            return all(v is fields.UNDEFINED for v in self.__values__.values())
+
+        # Compare only defined values by using __iter__ to get the keys that are
+        # defined.
+        self_values = recursive_to_dicts({n: self[n] for n in list(self)})
+
+        if not isinstance(other, (Struct, collections.abc.Mapping)):
+            return False
+
+        other_values = recursive_to_dicts({n: other[n] for n in list(other)})
+        return other_values == self_values
 
     def __bytes__(self):
         return self.to_bytes()
-
-    # These are deprecated and should not be used. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    # DO NOT remove this. It prevents the infinite recursion that the default
-    # implementation in MutableMapping would trigger.
-    @_deprecated_method
-    def __contains__(self, item):
-        return item in self.__values__
-
-    @_deprecated_method
-    def keys(self):
-        return super().keys()
-
-    @_deprecated_method
-    def items(self):
-        return super().items()
-
-    @_deprecated_method
-    def values(self):
-        return super().values()
-
-    @_deprecated_method
-    def get(self, key, default=None):
-        return super().get(key, default)
-
-    @_deprecated_method
-    def pop(self, *args):
-        return super().pop(*args)
-
-    @_deprecated_method
-    def popitem(self):
-        return super().popitem()
-
-    @_deprecated_method
-    def clear(self):
-        return super().clear()
-
-    @_deprecated_method
-    def update(self, other, **kwargs):
-        return super().update(other, **kwargs)
-
-    @_deprecated_method
-    def setdefault(self, key, default=None):
-        return super().setdefault(key, default)

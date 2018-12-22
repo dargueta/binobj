@@ -5,14 +5,55 @@ import io
 import pytest
 
 import binobj
+from binobj import fields
 from binobj import errors
 
 
 class BasicStruct(binobj.Struct):
     """A basic structure."""
-    string = binobj.String(size=7)
-    int64 = binobj.Int64(endian='big')
-    uint24 = binobj.UnsignedInteger(size=3, endian='little')
+    string = fields.String(size=7)
+    int64 = fields.Int64(endian='big')
+    uint24 = fields.UnsignedInteger(size=3, endian='little')
+
+
+def test_getitem__basic():
+    struct = BasicStruct(string='string!', int64=-1, uint24=123456)
+    assert struct['int64'] == struct.int64
+
+
+def test_getitem__no_such_field():
+    struct = BasicStruct()
+    with pytest.raises(KeyError):
+        _ = struct['asdfasdfasfsda']
+
+
+def test_eq_undefined():
+    """A struct with entirely unassigned fields compares equal to UNDEFINED."""
+    assert BasicStruct() == fields.UNDEFINED
+    assert BasicStruct(int64=123) != fields.UNDEFINED
+
+
+def test_eq_not_struct_or_mapping():
+    """A struct with entirely unassigned fields compares equal to UNDEFINED."""
+    assert BasicStruct() != 'asduh48q3oth'
+    assert BasicStruct(int64=123) != 123
+    assert BasicStruct(string='abcdefg', int64=0, uint24=0xc0ffee) != \
+        b'abcdefg\0\0\0\0\0\0\0\0\xee\xff\xc0'
+
+
+def test_eq_struct_with_struct():
+    """Structs should compare equal/not equal each other as expected"""
+    assert BasicStruct() == BasicStruct()
+    assert BasicStruct(int64=123) == BasicStruct(int64=123)
+
+    assert BasicStruct(string='1234') != BasicStruct()
+    assert BasicStruct(int64=123, string='') != BasicStruct(int64=123)
+    assert BasicStruct(string='1234') != BasicStruct(string='0987')
+
+
+def test_iter_skips_undefined_keys():
+    assert list(BasicStruct()) == []
+    assert list(BasicStruct(string='1234567')) == ['string']
 
 
 def test_basic__fields_loaded():
@@ -161,14 +202,14 @@ def test_dump__missing_fields():
 
 
 class BasicStructWithDefaults(binobj.Struct):
-    string = binobj.String(size=7)
-    int64 = binobj.Int64(endian='big', default=0)
-    uint24 = binobj.UnsignedInteger(size=3, endian='little')
+    string = fields.String(size=7)
+    int64 = fields.Int64(endian='big', default=0)
+    uint24 = fields.UnsignedInteger(size=3, endian='little')
 
 
 class VarlenStruct(binobj.Struct):
-    n_items = binobj.Int32()
-    items = binobj.Array(binobj.Int32(), count=n_items)
+    n_items = fields.Int32()
+    items = fields.Array(binobj.Int32(), count=n_items)
 
 
 def test_struct_size__basic():
@@ -216,7 +257,7 @@ def test_partial_dump__missing_values():
 
 class InheritedStruct(BasicStruct):
     """Extension of BasicStruct with additional fields."""
-    other_string = binobj.StringZ(encoding='utf-16-le')
+    other_string = fields.StringZ(encoding='utf-16-le')
 
 
 def test_inheritance__basic_dump():
@@ -240,4 +281,4 @@ def test_inheritance__field_redefinition_crashes():
     """Trying to redefine the"""
     with pytest.raises(errors.FieldRedefinedError):
         class _Crash(BasicStruct):
-            string = binobj.String(size=7)
+            string = fields.String(size=7)

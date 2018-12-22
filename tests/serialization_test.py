@@ -187,16 +187,15 @@ def test_to_dict__all_defined():
     expected = collections.OrderedDict((('one', 1), ('two', 2)))
 
     assert struct.to_dict() == expected
-    assert dict(struct) == expected
 
 
-def test_to_dict__no_fill():
-    """to_dict() shouldn't fill undefined fields by default"""
+def test_to_dict__crash_on_undefined():
+    """to_dict() must crash if a field is undefined."""
     struct = StructWithFieldOverrides(two=2)
-    expected = collections.OrderedDict(two=2)
+    with pytest.raises(errors.MissingRequiredValueError) as errinfo:
+        struct.to_dict()
 
-    assert struct.to_dict() == expected
-    assert dict(struct) == expected
+    assert errinfo.value.field is StructWithFieldOverrides.one
 
 
 class Basic(binobj.Struct):
@@ -204,16 +203,6 @@ class Basic(binobj.Struct):
     ghi = binobj.Int32()
     jkl = binobj.Int64(default=0xbadc0ffee)
     mno = binobj.String(size=2)
-
-
-def test_to_dict__fill_no_default():
-    """to_dict() shouldn't fill undefined fields by default"""
-    struct = Basic(mno='?!')
-    expected = collections.OrderedDict((
-        ('abc', b'ABC'), ('ghi', binobj.UNDEFINED), ('jkl', 0xbadc0ffee),
-        ('mno', '?!')))
-
-    assert struct.to_dict(fill_missing=True) == expected
 
 
 class VLenBytes(binobj.Struct):

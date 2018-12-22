@@ -1,6 +1,50 @@
 Changelog
 =========
 
+0.5.0
+-----
+
+Released: 2018-XX-XX
+
+Features
+~~~~~~~~
+
+Comparing a ``Struct`` instance to ``UNDEFINED`` is now True if and only if the
+struct has all of its fields undefined. Previously a struct would never compare
+equal to ``UNDEFINED``.
+
+Deprecations
+~~~~~~~~~~~~
+
+Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
+feature added when I was trying different variable-length integer formats. It's
+highly specific to Protobuf_ and just doesn't seem useful to have here.
+
+.. _Protobuf: https://developers.google.com/protocol-buffers/
+
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+* The ``endian`` and ``signed`` keyword arguments to ``VariableLengthInteger``
+  were deprecated in version 0.4.3 and have been removed.
+* The ``fill_missing`` argument to ``Struct.to_dict()`` was deprecated in version
+  0.4.0 and has been removed.
+* ``Struct`` no longer behaves as a `MutableMapping`_. All dictionary mixin
+  methods have been removed. This was deprecated in 0.4.1. Several behaviors were
+  broken by this change, namely that
+  * ``dict(struct_instance)`` no longer works and will cause a ``TypeError``.
+    Use ``struct_instance.to_dict()``.
+  * Dictionary expansion like ``**struct_instance`` will also no longer work. Use
+    ``**struct_instance.to_dict()``.
+
+.. _MutableMapping: https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping
+
+Other Changes
+~~~~~~~~~~~~~
+
+Trivial fixes to documentation to fix broken links.
+
 0.4.6
 -----
 
@@ -13,8 +57,10 @@ Bugfixes
   broken internal links.
 * Fix bug in Makefile introduced in 0.4.4 where ``fields`` submodule wasn't
   detected as a dependency for testing and documentation building.
-* Work around installation crash while testing on Python 3.4, due to a known race
+* Work around installation crash while testing on Python 3.4, due to a known_ race
   condition in ``setuptools``.
+
+.. _known: https://github.com/pypa/setuptools/issues/951
 
 Other Changes
 ~~~~~~~~~~~~~
