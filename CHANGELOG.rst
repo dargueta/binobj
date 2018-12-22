@@ -16,12 +16,9 @@ equal to ``UNDEFINED``.
 Deprecations
 ~~~~~~~~~~~~
 
-* Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
-  feature added when I was trying different variable-length integer formats. It's
-  highly specific to Protobuf_ and just doesn't seem useful to have here.
-* Comparing a struct to anything but another Struct instance or a mapping doesn't
-  really make sense. Until now this comparison has always returned False; in the
-  future, it will throw a TypeError. For the time being it will issue a warning.
+Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
+feature added when I was trying different variable-length integer formats. It's
+highly specific to Protobuf_ and just doesn't seem useful to have here.
 
 .. _Protobuf: https://developers.google.com/protocol-buffers/
 

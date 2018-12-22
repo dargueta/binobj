@@ -3,10 +3,8 @@
 import abc
 import collections
 import collections.abc
-import functools
 import io
 import types
-import warnings
 
 from binobj import errors
 from binobj import fields
@@ -150,17 +148,6 @@ def recursive_to_dicts(item):
     return item
 
 
-def _deprecated_method(method):
-    @functools.wraps(method)
-    def _wrapper(*args, **kwargs):
-        warnings.warn(
-            '%r is a deprecated method and should not be used. It will be '
-            'removed in a future version.' % method.__name__,
-            DeprecationWarning)
-        return method(*args, **kwargs)
-    return _wrapper
-
-
 class Struct(metaclass=StructMeta):
     """An ordered collection of fields and other structures.
 
@@ -205,10 +192,6 @@ class Struct(metaclass=StructMeta):
 
         for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
-
-            # Remove once to_dump(fill_missing=True) is gone
-            if f_name not in full_struct:
-                raise errors.MissingRequiredValueError(field=f_obj)
 
             value = full_struct[f_name]
 
@@ -538,21 +521,17 @@ class Struct(metaclass=StructMeta):
         return size
 
     def __eq__(self, other):
+        # Allow comparison to UNDEFINED. The result is True if all fields in this
+        # struct are undefined, False otherwise.
+        if other is fields.UNDEFINED:
+            return all(v is fields.UNDEFINED for v in self.__values__.values())
+
         # Compare only defined values by using __iter__ to get the keys that are
         # defined.
         self_values = recursive_to_dicts({n: self[n] for n in list(self)})
 
-        # Allow comparison to UNDEFINED. The result is True if all fields in this
-        # struct are undefined, False otherwise.
-        if other is fields.UNDEFINED:
-            return bool(self_values)
-
         if not isinstance(other, (Struct, collections.abc.Mapping)):
-            warnings.warn(
-                'Comparing a Struct to anything but another Struct or mapping '
-                'is deprecated and will throw a TypeError in the future.',
-                DeprecationWarning)
-            return self_values == other
+            return False
 
         other_values = recursive_to_dicts({n: other[n] for n in list(other)})
         return other_values == self_values
