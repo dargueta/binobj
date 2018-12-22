@@ -4,7 +4,7 @@ Changelog
 0.5.0
 -----
 
-Released: 2018-XX-XX
+Released: 2018-12-21
 
 Features
 ~~~~~~~~
