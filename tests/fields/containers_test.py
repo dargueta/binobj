@@ -1,4 +1,5 @@
 import io
+import sys
 
 import pytest
 
@@ -69,6 +70,8 @@ def test_array__sentinel():
     assert result == [0, 0xff, 0xdead]
 
 
+@pytest.mark.skipif(sys.version_info[:2] in ((3, 4), (3, 5)),
+                    reason='Test is flaky on 3.4 and sometimes fails on 3.5.')
 def test_array__load_nested():
     """Try loading an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)
