@@ -6,6 +6,11 @@ python:
   - '3.6'
   - '3.7'
   - 'pypy3.5'
+matrix:
+  include:
+    - env: TOXENV=lint
+      python: '3.6'     # TODO: Use 3.7 when all plugins support it
+
 install:
   - pip3 install -U pip setuptools tox-travis
   - pip3 install .[dev]
