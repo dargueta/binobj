@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'binobj'
-copyright = '2017, Diego Argueta'
+copyright = '2017-2019, Diego Argueta'
 author = 'Diego Argueta'
 
 # The version info for the project you're documenting, acts as replacement for
