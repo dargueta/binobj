@@ -16,13 +16,13 @@ PYTHON_VERSIONS=3.7.0 3.6.6 3.5.5 3.4.8 pypy3.5-6.0.0
 	pyenv local $(PYTHON_VERSIONS)
 
 .tox: .python-version setup.py tox.ini
-	detox -r --notest
+	tox -r --notest
 
 # Coverage file gets changed on every test run so we can use it to see when the
 # last time tests were run. Don't rerun the tests if the source code, test code,
 # or environment hasn't changed.
 .coverage: .tox $(SOURCEFILES) $(TESTFILES)
-	detox
+	tox
 
 $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 	PYTHONPATH=. sphinx-apidoc --ext-autodoc --ext-intersphinx -M -f -o $(DOCSSOURCE) -e $(SOURCEDIR)
@@ -34,8 +34,7 @@ setup: .python-version setup.py
 
 .PHONY: lint
 lint: $(SOURCEFILES)
-	pylint --disable=fixme,too-many-ancestors $(SOURCEDIR) || true
-	pylint --disable=missing-docstring,blacklisted-name,too-few-public-methods,invalid-name,redefined-outer-name,too-many-ancestors,no-self-use $(TESTDIR) || true
+	tox -e lint
 
 # TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean

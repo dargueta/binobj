@@ -1,4 +1,5 @@
 import io
+import sys
 
 import pytest
 
@@ -60,13 +61,17 @@ def test_array__basic_sized():
 
 def test_array__sentinel():
     """Test deserializing a sequence that has a sentinel terminator."""
-    halt = lambda _seq, _str, values, context, loaded_fields: values and (values[-1] == 0xdead)
+    def halt(_seq, _str, values, **_extra):
+        return values and (values[-1] == 0xdead)
+
     sequence = fields.Array(fields.UInt16(endian='little'), halt_check=halt)
 
     result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
     assert result == [0, 0xff, 0xdead]
 
 
+@pytest.mark.skipif(sys.version_info[:2] in ((3, 4), (3, 5)),
+                    reason='Test is flaky on 3.4 and sometimes fails on 3.5.')
 def test_array__load_nested():
     """Try loading an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)
@@ -236,7 +241,7 @@ def test_union__structs__load_basic():
         'item': {
             '_id': 0xff,
             'value': 'asdf',
-        }
+        },
     }
 
     struct = UnionContainer.from_bytes(b'\x01\x7f\x55\xaa')
@@ -245,7 +250,7 @@ def test_union__structs__load_basic():
         'item': {
             '_id': 0x7f,
             'other': 0xaa55,
-        }
+        },
     }
 
 

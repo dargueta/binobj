@@ -186,7 +186,7 @@ class UndefinedSizeError(ConfigurationError):
     def __init__(self, *, field):
         super().__init__(
             "Size of field %r couldn't be determined. The field might not have "
-            "had its `size` set, or a variable-sized field has a bug."
+            'had its `size` set, or a variable-sized field has a bug.'
             % field, field=field)
 
 

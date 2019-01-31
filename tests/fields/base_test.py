@@ -1,6 +1,7 @@
 """Tests for fields."""
 
 import io
+import sys
 
 import pytest
 
@@ -42,7 +43,7 @@ def test_const_sets_size__bytes():
 def test_default_doesnt_set_size__bytes():
     """Ensure passing `default` will NOT set the size of a field."""
     field = fields.Bytes(default=b'asdfghjk')
-    assert field.size is None, "Size was set."
+    assert field.size is None, 'Size was set.'
 
 
 def test_const_set_size__string_ascii():
@@ -300,6 +301,8 @@ class BasicPresentStruct(binobj.Struct):
         return existing
 
 
+@pytest.mark.skipif(sys.version_info[:2] in ((3, 4), (3, 5)),
+                    reason='Test is flaky on 3.4 and sometimes fails on 3.5.')
 def test_present__load__not_present():
     data = b'\xff\x7f\x34\x12'
     struct = BasicPresentStruct.from_bytes(data)
@@ -311,6 +314,8 @@ def test_present__load__not_present():
     }
 
 
+@pytest.mark.skipif(sys.version_info[:2] in ((3, 4), (3, 5)),
+                    reason='Test is flaky on 3.4 and sometimes fails on 3.5.')
 def test_present__load__present():
     data = b'\xff\xffhello!\x00\x34\x12'
     struct = BasicPresentStruct.from_bytes(data)

@@ -5,6 +5,9 @@ from binobj import errors
 from binobj.fields.base import Field
 
 
+__all__ = ['Array', 'Nested', 'Union']
+
+
 class Array(Field):
     """An array of other serializable objects.
 
@@ -42,30 +45,40 @@ class Array(Field):
             raise TypeError('`count` must be an integer, string, or a `Field`.')
 
     @staticmethod
-    def should_halt(seq, stream, values, context, loaded_fields):    # pylint: disable=unused-argument
+    def should_halt(seq, stream, values, context, loaded_fields):
         """Determine if the deserializer should stop reading from the input.
+
+        This function should return ``True`` to indicate loading for this field
+        should stop, or ``False`` to continue adding elements.
 
         The default implementation does the following:
 
-        - If the ``Array`` has an integer ``count``, it compares ``count``
-          against the length of ``values``. If ``len(values)`` is equal to or
-          more than ``count`` it'll return ``True`` (halt), ``False`` otherwise.
-        - If the object *doesn't* have an attribute called ``count``, or
-          ``count`` isn't an integer, the function returns ``True`` if there's
-          any data left in the stream.
+        - If ``count`` is an integer, it compares ``count`` against the length
+          of ``values``. If ``len(values)`` is equal to or more than ``count``
+          it'll return ``True`` (halt), ``False`` otherwise.
+        - If ``count`` is a :class:`~binobj.fields.base.Field`, that field should
+          already have been loaded and in ``loaded_fields``. The expected array
+          size is taken from there, and compared as above.
+        - If ``count`` is a string, it's the name of a field already loaded and
+          in ``loaded_fields``. The expected array size is taken from there, and
+          compared as above.
+        - Otherwise, the function assumes the array ends at EOF and only returns
+          ``True`` if there's no more data in the stream.
+
+        Subclasses' implementations must handle all four cases.
 
         :param Array seq:
             The sequence being checked.
         :param io.BufferedIOBase stream:
             The data stream to read from. Except in rare circumstances, this is
-            the same stream that was passed to :meth:`load`. The stream pointer
+            the same stream that was passed to :meth:`.load`. The stream pointer
             should be returned to its original position when the function exits.
         :param list values:
             A list of the objects that have been deserialized so far. In general
             this function *should not* modify the list. A possible exception to
             this rule is to remove a sentinel value from the end of the list.
         :param context:
-            The ``context`` object passed to :meth:`load`.
+            The ``context`` object passed to :meth:`.load`.
         :param dict loaded_fields:
             The fields in the struct that have been loaded so far.
 
@@ -73,6 +86,7 @@ class Array(Field):
             otherwise.
         :rtype: bool
         """
+        # pylint: disable=unused-argument
         if isinstance(seq.count, int):
             return seq.count <= len(values)
         if isinstance(seq.count, Field):
@@ -85,7 +99,7 @@ class Array(Field):
                 # exception.
                 raise errors.FieldReferenceError(
                     "%r is either not a field in this struct or hasn't been "
-                    "loaded yet." % seq.count, field=seq.count)
+                    'loaded yet.' % seq.count, field=seq.count)
             return loaded_fields[seq.count] <= len(values)
 
         # Else: count is None. Our only option is to check to see if we hit EOF.
@@ -132,10 +146,9 @@ class Array(Field):
         result = []
         while not self.halt_check(self, stream, result, context=context,
                                   loaded_fields=loaded_fields):
-            result.append(
-                self.component.load(stream, context=context,
-                                    loaded_fields=loaded_fields)
-            )
+            component = self.component.load(stream, context=context,
+                                            loaded_fields=loaded_fields)
+            result.append(component)
 
         return result
 
@@ -173,7 +186,7 @@ class Union(Field):
 
         * ``stream``: The stream being loaded from.
         * ``classes``: A list of classes that can be used for loading.
-        * ``context``: Additional data to pass directly to the loader selected
+        * ``context``: The context object to pass directly to the loader selected
           from ``classes``.
         * ``loaded_fields``: A dictionary of the fields that have already been
           loaded. This is guaranteed to not be ``None``.
@@ -183,9 +196,9 @@ class Union(Field):
         :class:`~binobj.fields.base.Field` instance to use for dumping the given
         data. It must take four arguments:
 
-        * ``data``: A dictionary containing the data to dump.
+        * ``data``: The data to dump. This can be any type.
         * ``classes``: A list of classes that can be used for dumping.
-        * ``context``: Additional data to pass directly to the dumper selected
+        * ``context``: The context object to pass directly to the dumper selected
           from ``classes``.
         * ``all_fields``: A dictionary of the fields about to be dumped. This is
           guaranteed to not be ``None``.

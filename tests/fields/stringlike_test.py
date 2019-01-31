@@ -129,7 +129,8 @@ def test_stringz__dump_basic():
 def test_stringz__dump_multibyte():
     """Basic multibyte test dump."""
     field = stringlike.StringZ(encoding='utf-32-le')
-    assert field.dumps('AbC') == b'A\x00\x00\x00b\x00\x00\x00C\x00\x00\x00\x00\x00\x00\x00'
+    assert field.dumps('AbC') == \
+        b'A\x00\x00\x00b\x00\x00\x00C\x00\x00\x00\x00\x00\x00\x00'
 
 
 def test_stringz__dump_multibyte_with_bom():

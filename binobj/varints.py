@@ -1,11 +1,10 @@
-"""Serializers and deserializers for variable-length integers.
+"""Serializers and deserializers for `variable-length integers`_.
 
-"`Variable-length quantity <https://en.wikipedia.org/wiki/Variable-length_quantity>`_"
-on Wikipedia.
+.. _variable-length integers: https://en.wikipedia.org/wiki/Variable-length_quantity
 """
 
-import math
 import enum
+import math
 
 from binobj import helpers
 
@@ -255,7 +254,7 @@ def encode_integer_leb128(value):
     if n_bits % 7:
         n_bits += 7 - (n_bits % 7)
 
-    # Bit operations force a negative integer to its unsigned twos-complement
+    # Bit operations force a negative integer to its unsigned two's-complement
     # representation, e.g. -127 & 0xff = 0x80, -10 & 0xfff = 0xff6, etc. We use
     # this to sign-extend the number *and* make it unsigned. Once it's unsigned,
     # we can use ULEB128.
