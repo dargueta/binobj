@@ -80,7 +80,7 @@ def test_wav__basic_read(tmpdir):
 
         format_chunk = WAVFormatChunk.from_stream(fd)
         assert format_chunk.size == 16, "Audio file isn't in PCM format."
-        assert format_chunk.audio_format == 1, "Audio data is compressed?"
+        assert format_chunk.audio_format == 1, 'Audio data is compressed?'
         assert format_chunk.n_channels == 1
         assert format_chunk.sample_rate == 8000
         assert format_chunk.byte_rate == 16000

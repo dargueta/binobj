@@ -53,7 +53,7 @@ DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
 NOT_PRESENT = _NamedSentinel.get_sentinel('NOT_PRESENT')
 
 
-class Field:
+class Field:    # pylint: disable=too-many-instance-attributes
     """The base class for all struct fields.
 
     :param str name:
@@ -64,8 +64,8 @@ class Field:
         value when loaded. Useful for reserved fields and file tags.
 
         This argument *must* be of the same type as the field, i.e. it must be
-        a string for a :class:`String`, an integer for an :class:`Integer`, and
-        so on.
+        a string for a :class:`~binobj.fields.stringlike.String`, an integer for
+        an :class:`~binobj.fields.numeric.Integer`, and so on.
     :param default:
         The default value to use if a value for this field isn't passed to the
         struct for serialization, or a callable taking no arguments that will
@@ -164,6 +164,7 @@ class Field:
 
         :type: int
         """
+        # pylint: disable=assignment-from-none
         # Part of the _size_for_value() hack.
         if self._size is None and self.const is not UNDEFINED:
             self._size = self._size_for_value(self.const)
@@ -250,7 +251,7 @@ class Field:
         """
         if self._compute_fn:
             raise errors.ConfigurationError(
-                "Cannot define two computing functions for field %r." % self,
+                "Can't define two computing functions for field %r." % self,
                 field=self)
         elif self.const is not UNDEFINED:
             raise errors.ConfigurationError(
@@ -482,7 +483,7 @@ class Field:
         if self.size is None:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
-                       "because it has no fixed size." % self,
+                       'because it has no fixed size.' % self,
                 field=self,
                 value=None)
 

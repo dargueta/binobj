@@ -42,7 +42,7 @@ def test_const_sets_size__bytes():
 def test_default_doesnt_set_size__bytes():
     """Ensure passing `default` will NOT set the size of a field."""
     field = fields.Bytes(default=b'asdfghjk')
-    assert field.size is None, "Size was set."
+    assert field.size is None, 'Size was set.'
 
 
 def test_const_set_size__string_ascii():

@@ -5,8 +5,8 @@ import io
 import pytest
 
 import binobj
-from binobj import fields
 from binobj import errors
+from binobj import fields
 
 
 class BasicStruct(binobj.Struct):
@@ -24,7 +24,7 @@ def test_getitem__basic():
 def test_getitem__no_such_field():
     struct = BasicStruct()
     with pytest.raises(KeyError):
-        _ = struct['asdfasdfasfsda']
+        struct['asdfasdfasfsda']    # pylint: disable=pointless-statement
 
 
 def test_eq_undefined():

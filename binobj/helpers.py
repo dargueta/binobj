@@ -13,7 +13,7 @@ def read_int(stream, n_bytes, signed=True, endian=None):
     :param int n_bytes:
         The number of bytes to read for this integer.
     :param bool signed:
-        If ``True``, interpret this integer as a twos-complement signed integer.
+        If ``True``, interpret this integer as a two's-complement signed integer.
         Otherwise, interpret it as an unsigned integer.
     :param str endian:
         The endianness of the integer, either ``big`` or ``little``. If not
@@ -49,7 +49,7 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
         will be written into the stream, so ensure that there's enough bits to
         represent ``value``.
     :param bool signed:
-        If ``True``, write this integer in twos-complement format. Otherwise,
+        If ``True``, write this integer in two's-complement format. Otherwise,
         write it as an unsigned integer. A negative ``value`` will trigger an
         :class:`OverflowError` if this is ``False``.
     :param str endian:
@@ -67,7 +67,7 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
     stream.write(value.to_bytes(n_bytes, endian, signed=signed))
 
 
-def iter_bytes(stream, max_bytes=0):
+def iter_bytes(stream, max_bytes=None):
     """Wrap a stream in an iterator that yields individual bytes, not lines.
 
     :param stream:

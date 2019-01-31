@@ -159,7 +159,6 @@ def test_field_validator__child_doesnt_affect_parent():
             if len(value) % 2 != 0:
                 raise errors.ValidationError('modulo', field=field, value=value)
 
-
     with pytest.raises(errors.ValidationError) as errinfo:
         Subclass(string='123', integer=123).to_bytes()
     assert 'modulo' in str(errinfo.value)

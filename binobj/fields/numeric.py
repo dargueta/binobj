@@ -5,9 +5,9 @@ import sys
 import warnings
 
 from binobj import errors
-from binobj.fields.base import Field
 from binobj import helpers
 from binobj import varints
+from binobj.fields.base import Field
 
 
 __all__ = [
@@ -69,17 +69,23 @@ class Float64(Float):
 
 
 class Integer(Field):
-    """An integer.
+    """An two's-complement integer.
 
-    This is a base class and should not be used directly.
+    This class and is typically not used directly, except for integers with
+    sizes that aren't powers of two, e.g. for a 24-bit number.
 
     :param str endian:
         The endianness to use to load/store the integer. Either 'big' or 'little'.
         If not given, defaults to the system's native byte ordering as given by
         :data:`sys.byteorder`.
     :param bool signed:
-        Indicates if this number is a signed or unsigned integer. Defaults to
-        ``True``.
+        Indicates if this number is a two's-complement signed or unsigned integer.
+        Defaults to ``True`` (signed). Other `signed formats`_ like
+        sign-magnitude are not supported.
+    :param int size:
+        The size of the integer, in bytes.
+
+    .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representationss
     """
     def __init__(self, endian=None, signed=True, **kwargs):
         super().__init__(**kwargs)
@@ -158,7 +164,11 @@ class VariableLengthInteger(Integer):
 
 
 class UnsignedInteger(Integer):
-    """An unsigned integer."""
+    """An unsigned integer.
+
+    This class and is typically not used directly, except for integers with
+    sizes that aren't powers of two, e.g. for a 24-bit number.
+    """
     def __init__(self, **kwargs):
         super().__init__(signed=False, **kwargs)
 

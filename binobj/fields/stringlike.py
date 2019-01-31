@@ -5,14 +5,12 @@ import codecs
 import io
 
 from binobj import errors
-from binobj.fields.base import Field
-from binobj.fields.base import UNDEFINED
 from binobj import helpers
+from binobj.fields.base import UNDEFINED
+from binobj.fields.base import Field
 
 
-__all__ = [
-    'Bytes', 'String', 'StringZ',
-]
+__all__ = ['Bytes', 'String', 'StringZ']
 
 
 class Bytes(Field):
@@ -55,12 +53,13 @@ class String(Field):
         .. versionadded:: 0.2.0
 
     .. note ::
-
-        The ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs add a byte order
-        marker (BOM) at the beginning of the string, so you'll need to take those
+        The ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs add a `byte order mark`_
+        (BOM) at the beginning of the string, so you'll need to take those
         extra bytes into account when defining this field size. Alternatively,
         you can use the codecs' variants that don't add the BOM, such as
         ``utf-16-le`` or ``utf-16-be``.
+
+    .. _byte order mark: https://en.wikipedia.org/wiki/Byte_order_mark
     """
     def __init__(self, *, encoding='latin-1', pad_byte=None, **kwargs):
         super().__init__(**kwargs)
@@ -121,7 +120,11 @@ class String(Field):
 
 
 class StringZ(String):
-    """A null-terminated string."""
+    """A null-terminated string.
+
+    The terminating null is guaranteed to be the proper size for multi-byte
+    encodings.
+    """
     def _do_load(self, stream, context, loaded_fields):
         iterator = helpers.iter_bytes(stream, self.size)
         reader = codecs.iterdecode(iterator, self.encoding)

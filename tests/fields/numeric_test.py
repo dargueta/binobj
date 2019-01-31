@@ -78,7 +78,7 @@ def test_float_bad_endian_crashes():
     3.141592654,
     float('inf'),
     -float('inf'),
-    float('nan')
+    float('nan'),
 ))
 def test_float__dumps(value, field_object, fmt_string):
     assert field_object.dumps(value) == struct.pack(fmt_string, value)

@@ -167,10 +167,10 @@ class Struct(metaclass=StructMeta):
         In the future, it will trigger a :class:`TypeError`.
     """
     __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
-    __validators__ = types.MappingProxyType({       # type: dict
+    __validators__ = types.MappingProxyType({
         'fields': types.MappingProxyType({}),
         'struct': (),
-    })
+    })                                              # type: dict
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
