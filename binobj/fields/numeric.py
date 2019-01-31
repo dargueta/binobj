@@ -23,10 +23,17 @@ class Float(Field):
 
     This is a base class and should not be used directly.
 
+    :param str format_string:
+        The `format character`_ used by the :mod:`struct` library to load and
+        dump this floating-point number. Can be "f" (32 bits) or "d" (64 bits);
+        Python 3.6 and up support "e" (16 bits). Any other values will cause an
+        error.
     :param str endian:
-        The endianness to use to load/store the float. Either 'big' or 'little'.
+        The endianness to use to load/store the float. Either "big" or "little".
         If not given, defaults to the system's native byte ordering as given by
         :data:`sys.byteorder`.
+
+    .. _format character: https://docs.python.org/3/library/struct.html#format-characters
     """
     def __init__(self, *, format_string, endian=None, **kwargs):
         super().__init__(size=struct.calcsize(format_string), **kwargs)
@@ -71,8 +78,8 @@ class Float64(Float):
 class Integer(Field):
     """An two's-complement integer.
 
-    This class and is typically not used directly, except for integers with
-    sizes that aren't powers of two, e.g. for a 24-bit number.
+    This class is typically not used directly, except for integers with sizes
+    that aren't powers of two, e.g. for a 24-bit number.
 
     :param str endian:
         The endianness to use to load/store the integer. Either 'big' or 'little'.
@@ -80,8 +87,8 @@ class Integer(Field):
         :data:`sys.byteorder`.
     :param bool signed:
         Indicates if this number is a two's-complement signed or unsigned integer.
-        Defaults to ``True`` (signed). Other `signed formats`_ like
-        sign-magnitude are not supported.
+        Defaults to ``True`` (signed). `Signed formats`_ other than two's-complement
+        such as sign-magnitude are not supported.
     :param int size:
         The size of the integer, in bytes.
 
@@ -164,10 +171,12 @@ class VariableLengthInteger(Integer):
 
 
 class UnsignedInteger(Integer):
-    """An unsigned integer.
+    """An unsigned two's-complement integer.
 
     This class and is typically not used directly, except for integers with
     sizes that aren't powers of two, e.g. for a 24-bit number.
+
+    .. seealso:: :class:`.Integer`
     """
     def __init__(self, **kwargs):
         super().__init__(signed=False, **kwargs)

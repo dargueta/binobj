@@ -120,7 +120,7 @@ class String(Field):
 
 
 class StringZ(String):
-    """A null-terminated string.
+    """A variable-length null-terminated string.
 
     The terminating null is guaranteed to be the proper size for multi-byte
     encodings.
