@@ -1,6 +1,33 @@
 Changelog
 =========
 
+0.5.1
+-----
+
+Released: 2019-XX-XX
+
+This release is functionally identical to 0.5.0; changes are completely internal.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+Setuptools < 30.3.0 (8 Dec 2016) will no longer work, as configuration has been
+moved to setup.cfg. Please install a newer version.
+
+Deprecations
+~~~~~~~~~~~~
+
+Support for Python 3.4 is deprecated and will be dropped in 0.6.0. Python 3.4
+reaches end-of-life in March 2019 and will no longer be maintained. See `PEP 429`_
+for full details.
+
+.. _PEP 429: https://www.python.org/dev/peps/pep-0429/
+
+Other Changes
+~~~~~~~~~~~~~
+
+A lot of fixes for incorrect, partial, or outdated documentation.
+
 0.5.0
 -----
 
@@ -17,8 +44,9 @@ Deprecations
 ~~~~~~~~~~~~
 
 Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
-feature added when I was trying different variable-length integer formats. It's
-highly specific to Protobuf_ and just doesn't seem useful to have here.
+feature added when I was experimenting with different variable-length integer
+formats. It's highly specific to Protobuf_ and just doesn't seem useful to have
+here.
 
 .. _Protobuf: https://developers.google.com/protocol-buffers/
 
