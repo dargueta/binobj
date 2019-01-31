@@ -4,7 +4,7 @@ Changelog
 0.5.1
 -----
 
-Released: 2019-XX-XX
+Released: 2019-01-31
 
 This release is functionally identical to 0.5.0; changes are completely internal.
 
