@@ -1,5 +1,6 @@
 """Fields representing numeric values, such as integers and floats."""
 
+import datetime
 import struct
 import sys
 import warnings
@@ -11,10 +12,9 @@ from binobj.fields.base import Field
 
 
 __all__ = [
-    'Float32', 'Float64',
-    'Int8', 'Int16', 'Int32', 'Int64',
-    'UInt8', 'UInt16', 'UInt32', 'UInt64',
-    'Integer', 'UnsignedInteger', 'VariableLengthInteger',
+    'Float', 'Float16', 'Float32', 'Float64', 'Int8', 'Int16', 'Int32', 'Int64',
+    'Integer', 'Timestamp', 'Timestamp32', 'Timestamp64', 'UInt8', 'UInt16',
+    'UInt32', 'UInt64', 'UnsignedInteger', 'VariableLengthInteger',
 ]
 
 
@@ -36,6 +36,9 @@ class Float(Field):
     .. _format character: https://docs.python.org/3/library/struct.html#format-characters
     """
     def __init__(self, *, format_string, endian=None, **kwargs):
+        if format_string == 'e' and sys.version_info[:2] < (3, 6):
+            raise ValueError(
+                'binary16 format not supported on this version of Python.')
         super().__init__(size=struct.calcsize(format_string), **kwargs)
 
         self.endian = endian or sys.byteorder
@@ -63,14 +66,33 @@ class Float(Field):
         stream.write(serialized)
 
 
+class Float16(Float):
+    """A half-precision floating-point number in IEEE-754 `binary16 format`_.
+
+    .. warning::
+        This format is only supported on Python 3.6 and newer. Using this field
+        in older versions of Python will crash.
+
+    .. _binary16 format: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
+    """
+    def __init__(self, **kwargs):
+        super().__init__(format_string='e', **kwargs)
+
+
 class Float32(Float):
-    """A floating-point number stored in IEEE-754 binary32 format."""
+    """A single-precision floating-point number in IEEE-754 `binary32 format`_.
+
+    .. _binary32 format: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
+    """
     def __init__(self, **kwargs):
         super().__init__(format_string='f', **kwargs)
 
 
 class Float64(Float):
-    """A floating-point number stored in IEEE-754 binary64 format."""
+    """A floating-point number stored in IEEE-754 `binary64 format`_.
+
+    .. _binary64 format: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+    """
     def __init__(self, **kwargs):
         super().__init__(format_string='d', **kwargs)
 
@@ -173,8 +195,8 @@ class VariableLengthInteger(Integer):
 class UnsignedInteger(Integer):
     """An unsigned two's-complement integer.
 
-    This class and is typically not used directly, except for integers with
-    sizes that aren't powers of two, e.g. for a 24-bit number.
+    This class is typically not used directly, except for integers with sizes
+    that aren't powers of two, e.g. for a 24-bit number.
 
     .. seealso:: :class:`.Integer`
     """
@@ -228,3 +250,74 @@ class UInt64(Int64):
     """A 64-bit unsigned integer."""
     def __init__(self, **kwargs):
         super().__init__(signed=False, **kwargs)
+
+
+class Timestamp(Integer):
+    r"""A timestamp stored as an integer offset from the `Unix epoch`_.
+
+    This class is typically not used directly, except for timestamps with sizes
+    that aren't powers of two, e.g. the 96-bit timestamps used by Amazon
+    Redshift.
+
+    :param str resolution:
+        The resolution timestamps will be stored with. Accepted values are "s",
+        "ms", "us" (microseconds), and "ns". Note that Python's datetime objects
+        don't support nanosecond resolution.
+    :param datetime.tzinfo tz:
+        A tzinfo object to create timezone-aware timestamps when loading. For
+        example:
+
+        .. code-block:: python
+
+            >>> field = Timestamp32(tz=datetime.timezone.utc)
+            >>> field.loads(b'\xa3\xc3\x55\x5c')
+            datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)
+
+    .. note::
+        As per `convention`_, timestamps are signed integers by default. Choosing
+        the wrong signedness for your timestamps can result in `wildly incorrect`_
+        values, e.g. 1901-12-13 20:45:52 instead of 2038-01-19 03:14:08.
+
+    .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
+    .. _convention: https://en.wikipedia.org/wiki/Unix_time#Representing_the_number
+    .. _wildly incorrect: https://en.wikipedia.org/wiki/Year_2038_problem
+    .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
+    """
+    _RESOLUTION_UNITS = {
+        's': 1,
+        'ms': 1E3,
+        'us': 1E6,
+        'ns': 1E9,
+    }
+
+    def __init__(self, *, resolution='s', tz=None, **kwargs):
+        super().__init__(**kwargs)
+
+        if resolution not in self._RESOLUTION_UNITS:
+            raise ValueError('Invalid resolution. Expected one of %s but got %r'
+                             % (', '.join(repr(k) for k in self._RESOLUTION_UNITS),
+                                resolution))
+
+        self.resolution = resolution
+        self.tz = tz
+        self._units = self._RESOLUTION_UNITS[resolution]
+
+    def _do_load(self, stream, context, loaded_fields):
+        timestamp = super()._do_load(stream, context, loaded_fields)
+        return datetime.datetime.fromtimestamp(timestamp / self._units, self.tz)
+
+    def _do_dump(self, stream, data, context, all_fields):
+        timestamp = data.timestamp() * self._units
+        super()._do_dump(stream, timestamp, context, all_fields)
+
+
+class Timestamp32(Timestamp):
+    """A timestamp saved as a 32-bit integer."""
+    def __init__(self, **kwargs):
+        super().__init__(size=4, **kwargs)
+
+
+class Timestamp64(Timestamp):
+    """A timestamp saved as a 64-bit integer."""
+    def __init__(self, **kwargs):
+        super().__init__(size=8, **kwargs)
