@@ -37,38 +37,6 @@ def test_decode_vlq_basic(serialized, expected):
 
 @pytest.mark.parametrize('value,expected', (
     (0, b'\0'),
-    (1, b'\x02'),
-    (-1, b'\x01'),
-    (-2, b'\x03'),
-    (2147483647, b'\xfe\xff\xff\xff\x0f'),
-    (-2147483648, b'\xff\xff\xff\xff\x0f'),
-))
-def test_encode_zigzag__basic(value, expected):
-    assert varints.encode_integer_zigzag(value) == expected
-
-
-def test_encode_zigzag__too_big():
-    """We only support integers <= 64 bits for zig-zag encoding."""
-    with pytest.raises(OverflowError):
-        varints.encode_integer_zigzag(2 ** 65)
-
-
-@pytest.mark.parametrize('serialized,expected', (
-    (b'\0', 0),
-    (b'\x02', 1),
-    (b'\x01', -1),
-    (b'\x03', -2),
-    (b'\xfe\xff\xff\xff\x0f', 2147483647),
-    (b'\xff\xff\xff\xff\x0f', -2147483648),
-))
-def test_decode_zigzag(serialized, expected):
-    buf = io.BytesIO(serialized)
-    assert varints.decode_integer_zigzag(buf) == expected
-    assert buf.read() == b'', "Buffer wasn't emptied."
-
-
-@pytest.mark.parametrize('value,expected', (
-    (0, b'\0'),
     (1, b'\x01'),
     (-32767, b'\xc1\xff\x7f'),
     (895484, b'\xb6\xd3\x7c'),

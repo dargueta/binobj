@@ -45,14 +45,6 @@ def test_varint__basic_load(data, expected):
     assert field.loads(data) == expected
 
 
-def test_varint__overflow():
-    """Crash if we try to zigzag an integer that's too big."""
-    field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.ZIGZAG)
-
-    with pytest.raises(errors.UnserializableValueError):
-        field.dumps(2**65)
-
-
 def test_varint__max_bytes():
     """Crash if a variable-length integer takes up too many bytes."""
     field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ,

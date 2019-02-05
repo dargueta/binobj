@@ -3,7 +3,6 @@
 import datetime
 import struct
 import sys
-import warnings
 
 from binobj import errors
 from binobj import helpers
@@ -154,10 +153,6 @@ class VariableLengthInteger(Integer):
 
         format_endianness = encoding_info['endian']
         format_signedness = encoding_info['signed']
-
-        if vli_format is varints.VarIntEncoding.ZIGZAG:
-            warnings.warn('Support for zigzag integer encoding is deprecated.',
-                          DeprecationWarning)
 
         super().__init__(endian=format_endianness, signed=format_signedness,
                          **kwargs)
