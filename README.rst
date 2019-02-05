@@ -7,7 +7,7 @@ binobj
    :alt: Build status
    :target: https://travis-ci.org/dargueta/binobj
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.4,%203.5,%203.6,%203.7-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.5,%203.6,%203.7-blue.svg
    :alt: Python versions
 
 A cross-platform Python 3 library for reading and writing structured binary data
