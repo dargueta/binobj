@@ -97,7 +97,7 @@ class Float64(Float):
 
 
 class Integer(Field):
-    """An two's-complement integer.
+    """A two's-complement integer of some fixed size.
 
     This class is typically not used directly, except for integers with sizes
     that aren't powers of two, e.g. for a 24-bit number.
@@ -115,7 +115,7 @@ class Integer(Field):
 
     .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representationss
     """
-    def __init__(self, endian=None, signed=True, **kwargs):
+    def __init__(self, *, endian=None, signed=True, **kwargs):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
         self.signed = signed
@@ -188,7 +188,7 @@ class VariableLengthInteger(Integer):
 
 
 class UnsignedInteger(Integer):
-    """An unsigned two's-complement integer.
+    """An unsigned two's-complement integer of some fixed size.
 
     This class is typically not used directly, except for integers with sizes
     that aren't powers of two, e.g. for a 24-bit number.
@@ -259,8 +259,8 @@ class Timestamp(Integer):
         "ms", "us" (microseconds), and "ns". Note that Python's datetime objects
         don't support nanosecond resolution.
     :param datetime.tzinfo tz:
-        A tzinfo object to create timezone-aware timestamps when loading. For
-        example:
+        A :class:`~datetime.tzinfo` object to create timezone-aware timestamps
+        when loading. For example:
 
         .. code-block:: python
 
@@ -272,6 +272,8 @@ class Timestamp(Integer):
         As per `convention`_, timestamps are signed integers by default. Choosing
         the wrong signedness for your timestamps can result in `wildly incorrect`_
         values, e.g. 1901-12-13 20:45:52 instead of 2038-01-19 03:14:08.
+
+    .. versionadded:: 0.6.0
 
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. _convention: https://en.wikipedia.org/wiki/Unix_time#Representing_the_number
@@ -302,17 +304,25 @@ class Timestamp(Integer):
         return datetime.datetime.fromtimestamp(timestamp / self._units, self.tz)
 
     def _do_dump(self, stream, data, context, all_fields):
-        timestamp = data.timestamp() * self._units
+        timestamp = int(data.timestamp() * self._units)
         super()._do_dump(stream, timestamp, context, all_fields)
 
 
 class Timestamp32(Timestamp):
-    """A timestamp saved as a 32-bit integer."""
+    """A timestamp saved as a 32-bit integer.
+
+    .. versionadded:: 0.6.0
+    .. seealso:: :class:`.Timestamp`
+    """
     def __init__(self, **kwargs):
         super().__init__(size=4, **kwargs)
 
 
 class Timestamp64(Timestamp):
-    """A timestamp saved as a 64-bit integer."""
+    """A timestamp saved as a 64-bit integer.
+
+    .. versionadded:: 0.6.0
+    .. seealso:: :class:`.Timestamp`
+    """
     def __init__(self, **kwargs):
         super().__init__(size=8, **kwargs)
