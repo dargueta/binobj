@@ -4,7 +4,7 @@ A Crash Course
 ``binobj`` allows you to create classes to declare the structure of binary files
 or streams in a convenient object-oriented way. It supports a variety of field
 types, and if you need something a bit more specialized you can always subclass
-:class:`~binobj.fields.Field` or one of its subclasses to create the functionality
+:class:`~binobj.fields.base.Field` or one of its subclasses to create the functionality
 you need.
 
 Plain Old Strings
@@ -97,8 +97,8 @@ Variable-Length Fields
 It can get a bit tedious to remember to pad strings with spaces just so we can
 save the file without errors. Also: what happens if you need to store info for
 someone with a long last name like O'Shaughnessy or Ramachandran? We could use a
-variable-length string, like :class:`~binobj.fields.StringZ`. This stores a
-string with a null byte to signal the end, like in C.
+variable-length string, like :class:`~binobj.fields.stringlike.StringZ`. This
+stores a string with a null byte to signal the end, like in C.
 
 .. code-block:: python
 
@@ -123,7 +123,7 @@ Arrays
 ------
 
 Let's add a new feature to allow people to have two phone numbers. You can use
-an :class:`~binobj.fields.Array` for this.
+an :class:`~binobj.fields.containers.Array` for this.
 
 
 .. code-block:: python
@@ -243,9 +243,9 @@ Can you make arrays of nested structs? Absolutely! We can take advantage of that
 to support multiple addresses for a single person. We'll indicate the number of
 addresses a person has using an integer field.
 
-As of version 0.3.0 you can use a :class:`~binobj.fields.Field` as the array size,
-so instead of creating a halting function like we did with ``phone_numbers``, we
-can pass ``n_addresses`` as the value for ``count``:
+As of version 0.3.0 you can use a :class:`~binobj.fields.base.Field` as the array
+size, so instead of creating a halting function like we did with ``phone_numbers``,
+we can pass ``n_addresses`` as the value for ``count``:
 
 .. code-block:: python
 
