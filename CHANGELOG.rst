@@ -14,11 +14,19 @@ New field types were added:
   ``ValueError``.
 * ``Timestamp``, ``Timestamp32``, and ``Timestamp64``.
 
+Bugfixes
+~~~~~~~~
+
+Fixed call signature for ``Integer``, which used positional arguments instead of
+keyword-only. Only a breaking change for people who used it directly (rare) and
+ignored the "only use keyword argumets" advice.
+
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
 * Support for Python 3.4 was dropped (deprecated 0.5.1).
 * Zigzag integer encoding support was dropped (deprecated 0.5.0).
+* Removed the ``validation`` module and moved the decorator marker to ``decorators``.
 
 0.5.2
 -----
