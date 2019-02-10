@@ -1,8 +1,29 @@
 Changelog
 =========
 
+0.6.0
+-----
+
+New Features
+------------
+
+New field types were added:
+* ``Float16``: half-precision floating-point numbers. While this has technically
+  been supported since 0.4.3, it was never made explicit. ``Float16`` only works
+  on Python 3.6 and above. Attempting to use it on Python 3.5 will trigger a
+  ``ValueError``.
+* ``Timestamp``, ``Timestamp32``, and ``Timestamp64``.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+* Support for Python 3.4 was dropped (deprecated 0.5.1).
+* Zigzag integer encoding support was dropped (deprecated 0.5.0).
+
 0.5.2
 -----
+
+Released: 2019-01-31
 
 Fix typo in homepage URL. Otherwise identical to 0.5.1.
 
