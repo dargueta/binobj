@@ -1,3 +1,4 @@
+import datetime
 import math
 import struct
 import sys
@@ -10,6 +11,13 @@ from binobj.fields import numeric
 
 
 _PY_VER = tuple(sys.version_info[:2])
+
+
+def test_integer_overflow():
+    """An overflow error should be rethrown as a serialization error."""
+    field = numeric.UInt16()
+    with pytest.raises(errors.UnserializableValueError):
+        field.dumps(65536)
 
 
 def test_const_set_size__varint():
@@ -25,6 +33,13 @@ def test_varint__unsupported_encoding():
         numeric.VariableLengthInteger(vli_format='uleb128')
 
     assert str(errinfo.value).startswith('Invalid or unsupported integer')
+
+
+def test_varint__underflow():
+    """Crash if VLQ gets a negative number."""
+    field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
+    with pytest.raises(errors.UnserializableValueError):
+        field.dumps(-1)
 
 
 @pytest.mark.parametrize('value,expected', (
@@ -131,3 +146,36 @@ def test_float__dumps__exception_translation(mocker):
 
     with pytest.raises(errors.SerializationError):
         numeric.Float32().dumps(1234)
+
+
+def test_timestamp__invalid_resolution():
+    with pytest.raises(errors.ConfigurationError):
+        numeric.Timestamp(size=4, resolution='Y')
+
+
+@pytest.mark.parametrize('data,expected', (
+    (b'\0\0\0\x80', datetime.datetime(1901, 12, 13, 20, 45, 52)),
+    (b'\xff\xff\xff\x7f', datetime.datetime(2038, 1, 19, 3, 14, 7)),
+))
+def test_timestamp__loads__naive(data, expected):
+    field = numeric.Timestamp32(endian='little')
+    assert field.loads(data) == expected
+
+
+def test_timestamp__loads__aware():
+    field = numeric.Timestamp32(endian='little', tz_aware=True)
+    loaded = field.loads(b'\x01\x23\x45\x67')
+    assert loaded == datetime.datetime(
+        2024, 11, 26, 1, 23, 13, tzinfo=datetime.timezone.utc)
+
+
+def test_timestamp__loads__microseconds():
+    field = numeric.Timestamp64(endian='big', resolution='us')
+    loaded = field.loads(b'\x00\x05\x81\x85\x84\x32\xc1\xad')
+    assert loaded == datetime.datetime(2019, 2, 10, 7, 55, 32, 105645)
+
+
+def test_timestamp__roundtrip():
+    field = numeric.Timestamp(size=12, resolution='us', tz_aware=True)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    assert field.loads(field.dumps(now)) == now

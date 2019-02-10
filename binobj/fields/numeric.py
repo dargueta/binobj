@@ -128,8 +128,12 @@ class Integer(Field):
 
     def _do_dump(self, stream, data, context, all_fields):
         """Dump an integer to the given stream."""
-        return helpers.write_int(stream, data, self.size, self.signed,
-                                 self.endian)
+        try:
+            return helpers.write_int(stream, data, self.size, self.signed,
+                                     self.endian)
+        except (ValueError, OverflowError) as err:
+            raise errors.UnserializableValueError(
+                field=self, value=data, reason=str(err))
 
     # pylint: enable=unused-argument
 
@@ -254,17 +258,21 @@ class Timestamp(Integer):
     that aren't powers of two, e.g. the 96-bit timestamps used by Amazon
     Redshift.
 
+    This is *not* equivalent to calling :meth:`datetime.datetime.fromtimestamp`
+    because that returns a naive :class:`~datetime.datetime` in the local time
+    zone; Unix time is UTC by definition so loaded timestamps are always in UTC.
+
     :param str resolution:
         The resolution timestamps will be stored with. Accepted values are "s",
         "ms", "us" (microseconds), and "ns". Note that Python's datetime objects
         don't support nanosecond resolution.
-    :param datetime.tzinfo tz:
-        A :class:`~datetime.tzinfo` object to create timezone-aware timestamps
-        when loading. For example:
+    :param bool tz_aware:
+        Controls whether loads return timezone-aware or naive
+        :class:`~datetime.datetime`\s.
 
         .. code-block:: python
 
-            >>> field = Timestamp32(tz=datetime.timezone.utc)
+            >>> field = Timestamp32()
             >>> field.loads(b'\xa3\xc3\x55\x5c')
             datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)
 
@@ -287,21 +295,26 @@ class Timestamp(Integer):
         'ns': 1E9,
     }
 
-    def __init__(self, *, resolution='s', tz=None, **kwargs):
+    def __init__(self, *, resolution='s', tz_aware=False, **kwargs):
         super().__init__(**kwargs)
-
         if resolution not in self._RESOLUTION_UNITS:
-            raise ValueError('Invalid resolution. Expected one of %s but got %r'
-                             % (', '.join(repr(k) for k in self._RESOLUTION_UNITS),
-                                resolution))
+            raise errors.ConfigurationError(
+                'Invalid resolution. Expected one of %s but got %r'
+                % (', '.join(repr(k) for k in self._RESOLUTION_UNITS), resolution),
+                field=self)
 
         self.resolution = resolution
-        self.tz = tz
+        self.tz_aware = tz_aware
         self._units = self._RESOLUTION_UNITS[resolution]
 
     def _do_load(self, stream, context, loaded_fields):
-        timestamp = super()._do_load(stream, context, loaded_fields)
-        return datetime.datetime.fromtimestamp(timestamp / self._units, self.tz)
+        offset = super()._do_load(stream, context, loaded_fields)
+        timestamp = datetime.datetime.fromtimestamp(
+            offset / self._units, datetime.timezone.utc)
+
+        if not self.tz_aware:
+            return timestamp.replace(tzinfo=None)
+        return timestamp
 
     def _do_dump(self, stream, data, context, all_fields):
         timestamp = int(data.timestamp() * self._units)
