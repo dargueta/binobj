@@ -1,25 +1,45 @@
 """Function and method decorators."""
 
-from binobj import validation
+import functools
+
+
+class ValidatorMethodWrapper:   # pylint: disable=too-few-public-methods
+    """A wrapper around a validator method for one or more fields.
+
+    :param callable func:
+        The validator to invoke for the named fields.
+    :param field_names:
+        An iterable of strings; the names of the fields to be validated by
+        ``func``. If ``None`` or the iterable is empty, this validator method
+        should be used to validate the entire struct, not just a field.
+    """
+    def __init__(self, func, field_names):
+        self.func = func
+        self.field_names = tuple(field_names or ())
+        functools.wraps(func)(self)
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
 
 
 def validates(*field_names):
-    """A decorator that marks a method as a validator for one or more fields.
+    """Mark a method as a validator for one or more fields.
 
-    :param field_names:
-        One or more names of fields that this validator should be activated for.
-
-    If you specify multiple validator methods, the order in which they execute
-    is *not* guaranteed. If you need a specific ordering of checks, you must put
-    them in the same function.
-
-    Usage::
+    .. code-block:: python
 
         @validates('foo', 'bar')
         def validator(self, field, value):
             if value >= 10:
                 raise ValidationError('%r must be in [0, 10).' % field.name,
                                       field=field)
+
+    :param field_names:
+        One or more names of fields that this validator should be activated for.
+
+    .. warning::
+        If you specify multiple validator methods, the order in which they execute
+        is *not* guaranteed. If you need a specific ordering of checks, you must
+        put them in the same function.
 
     .. note::
         Only functions and instance methods are supported. Class methods and
@@ -37,12 +57,12 @@ def validates(*field_names):
             'pass Field objects.')
 
     def decorator(func):    # pylint: disable=missing-docstring
-        return validation.ValidatorMethodWrapper(func, field_names)
+        return ValidatorMethodWrapper(func, field_names)
     return decorator
 
 
 def validates_struct(func):
-    """A decorator that marks a method as a validator for the entire struct.
+    """Mark a method as a validator for the entire struct.
 
     The method being decorated should take a single argument aside from ``self``,
     the dict to validate. The validator is invoked right after it's been loaded,
@@ -64,4 +84,4 @@ def validates_struct(func):
         Only functions and instance methods are supported. Class methods and
         static methods will cause a crash.
     """
-    return validation.ValidatorMethodWrapper(func, ())
+    return ValidatorMethodWrapper(func, ())

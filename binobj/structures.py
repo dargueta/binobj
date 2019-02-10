@@ -6,9 +6,9 @@ import collections.abc
 import io
 import types
 
+from binobj import decorators
 from binobj import errors
 from binobj import fields
-from binobj import validation
 
 
 __all__ = ['Struct']
@@ -115,7 +115,7 @@ class StructMeta(abc.ABCMeta):
     def _bind_validators(namespace, validators):
         """Find all defined validators and assign them to their fields."""
         for item in namespace.values():
-            if not isinstance(item, validation.ValidatorMethodWrapper):
+            if not isinstance(item, decorators.ValidatorMethodWrapper):
                 continue
 
             if item.field_names:
