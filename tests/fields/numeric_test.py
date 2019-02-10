@@ -1,10 +1,15 @@
+import math
 import struct
+import sys
 
 import pytest
 
 from binobj import errors
 from binobj import varints
 from binobj.fields import numeric
+
+
+_PY_VER = tuple(sys.version_info[:2])
 
 
 def test_const_set_size__varint():
@@ -67,10 +72,10 @@ def test_float_bad_endian_crashes():
     (numeric.Float64(endian='big'), '>d'),
 ))
 @pytest.mark.parametrize('value', (
-    3.141592654,
-    float('inf'),
-    -float('inf'),
-    float('nan'),
+    math.pi,
+    math.inf,
+    -math.inf,
+    math.nan,
 ))
 def test_float__dumps(value, field_object, fmt_string):
     assert field_object.dumps(value) == struct.pack(fmt_string, value)
@@ -83,12 +88,31 @@ def test_float__dumps(value, field_object, fmt_string):
     (numeric.Float64(endian='big'), '>d'),
 ))
 @pytest.mark.parametrize('value', (
-    3.141592654,
-    float('inf'),
-    -float('inf'),
+    math.pi,
+    math.inf,
+    -math.inf,
 ))
 def test_float__loads(value, field_object, fmt_string):
     assert field_object.loads(struct.pack(fmt_string, value)) == pytest.approx(value)
+
+
+@pytest.mark.skipif(_PY_VER < (3, 6), reason='binary16 only supported on 3.6+')
+def test_float16__loads():
+    field = numeric.Float16(endian='little')
+    result = field.loads(struct.pack('<e', math.e))
+    assert math.isclose(result, math.e, rel_tol=0.001)
+
+
+@pytest.mark.skipif(_PY_VER < (3, 6), reason='binary16 only supported on 3.6+')
+def test_float16__dumps():
+    field = numeric.Float16(endian='big')
+    assert field.dumps(65504) == struct.pack('>e', 65504)
+
+
+@pytest.mark.skipif(_PY_VER >= (3, 6), reason='binary16 supported on 3.6+')
+def test_float16_crashes_on_35():
+    with pytest.raises(ValueError, match=r'^binary16.*$'):
+        numeric.Float16()
 
 
 def test_float__loads__exception_translation(mocker):
