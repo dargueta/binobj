@@ -1,7 +1,7 @@
 """Base classes and definitions common to all Fields."""
 
 import abc
-import collections
+import collections.abc
 import functools
 import io
 
@@ -108,6 +108,10 @@ class Field:    # pylint: disable=too-many-instance-attributes
         always be passed an integer, a :class:`~binobj.fields.stringlike.String`
         validator will always be passed a string, and so on.
 
+        .. warning::
+            Validators assigned at the class level as a method in the containing
+            :class:`~binobj.structures.Struct` are *not* called.
+
     .. attribute:: index
 
         The zero-based index of the field in the struct.
@@ -139,7 +143,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
         self.present = present or (lambda *_: True)
         self._size = size
 
-        if isinstance(validate, collections.Iterable):
+        if isinstance(validate, collections.abc.Iterable):
             self.validators = [functools.partial(v, self) for v in validate]
         else:
             self.validators = [functools.partial(validate, self)]
@@ -216,6 +220,10 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
     def computes(self, method):
         """Decorator that marks a function as computing the value for a field.
+
+        .. deprecated:: 0.6.0
+            Use the :func:`~binobj.decorators.computes` decorator from
+            :mod:`binobj.decorators` instead.
 
         You can use this for automatically assigning values based on other fields.
         For example, suppose we have this struct::

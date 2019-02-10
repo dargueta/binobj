@@ -156,7 +156,7 @@ class Struct(metaclass=StructMeta):
         An ordered mapping of the field names to their :class:`~binobj.fields.base.Field`
         object definitions.
 
-        :type: :class:`collections.OrderedDict`
+        :type: collections.OrderedDict
 
     .. versionchanged:: 0.5.0
         A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
@@ -252,7 +252,7 @@ class Struct(metaclass=StructMeta):
 
         :rtype: collections.OrderedDict
 
-        :raise ~binobj.errors.MissingRequiredValueError:
+        :raise MissingRequiredValueError:
             One or more fields don't have assigned values.
 
         .. versionchanged:: 0.3.0

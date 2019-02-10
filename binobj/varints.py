@@ -11,9 +11,24 @@ from binobj import helpers
 
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
+    #: Signed big-endian integer in `modified VLQ`_ format.
+    #:
+    #: .. _modified VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#Sign_bit
     COMPACT_INDICES = 'compact'
+
+    #: Signed little-endian integer in `LEB128`_ format.
+    #:
+    #: .. _LEB128: https://en.wikipedia.org/wiki/LEB128
     LEB128 = 'leb128'
+
+    #: Unsigned little-endian integer in `LEB128`_ format.
+    #:
+    #: .. _LEB128: https://en.wikipedia.org/wiki/LEB128
     ULEB128 = 'uleb128'
+
+    #: Unsigned big-endian integer in `VLQ`_ format.
+    #:
+    #: .. _VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#General_structure
     VLQ = 'vlq'
 
 
@@ -23,7 +38,7 @@ def _read_uint8(stream):
 
 
 def encode_integer_compact(value):
-    """Encode an integer with the Unreal Engine Compact Indices encoding.
+    """Encode an integer with signed VLQ encoding.
 
     :param int value:
         The value to encode.
@@ -56,7 +71,7 @@ def encode_integer_compact(value):
 
 
 def decode_integer_compact(stream):
-    """Decode an integer with the Unreal Engine Compact Indices encoding.
+    """Decode an integer with signed VLQ encoding.
 
     :param io.BufferedIOBase stream:
         The bit stream to read from.
@@ -83,7 +98,7 @@ def decode_integer_compact(stream):
 
 
 def encode_integer_vlq(value):
-    """Encode an integer with the VLQ encoding.
+    """Encode an integer with the unsigned VLQ encoding.
 
     :param int value:
         The value to encode. Must be a non-negative integer.
@@ -111,7 +126,7 @@ def encode_integer_vlq(value):
 
 
 def decode_integer_vlq(stream):
-    """Decode a VLQ-encoded integer from the given stream.
+    """Decode an unsigned VLQ-encoded integer from the given stream.
 
     :param io.BufferedIOBase stream:
         The stream to read from.

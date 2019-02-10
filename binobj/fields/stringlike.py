@@ -39,7 +39,7 @@ class String(Field):
 
     :param int size:
         The field's size in *bytes*, not *characters*. For most text encodings
-        these are the same, but encodings use multiple bytes per character.
+        these are the same, but some encodings use multiple bytes per character.
 
     :param str encoding:
         The encoding to use for converting the string to and from bytes. Defaults

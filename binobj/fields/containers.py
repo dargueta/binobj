@@ -12,7 +12,7 @@ class Array(Field):
     """An array of other serializable objects.
 
     :param Field component:
-        The component this array is comprised of.
+        The component this array is comprised of. Must be an instance.
     :param count:
         Optional. Some way of indicating the number of elements in this array.
         The value for this argument can be one of the following:
