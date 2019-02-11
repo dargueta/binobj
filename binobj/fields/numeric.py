@@ -272,7 +272,7 @@ class Timestamp(Integer):
 
         .. code-block:: python
 
-            >>> field = Timestamp32()
+            >>> field = Timestamp32(tz_aware=True)
             >>> field.loads(b'\xa3\xc3\x55\x5c')
             datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)
 
