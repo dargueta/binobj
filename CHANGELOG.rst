@@ -17,9 +17,14 @@ New field types were added:
 Bugfixes
 ~~~~~~~~
 
-Fixed call signature for ``Integer``, which used positional arguments instead of
-keyword-only. Only a breaking change for people who used it directly (rare) and
-ignored the "only use keyword argumets" advice.
+* ``Integer`` accidentally used some positional arguments instead of keyword-only.
+  Only a breaking change for people who used it directly (rare) and ignored the
+  "only use keyword argumets" advice.
+* ``Integer`` wasn't catching ``OverflowError`` and rethrowing it as an
+  ``UnserializableValueError`` like it was supposed to.
+* ``helpers.iter_bytes()`` would iterate through the entire stream if ``max_bytes``
+  was 0.
+* ``Struct.to_dict()`` didn't omit fields marked with ``discard``.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
@@ -27,6 +32,8 @@ Breaking Changes
 * Support for Python 3.4 was dropped (deprecated 0.5.1).
 * Zigzag integer encoding support was dropped (deprecated 0.5.0).
 * Removed the ``validation`` module and moved the decorator marker to ``decorators``.
+* ``Struct.to_dict()`` now omits fields marked with ``discard``. They used to be
+  left in due to a bug that has now been fixed.
 
 0.5.2
 -----

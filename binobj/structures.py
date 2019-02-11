@@ -186,14 +186,9 @@ class Struct(metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
-        # WARNING: Converting to a dictionary first is required to avoid infinite
-        # recursion problems. We can't use `self`.
-        full_struct = self.to_dict()
-
         for f_name, validators in self.__validators__['fields'].items():
             f_obj = self.__components__[f_name]
-
-            value = full_struct[f_name]
+            value = self[f_name]
 
             # First, invoke the validators defined on the field object.
             for validator in f_obj.validators:
@@ -206,7 +201,7 @@ class Struct(metaclass=StructMeta):
 
         # Validate the entirety of the struct.
         for validator in self.__validators__['struct']:
-            validator(self, full_struct)
+            validator(self, self)
 
     def to_stream(self, stream, context=None):
         """Convert the given data into bytes and write it to ``stream``.
@@ -255,6 +250,9 @@ class Struct(metaclass=StructMeta):
         :raise MissingRequiredValueError:
             One or more fields don't have assigned values.
 
+        .. versionchanged:: 0.6.0
+            Fields with ``discard`` set are not included in the returned dict.
+
         .. versionchanged:: 0.3.0
             This now recursively calls :meth:`.to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
@@ -263,6 +261,7 @@ class Struct(metaclass=StructMeta):
         dct = collections.OrderedDict(
             (field.name, field.compute_value_for_dump(self))
             for field in self.__components__.values()
+            if not field.discard
         )
         return recursive_to_dicts(dct)
 
@@ -287,6 +286,11 @@ class Struct(metaclass=StructMeta):
 
         instance = cls(**results)
         instance.validate_contents()
+
+        for field in cls.__components__.values():
+            if field.discard:
+                del instance[field.name]
+
         return instance
 
     @classmethod
@@ -328,8 +332,8 @@ class Struct(metaclass=StructMeta):
         field read.
 
         .. note::
-            Because the struct is only partially loaded, validators are *not*
-            executed.
+            Because the struct is only partially loaded, struct-level validators
+            are *not* executed. Individual fields still are.
 
         :param io.BufferedIOBase stream:
             The stream to load from.
@@ -460,7 +464,6 @@ class Struct(metaclass=StructMeta):
                     raise errors.MissingRequiredValueError(field=field)
 
             field.dump(stream, value, context)
-
             if field.name == last_field:
                 return
 

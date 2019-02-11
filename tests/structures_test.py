@@ -282,3 +282,13 @@ def test_inheritance__field_redefinition_crashes():
     with pytest.raises(errors.FieldRedefinedError):
         class _Crash(BasicStruct):
             string = fields.String(size=7)
+
+
+def test_load__discarded_fields_not_present():
+    class _Dumb(binobj.Struct):
+        first = fields.String(size=2)
+        reserved = fields.Bytes(const=b'\0\0', discard=True)
+        last = fields.String(size=2)
+
+    loaded = _Dumb().from_bytes(b'AB\0\0CD').to_dict()
+    assert 'reserved' not in loaded
