@@ -66,31 +66,31 @@ class Float(Field):
 
 
 class Float16(Float):
-    """A half-precision floating-point number in IEEE-754 `binary16 format`_.
+    """A half-precision floating-point number in IEEE-754 `binary16`_ format.
 
     .. warning::
         This format is only supported on Python 3.6 and newer. Using this field
         in older versions of Python will crash.
 
-    .. _binary16 format: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
+    .. _binary16: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     """
     def __init__(self, **kwargs):
         super().__init__(format_string='e', **kwargs)
 
 
 class Float32(Float):
-    """A single-precision floating-point number in IEEE-754 `binary32 format`_.
+    """A single-precision floating-point number in IEEE-754 `binary32`_ format.
 
-    .. _binary32 format: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
+    .. _binary32: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
     """
     def __init__(self, **kwargs):
         super().__init__(format_string='f', **kwargs)
 
 
 class Float64(Float):
-    """A floating-point number stored in IEEE-754 `binary64 format`_.
+    """A floating-point number stored in IEEE-754 `binary64`_ format.
 
-    .. _binary64 format: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+    .. _binary64: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     """
     def __init__(self, **kwargs):
         super().__init__(format_string='d', **kwargs)
