@@ -43,9 +43,9 @@ class String(Field):
 
     :param str encoding:
         The encoding to use for converting the string to and from bytes. Defaults
-        to ``'latin-1'``.
+        to `ISO 8859-1`_.
 
-    :param bytes pad:
+    :param bytes pad_byte:
         A single byte to use as padding for strings that are too short to fit
         into the field. If not given, strings that aren't exactly ``size`` bytes
         when encoded will trigger a :class:`~binobj.errors.ValueSizeError`.
@@ -60,8 +60,9 @@ class String(Field):
         ``utf-16-le`` or ``utf-16-be``.
 
     .. _byte order mark: https://en.wikipedia.org/wiki/Byte_order_mark
+    .. _ISO 8859-1: https://en.wikipedia.org/wiki/ISO/IEC_8859-1
     """
-    def __init__(self, *, encoding='latin-1', pad_byte=None, **kwargs):
+    def __init__(self, *, encoding='iso-8859-1', pad_byte=None, **kwargs):
         super().__init__(**kwargs)
 
         if pad_byte is not None:
