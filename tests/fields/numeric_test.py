@@ -2,6 +2,7 @@ import datetime
 import math
 import struct
 import sys
+from unittest import mock
 
 import pytest
 
@@ -130,18 +131,18 @@ def test_float16_crashes_on_35():
         numeric.Float16()
 
 
-def test_float__loads__exception_translation(mocker):
+@mock.patch('binobj.fields.numeric.struct.unpack')
+def test_float__loads__exception_translation(pack_mock):
     """:class:`struct.error` must be translated."""
-    pack_mock = mocker.patch('binobj.fields.numeric.struct.unpack')
     pack_mock.side_effect = struct.error('Some error happened')
 
     with pytest.raises(errors.DeserializationError):
         numeric.Float32().loads(b'1234')
 
 
-def test_float__dumps__exception_translation(mocker):
+@mock.patch('binobj.fields.numeric.struct.pack')
+def test_float__dumps__exception_translation(pack_mock):
     """:class:`struct.error` must be translated."""
-    pack_mock = mocker.patch('binobj.fields.numeric.struct.pack')
     pack_mock.side_effect = struct.error('Some error happened')
 
     with pytest.raises(errors.SerializationError):
