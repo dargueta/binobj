@@ -4,6 +4,7 @@ import abc
 import collections.abc
 import functools
 import io
+import warnings
 
 from binobj import errors
 
@@ -222,8 +223,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
         """Decorator that marks a function as computing the value for a field.
 
         .. deprecated:: 0.6.0
-            Use the :func:`~binobj.decorators.computes` decorator from
-            :mod:`binobj.decorators` instead.
+            This decorator will be moved to :mod:`binobj.decorators`.
 
         You can use this for automatically assigning values based on other fields.
         For example, suppose we have this struct::
@@ -264,6 +264,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
         elif self.const is not UNDEFINED:
             raise errors.ConfigurationError(
                 'Cannot set compute function for a const field.', field=self)
+
+        warnings.warn('This decorator will be moved to the `decorators` module.',
+                      PendingDeprecationWarning)
         self._compute_fn = method
 
     @property
