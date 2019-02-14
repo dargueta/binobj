@@ -40,8 +40,7 @@ def _read_uint8(stream):
 def encode_integer_compact(value):
     """Encode an integer with signed VLQ encoding.
 
-    :param int value:
-        The value to encode.
+    :param int value: The value to encode.
 
     :return: The encoded integer.
     :rtype: bytes
@@ -73,8 +72,7 @@ def encode_integer_compact(value):
 def decode_integer_compact(stream):
     """Decode an integer with signed VLQ encoding.
 
-    :param io.BufferedIOBase stream:
-        The bit stream to read from.
+    :param io.BufferedIOBase stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -128,8 +126,7 @@ def encode_integer_vlq(value):
 def decode_integer_vlq(stream):
     """Decode an unsigned VLQ-encoded integer from the given stream.
 
-    :param io.BufferedIOBase stream:
-        The stream to read from.
+    :param io.BufferedIOBase stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -146,8 +143,7 @@ def decode_integer_vlq(stream):
 def encode_integer_uleb128(value):
     """Encode an integer with unsigned LEB128 encoding.
 
-    :param int value:
-        The value to encode.
+    :param int value: The value to encode.
 
     :return: ``value`` encoded as a variable-length integer in ULEB128 format.
     :rtype: bytes
@@ -171,8 +167,7 @@ def encode_integer_uleb128(value):
 def decode_integer_uleb128(stream):
     """Decode an unsigned LEB128-encoded integer from the given stream.
 
-    :param io.BufferedIOBase stream:
-        The stream to read from.
+    :param io.BufferedIOBase stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -192,8 +187,7 @@ def decode_integer_uleb128(stream):
 def encode_integer_leb128(value):
     """Encode an integer with signed LEB128 encoding.
 
-    :param int value:
-        The value to encode.
+    :param int value: The value to encode.
 
     :return: ``value`` encoded as a variable-length integer in LEB128 format.
     :rtype: bytes
@@ -230,8 +224,7 @@ def encode_integer_leb128(value):
 def decode_integer_leb128(stream):
     """Decode a signed LEB128-encoded integer from the given stream.
 
-    :param io.BufferedIOBase stream:
-        The stream to read from.
+    :param io.BufferedIOBase stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int

@@ -161,10 +161,6 @@ class Struct(metaclass=StructMeta):
     .. versionchanged:: 0.5.0
         A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
         and only if all of its fields are also undefined.
-
-    .. deprecated:: 0.5.0
-        Comparison to anything other than another Struct or mapping is deprecated.
-        In the future, it will trigger a :class:`TypeError`.
     """
     __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
     __validators__ = types.MappingProxyType({
@@ -308,6 +304,9 @@ class Struct(metaclass=StructMeta):
             an exception.
 
         :return: The loaded struct.
+        :raise ExtraneousDataError:
+            ``exact`` is True and there's data left over at the end of the byte
+            string.
         """
         stream = io.BytesIO(data)
         loaded_data = cls.from_stream(stream, context)
@@ -381,12 +380,14 @@ class Struct(metaclass=StructMeta):
     def get_field(cls, stream, name, context=None):
         """Return the value of a single field.
 
-        .. note ::
-            If the field isn't at a fixed offset from the beginning of the
-            struct (e.g. a variable-length field occurs before it) then the
-            entire struct up to and including this field must be read.
-            Unfortunately, this means that unrelated validation errors can be
-            thrown if other fields are invalid.
+        If the field is at a fixed byte offset from the beginning of the struct,
+        it'll be read directly.
+
+        If the field isn't at a fixed offset from the beginning of the struct
+        (e.g. a variable-length field occurs before it) then the entire struct
+        up to and including this field must be read. Unfortunately, this means
+        that unrelated validation errors can be thrown if other fields have
+        problems.
 
         :param io.BufferedIOBase stream:
             The stream to read from. It's assumed that the stream pointer is
