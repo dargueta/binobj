@@ -69,7 +69,7 @@ System Requirements
 
 - This package will *not* work on a `mixed-endian`_ system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on Python 3.4-3.7, and PyPy3.5.
+- This has been tested on Python 3.5-3.7, and PyPy3.5.
 
 Sorry, I have no intention of supporting Python 2. Feel free to fork this and do
 a backport if you like! I'd be interested to see it and might even contribute.

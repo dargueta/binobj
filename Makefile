@@ -30,6 +30,7 @@ $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 
 .PHONY: setup
 setup: .python-version setup.py
+	pip3 install -U pip setuptools
 	pip3 install -Ue .[dev]
 
 .PHONY: lint
