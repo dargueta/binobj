@@ -67,9 +67,13 @@ class String(Field):
 
         if pad_byte is not None:
             if not isinstance(pad_byte, (bytes, bytearray)):
-                raise TypeError('`pad_byte` must be a bytes-like object.')
+                raise errors.ConfigurationError(
+                    '`pad_byte` must be a bytes-like object.',
+                    field=self)
             elif len(pad_byte) != 1:
-                raise ValueError('`pad_byte` must be exactly one byte long.')
+                raise errors.ConfigurationError(
+                    '`pad_byte` must be exactly one byte long.',
+                    field=self)
 
         self.encoding = encoding
         self.pad_byte = pad_byte

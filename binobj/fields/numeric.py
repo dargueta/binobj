@@ -36,8 +36,9 @@ class Float(Field):
     """
     def __init__(self, *, format_string, endian=None, **kwargs):
         if format_string == 'e' and sys.version_info[:2] < (3, 6):
-            raise ValueError(
-                'binary16 format not supported on this version of Python.')
+            raise errors.ConfigurationError(
+                'binary16 format not supported on this version of Python.',
+                field=self)
         super().__init__(size=struct.calcsize(format_string), **kwargs)
 
         self.endian = endian or sys.byteorder
@@ -46,8 +47,9 @@ class Float(Field):
         elif self.endian == 'little':
             self.format_string = '<' + format_string
         else:
-            raise ValueError("`endian` must be 'big' or 'little', got %r."
-                             % endian)
+            raise errors.ConfigurationError(
+                "`endian` must be 'big' or 'little', got %r." % endian,
+                field=self)
 
     def _do_load(self, stream, context, loaded_fields):
         data = self._read_exact_size(stream)

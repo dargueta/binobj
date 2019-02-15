@@ -34,6 +34,9 @@ Breaking Changes
 * Removed the ``validation`` module and moved the decorator marker to ``decorators``.
 * ``Struct.to_dict()`` now omits fields marked with ``discard``. They used to be
   left in due to a bug that has now been fixed.
+* ``Float`` and ``String`` field class constructors have been changed to throw
+  ``ConfigurationError`` instead of other exception types, to be more in line
+  with the other fields.
 
 0.5.2
 -----

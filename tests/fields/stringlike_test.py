@@ -91,13 +91,13 @@ def test_string__dump_too_long_after_encoding__pad():
 
 def test_string__pad_byte_wrong_type():
     """Trying to pass a regular string as pad_byte will explode."""
-    with pytest.raises(TypeError):
+    with pytest.raises(errors.ConfigurationError):
         stringlike.String(size=4, pad_byte=' ')
 
 
 def test_string__pad_byte_too_long():
     """The padding byte must be exactly one byte."""
-    with pytest.raises(ValueError):
+    with pytest.raises(errors.ConfigurationError):
         stringlike.String(size=4, pad_byte=b'0123')
 
 

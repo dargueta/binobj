@@ -77,7 +77,7 @@ def test_varint__max_bytes():
 
 def test_float_bad_endian_crashes():
     """Endianness must be either 'little' or 'big'."""
-    with pytest.raises(ValueError):
+    with pytest.raises(errors.ConfigurationError):
         numeric.Float64(endian='broken')
 
 
@@ -127,7 +127,7 @@ def test_float16__dumps():
 
 @pytest.mark.skipif(_PY_VER >= (3, 6), reason='binary16 supported on 3.6+')
 def test_float16_crashes_on_35():
-    with pytest.raises(ValueError, match=r'^binary16.*$'):
+    with pytest.raises(errors.ConfigurationError, match=r'^binary16.*$'):
         numeric.Float16()
 
 
