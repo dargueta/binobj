@@ -4,6 +4,8 @@ Changelog
 0.6.0
 -----
 
+Released: 2019-02-16
+
 New Features
 ------------
 
