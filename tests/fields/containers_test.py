@@ -52,8 +52,8 @@ def test_array__basic():
     assert result == [0xde, 0xad, 0xbe, 0xef]
 
 
-def test_array__basic_sized():
-    """Verify the behavior of a fixed-size array."""
+def test_array__sized__read():
+    """Verify the behavior of a fixed-size array on loading."""
     sequence = fields.Array(fields.UInt8(), count=3)
     result = sequence.loads(b'\xde\xad\xbe')
     assert result == [0xde, 0xad, 0xbe]
@@ -176,6 +176,61 @@ def test_array__bogus_count(count):
 def test_array__dump_basic():
     struct = BasicStructWithSentinelArray(numbers=[1, 2, 3, 0])
     assert struct.to_bytes() == b'\x01\x02\x03\x00ABC'
+
+
+@pytest.mark.parametrize('iterable', (
+    ['abc', '123456'],                  # Sized
+    (s for s in ['abc', '123456']),     # Unsized
+))
+def test_array__sized_dump_ok(iterable):
+    """Write a sized array with the expected number of values."""
+    field = fields.Array(fields.StringZ(), count=2)
+    assert field.dumps(iterable) == b'abc\x00123456\0'
+
+
+def test_array__unsized_dump_ok():
+    field = fields.Array(fields.StringZ())
+    assert field.dumps(['abc', '123456']) == b'abc\x00123456\0'
+
+
+def test_array__sized_dump_too_big__unsized_iterable():
+    """Crash if writing a generator with too many values."""
+    field = fields.Array(fields.Int8(), count=2)
+    with pytest.raises(errors.ArraySizeError) as err:
+        field.dumps(x for x in range(10))
+
+    assert err.value.n_expected == 2
+    assert err.value.n_given == 3
+
+
+def test_array__sized_dump_too_big__sized_iterable():
+    """Crash if writing a sized iterable with too many values."""
+    field = fields.Array(fields.Int8(), count=2)
+    with pytest.raises(errors.ArraySizeError) as err:
+        field.dumps({4, 8, 15, 16, 23, 42})
+
+    assert err.value.n_expected == 2
+    assert err.value.n_given == 6
+
+
+def test_array__sized_dump_too_small__sized_iterable():
+    """Crash if writing a sized iterable with too few values."""
+    field = fields.Array(fields.Int32(), count=100)
+    with pytest.raises(errors.ArraySizeError) as err:
+        field.dumps((4, 8, 15, 16, 23, 42))
+
+    assert err.value.n_expected == 100
+    assert err.value.n_given == 6
+
+
+def test_array__sized_dump_too_small__unsized_iterable():
+    """Crash if writing a generator with too few values."""
+    field = fields.Array(fields.Int32(), count=100)
+    with pytest.raises(errors.ArraySizeError) as err:
+        field.dumps(x for x in range(6))
+
+    assert err.value.n_expected == 100
+    assert err.value.n_given == 6
 
 
 class StructWithComputedSizeArray(binobj.Struct):

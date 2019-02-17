@@ -249,11 +249,33 @@ class ValueSizeError(UnserializableValueError):
     :param ~binobj.fields.base.Field field:
         The field that failed to serialize the given value.
     :param value:
-        The value that's too big.
+        The value that's the wrong size.
     """
     def __init__(self, *, field, value):
         super().__init__(reason="Value doesn't fit into %r bytes." % field.size,
                          field=field, value=value)
+
+
+class ArraySizeError(SerializationError):
+    """The array can't be serialized because there are too many or too few items.
+
+    :param ~binobj.fields.base.Field: The field that failed to be serialized.
+    :param int n_expected: The expected number of items in the field.
+    :param int n_given:
+        Optional. The actual number of items given to the field for serialization.
+    """
+    def __init__(self, *, field, n_expected, n_given=None):
+        if n_given is not None:
+            if n_given > n_expected:
+                message = 'Expected {e} values, got at least {g}.'
+            else:
+                message = 'Expected {e} values, got {g}.'
+        else:
+            message = 'Expected {e} values.'
+
+        super().__init__(message.format(e=n_expected, g=n_given), field=field)
+        self.n_expected = n_expected
+        self.n_given = n_given
 
 
 class UnexpectedEOFError(DeserializationError):
