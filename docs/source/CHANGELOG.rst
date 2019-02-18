@@ -7,9 +7,10 @@ Changelog
 Released: 2019-02-16
 
 New Features
-------------
+~~~~~~~~~~~~
 
 New field types were added:
+
 * ``Float16``: half-precision floating-point numbers. While this has technically
   been supported since 0.4.3, it was never made explicit. ``Float16`` only works
   on Python 3.6 and above. Attempting to use it on Python 3.5 will trigger a
@@ -107,6 +108,7 @@ Breaking Changes
 * ``Struct`` no longer behaves as a `MutableMapping`_. All dictionary mixin
   methods have been removed. This was deprecated in 0.4.1. Several behaviors were
   broken by this change, namely that
+
   * ``dict(struct_instance)`` no longer works and will cause a ``TypeError``.
     Use ``struct_instance.to_dict()``.
   * Dictionary expansion like ``**struct_instance`` will also no longer work. Use
