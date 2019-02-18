@@ -261,8 +261,11 @@ class Timestamp(Integer):
     Redshift.
 
     This is *not* equivalent to calling :meth:`datetime.datetime.fromtimestamp`
-    because that returns a naive :class:`~datetime.datetime` in the local time
-    zone; Unix time is UTC by definition so loaded timestamps are always in UTC.
+    because that returns a naive :class:`~datetime.datetime` in the local timezone;
+    Unix time is UTC by definition so loaded timestamps are always in UTC.
+
+    Timestamps are converted to UTC before storing. Naive timestamps are assumed
+    to be in the local timezone and are adjusted accordingly.
 
     :param str resolution:
         The resolution timestamps will be stored with. Accepted values are "s",
@@ -270,7 +273,8 @@ class Timestamp(Integer):
         don't support nanosecond resolution.
     :param bool tz_aware:
         Controls whether loads return timezone-aware or naive
-        :class:`~datetime.datetime`\s.
+        :class:`~datetime.datetime`\s. Loaded timestamps are naive by default,
+        and in the platform's local timezone.
 
         .. code-block:: python
 
@@ -315,7 +319,7 @@ class Timestamp(Integer):
             offset / self._units, datetime.timezone.utc)
 
         if not self.tz_aware:
-            return timestamp.replace(tzinfo=None)
+            return timestamp.astimezone(None).replace(tzinfo=None)
         return timestamp
 
     def _do_dump(self, stream, data, context, all_fields):

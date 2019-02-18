@@ -1,6 +1,59 @@
 Changelog
 =========
 
+0.6.1
+-----
+
+Released: 2019-02-XX
+
+Bugfixes
+~~~~~~~~
+
+* ``Array`` used to dump all items in the iterable given to it, ignoring ``count``.
+  Now it respects ``count``, and will throw an ``ArraySizeError`` if given too
+  many or too few elements.
+* Fixed a crash when two fields had a circular dependency on each other. For
+  example:
+
+.. code-block:: python
+
+    class MyStruct(binobj.Struct):
+        length = fields.UInt8()
+        filename = fields.String(size=length)
+
+        @length.computes
+        def _length(self, all_fields):
+            return len(all_fields['filename'])
+
+Here, ``length`` depends on ``filename`` when dumping, and ``filename`` depends
+on ``length`` when loading.
+
+Other Changes
+~~~~~~~~~~~~~
+
+Not breaking changes (probably), but not new features either.
+
+**Validation**
+
+Validators are no longer called when setting a field value. This would cause
+crashes when a validator depends on two fields; if one is updated, the condition
+may no longer be true, even if the user would've updated both fields before
+dumping.
+
+**Naive Timestamps**
+
+``Timestamp`` and its subclasses now treat naive timestamps as if they were in
+the local timezone, not UTC. This is more in line with the Python standard
+library's behavior.
+
+* Dumping: Naive timestamps are assumed to be in the platform's local timezone
+  and are adjusted to UTC before dumping, rather than *not* being adjusted.
+* Loading: When ``tz_aware`` is False, naive timestamps are returned in the
+  platform's local timezone, rather than UTC.
+
+This change has no effect when dumping timezone-aware datetimes or when loading
+using a field that has ``tz_aware`` set to True.
+
 0.6.0
 -----
 
