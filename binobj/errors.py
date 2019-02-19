@@ -129,6 +129,12 @@ class FieldReferenceError(Error):
         The name of the field that failed to be referenced.
     """
     def __init__(self, message=None, *, field):
+        if not message:
+            message = (
+                'Attempted to reference a missing or undefined field: '
+                + repr(field)
+            )
+
         super().__init__(message)
         self.field = field
 
@@ -146,8 +152,21 @@ class IllegalOperationError(Error):
 class ImmutableFieldError(IllegalOperationError):
     """Cannot assign to an immutable or computed field.
 
+    :param ~binobj.fields.base.Field field:
+        The field an attempt was made to be assigned to.
+
+        .. versionadded:: 0.6.1
+
     .. versionadded:: 0.4.1
     """
+    def __init__(self, *, field=None):
+        if field is not None:
+            message = 'Cannot assign to immutable field: %r' % field
+        else:
+            message = None
+
+        super().__init__(message)
+        self.field = field
 
 
 class MultipleInheritanceError(ConfigurationError):
@@ -185,7 +204,7 @@ class UndefinedSizeError(ConfigurationError):
     """
     def __init__(self, *, field):
         super().__init__(
-            "Size of field %r couldn't be determined. The field might not have "
+            "Size of field %s couldn't be determined. The field might not have "
             'had its `size` set, or a variable-sized field has a bug.'
             % field, field=field)
 
