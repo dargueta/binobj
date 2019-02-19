@@ -234,12 +234,18 @@ class Struct(metaclass=StructMeta):
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(self):
-        """Convert this struct into a dictionary.
+    def to_dict(self, keep_discardable=False):
+        """Convert this struct into an ordered dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct`
         into native Python types. As such, validation is *not* performed since
         that was done while loading.
+
+        :param bool keep_discardable:
+            If True, don't exclude fields marked with ``discard=True`` from the
+            result.
+
+            .. versionadded:: 0.6.1
 
         :rtype: collections.OrderedDict
 
@@ -247,7 +253,8 @@ class Struct(metaclass=StructMeta):
             One or more fields don't have assigned values.
 
         .. versionchanged:: 0.6.0
-            Fields with ``discard`` set are not included in the returned dict.
+            Fields with ``discard`` set are not included in the returned dict
+            by default.
 
         .. versionchanged:: 0.3.0
             This now recursively calls :meth:`.to_dict` on all nested structs and
@@ -257,7 +264,7 @@ class Struct(metaclass=StructMeta):
         dct = collections.OrderedDict(
             (field.name, field.compute_value_for_dump(self))
             for field in self.__components__.values()
-            if not field.discard
+            if keep_discardable or not field.discard
         )
         return recursive_to_dicts(dct)
 
