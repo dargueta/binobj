@@ -12,21 +12,6 @@ Bugfixes
 * ``Array`` used to dump all items in the iterable given to it, ignoring ``count``.
   Now it respects ``count``, and will throw an ``ArraySizeError`` if given too
   many or too few elements.
-* Fixed a crash when two fields had a circular dependency on each other. For
-  example:
-
-.. code-block:: python
-
-    class MyStruct(binobj.Struct):
-        length = fields.UInt8()
-        filename = fields.String(size=length)
-
-        @length.computes
-        def _length(self, all_fields):
-            return len(all_fields['filename'])
-
-Here, ``length`` depends on ``filename`` when dumping, and ``filename`` depends
-on ``length`` when loading.
 
 Other Changes
 ~~~~~~~~~~~~~
@@ -93,6 +78,14 @@ Breaking Changes
 * ``Float`` and ``String`` field class constructors have been changed to throw
   ``ConfigurationError`` instead of other exception types, to be more in line
   with the other fields.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Many many fixes and clarifications to documentation.
+* Changed default string encoding from Latin-1 to ISO 8859-1. They're synonyms
+  for the same standard, but ISO 8859-1 is the official name. Behavior is
+  identical.
 
 0.5.2
 -----
