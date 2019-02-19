@@ -155,7 +155,8 @@ class Array(Field):
         """
         n_elems = self.get_final_element_count(all_fields)
         if not isinstance(data, collections.abc.Sized):
-            return self._dump_unsized(stream, data, n_elems, context, all_fields)
+            self._dump_unsized(stream, data, n_elems, context, all_fields)
+            return
 
         if n_elems is not None and len(data) != n_elems:
             raise errors.ArraySizeError(
@@ -167,6 +168,7 @@ class Array(Field):
 
     def _dump_unsized(self, stream, data, n_elems, context, all_fields):
         """Dump an unsized iterable into the stream."""
+        # pylint: disable=too-many-arguments
         n_written = 0
         for value in data:
             if n_written == n_elems:
