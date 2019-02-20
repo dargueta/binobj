@@ -256,16 +256,13 @@ class UInt64(Int64):
 class Timestamp(Integer):
     r"""A timestamp stored as an integer offset from the `Unix epoch`_.
 
+    Timestamps are stored in UTC. When dumping, naive datetimes are assumed to
+    be in the local; when loading and ``tz_aware`` is False, loaded datetimes
+    are in the local timezone.
+
     This class is typically not used directly, except for timestamps with sizes
     that aren't powers of two, e.g. the 96-bit timestamps used by Amazon
     Redshift.
-
-    This is *not* equivalent to calling :meth:`datetime.datetime.fromtimestamp`
-    because that returns a naive :class:`~datetime.datetime` in the local timezone;
-    Unix time is UTC by definition so loaded timestamps are always in UTC.
-
-    Timestamps are converted to UTC before storing. Naive timestamps are assumed
-    to be in the local timezone and are adjusted accordingly.
 
     :param str resolution:
         The resolution timestamps will be stored with. Accepted values are "s",
@@ -281,11 +278,6 @@ class Timestamp(Integer):
             >>> field = Timestamp32(tz_aware=True)
             >>> field.loads(b'\xa3\xc3\x55\x5c')
             datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)
-
-    .. note::
-        As per `convention`_, timestamps are signed integers by default. Choosing
-        the wrong signedness for your timestamps can result in `wildly incorrect`_
-        values, e.g. 1901-12-13 20:45:52 instead of 2038-01-19 03:14:08.
 
     .. versionadded:: 0.6.0
 
@@ -314,13 +306,10 @@ class Timestamp(Integer):
         self._units = self._RESOLUTION_UNITS[resolution]
 
     def _do_load(self, stream, context, loaded_fields):
-        offset = super()._do_load(stream, context, loaded_fields)
-        timestamp = datetime.datetime.fromtimestamp(
-            offset / self._units, datetime.timezone.utc)
-
+        value = super()._do_load(stream, context, loaded_fields)
         if not self.tz_aware:
-            return timestamp.astimezone(None).replace(tzinfo=None)
-        return timestamp
+            return datetime.datetime.fromtimestamp(value / self._units)
+        return datetime.datetime.fromtimestamp(value / self._units, datetime.timezone.utc)
 
     def _do_dump(self, stream, data, context, all_fields):
         timestamp = int(data.timestamp() * self._units)
