@@ -12,32 +12,18 @@ Bugfixes
 * ``Array`` used to dump all items in the iterable given to it, ignoring ``count``.
   Now it respects ``count``, and will throw an ``ArraySizeError`` if given too
   many or too few elements.
+* ``Timestamp`` and subclasses treated naive timestamps as in the local timezone
+  when dumping, but when ``tz_aware`` is False timestamps were loaded in UTC
+  instead of being converted to the local timezone. This asymmetric behavior has
+  been corrected, and naive datetimes are always local.
 
 Other Changes
 ~~~~~~~~~~~~~
-
-Not breaking changes (probably), but not new features either.
-
-**Validation**
 
 Validators are no longer called when setting a field value. This would cause
 crashes when a validator depends on two fields; if one is updated, the condition
 may no longer be true, even if the user would've updated both fields before
 dumping.
-
-**Naive Timestamps**
-
-``Timestamp`` and its subclasses now treat naive timestamps as if they were in
-the local timezone, not UTC. This is more in line with the Python standard
-library's behavior.
-
-* Dumping: Naive timestamps are assumed to be in the platform's local timezone
-  and are adjusted to UTC before dumping, rather than *not* being adjusted.
-* Loading: When ``tz_aware`` is False, naive timestamps are returned in the
-  platform's local timezone, rather than UTC.
-
-This change has no effect when dumping timezone-aware datetimes or when loading
-using a field that has ``tz_aware`` set to True.
 
 0.6.0
 -----
