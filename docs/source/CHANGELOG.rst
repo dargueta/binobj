@@ -4,7 +4,7 @@ Changelog
 0.6.1
 -----
 
-Released: 2019-02-XX
+Released: 2019-02-22
 
 Bugfixes
 ~~~~~~~~
@@ -16,14 +16,27 @@ Bugfixes
   when dumping, but when ``tz_aware`` is False timestamps were loaded in UTC
   instead of being converted to the local timezone. This asymmetric behavior has
   been corrected, and naive datetimes are always local.
+* ``Bytes`` would always write its ``const`` value, even if a different value
+  was passed to it.
+* ``Bytes`` always treated its ``size`` as if it were an integer, and never
+  supported other valid things like field names or objects, even though all other
+  scalar fields do.
+* ``Bytes`` didn't support being unsized.
+* ``Bytes`` threw an ``UnserializableValueError`` if given anything other than
+  bytes or a bytearray. This was *not* in line with the other fields' behavior
+  where they would "let it crash" if given an invalid type.
 
 Other Changes
 ~~~~~~~~~~~~~
 
-Validators are no longer called when setting a field value. This would cause
-crashes when a validator depends on two fields; if one is updated, the condition
-may no longer be true, even if the user would've updated both fields before
-dumping.
+* Validators are no longer called when setting a field value. This would cause
+  crashes when a validator depends on two fields; if one is updated, the condition
+  may no longer be true, even if the user would've updated both fields before
+  dumping.
+* ``field_object.default`` will return ``const`` if ``const`` is defined but no
+  default value was passed in. If you think about it, this makes far more sense
+  than the original behavior where it returned ``UNDEFINED``.
+* Added new example with CPIO archive reader.
 
 0.6.0
 -----
