@@ -5,25 +5,26 @@ import math
 import wave
 
 import binobj
+from binobj import fields
 
 
 class WAVFileHeader(binobj.Struct):
-    riff_header = binobj.Bytes(const=b'RIFF')
-    size = binobj.UInt32(endian='little')
-    file_format = binobj.Bytes(const=b'WAVE')
+    riff_header = fields.Bytes(const=b'RIFF')
+    size = fields.UInt32(endian='little')
+    file_format = fields.Bytes(const=b'WAVE')
 
     # Format and data chunks follow
 
 
 class WAVFormatChunk(binobj.Struct):
-    chunk_id = binobj.Bytes(const=b'fmt ')
-    size = binobj.UInt32(const=16, endian='little')
-    audio_format = binobj.UInt16(endian='little')
-    n_channels = binobj.UInt16(endian='little')
-    sample_rate = binobj.UInt32(endian='little')
-    byte_rate = binobj.UInt32(endian='little')
-    block_alignment = binobj.UInt16(endian='little')
-    bits_per_sample = binobj.UInt16(endian='little')
+    chunk_id = fields.Bytes(const=b'fmt ')
+    size = fields.UInt32(const=16, endian='little')
+    audio_format = fields.UInt16(endian='little')
+    n_channels = fields.UInt16(endian='little')
+    sample_rate = fields.UInt32(endian='little')
+    byte_rate = fields.UInt32(endian='little')
+    block_alignment = fields.UInt16(endian='little')
+    bits_per_sample = fields.UInt16(endian='little')
 
     @byte_rate.computes
     def _byte_rate(self, all_fields):   # pylint: disable=no-self-use
@@ -37,8 +38,8 @@ class WAVFormatChunk(binobj.Struct):
 
 
 class WAVDataChunk(binobj.Struct):
-    chunk_id = binobj.Bytes(const=b'data')
-    size = binobj.UInt32(endian='little')
+    chunk_id = fields.Bytes(const=b'data')
+    size = fields.UInt32(endian='little')
 
     # WAV PCM data bytes follow.
 
