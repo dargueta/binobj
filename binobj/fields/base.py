@@ -284,10 +284,16 @@ class Field:    # pylint: disable=too-many-instance-attributes
         If the default value passed to the constructor was a callable, this
         property will always give its return value. That callable is invoked on
         each access of this property.
+
+        .. versionchanged:: 0.6.1
+            If no default is defined but ``const`` is, this property return
+            the value for ``const``.
         """
         default_value = self._default
         if callable(default_value):
             return default_value()
+        if default_value is UNDEFINED and self.const is not UNDEFINED:
+            return self.const
         return default_value
 
     @property
@@ -317,6 +323,54 @@ class Field:    # pylint: disable=too-many-instance-attributes
         :rtype: int
         """
         return None
+
+    def _get_expected_size(self, field_values):
+        """Determine the size of this field in bytes, given values for other fields.
+
+        :param dict field_values:
+            A dict mapping field names to their resolved values.
+
+        :return:
+            The number of bytes this field is expected to occupy.
+        :rtype: int
+
+        :raise MissingRequiredValueError:
+            The field's size references another field but the other field is
+            missing from ``field_values``.
+        :raise UndefinedSizeError:
+            The field doesn't have a defined size nor refers to another field to
+            determine its size.
+        """
+        # pylint: disable=assignment-from-none
+        if isinstance(self.size, int):
+            return self.size
+
+        if self.size is None:
+            # Field has an undefined size. If the caller gave us a value for
+            # that field, or if we have a default value defined, we might be able
+            # to determine the size of that value.
+            if self.name in field_values:
+                expected_size = self._size_for_value(field_values[self.name])
+            elif self.default is not UNDEFINED:
+                expected_size = self._size_for_value(self.default)
+            else:
+                expected_size = None
+
+            if expected_size is not None:
+                return expected_size
+            raise errors.UndefinedSizeError(field=self)
+
+        if isinstance(self.size, Field):
+            name = self.size.name
+        elif isinstance(self.size, str):
+            name = self.size
+        else:
+            raise TypeError('Unexpected type for %r.size: %s'
+                            % (self, type(self.size).__name__))
+
+        if name in field_values:
+            return field_values[name]
+        raise errors.MissingRequiredValueError(field=name)
 
     def load(self, stream, context=None, loaded_fields=None):
         """Load data from the given stream.
@@ -500,23 +554,30 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         return b'\0' * self.size
 
-    def _read_exact_size(self, stream):
+    def _read_exact_size(self, stream, loaded_fields=None):
         """Read exactly the number of bytes this object takes up or crash.
 
         :param io.BufferedIOBase stream: The stream to read from.
+        :param dict loaded_fields:
+            A dict mapping names of fields to their loaded values. This allows
+            us to read a variable-length field that depends on the value of
+            another field occurring before it.
 
-        :return: Exactly ``self.size`` bytes are read from the stream.
+            .. versionadded:: 0.6.1
+
+        :return: The correct number of bytes are read from the stream.
         :rtype: bytes
 
-        :raise UndefinedSizeError:
-            The field cannot be read directly because it's of variable size.
+        .. versionchanged:: 0.6.1
+            Variable-length fields are now supported.
+
         :raise UnexpectedEOFError: Not enough bytes were left in the stream.
         """
-        offset = stream.tell()
-        n_bytes = self.size
+        if loaded_fields is None:
+            loaded_fields = {}
 
-        if n_bytes is None:
-            raise errors.UndefinedSizeError(field=self)
+        offset = stream.tell()
+        n_bytes = self._get_expected_size(loaded_fields)
 
         data_read = stream.read(n_bytes)
         if len(data_read) < n_bytes:

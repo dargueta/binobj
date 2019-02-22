@@ -6,7 +6,6 @@ import io
 
 from binobj import errors
 from binobj import helpers
-from binobj.fields.base import UNDEFINED
 from binobj.fields.base import Field
 
 
@@ -16,16 +15,11 @@ __all__ = ['Bytes', 'String', 'StringZ']
 class Bytes(Field):
     """Raw binary data."""
     def _do_load(self, stream, context, loaded_fields):
-        return self._read_exact_size(stream)
+        return self._read_exact_size(stream, loaded_fields)
 
     def _do_dump(self, stream, data, context, all_fields):
-        if self.const is not UNDEFINED:
-            stream.write(self.const)
-            return
-
-        if not isinstance(data, (bytes, bytearray)):
-            raise errors.UnserializableValueError(field=self, value=data)
-        elif self.size is not None and len(data) != self.size:
+        write_size = self._get_expected_size(all_fields)
+        if len(data) != write_size:
             raise errors.ValueSizeError(field=self, value=data)
 
         stream.write(data)
@@ -82,7 +76,7 @@ class String(Field):
 
     def _do_load(self, stream, context, loaded_fields):
         """Load a fixed-length string from a stream."""
-        to_load = self._read_exact_size(stream)
+        to_load = self._read_exact_size(stream, loaded_fields)
         return to_load.decode(self.encoding)
 
     def _do_dump(self, stream, data, context, all_fields):
