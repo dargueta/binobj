@@ -25,15 +25,15 @@ def test_sentinels_are_singletons():
 
 
 def test_dump__unserializable():
-    field = binobj.Bytes(name='field', size=4)
-    garbage = object()
+    field = binobj.Int32(name='field')
+    garbage = 2 ** 32
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.dumps(garbage)
 
-    assert "can't serialize value of type 'object'." in str(errinfo.value)
+    assert "can't serialize value" in str(errinfo.value)
     assert errinfo.value.field is field
-    assert errinfo.value.value is garbage
+    assert errinfo.value.value == garbage
 
 
 def test_dump__use_default_value():
