@@ -155,11 +155,13 @@ def test_timestamp__invalid_resolution():
 
 
 @pytest.mark.parametrize('data,expected', (
-    (b'\0\0\0\x80', datetime.datetime(1901, 12, 13, 20, 45, 52)),
-    (b'\xff\xff\xff\x7f', datetime.datetime(2038, 1, 19, 3, 14, 7)),
+    (b'\0\0\0\x80',
+     datetime.datetime(1901, 12, 13, 20, 45, 52, tzinfo=datetime.timezone.utc)),
+    (b'\xff\xff\xff\x7f',
+     datetime.datetime(2038, 1, 19, 3, 14, 7, tzinfo=datetime.timezone.utc)),
 ))
 def test_timestamp__loads__naive(data, expected):
-    field = numeric.Timestamp32(endian='little')
+    field = numeric.Timestamp32(endian='little', tz_aware=True)
     assert field.loads(data) == expected
 
 
@@ -171,12 +173,35 @@ def test_timestamp__loads__aware():
 
 
 def test_timestamp__loads__microseconds():
-    field = numeric.Timestamp64(endian='big', resolution='us')
+    field = numeric.Timestamp64(endian='big', resolution='us', tz_aware=True)
     loaded = field.loads(b'\x00\x05\x81\x85\x84\x32\xc1\xad')
-    assert loaded == datetime.datetime(2019, 2, 10, 7, 55, 32, 105645)
+    assert loaded == datetime.datetime(
+        2019, 2, 10, 7, 55, 32, 105645, datetime.timezone.utc)
 
 
 def test_timestamp__roundtrip():
     field = numeric.Timestamp(size=12, resolution='us', tz_aware=True)
     now = datetime.datetime.now(datetime.timezone.utc)
     assert field.loads(field.dumps(now)) == now
+
+
+def test_timestamp__aware_cast_to_utc():
+    """Timezone-aware datetimes must be cast to UTC before dumping."""
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    est_tz = datetime.timezone(datetime.timedelta(hours=-5))
+    now_est = now_utc.astimezone(est_tz)
+
+    field = numeric.Timestamp64(endian='little', resolution='us', tz_aware=True)
+    assert field.dumps(now_est) == field.dumps(now_utc)
+    assert field.loads(field.dumps(now_est)) == now_utc
+
+
+def test_timestamp__naive_assumes_local():
+    """Naive datetimes are assumed to be local when dumping, and are loaded as UTC."""
+    utc = datetime.datetime.now(datetime.timezone.utc)
+    local_aware = utc.astimezone()
+    local_naive = local_aware.replace(tzinfo=None)
+
+    field = numeric.Timestamp64(endian='little', resolution='us', tz_aware=True)
+    assert field.dumps(utc) == field.dumps(local_naive)
+    assert field.loads(field.dumps(local_naive)) == local_aware

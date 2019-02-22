@@ -1,5 +1,6 @@
 """Fields used for forming more complex structures with other fields."""
 
+import collections.abc
 
 from binobj import errors
 from binobj.fields.base import Field
@@ -30,6 +31,11 @@ class Array(Field):
         A function taking five arguments. See :meth:`should_halt` for the
         default implementation. Subclasses can override this function if desired
         to avoid having to pass in a custom function every time.
+
+    .. versionchanged:: 0.6.1
+        :meth:`.dump` and :meth:`.dumps` throw an :class:`~.errors.ArraySizeError`
+        if ``count`` is set and the iterable passed in is too long. It used to
+        be ignored when dumping.
     """
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
         super().__init__(**kwargs)
@@ -43,6 +49,42 @@ class Array(Field):
             self.count = count
         else:
             raise TypeError('`count` must be an integer, string, or a `Field`.')
+
+    def get_final_element_count(self, field_values):
+        """Calculate the number of elements in the array based on other fields' values.
+
+        :param dict field_values:
+            A dict mapping field names to their deserialized values. It doesn't
+            need to have every value in the struct; if ``count`` references a
+            field, it only requires that field to be present.
+
+        :return:
+            The expected number of elements in this array, or ``None`` if the
+            array doesn't have a fixed size.
+        :rtype: int
+
+        .. versionadded:: 0.6.1
+        """
+        if self.count is None:
+            return None
+        if isinstance(self.count, int):
+            return self.count
+
+        if isinstance(self.count, Field):
+            name = self.count.name
+        elif isinstance(self.count, str):
+            name = self.count
+        else:
+            raise TypeError(
+                'Unexpected type for `count`: %r' % type(self.count).__name__)
+
+        # The number of fields in this array is a field that should already have
+        # been loaded.
+        if name not in field_values:
+            raise errors.FieldReferenceError(
+                "Array size depends on field %r but it wasn't found." % name,
+                field=self.count)
+        return field_values[name]
 
     @staticmethod
     def should_halt(seq, stream, values, context, loaded_fields):
@@ -87,23 +129,10 @@ class Array(Field):
         :rtype: bool
         """
         # pylint: disable=unused-argument
-        if isinstance(seq.count, int):
-            return seq.count <= len(values)
-        if isinstance(seq.count, Field):
-            return loaded_fields[seq.count.name] <= len(values)
-        if isinstance(seq.count, str):
-            # The number of fields in this array is a field that should already
-            # have been loaded.
-            if seq.count not in loaded_fields:
-                # Instead of throwing a KeyError, we'll throw a more helpful
-                # exception.
-                raise errors.FieldReferenceError(
-                    "%r is either not a field in this struct or hasn't been "
-                    'loaded yet.' % seq.count, field=seq.count)
-            return loaded_fields[seq.count] <= len(values)
+        if seq.count is not None:
+            return seq.get_final_element_count(loaded_fields) <= len(values)
 
         # Else: count is None. Our only option is to check to see if we hit EOF.
-
         offset = stream.tell()
         try:
             return stream.read(1) == b''
@@ -115,8 +144,8 @@ class Array(Field):
 
         :param io.BufferedIOBase stream:
             A binary stream to write the serialized data into.
-        :param list data:
-            The data to dump.
+        :param iterable data:
+            An iterable of values to dump.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -124,9 +153,37 @@ class Array(Field):
             A dictionary of the fields about to be dumped. This is guaranteed to
             not be ``None``.
         """
-        for value in data:
+        n_elems = self.get_final_element_count(all_fields)
+        if not isinstance(data, collections.abc.Sized):
+            self._dump_unsized(stream, data, n_elems, context, all_fields)
+            return
+
+        if n_elems is not None and len(data) != n_elems:
+            raise errors.ArraySizeError(
+                field=self, n_expected=n_elems, n_given=len(data))
+
+        for value in iter(data):
             self.component.dump(stream, value, context=context,
                                 all_fields=all_fields)
+
+    def _dump_unsized(self, stream, data, n_elems, context, all_fields):
+        """Dump an unsized iterable into the stream."""
+        # pylint: disable=too-many-arguments
+        n_written = 0
+        for value in data:
+            if n_written == n_elems:
+                # We've already written the requisite number of items to the
+                # stream, but received at least one more item. Crash.
+                raise errors.ArraySizeError(
+                    field=self, n_expected=n_elems, n_given=n_written + 1)
+
+            self.component.dump(
+                stream, value, context=context, all_fields=all_fields)
+            n_written += 1
+
+        if n_written < n_elems:
+            raise errors.ArraySizeError(
+                field=self, n_expected=n_elems, n_given=n_written)
 
     def _do_load(self, stream, context, loaded_fields):
         """Load a structure list from the given stream.
@@ -156,8 +213,17 @@ class Array(Field):
 class Nested(Field):
     """Used to nest one struct inside of another.
 
-    :param Type[binobj.structures.Struct] struct_class:
+    :param Type[~binobj.structures.Struct] struct_class:
         The struct class to wrap as a field. Not an instance!
+
+    .. code-block:: python
+
+        class Address(Struct):
+            ...
+
+        class Person(Struct):
+            name = fields.StringZ()
+            address = fields.Nested(Address)
     """
     def __init__(self, struct_class, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -9,18 +9,19 @@ Welcome to binobj's documentation!
 .. include:: ../../README.rst
    :start-after: ======
 
+
+Table of Contents
+-----------------
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :titlesonly:
 
-Tutorials
-=========
-
-:doc:`basics`
+   Tutorials <basics>
+   Release history <CHANGELOG>
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

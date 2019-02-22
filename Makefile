@@ -6,7 +6,7 @@ DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-PYTHON_VERSIONS=3.7.0 3.6.6 3.5.5 pypy3.5-6.0.0
+PYTHON_VERSIONS=3.7.2 3.6.8 3.5.6 pypy3.5-7.0.0
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
@@ -29,7 +29,7 @@ $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 	PYTHONPATH=. sphinx-build $(DOCSSOURCE) $(DOCSTARGET)
 
 .PHONY: setup
-setup: .python-version setup.py
+setup: .python-version setup.cfg
 	pip3 install -U pip setuptools
 	pip3 install -Ue .[dev]
 
@@ -51,3 +51,9 @@ test: .coverage
 # Build the Sphinx documentation for the library.
 .PHONY: docs
 docs: $(DOCSTARGET)
+
+
+.PHONY: deploy
+deploy: clean
+	python3 setup.py sdist bdist_wheel
+	twine upload dist/*
