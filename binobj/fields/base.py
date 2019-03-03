@@ -201,7 +201,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
             The value the dumper will use for this field, or :data:`NOT_PRESENT`
             if the field shouldn't be serialized.
 
-        :raise binobj.errors.MissingRequiredValueError:
+        :raise MissingRequiredValueError:
             No value could be derived for this field. It's missing in the input
             data, there's no default defined, and it doesn't have a compute
             function defined either.
@@ -261,7 +261,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
             raise errors.ConfigurationError(
                 "Can't define two computing functions for field %r." % self,
                 field=self)
-        elif self.const is not UNDEFINED:
+        if self.const is not UNDEFINED:
             raise errors.ConfigurationError(
                 'Cannot set compute function for a const field.', field=self)
 
@@ -541,7 +541,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
                 reason='`None` is not an acceptable value for %s.' % self,
                 field=self,
                 value=None)
-        elif self.null_value is not DEFAULT:
+        if self.null_value is not DEFAULT:
             return self.null_value
 
         # User wants us to use all null bytes for the default null value.

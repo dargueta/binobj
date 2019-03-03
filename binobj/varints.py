@@ -107,7 +107,7 @@ def encode_integer_vlq(value):
     if value < 0:
         raise ValueError(
             "The VLQ integer encoding doesn't support negative numbers.")
-    elif value == 0:
+    if value == 0:
         # Special case needed since value.bit_length() returns 0 if value is 0.
         return b'\0'
 
@@ -151,7 +151,7 @@ def encode_integer_uleb128(value):
     if value < 0:
         raise ValueError(
             "The ULEB128 integer encoding doesn't support negative numbers.")
-    elif value == 0:
+    if value == 0:
         return b'\0'
 
     output = bytearray()
