@@ -1,6 +1,23 @@
 Changelog
 =========
 
+0.6.2
+-----
+
+Deprecations
+~~~~~~~~~~~~
+
+The ``load``, ``loads``, ``dump``, and ``dumps`` of ``Field`` classes are
+deprecated in favor of ``from_stream``, ``from_bytes``, ``to_stream``, and
+``to_bytes`` for consistency with the ``Struct`` methods.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Minor typo fixes in the documentation.
+* Changed imports in internal code to stop importing fields from ``binobj``.
+* Upgraded test dependencies.
+
 0.6.1
 -----
 
