@@ -4,6 +4,8 @@ Changelog
 0.6.2
 -----
 
+Released 2019-03-05
+
 Deprecations
 ~~~~~~~~~~~~
 
