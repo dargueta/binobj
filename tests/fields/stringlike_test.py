@@ -25,7 +25,7 @@ def test_bytes__dump_too_long():
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = stringlike.String(size=13, encoding='utf-8')
-    assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf') == r'¯\_(ツ)_/¯'
+    assert field.from_bytes(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf') == r'¯\_(ツ)_/¯'
 
 
 def test_string__dump_basic():
@@ -110,14 +110,14 @@ def test_string__pad_default():
 def test_stringz__load_basic():
     """Basic test of StringZ loading."""
     field = stringlike.StringZ(encoding='utf-8')
-    assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0') == r'¯\_(ツ)_/¯'
+    assert field.from_bytes(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0') == r'¯\_(ツ)_/¯'
 
 
 def test_stringz__load_eof_before_null():
     """Crash if we hit the end of the data before we get a null byte."""
     field = stringlike.StringZ(encoding='utf-8')
     with pytest.raises(errors.DeserializationError):
-        assert field.loads(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf')
+        assert field.from_bytes(b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf')
 
 
 def test_stringz__dump_basic():
@@ -147,5 +147,5 @@ def test_stringz__dump_multibyte_with_bom():
 def test_stringz_load_multibyte():
     """Test loading multibyte strings with a terminating null."""
     field = stringlike.StringZ(encoding='utf-16')
-    assert field.loads(b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00') == 'AbCd'
-    assert field.loads(b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00') == 'AbCd'
+    assert field.from_bytes(b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00') == 'AbCd'
+    assert field.from_bytes(b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00') == 'AbCd'

@@ -63,7 +63,7 @@ def test_varint__basic_dump(value, expected):
 def test_varint__basic_load(data, expected):
     """Test VLQ load."""
     field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
-    assert field.loads(data) == expected
+    assert field.from_bytes(data) == expected
 
 
 def test_varint__max_bytes():
@@ -109,13 +109,13 @@ def test_float__dumps(value, field_object, fmt_string):
     -math.inf,
 ))
 def test_float__loads(value, field_object, fmt_string):
-    assert field_object.loads(struct.pack(fmt_string, value)) == pytest.approx(value)
+    assert field_object.from_bytes(struct.pack(fmt_string, value)) == pytest.approx(value)
 
 
 @pytest.mark.skipif(_PY_VER < (3, 6), reason='binary16 only supported on 3.6+')
 def test_float16__loads():
     field = numeric.Float16(endian='little')
-    result = field.loads(struct.pack('<e', math.e))
+    result = field.from_bytes(struct.pack('<e', math.e))
     assert math.isclose(result, math.e, rel_tol=0.001)
 
 
@@ -137,7 +137,7 @@ def test_float__loads__exception_translation(pack_mock):
     pack_mock.side_effect = struct.error('Some error happened')
 
     with pytest.raises(errors.DeserializationError):
-        numeric.Float32().loads(b'1234')
+        numeric.Float32().from_bytes(b'1234')
 
 
 @mock.patch('binobj.fields.numeric.struct.pack')
@@ -162,19 +162,19 @@ def test_timestamp__invalid_resolution():
 ))
 def test_timestamp__loads__naive(data, expected):
     field = numeric.Timestamp32(endian='little', tz_aware=True)
-    assert field.loads(data) == expected
+    assert field.from_bytes(data) == expected
 
 
 def test_timestamp__loads__aware():
     field = numeric.Timestamp32(endian='little', tz_aware=True)
-    loaded = field.loads(b'\x01\x23\x45\x67')
+    loaded = field.from_bytes(b'\x01\x23\x45\x67')
     assert loaded == datetime.datetime(
         2024, 11, 26, 1, 23, 13, tzinfo=datetime.timezone.utc)
 
 
 def test_timestamp__loads__microseconds():
     field = numeric.Timestamp64(endian='big', resolution='us', tz_aware=True)
-    loaded = field.loads(b'\x00\x05\x81\x85\x84\x32\xc1\xad')
+    loaded = field.from_bytes(b'\x00\x05\x81\x85\x84\x32\xc1\xad')
     assert loaded == datetime.datetime(
         2019, 2, 10, 7, 55, 32, 105645, datetime.timezone.utc)
 
@@ -182,7 +182,7 @@ def test_timestamp__loads__microseconds():
 def test_timestamp__roundtrip():
     field = numeric.Timestamp(size=12, resolution='us', tz_aware=True)
     now = datetime.datetime.now(datetime.timezone.utc)
-    assert field.loads(field.to_bytes(now)) == now
+    assert field.from_bytes(field.to_bytes(now)) == now
 
 
 def test_timestamp__aware_cast_to_utc():
@@ -193,7 +193,7 @@ def test_timestamp__aware_cast_to_utc():
 
     field = numeric.Timestamp64(endian='little', resolution='us', tz_aware=True)
     assert field.to_bytes(now_est) == field.to_bytes(now_utc)
-    assert field.loads(field.to_bytes(now_est)) == now_utc
+    assert field.from_bytes(field.to_bytes(now_est)) == now_utc
 
 
 def test_timestamp__naive_assumes_local():
@@ -204,4 +204,4 @@ def test_timestamp__naive_assumes_local():
 
     field = numeric.Timestamp64(endian='little', resolution='us', tz_aware=True)
     assert field.to_bytes(utc) == field.to_bytes(local_naive)
-    assert field.loads(field.to_bytes(local_naive)) == local_aware
+    assert field.from_bytes(field.to_bytes(local_naive)) == local_aware

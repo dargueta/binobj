@@ -113,14 +113,15 @@ class Array(Field):
             The sequence being checked.
         :param io.BufferedIOBase stream:
             The data stream to read from. Except in rare circumstances, this is
-            the same stream that was passed to :meth:`.load`. The stream pointer
-            should be returned to its original position when the function exits.
+            the same stream that was passed to :meth:`.from_stream`. The stream
+            pointer should be returned to its original position when the function
+            exits.
         :param list values:
             A list of the objects that have been deserialized so far. In general
             this function *should not* modify the list. A possible exception to
             this rule is to remove a sentinel value from the end of the list.
         :param context:
-            The ``context`` object passed to :meth:`.load`.
+            The ``context`` object passed to :meth:`.from_stream`.
         :param dict loaded_fields:
             The fields in the struct that have been loaded so far.
 
@@ -202,8 +203,7 @@ class Array(Field):
         result = []
         while not self.halt_check(self, stream, result, context=context,
                                   loaded_fields=loaded_fields):
-            component = self.component.load(stream, context=context,
-                                            loaded_fields=loaded_fields)
+            component = self.component.from_stream(stream, context, loaded_fields)
             result.append(component)
 
         return result
@@ -315,7 +315,7 @@ class Union(Field):
     def _do_load(self, stream, context, loaded_fields):
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
-            return loader.load(stream, context, loaded_fields)
+            return loader.from_stream(stream, context, loaded_fields)
 
         # Else: loader is not a Field instance, assume this is a Struct.
         return loader.from_stream(stream, context)

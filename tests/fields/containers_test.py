@@ -48,14 +48,14 @@ def test_nested__dump_basic_as_dict():
 def test_array__basic():
     """Test deserializing a list of stuff."""
     sequence = fields.Array(fields.UInt8())
-    result = sequence.loads(b'\xde\xad\xbe\xef')
+    result = sequence.from_bytes(b'\xde\xad\xbe\xef')
     assert result == [0xde, 0xad, 0xbe, 0xef]
 
 
 def test_array__sized__read():
     """Verify the behavior of a fixed-size array on loading."""
     sequence = fields.Array(fields.UInt8(), count=3)
-    result = sequence.loads(b'\xde\xad\xbe')
+    result = sequence.from_bytes(b'\xde\xad\xbe')
     assert result == [0xde, 0xad, 0xbe]
 
 
@@ -66,7 +66,7 @@ def test_array__sentinel():
 
     sequence = fields.Array(fields.UInt16(endian='little'), halt_check=halt)
 
-    result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
+    result = sequence.from_bytes(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
     assert result == [0, 0xff, 0xdead]
 
 
@@ -74,8 +74,8 @@ def test_array__sentinel():
 def test_array__load_nested():
     """Try loading an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)
-    loaded = field.loads(b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG'
-                         b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN')
+    loaded = field.from_bytes(b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG'
+                              b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN')
     assert loaded == [
         {'first': 0xc0ffeedeadbeef00, 'second': 'ABCDEFG'},
         {'first': 0xfadedbeda551ed00, 'second': 'HIJKLMN'},

@@ -276,7 +276,7 @@ class Struct(metaclass=StructMeta):
             The stream to load data from.
         :param context:
             Additional data to pass to the components'
-            :meth:`~binobj.fields.base.Field.load` methods. Subclasses must
+            :meth:`~binobj.fields.base.Field.from_stream` methods. Subclasses must
             ignore anything they don't recognize.
 
         :return: The loaded struct.
@@ -284,8 +284,7 @@ class Struct(metaclass=StructMeta):
         results = {}
 
         for name, field in cls.__components__.items():
-            results[name] = field.load(stream, context=context,
-                                       loaded_fields=results)
+            results[name] = field.from_stream(stream, context, results)
 
         instance = cls(**results)
         instance.validate_contents()
@@ -349,7 +348,7 @@ class Struct(metaclass=StructMeta):
             stream.
         :param context:
             Any object containing extra information to pass to the fields'
-            :meth:`~binobj.fields.base.Field.load` method.
+            :meth:`~binobj.fields.base.Field.from_stream` method.
 
         :return: The loaded struct.
         """
@@ -363,7 +362,7 @@ class Struct(metaclass=StructMeta):
             offset = stream.tell()
 
             try:
-                value = field.load(stream, context=context, loaded_fields=result)
+                value = field.from_stream(stream, context=context, loaded_fields=result)
             except errors.UnexpectedEOFError:
                 if last_field is not None:
                     # Hit EOF before we read all the fields we were supposed to.
@@ -404,9 +403,10 @@ class Struct(metaclass=StructMeta):
             The name of the field to retrieve.
         :param context:
             Optional. Any object containing extra information to pass to the
-            :meth:`~binobj.fields.base.Field.load` method of the field. For fields
-            located at a variable offset, this will be passed to the
-            :meth:`~binobj.fields.base.Field.load` method of *each* field read.
+            :meth:`~binobj.fields.base.Field.from_stream` method of the field.
+            For fields located at a variable offset, this will be passed to the
+            :meth:`~binobj.fields.base.Field.from_stream` method of *each* field
+            read.
 
         :return: The value of the field in the struct data.
 
@@ -426,7 +426,7 @@ class Struct(metaclass=StructMeta):
         if field.offset is not None:
             try:
                 stream.seek(original_offset + field.offset)
-                return field.load(stream, context=context, loaded_fields={})
+                return field.from_stream(stream, context, {})
             finally:
                 stream.seek(original_offset)
 
@@ -455,7 +455,7 @@ class Struct(metaclass=StructMeta):
             The name of the last field in the object to dump.
         :param context:
             Any object containing extra information to pass to the fields'
-            :meth:`~binobj.fields.base.Field.load` methods.
+            :meth:`~binobj.fields.base.Field.from_stream` methods.
         """
         data = self.__values__
 

@@ -53,7 +53,7 @@ def test_loads__extraneous_data_crashes():
     field = fields.Bytes(name='field', size=3)
 
     with pytest.raises(errors.ExtraneousDataError) as errinfo:
-        field.loads(b'\xc0\xff\xee!')
+        field.from_bytes(b'\xc0\xff\xee!')
 
     assert str(errinfo.value) == 'Expected to read 3 bytes, read 4.'
 
@@ -62,7 +62,7 @@ def test_loads__no_size_crashes():
     field = fields.String()
 
     with pytest.raises(errors.UndefinedSizeError):
-        field.loads(b'123')
+        field.from_bytes(b'123')
 
 
 NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'

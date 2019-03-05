@@ -15,13 +15,13 @@ def test_load__null_with_null_value():
     null_value = b' :( '
     field = fields.Bytes(name='field', size=4, null_value=null_value)
     assert field.allow_null is True
-    assert field.load(io.BytesIO(null_value)) is None
+    assert field.from_stream(io.BytesIO(null_value)) is None
 
 
 def test_loads__field_insufficient_data():
     """Load a field when there's insufficient data -> BOOM"""
     with pytest.raises(errors.UnexpectedEOFError):
-        fields.String(size=17).loads(b'abc')
+        fields.String(size=17).from_bytes(b'abc')
 
 
 def test_dump_default():
@@ -282,7 +282,7 @@ def test_field_subclass_super_delegation():
     field = BadField()
 
     with pytest.raises(NotImplementedError):
-        field.loads(b' ')
+        field.from_bytes(b' ')
 
     with pytest.raises(errors.UnserializableValueError):
         field.to_bytes(b' ')
