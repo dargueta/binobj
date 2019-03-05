@@ -218,7 +218,7 @@ class Struct(metaclass=StructMeta):
         for field in self.__components__.values():
             value = field.compute_value_for_dump(all_fields)
             if value is not fields.NOT_PRESENT:
-                field.dump(stream, value, context=context, all_fields=all_fields)
+                field.to_stream(stream, value, context=context, all_fields=all_fields)
 
     def to_bytes(self, context=None):
         """Convert the given data into bytes.
@@ -471,7 +471,7 @@ class Struct(metaclass=StructMeta):
                     # so we need to crash.
                     raise errors.MissingRequiredValueError(field=field)
 
-            field.dump(stream, value, context)
+            field.to_stream(stream, value, context)
             if field.name == last_field:
                 return
 
@@ -527,7 +527,7 @@ class Struct(metaclass=StructMeta):
                 size += field.size
             else:
                 field_value = field.compute_value_for_dump(self)
-                size += len(field.dumps(field_value))
+                size += len(field.to_bytes(field_value))
 
         return size
 

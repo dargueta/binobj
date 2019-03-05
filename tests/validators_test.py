@@ -25,7 +25,7 @@ def test_field_validator__dump_fails__one_func_passed():
     field = fields.String(size=5, validate=alnum_validator)
 
     with pytest.raises(errors.ValidationError):
-        field.dumps('ab!de')
+        field.to_bytes('ab!de')
 
 
 def test_field_validator__set_invalid_value_crashes():

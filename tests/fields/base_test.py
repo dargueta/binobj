@@ -27,7 +27,7 @@ def test_loads__field_insufficient_data():
 def test_dump_default():
     """Dump with only default value and no size should still be fine."""
     field = fields.Bytes(default=b'\0\0')
-    assert field.dumps() == b'\0\0'
+    assert field.to_bytes() == b'\0\0'
 
 
 def test_const_sets_size__bytes():
@@ -93,13 +93,13 @@ def test_dump__null_with_null_value():
     """Dumping None should use null_value"""
     field = fields.Bytes(name='field', size=4, null_value=b' :( ')
     assert field.allow_null is True
-    assert field.dumps(None) == b' :( '
+    assert field.to_bytes(None) == b' :( '
 
 
 def test_dump__null_with_default_null():
     """No defined ``null_value`` --> dumps all null bytes."""
     field = fields.Bytes(name='field', size=4, null_value=DEFAULT)
-    assert field.dumps(None) == b'\0\0\0\0'
+    assert field.to_bytes(None) == b'\0\0\0\0'
 
 
 def test_dump__null_with_default_and_varlen():
@@ -109,7 +109,7 @@ def test_dump__null_with_default_and_varlen():
     assert field.allow_null is True
 
     with pytest.raises(errors.UnserializableValueError):
-        field.dumps(None)
+        field.to_bytes(None)
 
 
 def test_dump__no_null_value_crashes():
@@ -118,7 +118,7 @@ def test_dump__no_null_value_crashes():
     assert not field.allow_null
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
-        field.dumps(None)
+        field.to_bytes(None)
 
     assert errinfo.value.field is field
     assert errinfo.value.value is None
@@ -139,7 +139,7 @@ def test_dump__field_only__no_value_no_default():
     field = fields.Bytes(name='field', size=4)
 
     with pytest.raises(errors.MissingRequiredValueError):
-        field.dumps()
+        field.to_bytes()
 
 
 class BasicStructWithArray(binobj.Struct):
@@ -285,7 +285,7 @@ def test_field_subclass_super_delegation():
         field.loads(b' ')
 
     with pytest.raises(errors.UnserializableValueError):
-        field.dumps(b' ')
+        field.to_bytes(b' ')
 
 
 class BasicPresentStruct(binobj.Struct):

@@ -11,7 +11,7 @@ def test_bytes__dump_too_short():
     field = stringlike.Bytes(size=4)
 
     with pytest.raises(errors.ValueSizeError):
-        field.dumps(b'')
+        field.to_bytes(b'')
 
 
 def test_bytes__dump_too_long():
@@ -19,7 +19,7 @@ def test_bytes__dump_too_long():
     field = stringlike.Bytes(size=4)
 
     with pytest.raises(errors.ValueSizeError):
-        field.dumps(b'!' * 11)
+        field.to_bytes(b'!' * 11)
 
 
 def test_string__load_basic():
@@ -31,54 +31,54 @@ def test_string__load_basic():
 def test_string__dump_basic():
     """Basic test of dumping a String"""
     field = stringlike.String(size=13, encoding='utf-8')
-    assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf'
+    assert field.to_bytes(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf'
 
 
 def test_string__dump_no_size():
     """Try dumping a string without its size set."""
     field = stringlike.String()
     with pytest.raises(errors.UndefinedSizeError):
-        field.dumps('asdf')
+        field.to_bytes('asdf')
 
 
 def test_string__dump_too_long_before_encoding():
     """Basic test of dumping a string that's too long into a String."""
     field = stringlike.String(size=5, encoding='utf-8')
     with pytest.raises(errors.ValueSizeError):
-        assert field.dumps('abcdefg')
+        assert field.to_bytes('abcdefg')
 
 
 def test_string__dump_too_long_after_encoding():
     """Test dumping a string that's too long only after encoding to bytes."""
     field = stringlike.String(size=4, encoding='utf-8')
     with pytest.raises(errors.ValueSizeError):
-        assert field.dumps('très')
+        assert field.to_bytes('très')
 
 
 def test_string__dump_too_short_before_encoding():
     """Basic test of dumping a string that's too short into a String."""
     field = stringlike.String(size=5, encoding='utf-8')
     with pytest.raises(errors.ValueSizeError):
-        assert field.dumps('a')
+        assert field.to_bytes('a')
 
 
 def test_string__dump_too_short_before_encoding__pad():
     """Dumping a string that's too short before encoding is okay."""
     field = stringlike.String(size=5, pad_byte=b' ')
-    assert field.dumps('a') == b'a    '
+    assert field.to_bytes('a') == b'a    '
 
 
 def test_string__dump_too_short_after_encoding__pad():
     """Dumping a string that's too short but uses padding is okay."""
     field = stringlike.String(size=8, pad_byte=b'\0', encoding='utf-32-be')
-    assert field.dumps('a') == b'\0\0\0a\0\0\0\0'
+    assert field.to_bytes('a') == b'\0\0\0a\0\0\0\0'
 
 
 def test_string__dump_too_long_before_encoding__pad():
     """``pad_byte`` shouldn't prevent a crash if a string is too long."""
     field = stringlike.String(size=5, pad_byte=b'?')
     with pytest.raises(errors.ValueSizeError):
-        field.dumps('abcdefgh')
+        field.to_bytes('abcdefgh')
 
 
 def test_string__dump_too_long_after_encoding__pad():
@@ -86,7 +86,7 @@ def test_string__dump_too_long_after_encoding__pad():
     encoding it."""
     field = stringlike.String(size=3, pad_byte=b'?', encoding='utf-16-le')
     with pytest.raises(errors.ValueSizeError):
-        field.dumps('ab')
+        field.to_bytes('ab')
 
 
 def test_string__pad_byte_wrong_type():
@@ -104,7 +104,7 @@ def test_string__pad_byte_too_long():
 def test_string__pad_default():
     """The default value should be padded if necessary."""
     field = stringlike.String(size=4, pad_byte=b' ', default='?')
-    assert field.dumps() == b'?   '
+    assert field.to_bytes() == b'?   '
 
 
 def test_stringz__load_basic():
@@ -123,13 +123,13 @@ def test_stringz__load_eof_before_null():
 def test_stringz__dump_basic():
     """Basic test of StringZ dumping."""
     field = stringlike.StringZ(encoding='utf-8')
-    assert field.dumps(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0'
+    assert field.to_bytes(r'¯\_(ツ)_/¯') == b'\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0'
 
 
 def test_stringz__dump_multibyte():
     """Basic multibyte test dump."""
     field = stringlike.StringZ(encoding='utf-32-le')
-    assert field.dumps('AbC') == \
+    assert field.to_bytes('AbC') == \
         b'A\x00\x00\x00b\x00\x00\x00C\x00\x00\x00\x00\x00\x00\x00'
 
 
@@ -139,9 +139,9 @@ def test_stringz__dump_multibyte_with_bom():
     field = stringlike.StringZ(encoding='utf-16')
 
     if sys.byteorder == 'little':
-        assert field.dumps('AbCd') == b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00'
+        assert field.to_bytes('AbCd') == b'\xff\xfeA\x00b\x00C\x00d\x00\x00\x00'
     else:
-        assert field.dumps('AbCd') == b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00'
+        assert field.to_bytes('AbCd') == b'\xfe\xff\x00A\x00b\x00C\x00d\x00\x00'
 
 
 def test_stringz_load_multibyte():

@@ -85,7 +85,7 @@ def test_array__load_nested():
 def test_array__dump_nested():
     """Try dumping an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)
-    dumped = field.dumps([
+    dumped = field.to_bytes([
         {'first': 0xc0ffeedeadbeef00, 'second': 'ABCDEFG'},
         {'first': 0xfadedbeda551ed00, 'second': 'HIJKLMN'},
     ])
@@ -185,19 +185,19 @@ def test_array__dump_basic():
 def test_array__sized_dump_ok(iterable):
     """Write a sized array with the expected number of values."""
     field = fields.Array(fields.StringZ(), count=2)
-    assert field.dumps(iterable) == b'abc\x00123456\0'
+    assert field.to_bytes(iterable) == b'abc\x00123456\0'
 
 
 def test_array__unsized_dump_ok():
     field = fields.Array(fields.StringZ())
-    assert field.dumps(['abc', '123456']) == b'abc\x00123456\0'
+    assert field.to_bytes(['abc', '123456']) == b'abc\x00123456\0'
 
 
 def test_array__sized_dump_too_big__unsized_iterable():
     """Crash if writing a generator with too many values."""
     field = fields.Array(fields.Int8(), count=2)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps(x for x in range(10))
+        field.to_bytes(x for x in range(10))
 
     assert err.value.n_expected == 2
     assert err.value.n_given == 3
@@ -207,7 +207,7 @@ def test_array__sized_dump_too_big__sized_iterable():
     """Crash if writing a sized iterable with too many values."""
     field = fields.Array(fields.Int8(), count=2)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps({4, 8, 15, 16, 23, 42})
+        field.to_bytes({4, 8, 15, 16, 23, 42})
 
     assert err.value.n_expected == 2
     assert err.value.n_given == 6
@@ -217,7 +217,7 @@ def test_array__sized_dump_too_small__sized_iterable():
     """Crash if writing a sized iterable with too few values."""
     field = fields.Array(fields.Int32(), count=100)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps((4, 8, 15, 16, 23, 42))
+        field.to_bytes((4, 8, 15, 16, 23, 42))
 
     assert err.value.n_expected == 100
     assert err.value.n_given == 6
@@ -227,7 +227,7 @@ def test_array__sized_dump_too_small__unsized_iterable():
     """Crash if writing a generator with too few values."""
     field = fields.Array(fields.Int32(), count=100)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps(x for x in range(6))
+        field.to_bytes(x for x in range(6))
 
     assert err.value.n_expected == 100
     assert err.value.n_given == 6

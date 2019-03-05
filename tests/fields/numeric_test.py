@@ -18,7 +18,7 @@ def test_integer_overflow():
     """An overflow error should be rethrown as a serialization error."""
     field = numeric.UInt16()
     with pytest.raises(errors.UnserializableValueError):
-        field.dumps(65536)
+        field.to_bytes(65536)
 
 
 def test_const_set_size__varint():
@@ -40,7 +40,7 @@ def test_varint__underflow():
     """Crash if VLQ gets a negative number."""
     field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
     with pytest.raises(errors.UnserializableValueError):
-        field.dumps(-1)
+        field.to_bytes(-1)
 
 
 @pytest.mark.parametrize('value,expected', (
@@ -54,7 +54,7 @@ def test_varint__basic_dump(value, expected):
     perfunctory test to make sure dumping works as expected.
     """
     field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
-    assert field.dumps(value) == expected
+    assert field.to_bytes(value) == expected
 
 
 @pytest.mark.parametrize('data, expected', (
@@ -72,7 +72,7 @@ def test_varint__max_bytes():
                                           max_bytes=2)
 
     with pytest.raises(errors.ValueSizeError):
-        field.dumps(100000)
+        field.to_bytes(100000)
 
 
 def test_float_bad_endian_crashes():
@@ -94,7 +94,7 @@ def test_float_bad_endian_crashes():
     math.nan,
 ))
 def test_float__dumps(value, field_object, fmt_string):
-    assert field_object.dumps(value) == struct.pack(fmt_string, value)
+    assert field_object.to_bytes(value) == struct.pack(fmt_string, value)
 
 
 @pytest.mark.parametrize('field_object, fmt_string', (
@@ -122,7 +122,7 @@ def test_float16__loads():
 @pytest.mark.skipif(_PY_VER < (3, 6), reason='binary16 only supported on 3.6+')
 def test_float16__dumps():
     field = numeric.Float16(endian='big')
-    assert field.dumps(65504) == struct.pack('>e', 65504)
+    assert field.to_bytes(65504) == struct.pack('>e', 65504)
 
 
 @pytest.mark.skipif(_PY_VER >= (3, 6), reason='binary16 supported on 3.6+')
@@ -146,7 +146,7 @@ def test_float__dumps__exception_translation(pack_mock):
     pack_mock.side_effect = struct.error('Some error happened')
 
     with pytest.raises(errors.SerializationError):
-        numeric.Float32().dumps(1234)
+        numeric.Float32().to_bytes(1234)
 
 
 def test_timestamp__invalid_resolution():
@@ -182,7 +182,7 @@ def test_timestamp__loads__microseconds():
 def test_timestamp__roundtrip():
     field = numeric.Timestamp(size=12, resolution='us', tz_aware=True)
     now = datetime.datetime.now(datetime.timezone.utc)
-    assert field.loads(field.dumps(now)) == now
+    assert field.loads(field.to_bytes(now)) == now
 
 
 def test_timestamp__aware_cast_to_utc():
@@ -192,8 +192,8 @@ def test_timestamp__aware_cast_to_utc():
     now_est = now_utc.astimezone(est_tz)
 
     field = numeric.Timestamp64(endian='little', resolution='us', tz_aware=True)
-    assert field.dumps(now_est) == field.dumps(now_utc)
-    assert field.loads(field.dumps(now_est)) == now_utc
+    assert field.to_bytes(now_est) == field.to_bytes(now_utc)
+    assert field.loads(field.to_bytes(now_est)) == now_utc
 
 
 def test_timestamp__naive_assumes_local():
@@ -203,5 +203,5 @@ def test_timestamp__naive_assumes_local():
     local_naive = local_aware.replace(tzinfo=None)
 
     field = numeric.Timestamp64(endian='little', resolution='us', tz_aware=True)
-    assert field.dumps(utc) == field.dumps(local_naive)
-    assert field.loads(field.dumps(local_naive)) == local_aware
+    assert field.to_bytes(utc) == field.to_bytes(local_naive)
+    assert field.loads(field.to_bytes(local_naive)) == local_aware

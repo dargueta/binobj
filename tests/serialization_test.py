@@ -30,7 +30,7 @@ def test_dump__unserializable():
     garbage = 2 ** 32
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
-        field.dumps(garbage)
+        field.to_bytes(garbage)
 
     assert "can't serialize value" in str(errinfo.value)
     assert errinfo.value.field is field
@@ -40,13 +40,13 @@ def test_dump__unserializable():
 def test_dump__use_default_value():
     """Test dumping when the default value is a constant."""
     field = fields.UInt32(name='field', default=0xdeadbeef, endian='big')
-    assert field.dumps() == b'\xde\xad\xbe\xef'
+    assert field.to_bytes() == b'\xde\xad\xbe\xef'
 
 
 def test_dump__use_default_callable():
     """Test dumping when the default value is a callable."""
     field = fields.UInt32(name='field', default=lambda: 0x1234, endian='big')
-    assert field.dumps() == b'\x00\x00\x12\x34'
+    assert field.to_bytes() == b'\x00\x00\x12\x34'
 
 
 def test_loads__extraneous_data_crashes():

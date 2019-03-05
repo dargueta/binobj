@@ -373,6 +373,26 @@ class Field:    # pylint: disable=too-many-instance-attributes
         raise errors.MissingRequiredValueError(field=name)
 
     def load(self, stream, context=None, loaded_fields=None):
+        """Deprecated alias of :meth:`.from_stream`.
+
+        .. deprecated:: 0.6.2
+            Use :meth:`.from_stream`.
+        """
+        warnings.warn('load() is deprecated in favor of from_stream().',
+                      DeprecationWarning)
+        return self.from_stream(stream, context, loaded_fields)
+
+    def loads(self, data, context=None, exact=True, loaded_fields=None):
+        """Deprecated alias of :meth:`.from_bytes`.
+
+        .. deprecated:: 0.6.2
+            Use :meth:`.from_bytes`.
+        """
+        warnings.warn('loads() is deprecated in favor of from_bytes().',
+                      DeprecationWarning)
+        return self.from_bytes(data, context, exact, loaded_fields)
+
+    def from_stream(self, stream, context=None, loaded_fields=None):
         """Load data from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -410,7 +430,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         return loaded_value
 
-    def loads(self, data, context=None, exact=True, loaded_fields=None):
+    def from_bytes(self, data, context=None, exact=True, loaded_fields=None):
         """Load from the given byte string.
 
         :param bytes data:
@@ -433,7 +453,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
             loaded_fields = {}
 
         stream = io.BytesIO(data)
-        loaded_data = self.load(stream, context=context, loaded_fields=loaded_fields)
+        loaded_data = self.from_stream(stream, context, loaded_fields)
 
         if exact and (stream.tell() < len(data)):
             # TODO (dargueta): Better error message.
@@ -459,6 +479,26 @@ class Field:    # pylint: disable=too-many-instance-attributes
         raise NotImplementedError
 
     def dump(self, stream, data=DEFAULT, context=None, all_fields=None):
+        """Deprecated alias of :meth:`to_stream`.
+
+        .. deprecated:: 0.6.2
+            Use :meth:`.to_stream`.
+        """
+        warnings.warn('dump() is deprecated in favor of to_stream().',
+                      DeprecationWarning)
+        self.to_stream(stream, data, context, all_fields)
+
+    def dumps(self, data=DEFAULT, context=None, all_fields=None):
+        """Deprecated alias of :meth:`to_bytes`.
+
+        .. deprecated:: 0.6.2
+            Use :meth:`.to_bytes` instead.
+        """
+        warnings.warn('dumps() is deprecated in favor of to_bytes().',
+                      DeprecationWarning)
+        return self.to_bytes(data, context, all_fields)
+
+    def to_stream(self, stream, data=DEFAULT, context=None, all_fields=None):
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -488,7 +528,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         self._do_dump(stream, data, context=context, all_fields=all_fields)
 
-    def dumps(self, data=DEFAULT, context=None, all_fields=None):
+    def to_bytes(self, data=DEFAULT, context=None, all_fields=None):
         """Convert the given data into bytes.
 
         :param data:
@@ -499,14 +539,13 @@ class Field:    # pylint: disable=too-many-instance-attributes
             anything they don't recognize.
         :param dict all_fields:
             A dictionary of the fields about to be dumped. This is automatically
-            set automatically by the field's containing
-            :class:`~binobj.structures.Struct`.
+            set by the field's containing :class:`~binobj.structures.Struct`.
 
         :return: The serialized data.
         :rtype: bytes
         """
         stream = io.BytesIO()
-        self.dump(stream, data, context=context, all_fields=all_fields)
+        self.to_stream(stream, data, context=context, all_fields=all_fields)
         return stream.getvalue()
 
     @abc.abstractmethod

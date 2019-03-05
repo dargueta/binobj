@@ -33,7 +33,7 @@ class Array(Field):
         to avoid having to pass in a custom function every time.
 
     .. versionchanged:: 0.6.1
-        :meth:`.dump` and :meth:`.dumps` throw an :class:`~.errors.ArraySizeError`
+        :meth:`.to_stream` and :meth:`.to_bytes` throw an :class:`~.errors.ArraySizeError`
         if ``count`` is set and the iterable passed in is too long. It used to
         be ignored when dumping.
     """
@@ -163,8 +163,7 @@ class Array(Field):
                 field=self, n_expected=n_elems, n_given=len(data))
 
         for value in iter(data):
-            self.component.dump(stream, value, context=context,
-                                all_fields=all_fields)
+            self.component.to_stream(stream, value, context, all_fields)
 
     def _dump_unsized(self, stream, data, n_elems, context, all_fields):
         """Dump an unsized iterable into the stream."""
@@ -177,7 +176,7 @@ class Array(Field):
                 raise errors.ArraySizeError(
                     field=self, n_expected=n_elems, n_given=n_written + 1)
 
-            self.component.dump(
+            self.component.to_stream(
                 stream, value, context=context, all_fields=all_fields)
             n_written += 1
 
@@ -308,7 +307,7 @@ class Union(Field):
     def _do_dump(self, stream, data, context, all_fields):
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
-            return dumper.dump(stream, data, context, all_fields)
+            return dumper.to_stream(stream, data, context, all_fields)
 
         # Else: Dumper is not a Field instance, assume this is a Struct.
         return dumper(**data).to_stream(stream, context)
