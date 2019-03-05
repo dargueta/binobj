@@ -64,7 +64,7 @@ class String(Field):
                 raise errors.ConfigurationError(
                     '`pad_byte` must be a bytes-like object.',
                     field=self)
-            elif len(pad_byte) != 1:
+            if len(pad_byte) != 1:
                 raise errors.ConfigurationError(
                     '`pad_byte` must be exactly one byte long.',
                     field=self)
@@ -106,7 +106,7 @@ class String(Field):
         if size_diff > 0:
             # String is too long.
             raise errors.ValueSizeError(field=self, value=to_dump)
-        elif size_diff < 0:
+        if size_diff < 0:
             if self.pad_byte is None:
                 # String is too short and we're not padding it.
                 raise errors.ValueSizeError(field=self, value=to_dump)

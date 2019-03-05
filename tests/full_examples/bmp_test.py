@@ -6,6 +6,7 @@ import os
 import pytest
 
 import binobj
+from binobj import fields
 
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -18,23 +19,23 @@ class SimpleBMPFileHeader(binobj.Struct):
     header. Validation will fail if this isn't true, even if the BMP file itself
     is valid.
     """
-    magic = binobj.Bytes(const=b'BM', discard=True)
-    file_size = binobj.UInt32()
-    _reserved = binobj.Bytes(const=b'\0\0\0\0', discard=True)
-    pixels_offset = binobj.UInt32()
+    magic = fields.Bytes(const=b'BM', discard=True)
+    file_size = fields.UInt32()
+    _reserved = fields.Bytes(const=b'\0\0\0\0', discard=True)
+    pixels_offset = fields.UInt32()
 
     # Legacy DIB header (BITMAPINFOHEADER)
-    header_size = binobj.UInt32(const=40, discard=True)
-    image_width = binobj.Int32()
-    image_height = binobj.Int32()
-    n_color_planes = binobj.UInt16(const=1)
-    n_bits_per_pixel = binobj.UInt16()
-    compression_method = binobj.UInt32()
-    bitmap_size = binobj.UInt32()
-    v_resolution = binobj.Int32()
-    h_resolution = binobj.Int32()
-    n_palette_colors = binobj.UInt32()
-    n_important_colors = binobj.UInt32()
+    header_size = fields.UInt32(const=40, discard=True)
+    image_width = fields.Int32()
+    image_height = fields.Int32()
+    n_color_planes = fields.UInt16(const=1)
+    n_bits_per_pixel = fields.UInt16()
+    compression_method = fields.UInt32()
+    bitmap_size = fields.UInt32()
+    v_resolution = fields.Int32()
+    h_resolution = fields.Int32()
+    n_palette_colors = fields.UInt32()
+    n_important_colors = fields.UInt32()
 
     # Color palette starts here, if present. After that is the pixel data.
 

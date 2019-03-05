@@ -48,14 +48,14 @@ def test_nested__dump_basic_as_dict():
 def test_array__basic():
     """Test deserializing a list of stuff."""
     sequence = fields.Array(fields.UInt8())
-    result = sequence.loads(b'\xde\xad\xbe\xef')
+    result = sequence.from_bytes(b'\xde\xad\xbe\xef')
     assert result == [0xde, 0xad, 0xbe, 0xef]
 
 
 def test_array__sized__read():
     """Verify the behavior of a fixed-size array on loading."""
     sequence = fields.Array(fields.UInt8(), count=3)
-    result = sequence.loads(b'\xde\xad\xbe')
+    result = sequence.from_bytes(b'\xde\xad\xbe')
     assert result == [0xde, 0xad, 0xbe]
 
 
@@ -66,7 +66,7 @@ def test_array__sentinel():
 
     sequence = fields.Array(fields.UInt16(endian='little'), halt_check=halt)
 
-    result = sequence.loads(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
+    result = sequence.from_bytes(b'\x00\x00\xff\x00\xad\xde\xff\xff', exact=False)
     assert result == [0, 0xff, 0xdead]
 
 
@@ -74,8 +74,8 @@ def test_array__sentinel():
 def test_array__load_nested():
     """Try loading an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)
-    loaded = field.loads(b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG'
-                         b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN')
+    loaded = field.from_bytes(b'\xc0\xff\xee\xde\xad\xbe\xef\x00ABCDEFG'
+                              b'\xfa\xde\xdb\xed\xa5\x51\xed\x00HIJKLMN')
     assert loaded == [
         {'first': 0xc0ffeedeadbeef00, 'second': 'ABCDEFG'},
         {'first': 0xfadedbeda551ed00, 'second': 'HIJKLMN'},
@@ -85,7 +85,7 @@ def test_array__load_nested():
 def test_array__dump_nested():
     """Try dumping an array of structs."""
     field = fields.Array(fields.Nested(SubStruct), count=2)
-    dumped = field.dumps([
+    dumped = field.to_bytes([
         {'first': 0xc0ffeedeadbeef00, 'second': 'ABCDEFG'},
         {'first': 0xfadedbeda551ed00, 'second': 'HIJKLMN'},
     ])
@@ -185,19 +185,19 @@ def test_array__dump_basic():
 def test_array__sized_dump_ok(iterable):
     """Write a sized array with the expected number of values."""
     field = fields.Array(fields.StringZ(), count=2)
-    assert field.dumps(iterable) == b'abc\x00123456\0'
+    assert field.to_bytes(iterable) == b'abc\x00123456\0'
 
 
 def test_array__unsized_dump_ok():
     field = fields.Array(fields.StringZ())
-    assert field.dumps(['abc', '123456']) == b'abc\x00123456\0'
+    assert field.to_bytes(['abc', '123456']) == b'abc\x00123456\0'
 
 
 def test_array__sized_dump_too_big__unsized_iterable():
     """Crash if writing a generator with too many values."""
     field = fields.Array(fields.Int8(), count=2)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps(x for x in range(10))
+        field.to_bytes(x for x in range(10))
 
     assert err.value.n_expected == 2
     assert err.value.n_given == 3
@@ -207,7 +207,7 @@ def test_array__sized_dump_too_big__sized_iterable():
     """Crash if writing a sized iterable with too many values."""
     field = fields.Array(fields.Int8(), count=2)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps({4, 8, 15, 16, 23, 42})
+        field.to_bytes({4, 8, 15, 16, 23, 42})
 
     assert err.value.n_expected == 2
     assert err.value.n_given == 6
@@ -217,7 +217,7 @@ def test_array__sized_dump_too_small__sized_iterable():
     """Crash if writing a sized iterable with too few values."""
     field = fields.Array(fields.Int32(), count=100)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps((4, 8, 15, 16, 23, 42))
+        field.to_bytes((4, 8, 15, 16, 23, 42))
 
     assert err.value.n_expected == 100
     assert err.value.n_given == 6
@@ -227,7 +227,7 @@ def test_array__sized_dump_too_small__unsized_iterable():
     """Crash if writing a generator with too few values."""
     field = fields.Array(fields.Int32(), count=100)
     with pytest.raises(errors.ArraySizeError) as err:
-        field.dumps(x for x in range(6))
+        field.to_bytes(x for x in range(6))
 
     assert err.value.n_expected == 100
     assert err.value.n_given == 6

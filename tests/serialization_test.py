@@ -8,6 +8,7 @@ import pytest
 
 import binobj
 from binobj import errors
+from binobj import fields
 from binobj import varints
 
 
@@ -25,11 +26,11 @@ def test_sentinels_are_singletons():
 
 
 def test_dump__unserializable():
-    field = binobj.Int32(name='field')
+    field = fields.Int32(name='field')
     garbage = 2 ** 32
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
-        field.dumps(garbage)
+        field.to_bytes(garbage)
 
     assert "can't serialize value" in str(errinfo.value)
     assert errinfo.value.field is field
@@ -38,38 +39,38 @@ def test_dump__unserializable():
 
 def test_dump__use_default_value():
     """Test dumping when the default value is a constant."""
-    field = binobj.UInt32(name='field', default=0xdeadbeef, endian='big')
-    assert field.dumps() == b'\xde\xad\xbe\xef'
+    field = fields.UInt32(name='field', default=0xdeadbeef, endian='big')
+    assert field.to_bytes() == b'\xde\xad\xbe\xef'
 
 
 def test_dump__use_default_callable():
     """Test dumping when the default value is a callable."""
-    field = binobj.UInt32(name='field', default=lambda: 0x1234, endian='big')
-    assert field.dumps() == b'\x00\x00\x12\x34'
+    field = fields.UInt32(name='field', default=lambda: 0x1234, endian='big')
+    assert field.to_bytes() == b'\x00\x00\x12\x34'
 
 
 def test_loads__extraneous_data_crashes():
-    field = binobj.Bytes(name='field', size=3)
+    field = fields.Bytes(name='field', size=3)
 
     with pytest.raises(errors.ExtraneousDataError) as errinfo:
-        field.loads(b'\xc0\xff\xee!')
+        field.from_bytes(b'\xc0\xff\xee!')
 
     assert str(errinfo.value) == 'Expected to read 3 bytes, read 4.'
 
 
 def test_loads__no_size_crashes():
-    field = binobj.String()
+    field = fields.String()
 
     with pytest.raises(errors.UndefinedSizeError):
-        field.loads(b'123')
+        field.from_bytes(b'123')
 
 
 NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'
 
 
 class StructWithFieldOverrides(binobj.Struct):
-    one = binobj.UInt32(endian=NONDEFAULT_ENDIANNESS)
-    two = binobj.Int32(endian=sys.byteorder)
+    one = fields.UInt32(endian=NONDEFAULT_ENDIANNESS)
+    two = fields.Int32(endian=sys.byteorder)
 
 
 def test_accessor__getitem():
@@ -93,8 +94,8 @@ def test_accessor__getitem__no_such_field():
 
 class ComputedLengthStruct(binobj.Struct):
     """A struct whose length can be computed if values are defined."""
-    int_value = binobj.UInt32()
-    value = binobj.StringZ()
+    int_value = fields.UInt32()
+    value = fields.StringZ()
 
     @value.computes
     def _compute_value(self, all_fields):
@@ -151,9 +152,9 @@ def test_len__basic(instance):
 
 
 class StringZTestStruct(binobj.Struct):
-    header = binobj.UInt32()
-    string = binobj.StringZ()
-    trailer = binobj.UInt16()
+    header = fields.UInt32()
+    string = fields.StringZ()
+    trailer = fields.UInt16()
 
 
 def test_len__variable__assigned():
@@ -199,15 +200,15 @@ def test_to_dict__crash_on_undefined():
 
 
 class Basic(binobj.Struct):
-    abc = binobj.Bytes(const=b'ABC')
-    ghi = binobj.Int32()
-    jkl = binobj.Int64(default=0xbadc0ffee)
-    mno = binobj.String(size=2)
+    abc = fields.Bytes(const=b'ABC')
+    ghi = fields.Int32()
+    jkl = fields.Int64(default=0xbadc0ffee)
+    mno = fields.String(size=2)
 
 
 class VLenBytes(binobj.Struct):
-    length = binobj.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
-    data = binobj.Bytes()
+    length = fields.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
+    data = fields.Bytes()
 
     @length.computes
     def _compute_length(self, all_fields):

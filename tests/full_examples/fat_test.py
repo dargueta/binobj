@@ -3,31 +3,32 @@
 import random
 
 import binobj
+from binobj import fields
 
 
 class FAT12BootSector(binobj.Struct):
-    jump = binobj.Bytes(const=b'\xeb\x3c\x90')
-    oem_name = binobj.String(size=8, default='mkdosfs', pad_byte=b' ', encoding='ascii')
-    bytes_per_sector = binobj.UInt16(default=512)
-    sectors_per_cluster = binobj.UInt8()
-    reserved_sectors = binobj.UInt16(default=1)
-    num_fats = binobj.UInt8(default=2)
-    max_root_entries = binobj.UInt16(default=240)
-    total_logical_sectors_16 = binobj.UInt16()
-    media_descriptor = binobj.UInt8()
-    sectors_per_fat = binobj.UInt16()
-    sectors_per_track = binobj.UInt16()
-    num_heads = binobj.UInt16()
-    num_hidden_sectors = binobj.UInt32(default=0)
-    total_logical_sectors_32 = binobj.UInt32()
-    drive_number = binobj.UInt8()
-    _reserved = binobj.Bytes(const=b'\0', discard=True)
-    _ex_boot_signature = binobj.Bytes(const=b'\x29', discard=True)
-    volume_id = binobj.UInt32(default=lambda: random.randrange(2**32))
-    volume_label = binobj.String(size=11)
-    fs_type = binobj.String(size=8, default='FAT12', pad_byte=b' ', encoding='ascii')
-    boot_code = binobj.Bytes(size=448, default=b'\xcc' * 448)
-    boot_signature = binobj.Bytes(const=b'\x55\xaa')
+    jump = fields.Bytes(const=b'\xeb\x3c\x90')
+    oem_name = fields.String(size=8, default='mkdosfs', pad_byte=b' ', encoding='ascii')
+    bytes_per_sector = fields.UInt16(default=512)
+    sectors_per_cluster = fields.UInt8()
+    reserved_sectors = fields.UInt16(default=1)
+    num_fats = fields.UInt8(default=2)
+    max_root_entries = fields.UInt16(default=240)
+    total_logical_sectors_16 = fields.UInt16()
+    media_descriptor = fields.UInt8()
+    sectors_per_fat = fields.UInt16()
+    sectors_per_track = fields.UInt16()
+    num_heads = fields.UInt16()
+    num_hidden_sectors = fields.UInt32(default=0)
+    total_logical_sectors_32 = fields.UInt32()
+    drive_number = fields.UInt8()
+    _reserved = fields.Bytes(const=b'\0', discard=True)
+    _ex_boot_signature = fields.Bytes(const=b'\x29', discard=True)
+    volume_id = fields.UInt32(default=lambda: random.randrange(2**32))
+    volume_label = fields.String(size=11)
+    fs_type = fields.String(size=8, default='FAT12', pad_byte=b' ', encoding='ascii')
+    boot_code = fields.Bytes(size=448, default=b'\xcc' * 448)
+    boot_signature = fields.Bytes(const=b'\x55\xaa')
 
     @property
     def total_logical_sectors(self):
@@ -38,7 +39,7 @@ class FAT12BootSector(binobj.Struct):
         if total_sectors < 1 or total_sectors >= 2**32:
             raise ValueError('Total sectors must be in [1, 2^32). Got: %d'
                              % total_sectors)
-        elif total_sectors < 65535:
+        if total_sectors < 65535:
             self.total_logical_sectors_16 = total_sectors
             self.total_logical_sectors_32 = 0
         else:
