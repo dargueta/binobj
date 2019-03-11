@@ -257,8 +257,8 @@ class Timestamp(Integer):
     r"""A timestamp stored as an integer offset from the `Unix epoch`_.
 
     Timestamps are stored in UTC. When dumping, naive datetimes are assumed to
-    be in the local; when loading and ``tz_aware`` is False, loaded datetimes
-    are in the local timezone.
+    be in the local timezone; when loading and ``tz_aware`` is False, loaded
+    datetimes are in the local timezone.
 
     This class is typically not used directly, except for timestamps with sizes
     that aren't powers of two, e.g. the 96-bit timestamps used by Amazon
@@ -276,14 +276,12 @@ class Timestamp(Integer):
         .. code-block:: python
 
             >>> field = Timestamp32(tz_aware=True)
-            >>> field.loads(b'\xa3\xc3\x55\x5c')
+            >>> field.from_bytes(b'\xa3\xc3\x55\x5c')
             datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)
 
     .. versionadded:: 0.6.0
 
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
-    .. _convention: https://en.wikipedia.org/wiki/Unix_time#Representing_the_number
-    .. _wildly incorrect: https://en.wikipedia.org/wiki/Year_2038_problem
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
     _RESOLUTION_UNITS = {

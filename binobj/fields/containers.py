@@ -34,8 +34,8 @@ class Array(Field):
 
     .. versionchanged:: 0.6.1
         :meth:`.to_stream` and :meth:`.to_bytes` throw an :class:`~.errors.ArraySizeError`
-        if ``count`` is set and the iterable passed in is too long. It used to
-        be ignored when dumping.
+        if ``count`` is set and the iterable passed in is too long. Due to a bug
+        it used to be ignored when dumping.
     """
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
         super().__init__(**kwargs)
