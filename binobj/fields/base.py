@@ -36,7 +36,7 @@ class _NamedSentinel:   # pylint: disable=too-few-public-methods
         return self
 
     def __repr__(self):     # pragma: no cover
-        return 'Sentinel(%r)' % self.name
+        return '<%s>' % self.name
 
 
 #: A sentinel value used to indicate that a setting or field is undefined.
@@ -47,6 +47,7 @@ UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
 #: be used. We need this because sometimes ``None`` is a valid value for that
 #: setting.
 DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
+
 
 #: A sentinel value used to indicate that a field is not present.
 #:
@@ -99,7 +100,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         - A dict of the fields that have already been loaded or are about to be
           dumped.
-        - The ``context`` object passed to :meth:`load` or :meth:`dump`.
+        - The ``context`` object passed to :meth:`from_stream` or :meth:`to_stream`.
         - When loading, the stream being loaded from. The stream pointer MUST
           be reset to its original position before the function returns.
     :param validate:
@@ -310,9 +311,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         This is an ugly hack for computing ``size`` properly when only ``const``
         is given. It's *HIGHLY DISCOURAGED* to implement this function in your
-        own field subclasses, since it *must not* call :meth:`load`, :meth:`loads`,
-        :meth:`dump`, or :meth:`dumps`. Doing so could result in infinite
-        recursion.
+        own field subclasses, since it *must not* call :meth:`from_stream`,
+        :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`. Doing so
+        could result in infinite recursion.
 
         :param value:
             The value to serialize.
