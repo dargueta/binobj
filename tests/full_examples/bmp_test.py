@@ -9,7 +9,7 @@ import binobj
 from binobj import fields
 
 
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 
 
 class SimpleBMPFileHeader(binobj.Struct):
@@ -19,9 +19,10 @@ class SimpleBMPFileHeader(binobj.Struct):
     header. Validation will fail if this isn't true, even if the BMP file itself
     is valid.
     """
-    magic = fields.Bytes(const=b'BM', discard=True)
+
+    magic = fields.Bytes(const=b"BM", discard=True)
     file_size = fields.UInt32()
-    _reserved = fields.Bytes(const=b'\0\0\0\0', discard=True)
+    _reserved = fields.Bytes(const=b"\0\0\0\0", discard=True)
     pixels_offset = fields.UInt32()
 
     # Legacy DIB header (BITMAPINFOHEADER)
@@ -40,10 +41,10 @@ class SimpleBMPFileHeader(binobj.Struct):
     # Color palette starts here, if present. After that is the pixel data.
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def bmp_file():
     """Return the test bitmap file as :class:`bytes`."""
-    with open(os.path.join(TEST_DATA_DIR, 'test_image.bmp'), 'rb') as fdesc:
+    with open(os.path.join(TEST_DATA_DIR, "test_image.bmp"), "rb") as fdesc:
         return fdesc.read()
 
 
@@ -87,22 +88,22 @@ def test_basic_bmp__dumps(bmp_file):
     """Writing the same data that's in the header should result in an identical
     header."""
     header_data = {
-        'file_size': len(bmp_file),
-        'pixels_offset': 54,
-        'image_width': 80,
-        'image_height': 60,
-        'n_color_planes': 1,
-        'n_bits_per_pixel': 24,
-        'compression_method': 0,
-        'bitmap_size': 14400,
-        'v_resolution': 2835,
-        'h_resolution': 2835,
-        'n_palette_colors': 0,
-        'n_important_colors': 0,
+        "file_size": len(bmp_file),
+        "pixels_offset": 54,
+        "image_width": 80,
+        "image_height": 60,
+        "n_color_planes": 1,
+        "n_bits_per_pixel": 24,
+        "compression_method": 0,
+        "bitmap_size": 14400,
+        "v_resolution": 2835,
+        "h_resolution": 2835,
+        "n_palette_colors": 0,
+        "n_important_colors": 0,
     }
 
     loader = SimpleBMPFileHeader(**header_data)
     output = loader.to_bytes()
 
-    assert len(output) == 54, 'Header is wrong size.'
-    assert output == bmp_file[:54], 'Data mismatch.'
+    assert len(output) == 54, "Header is wrong size."
+    assert output == bmp_file[:54], "Data mismatch."

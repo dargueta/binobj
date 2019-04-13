@@ -6,6 +6,7 @@ class Error(Exception):
 
     Do not throw this exception directly.
     """
+
     # pylint: disable=keyword-arg-before-vararg
     def __init__(self, message=None, *args):
         # If there is no error message, use the first line of the docstring.
@@ -39,21 +40,24 @@ class ConfigurationError(Error):
         None of the ``field``, ``struct``, or ``obj`` keyword arguments were
         passed.
     """
+
     def __init__(self, message=None, *, field=None, struct=None, obj=None):
         if not (field or struct or obj):
-            raise ValueError('At least one of `field`, `struct`, or `obj` must '
-                             'be passed to the constructor.')
+            raise ValueError(
+                "At least one of `field`, `struct`, or `obj` must "
+                "be passed to the constructor."
+            )
 
         if not message:
             if field:
                 if struct:
-                    message = 'Field {f!r} in struct {s!r} was misconfigured.'
+                    message = "Field {f!r} in struct {s!r} was misconfigured."
                 else:
-                    message = 'The field {f!r} was misconfigured.'
+                    message = "The field {f!r} was misconfigured."
             elif struct:
-                message = 'The struct {s!r} was misconfigured.'
+                message = "The struct {s!r} was misconfigured."
             else:
-                message = 'The object {o!r} was misconfigured.'
+                message = "The object {o!r} was misconfigured."
 
             message = message.format(f=field, s=struct, o=obj)
 
@@ -75,6 +79,7 @@ class SerializationError(Error):
     :param value:
         The value that caused the crash.
     """
+
     def __init__(self, message=None, *, struct=None, field=None, value=None):
         super().__init__(message)
         self.struct = struct
@@ -94,6 +99,7 @@ class DeserializationError(Error):
     :param int offset:
         The offset into the data stream where the crash occurred.
     """
+
     def __init__(self, message=None, *, field=None, data=None, offset=None):
         super().__init__(message)
         self.field = field
@@ -111,9 +117,10 @@ class ValidationError(Error):
     :param value:
         The invalid value.
     """
+
     def __init__(self, message=None, *, field, value):
         if not message:
-            message = 'Invalid value for %s: %r' % (field, value)
+            message = "Invalid value for %s: %r" % (field, value)
 
         super().__init__(message)
         self.field = field
@@ -128,11 +135,11 @@ class FieldReferenceError(Error):
     :param str field:
         The name of the field that failed to be referenced.
     """
+
     def __init__(self, message=None, *, field):
         if not message:
-            message = (
-                'Attempted to reference a missing or undefined field: '
-                + repr(field)
+            message = "Attempted to reference a missing or undefined field: " + repr(
+                field
             )
 
         super().__init__(message)
@@ -159,9 +166,10 @@ class ImmutableFieldError(IllegalOperationError):
 
     .. versionadded:: 0.4.1
     """
+
     def __init__(self, *, field=None):
         if field is not None:
-            message = 'Cannot assign to immutable field: %r' % field
+            message = "Cannot assign to immutable field: %r" % field
         else:
             message = None
 
@@ -187,10 +195,14 @@ class FieldRedefinedError(ConfigurationError):
 
     .. versionadded:: 0.3.0
     """
+
     def __init__(self, *, struct, field):
         super().__init__(
-            'Struct %s defines field %r already defined in its parent class.'
-            % (struct, field), struct=struct, field=field)
+            "Struct %s defines field %r already defined in its parent class."
+            % (struct, field),
+            struct=struct,
+            field=field,
+        )
 
 
 class UndefinedSizeError(ConfigurationError):
@@ -202,11 +214,13 @@ class UndefinedSizeError(ConfigurationError):
 
     .. versionadded:: 0.3.1
     """
+
     def __init__(self, *, field):
         super().__init__(
             "Size of field %s couldn't be determined. The field might not have "
-            'had its `size` set, or a variable-sized field has a bug.'
-            % field, field=field)
+            "had its `size` set, or a variable-sized field has a bug." % field,
+            field=field,
+        )
 
 
 class UnserializableValueError(SerializationError):
@@ -219,12 +233,15 @@ class UnserializableValueError(SerializationError):
     :param str reason:
         Optional. The reason for the failure.
     """
+
     def __init__(self, *, field, value, reason=None):
         if reason is not None:
             message = "%s can't serialize value: %s" % (field, reason)
         else:
-            message = "%s can't serialize value of type %r." \
-                      % (field, type(value).__name__)
+            message = "%s can't serialize value of type %r." % (
+                field,
+                type(value).__name__,
+            )
         super().__init__(message, field=field, value=value)
 
 
@@ -234,9 +251,9 @@ class MissingRequiredValueError(SerializationError):
     :param field:
         The missing field, or its name.
     """
+
     def __init__(self, *, field):
-        super().__init__('Missing required value for field: %s' % field,
-                         field=field)
+        super().__init__("Missing required value for field: %s" % field, field=field)
 
 
 class UnexpectedValueError(SerializationError):
@@ -249,15 +266,18 @@ class UnexpectedValueError(SerializationError):
         field that was unexpected. Don't pass :class:`~binobj.fields.base.Field`
         instances.
     """
+
     def __init__(self, *, struct, name):
         if isinstance(name, str):
             self.names = {name}
         else:
             self.names = set(name)
 
-        msg = '%d unrecognized field(s) given to %s for serialization: %s' % (
-            len(self.names), type(struct).__name__,
-            ', '.join(repr(f) for f in sorted(self.names)))
+        msg = "%d unrecognized field(s) given to %s for serialization: %s" % (
+            len(self.names),
+            type(struct).__name__,
+            ", ".join(repr(f) for f in sorted(self.names)),
+        )
 
         super().__init__(msg, struct=struct)
 
@@ -270,9 +290,13 @@ class ValueSizeError(UnserializableValueError):
     :param value:
         The value that's the wrong size.
     """
+
     def __init__(self, *, field, value):
-        super().__init__(reason="Value doesn't fit into %r bytes." % field.size,
-                         field=field, value=value)
+        super().__init__(
+            reason="Value doesn't fit into %r bytes." % field.size,
+            field=field,
+            value=value,
+        )
 
 
 class ArraySizeError(SerializationError):
@@ -283,14 +307,15 @@ class ArraySizeError(SerializationError):
     :param int n_given:
         Optional. The actual number of items given to the field for serialization.
     """
+
     def __init__(self, *, field, n_expected, n_given=None):
         if n_given is not None:
             if n_given > n_expected:
-                message = 'Expected {e} values, got at least {g}.'
+                message = "Expected {e} values, got at least {g}."
             else:
-                message = 'Expected {e} values, got {g}.'
+                message = "Expected {e} values, got {g}."
         else:
-            message = 'Expected {e} values.'
+            message = "Expected {e} values."
 
         super().__init__(message.format(e=n_expected, g=n_given), field=field)
         self.n_expected = n_expected
@@ -308,11 +333,14 @@ class UnexpectedEOFError(DeserializationError):
         The offset into the input stream/string where the error was encountered,
         in bytes.
     """
+
     def __init__(self, *, field, size, offset):
         super().__init__(
-            'Unexpected EOF while trying to read %d bytes at offset %d.'
+            "Unexpected EOF while trying to read %d bytes at offset %d."
             % (size, offset),
-            field=field, offset=offset)
+            field=field,
+            offset=offset,
+        )
 
         self.size = size
 

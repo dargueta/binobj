@@ -9,18 +9,14 @@ import warnings
 from binobj import errors
 
 
-__all__ = [
-    'DEFAULT',
-    'NOT_PRESENT',
-    'UNDEFINED',
-    'Field',
-]
+__all__ = ["DEFAULT", "NOT_PRESENT", "UNDEFINED", "Field"]
 
 
-class _NamedSentinel:   # pylint: disable=too-few-public-methods
+class _NamedSentinel:  # pylint: disable=too-few-public-methods
     """An object type used for creating sentinel objects that can be retrieved
     by name.
     """
+
     # A mapping of sentinels from name to instance.
     __sentinels = {}
 
@@ -35,26 +31,27 @@ class _NamedSentinel:   # pylint: disable=too-few-public-methods
     def __deepcopy__(self, memodict=None):
         return self
 
-    def __repr__(self):     # pragma: no cover
-        return 'Sentinel(%r)' % self.name
+    def __repr__(self):  # pragma: no cover
+        return "<%s>" % self.name
 
 
 #: A sentinel value used to indicate that a setting or field is undefined.
-UNDEFINED = _NamedSentinel.get_sentinel('UNDEFINED')
+UNDEFINED = _NamedSentinel.get_sentinel("UNDEFINED")
 
 
 #: A sentinel value used to indicate that the default value of a setting should
 #: be used. We need this because sometimes ``None`` is a valid value for that
 #: setting.
-DEFAULT = _NamedSentinel.get_sentinel('DEFAULT')
+DEFAULT = _NamedSentinel.get_sentinel("DEFAULT")
+
 
 #: A sentinel value used to indicate that a field is not present.
 #:
 #: .. versionadded:: 0.4.5
-NOT_PRESENT = _NamedSentinel.get_sentinel('NOT_PRESENT')
+NOT_PRESENT = _NamedSentinel.get_sentinel("NOT_PRESENT")
 
 
-class Field:    # pylint: disable=too-many-instance-attributes
+class Field:  # pylint: disable=too-many-instance-attributes
     """The base class for all struct fields.
 
     :param str name:
@@ -99,7 +96,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         - A dict of the fields that have already been loaded or are about to be
           dumped.
-        - The ``context`` object passed to :meth:`load` or :meth:`dump`.
+        - The ``context`` object passed to :meth:`from_stream` or :meth:`to_stream`.
         - When loading, the stream being loaded from. The stream pointer MUST
           be reset to its original position before the function returns.
     :param validate:
@@ -135,9 +132,19 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         :type: int
     """
-    def __init__(self, *, name=None, const=UNDEFINED, default=UNDEFINED,
-                 discard=False, null_value=UNDEFINED, size=None, validate=(),
-                 present=None):
+
+    def __init__(
+        self,
+        *,
+        name=None,
+        const=UNDEFINED,
+        default=UNDEFINED,
+        discard=False,
+        null_value=UNDEFINED,
+        size=None,
+        validate=(),
+        present=None
+    ):
         self.const = const
         self.discard = discard
         self.null_value = null_value
@@ -158,10 +165,10 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
-        self.name = name        # type: str
-        self.index = None       # type: int
-        self.offset = None      # type: int
-        self._compute_fn = None     # type: callable
+        self.name = name  # type: str
+        self.index = None  # type: int
+        self.offset = None  # type: int
+        self._compute_fn = None  # type: callable
 
     @property
     def size(self):
@@ -259,14 +266,17 @@ class Field:    # pylint: disable=too-many-instance-attributes
         """
         if self._compute_fn:
             raise errors.ConfigurationError(
-                "Can't define two computing functions for field %r." % self,
-                field=self)
+                "Can't define two computing functions for field %r." % self, field=self
+            )
         if self.const is not UNDEFINED:
             raise errors.ConfigurationError(
-                'Cannot set compute function for a const field.', field=self)
+                "Cannot set compute function for a const field.", field=self
+            )
 
-        warnings.warn('This decorator will be moved to the `decorators` module.',
-                      PendingDeprecationWarning)
+        warnings.warn(
+            "This decorator will be moved to the `decorators` module.",
+            PendingDeprecationWarning,
+        )
         self._compute_fn = method
 
     @property
@@ -304,15 +314,15 @@ class Field:    # pylint: disable=too-many-instance-attributes
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value):   # pylint: disable=no-self-use,unused-argument
+    def _size_for_value(self, value):  # pylint: disable=no-self-use,unused-argument
         """Return the size of the serialized value in bytes, or ``None`` if it
         can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const``
         is given. It's *HIGHLY DISCOURAGED* to implement this function in your
-        own field subclasses, since it *must not* call :meth:`load`, :meth:`loads`,
-        :meth:`dump`, or :meth:`dumps`. Doing so could result in infinite
-        recursion.
+        own field subclasses, since it *must not* call :meth:`from_stream`,
+        :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`. Doing so
+        could result in infinite recursion.
 
         :param value:
             The value to serialize.
@@ -365,8 +375,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
         elif isinstance(self.size, str):
             name = self.size
         else:
-            raise TypeError('Unexpected type for %r.size: %s'
-                            % (self, type(self.size).__name__))
+            raise TypeError(
+                "Unexpected type for %r.size: %s" % (self, type(self.size).__name__)
+            )
 
         if name in field_values:
             return field_values[name]
@@ -378,8 +389,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
         .. deprecated:: 0.6.2
             Use :meth:`.from_stream`.
         """
-        warnings.warn('load() is deprecated in favor of from_stream().',
-                      DeprecationWarning)
+        warnings.warn(
+            "load() is deprecated in favor of from_stream().", DeprecationWarning
+        )
         return self.from_stream(stream, context, loaded_fields)
 
     def loads(self, data, context=None, exact=True, loaded_fields=None):
@@ -388,8 +400,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
         .. deprecated:: 0.6.2
             Use :meth:`.from_bytes`.
         """
-        warnings.warn('loads() is deprecated in favor of from_bytes().',
-                      DeprecationWarning)
+        warnings.warn(
+            "loads() is deprecated in favor of from_bytes().", DeprecationWarning
+        )
         return self.from_bytes(data, context, exact, loaded_fields)
 
     def from_stream(self, stream, context=None, loaded_fields=None):
@@ -412,8 +425,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
-            loaded_value = self._do_load(stream, context=context,
-                                         loaded_fields=loaded_fields)
+            loaded_value = self._do_load(
+                stream, context=context, loaded_fields=loaded_fields
+            )
         except errors.DeserializationError as err:
             err.field = self
             raise
@@ -458,8 +472,8 @@ class Field:    # pylint: disable=too-many-instance-attributes
         if exact and (stream.tell() < len(data)):
             # TODO (dargueta): Better error message.
             raise errors.ExtraneousDataError(
-                'Expected to read %d bytes, read %d.'
-                % (stream.tell(), len(data)))
+                "Expected to read %d bytes, read %d." % (stream.tell(), len(data))
+            )
         return loaded_data
 
     @abc.abstractmethod
@@ -484,8 +498,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
         .. deprecated:: 0.6.2
             Use :meth:`.to_stream`.
         """
-        warnings.warn('dump() is deprecated in favor of to_stream().',
-                      DeprecationWarning)
+        warnings.warn(
+            "dump() is deprecated in favor of to_stream().", DeprecationWarning
+        )
         self.to_stream(stream, data, context, all_fields)
 
     def dumps(self, data=DEFAULT, context=None, all_fields=None):
@@ -494,8 +509,9 @@ class Field:    # pylint: disable=too-many-instance-attributes
         .. deprecated:: 0.6.2
             Use :meth:`.to_bytes` instead.
         """
-        warnings.warn('dumps() is deprecated in favor of to_bytes().',
-                      DeprecationWarning)
+        warnings.warn(
+            "dumps() is deprecated in favor of to_bytes().", DeprecationWarning
+        )
         return self.to_bytes(data, context, all_fields)
 
     def to_stream(self, stream, data=DEFAULT, context=None, all_fields=None):
@@ -577,9 +593,10 @@ class Field:    # pylint: disable=too-many-instance-attributes
         """
         if not self.allow_null:
             raise errors.UnserializableValueError(
-                reason='`None` is not an acceptable value for %s.' % self,
+                reason="`None` is not an acceptable value for %s." % self,
                 field=self,
-                value=None)
+                value=None,
+            )
         if self.null_value is not DEFAULT:
             return self.null_value
 
@@ -587,11 +604,12 @@ class Field:    # pylint: disable=too-many-instance-attributes
         if self.size is None:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
-                       'because it has no fixed size.' % self,
+                "because it has no fixed size." % self,
                 field=self,
-                value=None)
+                value=None,
+            )
 
-        return b'\0' * self.size
+        return b"\0" * self.size
 
     def _read_exact_size(self, stream, loaded_fields=None):
         """Read exactly the number of bytes this object takes up or crash.
@@ -620,8 +638,7 @@ class Field:    # pylint: disable=too-many-instance-attributes
 
         data_read = stream.read(n_bytes)
         if len(data_read) < n_bytes:
-            raise errors.UnexpectedEOFError(
-                field=self, size=n_bytes, offset=offset)
+            raise errors.UnexpectedEOFError(field=self, size=n_bytes, offset=offset)
 
         return data_read
 
@@ -641,4 +658,4 @@ class Field:    # pylint: disable=too-many-instance-attributes
         instance.__values__[self.name] = value
 
     def __str__(self):
-        return '%s(name=%r)' % (type(self).__name__, self.name)
+        return "%s(name=%r)" % (type(self).__name__, self.name)

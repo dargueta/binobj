@@ -11,7 +11,7 @@ from binobj import errors
 from binobj import fields
 
 
-__all__ = ['Struct']
+__all__ = ["Struct"]
 
 
 class StructMeta(abc.ABCMeta):
@@ -22,8 +22,9 @@ class StructMeta(abc.ABCMeta):
     and sets some values on the :class:`~binobj.fields.base.Field` components
     such as the name and index.
     """
+
     @classmethod
-    def __prepare__(cls, name, bases):      # pylint: disable=unused-argument
+    def __prepare__(cls, name, bases):  # pylint: disable=unused-argument
         return collections.OrderedDict()
 
     def __new__(cls, class_name, bases, namespace, **kwargs):
@@ -51,14 +52,13 @@ class StructMeta(abc.ABCMeta):
                 # making a separate copy of the validator list for this class.
                 # This is so that child classes can add validators for fields
                 # defined in the parent class without affecting the parent class.
-                'fields': {
+                "fields": {
                     f_name: list(v_list)
-                    for f_name, v_list in base.__validators__['fields'].items()
+                    for f_name, v_list in base.__validators__["fields"].items()
                 },
-
                 # Similarly, make a copy of the struct validators of the parent
                 # class.
-                'struct': list(base.__validators__['struct']),
+                "struct": list(base.__validators__["struct"]),
             }
 
             # Start the byte offset at the end of the base class. We won't be able
@@ -69,24 +69,23 @@ class StructMeta(abc.ABCMeta):
             # starting at offset 0. There are no field or struct validators to
             # copy.
             offset = 0
-            validators = {
-                'fields': {},
-                'struct': [],
-            }
+            validators = {"fields": {}, "struct": []}
 
-        validators['fields'].update({
-            name: []
-            for name, obj in namespace.items()
-            if isinstance(obj, fields.Field)
-        })
+        validators["fields"].update(
+            {
+                name: []
+                for name, obj in namespace.items()
+                if isinstance(obj, fields.Field)
+            }
+        )
 
         field_index = len(components)
 
         cls._bind_fields(class_name, namespace, components, field_index, offset)
         cls._bind_validators(namespace, validators)
 
-        namespace['__components__'] = components
-        namespace['__validators__'] = validators
+        namespace["__components__"] = components
+        namespace["__validators__"] = validators
         return super().__new__(cls, class_name, bases, namespace, **kwargs)
 
     @staticmethod
@@ -121,11 +120,11 @@ class StructMeta(abc.ABCMeta):
             if item.field_names:
                 # Attach this validator to each named field.
                 for field_name in item.field_names:
-                    validators['fields'][field_name].append(item)
+                    validators["fields"][field_name].append(item)
             else:
                 # Validator doesn't define any fields, must be a validator for
                 # the entire struct.
-                validators['struct'].append(item)
+                validators["struct"].append(item)
 
 
 def recursive_to_dicts(item):
@@ -139,11 +138,11 @@ def recursive_to_dicts(item):
         return item.to_dict()
     if isinstance(item, collections.abc.Mapping):
         return collections.OrderedDict(
-            (recursive_to_dicts(k), recursive_to_dicts(v))
-            for k, v in item.items()
+            (recursive_to_dicts(k), recursive_to_dicts(v)) for k, v in item.items()
         )
-    if isinstance(item, collections.abc.Sequence) \
-            and not isinstance(item, (str, bytes, bytearray)):
+    if isinstance(item, collections.abc.Sequence) and not isinstance(
+        item, (str, bytes, bytearray)
+    ):
         return [recursive_to_dicts(v) for v in item]
     return item
 
@@ -162,11 +161,11 @@ class Struct(metaclass=StructMeta):
         A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
         and only if all of its fields are also undefined.
     """
-    __components__ = types.MappingProxyType({})     # type: collections.OrderedDict
-    __validators__ = types.MappingProxyType({
-        'fields': types.MappingProxyType({}),
-        'struct': (),
-    })                                              # type: dict
+
+    __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
+    __validators__ = types.MappingProxyType(
+        {"fields": types.MappingProxyType({}), "struct": ()}
+    )  # type: dict
 
     def __init__(self, **values):
         extra_keys = set(values.keys() - self.__components__.keys())
@@ -182,7 +181,7 @@ class Struct(metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
-        for f_name, validators in self.__validators__['fields'].items():
+        for f_name, validators in self.__validators__["fields"].items():
             f_obj = self.__components__[f_name]
             value = self[f_name]
 
@@ -196,7 +195,7 @@ class Struct(metaclass=StructMeta):
                 validator(self, f_obj, value)
 
         # Validate the entirety of the struct.
-        for validator in self.__validators__['struct']:
+        for validator in self.__validators__["struct"]:
             validator(self, self)
 
     def to_stream(self, stream, context=None):
@@ -319,9 +318,10 @@ class Struct(metaclass=StructMeta):
 
         if exact and (stream.tell() < len(data) - 1):
             raise errors.ExtraneousDataError(
-                'Read %d bytes, but there are %d in the input data.'
+                "Read %d bytes, but there are %d in the input data."
                 % (stream.tell() + 1, len(data)),
-                offset=stream.tell())
+                offset=stream.tell(),
+            )
         return loaded_data
 
     @classmethod
@@ -353,8 +353,9 @@ class Struct(metaclass=StructMeta):
         :return: The loaded struct.
         """
         if last_field is not None and last_field not in cls.__components__:
-            raise ValueError("%s doesn't have a field named %r."
-                             % (cls.__name__, last_field))
+            raise ValueError(
+                "%s doesn't have a field named %r." % (cls.__name__, last_field)
+            )
 
         result = {}
 
@@ -415,8 +416,7 @@ class Struct(metaclass=StructMeta):
             be completely read.
         """
         if name not in cls.__components__:
-            raise ValueError("%s doesn't have a field named %r."
-                             % (cls.__name__, name))
+            raise ValueError("%s doesn't have a field named %r." % (cls.__name__, name))
 
         field = cls.__components__[name]
         original_offset = stream.tell()
@@ -499,20 +499,23 @@ class Struct(metaclass=StructMeta):
 
     def __getitem__(self, field_name):
         if field_name not in self.__components__:
-            raise KeyError('Struct %r has no field named %r.'
-                           % (type(self).__name__, field_name))
+            raise KeyError(
+                "Struct %r has no field named %r." % (type(self).__name__, field_name)
+            )
         return getattr(self, field_name)
 
     def __setitem__(self, field_name, value):
         if field_name not in self.__components__:
-            raise KeyError('Struct %r has no field named %r.'
-                           % (type(self).__name__, field_name))
+            raise KeyError(
+                "Struct %r has no field named %r." % (type(self).__name__, field_name)
+            )
         setattr(self, field_name, value)
 
     def __delitem__(self, field_name):
         if field_name not in self.__components__:
-            raise KeyError('Struct %r has no field named %r.'
-                           % (type(self).__name__, field_name))
+            raise KeyError(
+                "Struct %r has no field named %r." % (type(self).__name__, field_name)
+            )
         self.__values__.pop(field_name, None)
 
     def __iter__(self):

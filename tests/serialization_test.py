@@ -20,13 +20,13 @@ def test_sentinels_are_singletons():
     implemented properly, we could end up with two sentinel objects that map to
     ``UNDEFINED`` or ``DEFAULT``.
     """
-    dct = {'key': binobj.UNDEFINED}
+    dct = {"key": binobj.UNDEFINED}
     copied_dict = copy.deepcopy(dct)
-    assert copied_dict['key'] is binobj.UNDEFINED
+    assert copied_dict["key"] is binobj.UNDEFINED
 
 
 def test_dump__unserializable():
-    field = fields.Int32(name='field')
+    field = fields.Int32(name="field")
     garbage = 2 ** 32
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
@@ -39,33 +39,33 @@ def test_dump__unserializable():
 
 def test_dump__use_default_value():
     """Test dumping when the default value is a constant."""
-    field = fields.UInt32(name='field', default=0xdeadbeef, endian='big')
-    assert field.to_bytes() == b'\xde\xad\xbe\xef'
+    field = fields.UInt32(name="field", default=0xDEADBEEF, endian="big")
+    assert field.to_bytes() == b"\xde\xad\xbe\xef"
 
 
 def test_dump__use_default_callable():
     """Test dumping when the default value is a callable."""
-    field = fields.UInt32(name='field', default=lambda: 0x1234, endian='big')
-    assert field.to_bytes() == b'\x00\x00\x12\x34'
+    field = fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
+    assert field.to_bytes() == b"\x00\x00\x12\x34"
 
 
 def test_loads__extraneous_data_crashes():
-    field = fields.Bytes(name='field', size=3)
+    field = fields.Bytes(name="field", size=3)
 
     with pytest.raises(errors.ExtraneousDataError) as errinfo:
-        field.from_bytes(b'\xc0\xff\xee!')
+        field.from_bytes(b"\xc0\xff\xee!")
 
-    assert str(errinfo.value) == 'Expected to read 3 bytes, read 4.'
+    assert str(errinfo.value) == "Expected to read 3 bytes, read 4."
 
 
 def test_loads__no_size_crashes():
     field = fields.String()
 
     with pytest.raises(errors.UndefinedSizeError):
-        field.from_bytes(b'123')
+        field.from_bytes(b"123")
 
 
-NONDEFAULT_ENDIANNESS = 'big' if sys.byteorder == 'little' else 'little'
+NONDEFAULT_ENDIANNESS = "big" if sys.byteorder == "little" else "little"
 
 
 class StructWithFieldOverrides(binobj.Struct):
@@ -76,8 +76,8 @@ class StructWithFieldOverrides(binobj.Struct):
 def test_accessor__getitem():
     struct = StructWithFieldOverrides(one=1)
 
-    assert 'one' in struct
-    assert struct['one'] == 1
+    assert "one" in struct
+    assert struct["one"] == 1
     assert struct.one == 1
 
 
@@ -86,20 +86,23 @@ def test_accessor__getitem__no_such_field():
     struct = StructWithFieldOverrides()
 
     with pytest.raises(KeyError) as errinfo:
-        struct['asdf'] = 1
+        struct["asdf"] = 1
 
-    assert str(errinfo.value) == \
-        '"Struct \'StructWithFieldOverrides\' has no field named \'asdf\'."'
+    assert (
+        str(errinfo.value)
+        == "\"Struct 'StructWithFieldOverrides' has no field named 'asdf'.\""
+    )
 
 
 class ComputedLengthStruct(binobj.Struct):
     """A struct whose length can be computed if values are defined."""
+
     int_value = fields.UInt32()
     value = fields.StringZ()
 
     @value.computes
     def _compute_value(self, all_fields):
-        return str(all_fields['int_value'])
+        return str(all_fields["int_value"])
 
 
 def test_computable_field_length():
@@ -111,10 +114,10 @@ def test_computable_field_length():
 
 def test_accessor__setitem():
     struct = StructWithFieldOverrides(one=1)
-    struct['two'] = 2
+    struct["two"] = 2
 
     assert struct.two == 2
-    assert struct['two'] == 2
+    assert struct["two"] == 2
 
 
 def test_accessor__setitem__no_such_field():
@@ -122,15 +125,15 @@ def test_accessor__setitem__no_such_field():
     struct = StructWithFieldOverrides(one=1)
 
     with pytest.raises(KeyError):
-        struct['basdfdasf'] = 1
+        struct["basdfdasf"] = 1
 
 
 def test_accessor__delitem():
     struct = StructWithFieldOverrides(one=1)
 
-    assert 'one' in struct
-    del struct['one']
-    assert 'one' not in struct
+    assert "one" in struct
+    del struct["one"]
+    assert "one" not in struct
 
 
 def test_accessor__delitem__no_such_field():
@@ -138,14 +141,17 @@ def test_accessor__delitem__no_such_field():
     struct = StructWithFieldOverrides(one=1)
 
     with pytest.raises(KeyError):
-        del struct['basdfdasf']
+        del struct["basdfdasf"]
 
 
-@pytest.mark.parametrize('instance', (
-    StructWithFieldOverrides(),
-    StructWithFieldOverrides(one=1),
-    StructWithFieldOverrides(one=1, two=2),
-))
+@pytest.mark.parametrize(
+    "instance",
+    (
+        StructWithFieldOverrides(),
+        StructWithFieldOverrides(one=1),
+        StructWithFieldOverrides(one=1, two=2),
+    ),
+)
 def test_len__basic(instance):
     """Get the size of an instance with only fixed-length fields."""
     assert len(instance) == 8
@@ -160,14 +166,14 @@ class StringZTestStruct(binobj.Struct):
 def test_len__variable__assigned():
     """Get the size of an instance with a variable-length field that has a value
     assigned."""
-    instance = StringZTestStruct(header=10, string='abc', trailer=11)
+    instance = StringZTestStruct(header=10, string="abc", trailer=11)
     assert len(instance) == 10
 
 
 def test_len__variable__missing_some():
     """Get the size of an instance with a variable-length field, but doesn't
     have some constant-width values set."""
-    instance = StringZTestStruct(string='abc')
+    instance = StringZTestStruct(string="abc")
     assert len(instance) == 10
 
 
@@ -185,7 +191,7 @@ def test_len__variable__missing_varlen():
 def test_to_dict__all_defined():
     """Ensure to_dict() works if all fields are defined."""
     struct = StructWithFieldOverrides(one=1, two=2)
-    expected = collections.OrderedDict((('one', 1), ('two', 2)))
+    expected = collections.OrderedDict((("one", 1), ("two", 2)))
 
     assert struct.to_dict() == expected
 
@@ -200,9 +206,9 @@ def test_to_dict__crash_on_undefined():
 
 
 class Basic(binobj.Struct):
-    abc = fields.Bytes(const=b'ABC')
+    abc = fields.Bytes(const=b"ABC")
     ghi = fields.Int32()
-    jkl = fields.Int64(default=0xbadc0ffee)
+    jkl = fields.Int64(default=0xBADC0FFEE)
     mno = fields.String(size=2)
 
 
@@ -212,10 +218,10 @@ class VLenBytes(binobj.Struct):
 
     @length.computes
     def _compute_length(self, all_fields):
-        return len(all_fields['data'])
+        return len(all_fields["data"])
 
 
 def test_vli_write_size__dumps():
     """Test what happens when the write size is a VLI"""
-    struct = VLenBytes(data=b'asdfghjkl;')
-    assert struct.to_bytes() == b'\x0aasdfghjkl;'
+    struct = VLenBytes(data=b"asdfghjkl;")
+    assert struct.to_bytes() == b"\x0aasdfghjkl;"

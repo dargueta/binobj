@@ -3,7 +3,7 @@
 import functools
 
 
-class ValidatorMethodWrapper:   # pylint: disable=too-few-public-methods
+class ValidatorMethodWrapper:  # pylint: disable=too-few-public-methods
     """A wrapper around a validator method for one or more fields.
 
     :param callable func:
@@ -13,6 +13,7 @@ class ValidatorMethodWrapper:   # pylint: disable=too-few-public-methods
         ``func``. If ``None`` or the iterable is empty, this validator method
         should be used to validate the entire struct, not just a field.
     """
+
     def __init__(self, func, field_names):
         self.func = func
         self.field_names = tuple(field_names or ())
@@ -47,17 +48,19 @@ def validates(*field_names):
     """
     if not field_names:
         # Called as `@validates()`
-        raise TypeError('At least one field name must be given.')
+        raise TypeError("At least one field name must be given.")
     if len(field_names) == 1 and callable(field_names[0]):
         # Common mistake -- called as `@validates` (no trailing parens)
-        raise TypeError('Missing field name arguments.')
+        raise TypeError("Missing field name arguments.")
     if not all(isinstance(n, str) for n in field_names):
         raise TypeError(
-            'All field names given to this decorator must be strings. Do not '
-            'pass Field objects.')
+            "All field names given to this decorator must be strings. Do not "
+            "pass Field objects."
+        )
 
-    def decorator(func):    # pylint: disable=missing-docstring
+    def decorator(func):  # pylint: disable=missing-docstring
         return ValidatorMethodWrapper(func, field_names)
+
     return decorator
 
 

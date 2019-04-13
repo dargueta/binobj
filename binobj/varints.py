@@ -11,25 +11,26 @@ from binobj import helpers
 
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
+
     #: Signed big-endian integer in `modified VLQ`_ format.
     #:
     #: .. _modified VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#Sign_bit
-    COMPACT_INDICES = 'compact'
+    COMPACT_INDICES = "compact"
 
     #: Signed little-endian integer in `LEB128`_ format.
     #:
     #: .. _LEB128: https://en.wikipedia.org/wiki/LEB128
-    LEB128 = 'leb128'
+    LEB128 = "leb128"
 
     #: Unsigned little-endian integer in `LEB128`_ format.
     #:
     #: .. _LEB128: https://en.wikipedia.org/wiki/LEB128
-    ULEB128 = 'uleb128'
+    ULEB128 = "uleb128"
 
     #: Unsigned big-endian integer in `VLQ`_ format.
     #:
     #: .. _VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#General_structure
-    VLQ = 'vlq'
+    VLQ = "vlq"
 
 
 def _read_uint8(stream):
@@ -46,7 +47,7 @@ def encode_integer_compact(value):
     :rtype: bytes
     """
     if value == 0:
-        return b'\0'
+        return b"\0"
 
     if value < 0:
         sign_bit = 0x40
@@ -60,11 +61,11 @@ def encode_integer_compact(value):
     buf = bytearray(n_bytes)
 
     for i in range(n_bytes - 1, 0, -1):
-        buf[i] = 0x80 | (value & 0x7f)
+        buf[i] = 0x80 | (value & 0x7F)
         value >>= 7
 
-    buf[0] = 0x80 | sign_bit | (value & 0x3f)
-    buf[-1] &= 0x7f
+    buf[0] = 0x80 | sign_bit | (value & 0x3F)
+    buf[-1] &= 0x7F
 
     return bytes(buf)
 
@@ -86,10 +87,10 @@ def decode_integer_compact(stream):
         if sign is None:
             # Sign hasn't been determined yet so this must be the first byte of
             # the number.
-            value = int8 & 0x3f
+            value = int8 & 0x3F
             sign = -1 if int8 & 0x40 else 1
         else:
-            value = (value << 7) | (int8 & 0x7f)
+            value = (value << 7) | (int8 & 0x7F)
 
         if int8 & 0x80 == 0:
             return value * sign
@@ -105,21 +106,20 @@ def encode_integer_vlq(value):
     :rtype: bytes
     """
     if value < 0:
-        raise ValueError(
-            "The VLQ integer encoding doesn't support negative numbers.")
+        raise ValueError("The VLQ integer encoding doesn't support negative numbers.")
     if value == 0:
         # Special case needed since value.bit_length() returns 0 if value is 0.
-        return b'\0'
+        return b"\0"
 
     n_bits = value.bit_length()
     n_bytes = int(math.ceil(n_bits / 7))
     buf = bytearray(n_bytes)
 
     for i in range(n_bytes - 1, -1, -1):
-        buf[i] = 0x80 | (value & 0x7f)
+        buf[i] = 0x80 | (value & 0x7F)
         value >>= 7
 
-    buf[-1] &= 0x7f
+    buf[-1] &= 0x7F
     return bytes(buf)
 
 
@@ -135,7 +135,7 @@ def decode_integer_vlq(stream):
     while True:
         int8 = _read_uint8(stream)
 
-        value = (value << 7) | (int8 & 0x7f)
+        value = (value << 7) | (int8 & 0x7F)
         if int8 & 0x80 == 0:
             return value
 
@@ -150,15 +150,16 @@ def encode_integer_uleb128(value):
     """
     if value < 0:
         raise ValueError(
-            "The ULEB128 integer encoding doesn't support negative numbers.")
+            "The ULEB128 integer encoding doesn't support negative numbers."
+        )
     if value == 0:
-        return b'\0'
+        return b"\0"
 
     output = bytearray()
 
     while value > 0:
         continue_bit = 0x80 if value > 127 else 0
-        output.append(continue_bit | (value & 0x7f))
+        output.append(continue_bit | (value & 0x7F))
         value >>= 7
 
     return bytes(output)
@@ -177,7 +178,7 @@ def decode_integer_uleb128(stream):
 
     while True:
         int8 = _read_uint8(stream)
-        value |= (int8 & 0x7f) << bits_read
+        value |= (int8 & 0x7F) << bits_read
         bits_read += 7
 
         if not int8 & 0x80:
@@ -193,7 +194,7 @@ def encode_integer_leb128(value):
     :rtype: bytes
     """
     if value == 0:
-        return b'\0'
+        return b"\0"
 
     # Calculate the number of bits in the integer and round up to the nearest
     # multiple of 7. We need to add 1 bit because bit_length() only returns the
@@ -213,11 +214,11 @@ def encode_integer_leb128(value):
     output = bytearray(n_bits // 7)
 
     for i in range(n_bits // 7):
-        output[i] = 0x80 | (value & 0x7f)
+        output[i] = 0x80 | (value & 0x7F)
         value >>= 7
 
     # Last byte shouldn't have the high bit set.
-    output[-1] &= 0x7f
+    output[-1] &= 0x7F
     return bytes(output)
 
 
@@ -248,27 +249,27 @@ def decode_integer_leb128(stream):
 #: A mapping of encoding enums to encode/decode functions.
 INTEGER_ENCODING_MAP = {
     VarIntEncoding.COMPACT_INDICES: {
-        'encode': encode_integer_compact,
-        'decode': decode_integer_compact,
-        'endian': 'big',
-        'signed': True,
+        "encode": encode_integer_compact,
+        "decode": decode_integer_compact,
+        "endian": "big",
+        "signed": True,
     },
     VarIntEncoding.LEB128: {
-        'encode': encode_integer_leb128,
-        'decode': decode_integer_leb128,
-        'endian': 'little',
-        'signed': True,
+        "encode": encode_integer_leb128,
+        "decode": decode_integer_leb128,
+        "endian": "little",
+        "signed": True,
     },
     VarIntEncoding.ULEB128: {
-        'encode': encode_integer_uleb128,
-        'decode': decode_integer_uleb128,
-        'endian': 'little',
-        'signed': False,
+        "encode": encode_integer_uleb128,
+        "decode": decode_integer_uleb128,
+        "endian": "little",
+        "signed": False,
     },
     VarIntEncoding.VLQ: {
-        'encode': encode_integer_vlq,
-        'decode': decode_integer_vlq,
-        'endian': 'big',
-        'signed': False,
+        "encode": encode_integer_vlq,
+        "decode": decode_integer_vlq,
+        "endian": "big",
+        "signed": False,
     },
 }
