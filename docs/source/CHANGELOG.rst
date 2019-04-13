@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.6.3
+-----
+
+* Add official support for Python 3.8
+* Minor documentation fixes.
+
+
 0.6.2
 -----
 
