@@ -9,11 +9,12 @@ from binobj import helpers
 from binobj.fields.base import Field
 
 
-__all__ = ['Bytes', 'String', 'StringZ']
+__all__ = ["Bytes", "String", "StringZ"]
 
 
 class Bytes(Field):
     """Raw binary data."""
+
     def _do_load(self, stream, context, loaded_fields):
         return self._read_exact_size(stream, loaded_fields)
 
@@ -56,18 +57,19 @@ class String(Field):
     .. _byte order mark: https://en.wikipedia.org/wiki/Byte_order_mark
     .. _ISO 8859-1: https://en.wikipedia.org/wiki/ISO/IEC_8859-1
     """
-    def __init__(self, *, encoding='iso-8859-1', pad_byte=None, **kwargs):
+
+    def __init__(self, *, encoding="iso-8859-1", pad_byte=None, **kwargs):
         super().__init__(**kwargs)
 
         if pad_byte is not None:
             if not isinstance(pad_byte, (bytes, bytearray)):
                 raise errors.ConfigurationError(
-                    '`pad_byte` must be a bytes-like object.',
-                    field=self)
+                    "`pad_byte` must be a bytes-like object.", field=self
+                )
             if len(pad_byte) != 1:
                 raise errors.ConfigurationError(
-                    '`pad_byte` must be exactly one byte long.',
-                    field=self)
+                    "`pad_byte` must be exactly one byte long.", field=self
+                )
 
         self.encoding = encoding
         self.pad_byte = pad_byte
@@ -124,23 +126,24 @@ class StringZ(String):
     The terminating null is guaranteed to be the proper size for multi-byte
     encodings.
     """
+
     def _do_load(self, stream, context, loaded_fields):
         iterator = helpers.iter_bytes(stream, self.size)
         reader = codecs.iterdecode(iterator, self.encoding)
         result = io.StringIO()
 
         for char in reader:
-            if char == '\0':
+            if char == "\0":
                 return result.getvalue()
             result.write(char)
 
         # If we get out here then we hit EOF before getting to the null terminator.
         raise errors.DeserializationError(
-            'Hit EOF before finding the trailing null.',
-            field=self)
+            "Hit EOF before finding the trailing null.", field=self
+        )
 
     def _do_dump(self, stream, data, context, all_fields):
-        stream.write(self._encode_and_resize(data + '\0'))
+        stream.write(self._encode_and_resize(data + "\0"))
 
     def _size_for_value(self, value):
-        return len((value + '\0').encode(self.encoding))
+        return len((value + "\0").encode(self.encoding))

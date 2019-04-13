@@ -6,7 +6,7 @@ from binobj import errors
 from binobj.fields.base import Field
 
 
-__all__ = ['Array', 'Nested', 'Union']
+__all__ = ["Array", "Nested", "Union"]
 
 
 class Array(Field):
@@ -37,18 +37,20 @@ class Array(Field):
         if ``count`` is set and the iterable passed in is too long. Due to a bug
         it used to be ignored when dumping.
     """
+
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
         super().__init__(**kwargs)
         self.component = component
         self.halt_check = halt_check or self.should_halt
 
-        if count is None or (isinstance(count, (int, str, Field))
-                             and not isinstance(count, bool)):
+        if count is None or (
+            isinstance(count, (int, str, Field)) and not isinstance(count, bool)
+        ):
             # The isinstance bool check is needed because `bool` is a subclass
             # of `int`.
             self.count = count
         else:
-            raise TypeError('`count` must be an integer, string, or a `Field`.')
+            raise TypeError("`count` must be an integer, string, or a `Field`.")
 
     def get_final_element_count(self, field_values):
         """Calculate the number of elements in the array based on other fields' values.
@@ -76,14 +78,16 @@ class Array(Field):
             name = self.count
         else:
             raise TypeError(
-                'Unexpected type for `count`: %r' % type(self.count).__name__)
+                "Unexpected type for `count`: %r" % type(self.count).__name__
+            )
 
         # The number of fields in this array is a field that should already have
         # been loaded.
         if name not in field_values:
             raise errors.FieldReferenceError(
                 "Array size depends on field %r but it wasn't found." % name,
-                field=self.count)
+                field=self.count,
+            )
         return field_values[name]
 
     @staticmethod
@@ -136,7 +140,7 @@ class Array(Field):
         # Else: count is None. Our only option is to check to see if we hit EOF.
         offset = stream.tell()
         try:
-            return stream.read(1) == b''
+            return stream.read(1) == b""
         finally:
             stream.seek(offset)
 
@@ -161,7 +165,8 @@ class Array(Field):
 
         if n_elems is not None and len(data) != n_elems:
             raise errors.ArraySizeError(
-                field=self, n_expected=n_elems, n_given=len(data))
+                field=self, n_expected=n_elems, n_given=len(data)
+            )
 
         for value in iter(data):
             self.component.to_stream(stream, value, context, all_fields)
@@ -175,15 +180,18 @@ class Array(Field):
                 # We've already written the requisite number of items to the
                 # stream, but received at least one more item. Crash.
                 raise errors.ArraySizeError(
-                    field=self, n_expected=n_elems, n_given=n_written + 1)
+                    field=self, n_expected=n_elems, n_given=n_written + 1
+                )
 
             self.component.to_stream(
-                stream, value, context=context, all_fields=all_fields)
+                stream, value, context=context, all_fields=all_fields
+            )
             n_written += 1
 
         if n_written < n_elems:
             raise errors.ArraySizeError(
-                field=self, n_expected=n_elems, n_given=n_written)
+                field=self, n_expected=n_elems, n_given=n_written
+            )
 
     def _do_load(self, stream, context, loaded_fields):
         """Load a structure list from the given stream.
@@ -201,8 +209,9 @@ class Array(Field):
         :rtype: list
         """
         result = []
-        while not self.halt_check(self, stream, result, context=context,
-                                  loaded_fields=loaded_fields):
+        while not self.halt_check(
+            self, stream, result, context=context, loaded_fields=loaded_fields
+        ):
             component = self.component.from_stream(stream, context, loaded_fields)
             result.append(component)
 
@@ -224,6 +233,7 @@ class Nested(Field):
             name = fields.StringZ()
             address = fields.Nested(Address)
     """
+
     def __init__(self, struct_class, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
@@ -294,11 +304,13 @@ class Union(Field):
                                 load_decider=fields_load_decider,
                                 dump_decider=fields_dump_decider)
     """
+
     def __init__(self, *choices, load_decider, dump_decider, **kwargs):
         super().__init__(**kwargs)
         if any(isinstance(c, type) and issubclass(c, Field) for c in choices):
             raise errors.ConfigurationError(
-                'You must pass an instance of a Field, not a class.', field=self)
+                "You must pass an instance of a Field, not a class.", field=self
+            )
 
         self.choices = choices
         self.load_decider = load_decider

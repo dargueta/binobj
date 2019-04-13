@@ -4,9 +4,18 @@ Changelog
 0.6.3
 -----
 
-* Add official support for Python 3.8
-* Minor documentation fixes.
+New Features
+~~~~~~~~~~~~
 
+Add official support for Python 3.8.
+
+Other Changes
+~~~~~~~~~~~~~
+* Minor documentation fixes.
+* Convert entire repo to use `black`_ for code formatting. I don't agree with
+  all of its opinions but I do think it's better to be consistent everywhere.
+
+.. _black: https://black.readthedocs.io/en/stable/
 
 0.6.2
 -----

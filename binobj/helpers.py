@@ -81,7 +81,7 @@ def iter_bytes(stream, max_bytes=None):
 
     while max_bytes is None or n_read < max_bytes:
         this_byte = stream.read(1)
-        if this_byte == b'':
+        if this_byte == b"":
             return
         yield this_byte
         n_read += 1
