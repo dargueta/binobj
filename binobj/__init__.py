@@ -4,8 +4,13 @@ binobj
 
 A Python library for reading and writing structured binary data.
 """
+# pylint: disable=wildcard-import
 
 import pkg_resources as _pkgr
+
+from .errors import *
+from .fields import *
+from .structures import *
 
 
 def __to_version_info():
@@ -17,10 +22,3 @@ def __to_version_info():
 # Do not modify directly; use ``bumpversion`` command instead.
 __version__ = "0.6.2"
 __version_info__ = __to_version_info()
-
-
-# pylint: disable=wildcard-import
-
-from .errors import *
-from .fields import *
-from .structures import *
