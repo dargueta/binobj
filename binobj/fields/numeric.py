@@ -296,8 +296,8 @@ class Timestamp(Integer):
 
     :param str resolution:
         The resolution timestamps will be stored with. Accepted values are "s",
-        "ms", "us" (microseconds), and "ns". Note that Python's datetime objects
-        don't support nanosecond resolution.
+        "ms", "us" (microseconds), and "ns". Note that Python's
+        :class:`~datetime.datetime` objects don't support nanosecond resolution.
     :param bool tz_aware:
         Controls whether loads return timezone-aware or naive
         :class:`~datetime.datetime`\s. Loaded timestamps are naive by default,
