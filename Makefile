@@ -40,8 +40,8 @@ lint: $(SOURCEFILES)
 # TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean
 clean:
-	git clean -fd $(DOCSSOURCE)
-	rm -rf .tox .cache .pytest_cache *.egg-info *.eggs .coverage $(DOCSTARGET) dist build
+	make -C $(DOCSDIR) clean
+	rm -rf .tox .cache .pytest_cache *.egg-info *.eggs .coverage dist build
 	find . -name '__pycache__' -type d -exec rm -rf '{}' \+
 
 # Run the unit tests if the source code has changed.
