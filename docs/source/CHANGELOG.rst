@@ -1,8 +1,20 @@
 Changelog
 =========
 
+0.6.4
+-----
+
+Released 2019-09-01
+
+New Features
+~~~~~~~~~~~~
+
+Add official support for PyPy 3.6.
+
 0.6.3
 -----
+
+Released 2019-04-13
 
 New Features
 ~~~~~~~~~~~~
