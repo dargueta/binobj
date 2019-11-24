@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.6.5
+-----
+
+Released 2019-11-25
+
+Bugfixes
+~~~~~~~~
+
+For some bizarre reason package detection from the ``setup.cfg`` file stopped
+working in January 2019 and every single release since 0.5.2 hasn't had the
+source code in it, and the wheels have been empty. In other words, you could
+install ``binobj`` but ``import binobj`` would fail!
+
+This tweaks ``setup.py`` so that you can use it again.
+
 0.6.4
 -----
 
