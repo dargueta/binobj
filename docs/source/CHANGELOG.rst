@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.6.5
+0.6.6
 -----
 
 Released 2019-11-25
@@ -15,6 +15,11 @@ source code in it, and the wheels have been empty. In other words, you could
 install ``binobj`` but ``import binobj`` would fail!
 
 This tweaks ``setup.py`` so that you can use it again.
+
+0.6.5
+-----
+
+Botched release, removed from PyPI.
 
 0.6.4
 -----
