@@ -22,6 +22,11 @@ New Features
 
     MyStruct(foo=123, bar="456")
 
+Bugfixes
+~~~~~~~~
+
+Fixed URL typos in documentation.
+
 Deprecations
 ~~~~~~~~~~~~
 

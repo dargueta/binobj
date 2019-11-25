@@ -133,7 +133,7 @@ class Integer(Field):
     :param int size:
         The size of the integer, in bytes.
 
-    .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representationss
+    .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representations
     """
 
     def __init__(self, *, endian=None, signed=True, **kwargs):
