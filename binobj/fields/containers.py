@@ -36,6 +36,10 @@ class Array(Field):
         :meth:`.to_stream` and :meth:`.to_bytes` throw an :class:`~.errors.ArraySizeError`
         if ``count`` is set and the iterable passed in is too long. Due to a bug
         it used to be ignored when dumping.
+
+    .. versionchanged:: 0.7.0
+        :attr:`.size` is set if ``component.size`` is defined and ``count`` is
+        set as well.
     """
 
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):
@@ -51,6 +55,9 @@ class Array(Field):
             self.count = count
         else:
             raise TypeError("`count` must be an integer, string, or a `Field`.")
+
+        if isinstance(self.count, int) and component.size is not None:
+            self._size = self.count * component.size
 
     def get_final_element_count(self, field_values):
         """Calculate the number of elements in the array based on other fields' values.
@@ -232,11 +239,17 @@ class Nested(Field):
         class Person(Struct):
             name = fields.StringZ()
             address = fields.Nested(Address)
+
+    .. versionchanged:: 0.7.0
+        :attr:`.size` is set if the struct passed in is of fixed size. Prior to
+        0.7.0, ``Person.get_size()`` would be None even if ``Address.get_size()``
+        returned a value. Now the sizes are the same.
     """
 
     def __init__(self, struct_class, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
+        self._size = struct_class.get_size()
 
     def _do_dump(self, stream, data, context, all_fields):
         instance = self.struct_class(**data)

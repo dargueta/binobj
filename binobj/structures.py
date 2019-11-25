@@ -1,6 +1,7 @@
 """Classes defining structures and unions."""
 
 import abc
+import copy
 import collections
 import collections.abc
 import io
@@ -268,7 +269,7 @@ class Struct(metaclass=StructMeta):
         return recursive_to_dicts(dct)
 
     @classmethod
-    def from_stream(cls, stream, context=None):
+    def from_stream(cls, stream, context=None, init_kwargs=None):
         """Load a struct from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -277,13 +278,25 @@ class Struct(metaclass=StructMeta):
             Additional data to pass to the components'
             :meth:`~binobj.fields.base.Field.from_stream` methods. Subclasses must
             ignore anything they don't recognize.
+        :param dict init_kwargs:
+            Additional keyword arguments to pass to the struct's constructor,
+            for subclasses that take additional arguments beyond the fields that
+            comprise the struct. You can also use this to *override* field values;
+            anything given in here takes precedence over loaded values.
+
+            .. versionadded:: 0.7.0
 
         :return: The loaded struct.
         """
-        results = {}
+        if init_kwargs:
+            results = copy.deepcopy(init_kwargs)
+        else:
+            results = {}
 
         for name, field in cls.__components__.items():
-            results[name] = field.from_stream(stream, context, results)
+            # We use setdefault() so we don't overwrite anything the caller may
+            # have passed to us in `init_kwargs`.
+            results.setdefault(name, field.from_stream(stream, context, results))
 
         instance = cls(**results)
         instance.validate_contents()
@@ -295,7 +308,7 @@ class Struct(metaclass=StructMeta):
         return instance
 
     @classmethod
-    def from_bytes(cls, data, context=None, exact=True):
+    def from_bytes(cls, data, context=None, exact=True, init_kwargs=None):
         """Load a struct from the given byte string.
 
         :param bytes data:
@@ -307,6 +320,13 @@ class Struct(metaclass=StructMeta):
             ``data`` must contain exactly the number of bytes required. If not
             all the bytes in ``data`` were used when reading the struct, throw
             an exception.
+        :param dict init_kwargs:
+            Additional keyword arguments to pass to the struct's constructor,
+            for subclasses that take additional arguments beyond the fields that
+            comprise the struct. You can also use this to *override* field values;
+            anything given in here takes precedence over loaded values.
+
+            .. versionadded:: 0.7.0
 
         :return: The loaded struct.
         :raise ExtraneousDataError:
@@ -314,7 +334,7 @@ class Struct(metaclass=StructMeta):
             string.
         """
         stream = io.BytesIO(data)
-        loaded_data = cls.from_stream(stream, context)
+        loaded_data = cls.from_stream(stream, context, init_kwargs)
 
         if exact and (stream.tell() < len(data) - 1):
             raise errors.ExtraneousDataError(
@@ -552,3 +572,6 @@ class Struct(metaclass=StructMeta):
 
     def __bytes__(self):
         return self.to_bytes()
+
+    def __repr__(self):
+        return "%s(%s)" % (type(self).__qualname__, ", ".join("%s=%r" % kv for kv in self.__values__.items()))

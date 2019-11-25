@@ -213,12 +213,29 @@ class VarlenStruct(binobj.Struct):
     items = fields.Array(fields.Int32(), count=n_items)
 
 
+class ConstArrayStruct(binobj.Struct):
+    items = fields.Array(fields.Int32(), count=10)
+
+
+class NestedConstArrayStruct(binobj.Struct):
+    field_1 = fields.String(size=16)
+    field_2 = fields.Array(fields.Nested(ConstArrayStruct), count=4)
+
+
 def test_struct_size__basic():
     assert BasicStruct.get_size() == 18
 
 
 def test_struct_size__varlen_returns_none():
     assert VarlenStruct.get_size() is None
+
+
+def test_struct_size__fixed_array_ok():
+    assert ConstArrayStruct.get_size() == 40
+
+
+def test_struct_size__nested_ok():
+    assert NestedConstArrayStruct.get_size() == 176
 
 
 def test_partial_dump__full():
@@ -299,3 +316,32 @@ def test_load__discarded_fields_not_present():
 
     loaded = _Dumb().from_bytes(b"AB\0\0CD").to_dict()
     assert "reserved" not in loaded
+
+
+class StructWithArgs(binobj.Struct):
+    def __init__(self, required, **values):
+        super().__init__(**values)
+        self.required = required
+
+    field_1 = fields.UInt16(endian="little")
+    field_2 = fields.UInt32(endian="big")
+
+
+def test_load__init_kwargs__basic():
+    """Ensure passing extra arguments to a struct on initialization works."""
+    struct = StructWithArgs.from_bytes(b"\x34\x12\xba\xdb\xee\xf1", init_kwargs={"required": 123})
+
+    # Ensure the additional argument we passed in is not considered in equality
+    # comparisons.
+    assert struct == {"field_1": 0x1234, "field_2": 0xbadbeef1}
+    assert struct.required == 123, "Additional argument value is wrong."
+
+
+def test_load__init_kwargs__not_modified():
+    """Ensure the dict of extra arguments passed to the struct isn't modified."""
+    args = {"required": {"nested": "item"}}
+    struct = StructWithArgs.from_bytes(b"\x34\x12\xba\xdb\xee\xf1", init_kwargs=args)
+
+    assert struct.required == {"nested": "item"}
+    assert args == {"required": {"nested": "item"}}, "Keyword arguments were modified!"
+    assert struct.required is not args["required"], "Value was not deep copied!"

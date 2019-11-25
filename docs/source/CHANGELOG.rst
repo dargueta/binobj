@@ -1,6 +1,35 @@
 Changelog
 =========
 
+0.7.0
+-----
+
+Released 2019-11-25
+
+New Features
+~~~~~~~~~~~~
+
+* ``Array`` now sets ``size`` if it's a fixed length and its components have
+  fixed sizes as well. As a consequence, ``Struct.get_size()`` now returns a
+  value if all arrays inside it are sized.
+* ``Nested`` also sets ``size`` if the struct it wraps is of a fixed size.
+* ``Struct.from_stream()`` and ``Struct.from_bytes()`` now support an additional
+  argument, ``init_kwargs``, that you can use to pass additional arguments to
+  the struct's constructor. You can also use this to override a field's value.
+* Struct now provides a ``repr`` that shows all of its values, e.g.
+
+::
+
+    MyStruct(foo=123, bar="456")
+
+Deprecations
+~~~~~~~~~~~~
+
+Support for Python 3.5 is deprecated. According to `3.5 release schedule`_, 3.5.9
+was the last scheduled release.
+
+.. _3.5 release schedule: https://www.python.org/dev/peps/pep-0478/
+
 0.6.6
 -----
 
