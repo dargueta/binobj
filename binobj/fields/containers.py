@@ -39,7 +39,7 @@ class Array(Field):
 
     .. versionchanged:: 0.7.0
         :attr:`.size` is set if ``component.size`` is defined and ``count`` is
-        set as well.
+        an integer constant.
     """
 
     def __init__(self, component, *, count=None, halt_check=None, **kwargs):

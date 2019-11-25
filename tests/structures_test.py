@@ -329,11 +329,13 @@ class StructWithArgs(binobj.Struct):
 
 def test_load__init_kwargs__basic():
     """Ensure passing extra arguments to a struct on initialization works."""
-    struct = StructWithArgs.from_bytes(b"\x34\x12\xba\xdb\xee\xf1", init_kwargs={"required": 123})
+    struct = StructWithArgs.from_bytes(
+        b"\x34\x12\xba\xdb\xee\xf1", init_kwargs={"required": 123}
+    )
 
     # Ensure the additional argument we passed in is not considered in equality
     # comparisons.
-    assert struct == {"field_1": 0x1234, "field_2": 0xbadbeef1}
+    assert struct == {"field_1": 0x1234, "field_2": 0xBADBEEF1}
     assert struct.required == 123, "Additional argument value is wrong."
 
 

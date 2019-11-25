@@ -1,9 +1,9 @@
 """Classes defining structures and unions."""
 
 import abc
-import copy
 import collections
 import collections.abc
+import copy
 import io
 import types
 
@@ -98,7 +98,7 @@ class StructMeta(abc.ABCMeta):
         for item_name, item in namespace.items():
             if not isinstance(item, fields.Field):
                 continue
-            elif item_name in components:
+            if item_name in components:
                 raise errors.FieldRedefinedError(struct=class_name, field=item)
 
             item.bind_to_container(item_name, field_index, offset)
@@ -574,4 +574,7 @@ class Struct(metaclass=StructMeta):
         return self.to_bytes()
 
     def __repr__(self):
-        return "%s(%s)" % (type(self).__qualname__, ", ".join("%s=%r" % kv for kv in self.__values__.items()))
+        return "%s(%s)" % (
+            type(self).__qualname__,
+            ", ".join("%s=%r" % kv for kv in self.__values__.items()),
+        )
