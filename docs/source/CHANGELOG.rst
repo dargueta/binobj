@@ -18,7 +18,7 @@ New Features
   the struct's constructor. You can also use this to override a field's value.
 * Struct now provides a ``repr`` that shows all of its values, e.g.
 
-.. code-block::
+.. code-block:: python
 
     MyStruct(foo=123, bar="456")
 
@@ -31,7 +31,7 @@ Deprecations
 ~~~~~~~~~~~~
 
 Support for Python 3.5 is deprecated. According to `3.5 release schedule`_, 3.5.9
-was the last scheduled release.
+was the last scheduled release on 2019-11-01.
 
 .. _3.5 release schedule: https://www.python.org/dev/peps/pep-0478/
 
