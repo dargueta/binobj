@@ -75,18 +75,31 @@ class Field:  # pylint: disable=too-many-instance-attributes
         :class:`~binobj.fields.numeric.Integer`, and so on.
     :param bool discard:
         When deserializing, don't include this field in the returned results.
+        This means that you won't be able to use the value for anything later.
+        For example, if you need to reference it in a ``present`` function like
+        so::
+
+            name_size = fields.UInt16(discard=True)
+            filename = fields.StringZ(encoding="utf-8")
+            _filename_padding = fields.Bytes(
+                const=b"\0", discard=True, present=lambda f, *_: f["name_size"] % 2
+            )
+
+        this will crash with a :class:`KeyError` because ``name_size`` was
+        discarded.
     :param bytes null_value:
         A value to use to dump ``None``. When loading, the returned value will
         be ``None`` if this value is encountered.
     :param callable present:
-        Optional. A callable that, when called, returns a boolean indicating if
-        this field is "present" and should be loaded or dumped. For example, if
-        we have a ``flags`` field that's a bitmap indicating what fields come
-        next, we could have something like this::
+        Optional. A callable that, when called with the struct as its argument,
+        returns a boolean indicating if this field is "present" and should be
+        loaded or dumped. For example, if we have a ``flags`` field that's a
+        bitmap indicating what fields come next, we could have something like
+        this::
 
             flags = fields.UInt16()
-            foo = fields.StringZ(present=lambda v, *_: v['flags'] & 0x8000)
-            bar = fields.StringZ(present=lambda v, *_: v['flags'] & 0x4000)
+            foo = fields.StringZ(present=lambda v, *_: v["flags"] & 0x8000)
+            bar = fields.StringZ(present=lambda v, *_: v["flags"] & 0x4000)
 
         Thus, if and only if ``flags`` has bit 15 set, ``foo`` will be read from
         the stream next. If ``flags`` has bit 15 clear, ``foo`` will be assigned
@@ -105,10 +118,6 @@ class Field:  # pylint: disable=too-many-instance-attributes
         a validator for an :class:`~binobj.fields.numeric.Integer` field will
         always be passed an integer, a :class:`~binobj.fields.stringlike.String`
         validator will always be passed a string, and so on.
-
-        .. warning::
-            Validators assigned at the class level as a method in the containing
-            :class:`~binobj.structures.Struct` are *not* called.
 
     .. attribute:: index
 
@@ -418,7 +427,7 @@ class Field:  # pylint: disable=too-many-instance-attributes
             set automatically when a field is loaded by a
             :class:`~binobj.structures.Struct`.
 
-        :return: The deserialized data.
+        :return: The deserialized data, or :data:`NOT_PRESENT`
         """
         if not self.present(loaded_fields, context, stream):
             return NOT_PRESENT
