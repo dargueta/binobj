@@ -1,5 +1,7 @@
-import setuptools
 import sys
+
+import setuptools
+
 
 # Thwart installation for unsupported versions of Python. `pip` didn't start
 # enforcing `python_requires` until 9.0.
