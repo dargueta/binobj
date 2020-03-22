@@ -5,7 +5,12 @@ import collections
 import collections.abc
 import copy
 import io
-import types
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+
+import attr
 
 from binobj import decorators
 from binobj import errors
@@ -15,64 +20,73 @@ from binobj import fields
 __all__ = ["Struct"]
 
 
+@attr.s
+class StructMetadata:
+    """Info about the :class:`.Struct` it belongs to, like its fields and validators.
+
+    This class should be considered part of how Structs are implemented. It's only of
+    use to people writing wrapper classes or otherwise enhancing the behavior of the
+    default :class:`.Struct` class.
+    """
+    components = attr.ib(type=Dict[str, fields.Field], factory=collections.OrderedDict)
+    struct_validators = attr.ib(type=List[Callable], factory=list)
+    field_validators = attr.ib(type=Dict[str, List[Callable]], factory=dict)
+    defaults = attr.ib(type=Dict[str, Any], factory=dict)
+
+
 class StructMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
     objects.
 
-    It defines the ``__components__`` and ``__validators__`` class variables
-    and sets some values on the :class:`~binobj.fields.base.Field` components
-    such as the name and index.
+    It defines the ``__binobj_struct__`` class variables and sets some values on the
+    :class:`~binobj.fields.base.Field` components such as its name and index.
     """
 
     @classmethod
     def __prepare__(cls, name, bases):
         return collections.OrderedDict()
 
-    def __new__(cls, class_name, bases, namespace, **kwargs):
-        # Build a list of all of the base classes that appear to be Structs. If
-        # anything else uses StructMeta as a metaclass then we're in trouble,
-        # since this will detect that as a second base class.
+    def __new__(cls, class_name, bases, namespace):
+        # Build a list of all of the base classes that appear to be Structs. If anything
+        # else uses StructMeta as a metaclass then we're in trouble, since this will
+        # detect that as a second base class.
         struct_bases = [b for b in bases if issubclass(type(b), cls)]
 
         if len(struct_bases) > 1:
             raise errors.MultipleInheritanceError(struct=class_name)
 
-        components = collections.OrderedDict()
+        metadata = StructMetadata()
 
         if struct_bases:
             # Build a dictionary of all of the fields in the parent struct first,
             # then add in the fields defined in this struct.
             base = struct_bases[0]
 
-            for comp_name, item in base.__components__.items():
+            for comp_name, item in base.__binobj_struct__.components.items():
                 if isinstance(item, fields.Field):
-                    components[comp_name] = item
+                    metadata.components[comp_name] = item
 
-            validators = {
-                # Copy the dict of field validators for the parent struct,
-                # making a separate copy of the validator list for this class.
-                # This is so that child classes can add validators for fields
-                # defined in the parent class without affecting the parent class.
-                "fields": {
-                    f_name: list(v_list)
-                    for f_name, v_list in base.__validators__["fields"].items()
-                },
-                # Similarly, make a copy of the struct validators of the parent
-                # class.
-                "struct": list(base.__validators__["struct"]),
+            # Copy the dict of field validators for the parent struct, making a separate
+            # copy of the validator list for this class. This is so that child classes
+            # can add validators for fields defined in the parent class without
+            # affecting the parent class.
+            metadata.field_validators = {
+                f_name: list(v_list)
+                for f_name, v_list in base.__binobj_struct__.field_validators.items()
             }
 
-            # Start the byte offset at the end of the base class. We won't be able
-            # to do this if the base class has variable-length fields.
+            # Similarly, make a copy of the struct validators of the parent class.
+            metadata.struct_validators = list(base.__binobj_struct__.struct_validators)
+
+            # Start the byte offset at the end of the base class. We won't be able to do
+            # this if the base class has variable-length fields.
             offset = base.get_size()
         else:
-            # Else: This struct doesn't inherit from another struct, so we're
-            # starting at offset 0. There are no field or struct validators to
-            # copy.
+            # Else: This struct doesn't inherit from another struct, so we're starting
+            # at offset 0. There are no field or struct validators to copy.
             offset = 0
-            validators = {"fields": {}, "struct": []}
 
-        validators["fields"].update(
+        metadata.field_validators.update(
             {
                 name: []
                 for name, obj in namespace.items()
@@ -80,14 +94,15 @@ class StructMeta(abc.ABCMeta):
             }
         )
 
-        field_index = len(components)
+        field_index = len(metadata.components)
 
-        cls._bind_fields(class_name, namespace, components, field_index, offset)
-        cls._bind_validators(namespace, validators)
+        cls._bind_fields(
+            class_name, namespace, metadata.components, field_index, offset
+        )
+        cls._bind_validators(namespace, metadata)
 
-        namespace["__components__"] = components
-        namespace["__validators__"] = validators
-        return super().__new__(cls, class_name, bases, namespace, **kwargs)
+        namespace["__binobj_struct__"] = metadata
+        return super().__new__(cls, class_name, bases, namespace)
 
     @staticmethod
     def _bind_fields(class_name, namespace, components, field_index, offset):
@@ -151,25 +166,29 @@ def recursive_to_dicts(item):
 class Struct(metaclass=StructMeta):
     """An ordered collection of fields and other structures.
 
-    .. attribute:: __components__
+    .. attribute:: __binobj_struct__
 
-        An ordered mapping of the field names to their :class:`~binobj.fields.base.Field`
-        object definitions.
+        A class attribute defining features of the struct, such as its fields,
+        validators, default values, etc. It's only of use for code that inspects struct
+        definitions.
 
-        :type: collections.OrderedDict
+        :type: binobj.structures.StructMetadata
 
     .. versionchanged:: 0.5.0
         A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
         and only if all of its fields are also undefined.
+
+    .. versionchanged:: 0.7.1
+        Removed the private-ish ``__components__`` and ``__validators__`` attributes.
+        Field definitions, validators, and other metadata can be found in the
+        new ``__binobj_struct__`` class attribute. However, it should be considered
+        an implementation detail and is subject to change.
     """
 
-    __components__ = types.MappingProxyType({})  # type: collections.OrderedDict
-    __validators__ = types.MappingProxyType(
-        {"fields": types.MappingProxyType({}), "struct": ()}
-    )  # type: dict
+    __binobj_struct__ = StructMetadata()
 
     def __init__(self, **values):
-        extra_keys = set(values.keys() - self.__components__.keys())
+        extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
@@ -182,8 +201,8 @@ class Struct(metaclass=StructMeta):
 
         .. versionadded:: 0.4.0
         """
-        for f_name, validators in self.__validators__["fields"].items():
-            f_obj = self.__components__[f_name]
+        for f_name, validators in self.__binobj_struct__.field_validators.items():
+            f_obj = self.__binobj_struct__.components[f_name]
             value = self[f_name]
 
             # First, invoke the validators defined on the field object.
@@ -196,7 +215,7 @@ class Struct(metaclass=StructMeta):
                 validator(self, f_obj, value)
 
         # Validate the entirety of the struct.
-        for validator in self.__validators__["struct"]:
+        for validator in self.__binobj_struct__.struct_validators:
             validator(self, self)
 
     def to_stream(self, stream, context=None):
@@ -215,7 +234,7 @@ class Struct(metaclass=StructMeta):
         # fields expecting a dictionary.
         all_fields = self.to_dict()
 
-        for field in self.__components__.values():
+        for field in self.__binobj_struct__.components.values():
             value = field.compute_value_for_dump(all_fields)
             if value is not fields.NOT_PRESENT:
                 field.to_stream(stream, value, context=context, all_fields=all_fields)
@@ -263,7 +282,7 @@ class Struct(metaclass=StructMeta):
         """
         dct = collections.OrderedDict(
             (field.name, field.compute_value_for_dump(self))
-            for field in self.__components__.values()
+            for field in self.__binobj_struct__.components.values()
             if keep_discardable or not field.discard
         )
         return recursive_to_dicts(dct)
@@ -293,7 +312,7 @@ class Struct(metaclass=StructMeta):
         else:
             results = {}
 
-        for name, field in cls.__components__.items():
+        for name, field in cls.__binobj_struct__.components.items():
             # We use setdefault() so we don't overwrite anything the caller may
             # have passed to us in `init_kwargs`.
             results.setdefault(name, field.from_stream(stream, context, results))
@@ -301,7 +320,7 @@ class Struct(metaclass=StructMeta):
         instance = cls(**results)
         instance.validate_contents()
 
-        for field in cls.__components__.values():
+        for field in cls.__binobj_struct__.components.values():
             if field.discard:
                 del instance[field.name]
 
@@ -372,14 +391,17 @@ class Struct(metaclass=StructMeta):
 
         :return: The loaded struct.
         """
-        if last_field is not None and last_field not in cls.__components__:
+        if (
+            last_field is not None
+            and last_field not in cls.__binobj_struct__.components
+        ):
             raise ValueError(
                 "%s doesn't have a field named %r." % (cls.__name__, last_field)
             )
 
         result = {}
 
-        for field in cls.__components__.values():
+        for field in cls.__binobj_struct__.components.values():
             offset = stream.tell()
 
             try:
@@ -435,10 +457,10 @@ class Struct(metaclass=StructMeta):
             The end of the stream was reached before the requested field could
             be completely read.
         """
-        if name not in cls.__components__:
+        if name not in cls.__binobj_struct__.components:
             raise ValueError("%s doesn't have a field named %r." % (cls.__name__, name))
 
-        field = cls.__components__[name]
+        field = cls.__binobj_struct__.components[name]
         original_offset = stream.tell()
 
         # If the field is at a fixed offset from the beginning of the struct,
@@ -479,7 +501,7 @@ class Struct(metaclass=StructMeta):
         """
         data = self.__values__
 
-        for field in self.__components__.values():
+        for field in self.__binobj_struct__.components.values():
             value = data.get(field.name, field.default)
             if value is fields.UNDEFINED:
                 # Field is missing from the dump data. If the caller wants us to
@@ -507,7 +529,7 @@ class Struct(metaclass=StructMeta):
 
         .. versionadded:: 0.3.0
         """
-        sizes = [f.size for f in cls.__components__.values()]
+        sizes = [f.size for f in cls.__binobj_struct__.components.values()]
 
         # Don't try summing the sizes of the fields if anything in there isn't
         # an integer.
@@ -518,21 +540,21 @@ class Struct(metaclass=StructMeta):
     # Container methods
 
     def __getitem__(self, field_name):
-        if field_name not in self.__components__:
+        if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
             )
         return getattr(self, field_name)
 
     def __setitem__(self, field_name, value):
-        if field_name not in self.__components__:
+        if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
             )
         setattr(self, field_name, value)
 
     def __delitem__(self, field_name):
-        if field_name not in self.__components__:
+        if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
             )
@@ -545,7 +567,7 @@ class Struct(metaclass=StructMeta):
 
     def __len__(self):
         size = 0
-        for field in self.__components__.values():
+        for field in self.__binobj_struct__.components.values():
             if field.size is not None:
                 size += field.size
             else:
