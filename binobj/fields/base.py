@@ -12,7 +12,7 @@ from binobj import errors
 __all__ = ["DEFAULT", "NOT_PRESENT", "UNDEFINED", "Field"]
 
 
-class _NamedSentinel:  # pylint: disable=too-few-public-methods
+class _NamedSentinel:
     """An object type used for creating sentinel objects that can be retrieved
     by name.
     """
@@ -51,7 +51,7 @@ DEFAULT = _NamedSentinel.get_sentinel("DEFAULT")
 NOT_PRESENT = _NamedSentinel.get_sentinel("NOT_PRESENT")
 
 
-class Field:  # pylint: disable=too-many-instance-attributes
+class Field:
     """The base class for all struct fields.
 
     :param str name:
@@ -185,7 +185,6 @@ class Field:  # pylint: disable=too-many-instance-attributes
 
         :type: int
         """
-        # pylint: disable=assignment-from-none
         # Part of the _size_for_value() hack.
         if self._size is None and self.const is not UNDEFINED:
             self._size = self._size_for_value(self.const)
@@ -323,7 +322,7 @@ class Field:  # pylint: disable=too-many-instance-attributes
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value):  # pylint: disable=no-self-use,unused-argument
+    def _size_for_value(self, value):
         """Return the size of the serialized value in bytes, or ``None`` if it
         can't be computed.
 
@@ -360,7 +359,6 @@ class Field:  # pylint: disable=too-many-instance-attributes
             The field doesn't have a defined size nor refers to another field to
             determine its size.
         """
-        # pylint: disable=assignment-from-none
         if isinstance(self.size, int):
             return self.size
 

@@ -74,8 +74,6 @@ class String(Field):
         self.encoding = encoding
         self.pad_byte = pad_byte
 
-    # pylint: disable=unused-argument
-
     def _do_load(self, stream, context, loaded_fields):
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream, loaded_fields)
@@ -87,8 +85,6 @@ class String(Field):
             raise errors.UndefinedSizeError(field=self)
 
         stream.write(self._encode_and_resize(data))
-
-    # pylint: enable=unused-argument
 
     def _encode_and_resize(self, string):
         """Encode a string and size it to this field.

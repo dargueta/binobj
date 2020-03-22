@@ -25,7 +25,7 @@ class StructMeta(abc.ABCMeta):
     """
 
     @classmethod
-    def __prepare__(cls, name, bases):  # pylint: disable=unused-argument
+    def __prepare__(cls, name, bases):
         return collections.OrderedDict()
 
     def __new__(cls, class_name, bases, namespace, **kwargs):

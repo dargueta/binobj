@@ -270,7 +270,6 @@ def test_descriptor_set():
 class BadField(fields.Field):
     """This field subclass doesn't override its required methods properly."""
 
-    # pylint: disable=useless-super-delegation
     def _do_load(self, stream, context, loaded_fields):
         return super()._do_load(stream, context, loaded_fields)
 

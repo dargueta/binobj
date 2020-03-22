@@ -119,7 +119,6 @@ def test_array__fixed_in_struct():
     assert struct.trailer == "XYZ"
 
 
-# pylint: disable=unused-argument
 def bswsa_should_halt(seq, stream, values, context, loaded_fields):
     """Halting function for :attr:`BasicStructWithSentinelArray.numbers`."""
     if values and values[-1] == 0:
@@ -127,9 +126,6 @@ def bswsa_should_halt(seq, stream, values, context, loaded_fields):
         del values[-1]
         return True
     return False
-
-
-# pylint: enable=unused-argument
 
 
 class BasicStructWithSentinelArray(binobj.Struct):
@@ -272,7 +268,6 @@ class UnionItemB(binobj.Struct):
     other = fields.UInt16(endian="little")
 
 
-# pylint: disable=unused-argument
 def struct_load_decider(stream, choices, context, loaded_fields):
     data_type_id = loaded_fields["data_type"]
     return choices[data_type_id]
@@ -281,9 +276,6 @@ def struct_load_decider(stream, choices, context, loaded_fields):
 def struct_dump_decider(data, choices, context, all_fields):
     data_type_id = all_fields["data_type"]
     return choices[data_type_id]
-
-
-# pylint: enable=unused-argument
 
 
 class UnionContainer(binobj.Struct):
@@ -314,7 +306,6 @@ def test_union__structs__load_basic():
     assert struct.to_dict() == {"data_type": 1, "item": {"_id": 0x7F, "other": 0xAA55}}
 
 
-# pylint: disable=unused-argument
 def fields_load_decider(stream, choices, context, loaded_fields):
     data_type_id = loaded_fields["data_type"]
     return choices[data_type_id]
@@ -324,9 +315,6 @@ def fields_dump_decider(data, choices, context, all_fields):
     if isinstance(all_fields["item"], str):
         return choices[0]
     return choices[1]
-
-
-# pylint: enable=unused-argument
 
 
 class FieldsUnionContainer(binobj.Struct):

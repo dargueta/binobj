@@ -141,8 +141,6 @@ class Integer(Field):
         self.endian = endian or sys.byteorder
         self.signed = signed
 
-    # pylint: disable=unused-argument
-
     def _do_load(self, stream, context, loaded_fields):
         """Load an integer from the given stream."""
         return helpers.read_int(stream, self.size, self.signed, self.endian)
@@ -155,8 +153,6 @@ class Integer(Field):
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
             )
-
-    # pylint: enable=unused-argument
 
 
 class VariableLengthInteger(Integer):
@@ -188,8 +184,6 @@ class VariableLengthInteger(Integer):
         self._encode_integer_fn = encoding_info["encode"]
         self._decode_integer_fn = encoding_info["decode"]
 
-    # pylint: disable=unused-argument
-
     def _do_load(self, stream, context, loaded_fields):
         """Load a variable-length integer from the given stream."""
         return self._decode_integer_fn(stream)
@@ -207,8 +201,6 @@ class VariableLengthInteger(Integer):
             raise errors.ValueSizeError(field=self, value=data)
 
         stream.write(encoded_int)
-
-    # pylint: enable=unused-argument
 
     def _size_for_value(self, value):
         return len(self._encode_integer_fn(value))

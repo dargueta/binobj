@@ -4,7 +4,6 @@ binobj
 
 A Python library for reading and writing structured binary data.
 """
-# pylint: disable=wildcard-import
 
 import pkg_resources as _pkgr
 

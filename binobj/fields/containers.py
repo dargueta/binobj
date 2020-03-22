@@ -140,7 +140,6 @@ class Array(Field):
             otherwise.
         :rtype: bool
         """
-        # pylint: disable=unused-argument
         if seq.count is not None:
             return seq.get_final_element_count(loaded_fields) <= len(values)
 
@@ -180,7 +179,6 @@ class Array(Field):
 
     def _dump_unsized(self, stream, data, n_elems, context, all_fields):
         """Dump an unsized iterable into the stream."""
-        # pylint: disable=too-many-arguments
         n_written = 0
         for value in data:
             if n_written == n_elems:

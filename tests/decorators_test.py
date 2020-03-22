@@ -28,12 +28,12 @@ def test_computes__rebind_fails():
     """You can't create two compute functions for a field."""
     with pytest.raises(errors.ConfigurationError):
 
-        class Class(binobj.Struct):  # pylint: disable=unused-variable
+        class Class(binobj.Struct):
             n_items = fields.UInt16(endian="little")
             items = fields.Array(fields.UInt16(endian="little"), count=n_items)
 
             @n_items.computes
-            def _n_items(self, all_fields):  # pylint: disable=no-self-use
+            def _n_items(self, all_fields):
                 return len(all_fields["items"])
 
             @n_items.computes
@@ -45,11 +45,11 @@ def test_computes__const_field_fails():
     """Can't set a compute function for a field with a defined const value."""
     with pytest.raises(errors.ConfigurationError):
 
-        class Class(binobj.Struct):  # pylint: disable=unused-variable
+        class Class(binobj.Struct):
             blah = fields.UInt16(const=1234)
 
             @blah.computes
-            def _blah(self, all_fields):  # pylint: disable=unused-argument
+            def _blah(self, all_fields):
                 return 5678
 
 
@@ -57,7 +57,7 @@ def test_validates__crash_if_not_called():
     """Detonate if a validator decorator is used without calling."""
     with pytest.raises(TypeError) as errinfo:
 
-        class Class(binobj.Struct):  # pylint: disable=unused-variable
+        class Class(binobj.Struct):
             @decorators.validates
             def _n_items(self, all_fields):
                 pass
@@ -69,7 +69,7 @@ def test_validates__crash_if_no_fields():
     """Detonate if a validator decorator is used with no field names."""
     with pytest.raises(TypeError) as errinfo:
 
-        class Class(binobj.Struct):  # pylint: disable=unused-variable
+        class Class(binobj.Struct):
             @decorators.validates()
             def _n_items(self, all_fields):
                 pass
@@ -82,7 +82,7 @@ def test_validates__crash_if_not_strings():
     that aren't strings."""
     with pytest.raises(TypeError) as errinfo:
 
-        class Class(binobj.Struct):  # pylint: disable=unused-variable
+        class Class(binobj.Struct):
             n_items = fields.UInt16(endian="little")
 
             @decorators.validates(n_items)

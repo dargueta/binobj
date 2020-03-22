@@ -27,7 +27,7 @@ class WAVFormatChunk(binobj.Struct):
     bits_per_sample = fields.UInt16(endian="little")
 
     @byte_rate.computes
-    def _byte_rate(self, all_fields):  # pylint: disable=no-self-use
+    def _byte_rate(self, all_fields):
         return (
             all_fields["sample_rate"]
             * all_fields["n_channels"]
@@ -36,7 +36,7 @@ class WAVFormatChunk(binobj.Struct):
         )
 
     @block_alignment.computes
-    def _block_alignment(self, all_fields):  # pylint: disable=no-self-use
+    def _block_alignment(self, all_fields):
         return all_fields["n_channels"] * all_fields["bits_per_sample"] // 8
 
 

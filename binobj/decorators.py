@@ -3,7 +3,7 @@
 import functools
 
 
-class ValidatorMethodWrapper:  # pylint: disable=too-few-public-methods
+class ValidatorMethodWrapper:
     """A wrapper around a validator method for one or more fields.
 
     :param callable func:
@@ -58,7 +58,7 @@ def validates(*field_names):
             "pass Field objects."
         )
 
-    def decorator(func):  # pylint: disable=missing-docstring
+    def decorator(func):
         return ValidatorMethodWrapper(func, field_names)
 
     return decorator

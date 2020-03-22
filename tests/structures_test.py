@@ -25,7 +25,7 @@ def test_getitem__basic():
 def test_getitem__no_such_field():
     struct = BasicStruct()
     with pytest.raises(KeyError):
-        struct["asdfasdfasfsda"]  # pylint: disable=pointless-statement
+        struct["asdfasdfasfsda"]
 
 
 def test_eq_undefined():
