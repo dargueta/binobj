@@ -1,7 +1,7 @@
 binobj
 ======
 
-|build-status| |python-versions|
+|build-status| |python-versions| |installs-month| |installs-ever|
 
 .. |build-status| image:: https://travis-ci.org/dargueta/binobj.svg?branch=master
    :alt: Build status
@@ -9,6 +9,14 @@ binobj
 
 .. |python-versions| image:: https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8-blue.svg
    :alt: Python versions
+
+.. |installs-month| image:: https://pepy.tech/badge/binobj/month
+   :alt: Installs per month
+   :target: https://pepy.tech/project/binobj
+
+.. |installs-ever| image:: https://pepy.tech/badge/binobj
+   :alt: Total installs
+   :target: https://pepy.tech/project/binobj
 
 A cross-platform Python 3 library for reading and writing structured binary data
 in an object-oriented (ish) style.
