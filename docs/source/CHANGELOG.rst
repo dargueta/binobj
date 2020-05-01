@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.7.1
+-----
+
+Released 2020-04-30
+
+Other Changes
+~~~~~~~~~~~~~
+
+* ``__components__`` and ``__validators__`` were removed and consolidated into a
+  single data structure called ``__binobj_struct__`` with a stricter and more
+  logical structure. This is a purely internal change and should not affect
+  most users.
+* Better documentation.
+
 0.7.0
 -----
 
