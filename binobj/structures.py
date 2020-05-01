@@ -136,11 +136,11 @@ class StructMeta(abc.ABCMeta):
             if item.field_names:
                 # Attach this validator to each named field.
                 for field_name in item.field_names:
-                    validators["fields"][field_name].append(item)
+                    validators.field_validators[field_name].append(item)
             else:
                 # Validator doesn't define any fields, must be a validator for
                 # the entire struct.
-                validators["struct"].append(item)
+                validators.struct_validators.append(item)
 
 
 def recursive_to_dicts(item):

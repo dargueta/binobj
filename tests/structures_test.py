@@ -61,8 +61,8 @@ def test_iter_skips_undefined_keys():
 
 def test_basic__fields_loaded():
     """Ensure that the metaclass adds and marks fields properly."""
-    assert hasattr(BasicStruct, "__components__"), "Field dict missing."
-    field_list = tuple(BasicStruct.__components__.values())
+    assert hasattr(BasicStruct, "__binobj_struct__"), "Field dict missing."
+    field_list = tuple(BasicStruct.__binobj_struct__.components.values())
     assert len(field_list) == 3
 
     assert field_list[0].name == "string"
