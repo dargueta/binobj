@@ -19,5 +19,5 @@ def __to_version_info():
 
 
 # Do not modify directly; use ``bumpversion`` command instead.
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 __version_info__ = __to_version_info()
