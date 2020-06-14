@@ -1,6 +1,37 @@
 Changelog
 =========
 
+0.8.0
+-----
+
+Bugfixes
+~~~~~~~~
+
+* ``_do_load()`` could be given ``None`` for the ``loaded_fields`` argument even
+  though the documentation explicitly stated that it was guaranteed to not be.
+* ``_do_dump()`` would get given bytes as its ``value`` argument if the field's
+  default value was ``None``.
+* The ``present`` callable was sometimes passed too few arguments, potentially
+  resulting in a ``TypeError``.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+``Field`` is now a generic container class, which means all subclasses must define
+their value type. *This only affects users that created their own subclasses.*
+
+Other Changes
+~~~~~~~~~~~~~
+
+* PEP 484 type annotations have been added.
+* ``Timestamp`` and its subclasses no longer inherit from ``Integer``.
+* ``_NamedSentinel`` has been eliminated. In keeping with PEP 484, sentinel values
+  such as ``UNDEFINED`` and ``NOT_IMPLEMENTED`` are now enums. For more information
+  on why, see `Support for Singleton Types in Unions`_ in the PEP 484 documentation.
+
+.. _Support for Singleton Types in Unions: https://www.python.org/dev/peps/pep-0484/#support-for-singleton-types-in-unions
+
+
 0.7.1
 -----
 

@@ -3,11 +3,18 @@
 import datetime
 import struct
 import sys
+import typing
+from typing import Any
+from typing import BinaryIO
+from typing import Callable
+from typing import Optional
 
 from binobj import errors
 from binobj import helpers
 from binobj import varints
 from binobj.fields.base import Field
+from binobj.typedefs import StrDict
+from binobj.varints import VarIntEncoding
 
 
 __all__ = [
@@ -32,7 +39,7 @@ __all__ = [
 ]
 
 
-class Float(Field):
+class Float(Field[float]):
     """A floating-point number in IEEE-754:2008 interchange format.
 
     This is a base class and should not be used directly.
@@ -50,7 +57,9 @@ class Float(Field):
     .. _format character: https://docs.python.org/3/library/struct.html#format-characters
     """
 
-    def __init__(self, *, format_string, endian=None, **kwargs):
+    def __init__(
+        self, *, format_string: str, endian: Optional[str] = None, **kwargs: Any
+    ):
         if format_string == "e" and sys.version_info[:2] < (3, 6):
             raise errors.ConfigurationError(
                 "binary16 format not supported on this version of Python.", field=self
@@ -67,14 +76,16 @@ class Float(Field):
                 "`endian` must be 'big' or 'little', got %r." % endian, field=self
             )
 
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> float:
         data = self._read_exact_size(stream)
         try:
             return struct.unpack(self.format_string, data)[0]
         except struct.error as exc:
             raise errors.DeserializationError(message=str(exc), field=self, data=data)
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: Optional[float], context: Any, all_fields: StrDict
+    ) -> None:
         try:
             serialized = struct.pack(self.format_string, data)
         except struct.error as exc:
@@ -92,7 +103,7 @@ class Float16(Float):
     .. _binary16: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(format_string="e", **kwargs)
 
 
@@ -102,7 +113,7 @@ class Float32(Float):
     .. _binary32: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(format_string="f", **kwargs)
 
 
@@ -112,11 +123,11 @@ class Float64(Float):
     .. _binary64: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(format_string="d", **kwargs)
 
 
-class Integer(Field):
+class Integer(Field[int]):
     """A two's-complement integer of some fixed size.
 
     This class is typically not used directly, except for integers with sizes
@@ -132,23 +143,38 @@ class Integer(Field):
         such as sign-magnitude are not supported.
     :param int size:
         The size of the integer, in bytes.
+        .. versionchanged:: 0.8.0
+            The ``size`` argument is now required.
+
+    .. versionchanged:: 0.8.0
+        The class now throws :class:`UndefinedSizeError` when loading and dumping if
+        the field doesn't have a defined size. Before it used to crash with a TypeError
+        due to this oversight.
 
     .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representations
     """
 
-    def __init__(self, *, endian=None, signed=True, **kwargs):
+    def __init__(
+        self, *, endian: Optional[str] = None, signed: bool = True, **kwargs: Any
+    ):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
         self.signed = signed
 
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
         """Load an integer from the given stream."""
+        if self.size is None:
+            raise errors.UndefinedSizeError(field=self)
         return helpers.read_int(stream, self.size, self.signed, self.endian)
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: int, context: Any, all_fields: StrDict
+    ) -> None:
         """Dump an integer to the given stream."""
+        if self.size is None:
+            raise errors.UndefinedSizeError(field=self)
         try:
-            return helpers.write_int(stream, data, self.size, self.signed, self.endian)
+            helpers.write_int(stream, data, self.size, self.signed, self.endian)
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
@@ -165,7 +191,13 @@ class VariableLengthInteger(Integer):
         given, there's no restriction on the size.
     """
 
-    def __init__(self, *, vli_format, max_bytes=None, **kwargs):
+    def __init__(
+        self,
+        *,
+        vli_format: VarIntEncoding,
+        max_bytes: Optional[int] = None,
+        **kwargs: Any
+    ):
         encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
 
         if encoding_info is None:
@@ -174,21 +206,27 @@ class VariableLengthInteger(Integer):
                 field=self,
             )
 
-        format_endianness = encoding_info["endian"]
-        format_signedness = encoding_info["signed"]
+        format_endianness = typing.cast(str, encoding_info["endian"])
+        format_signedness = typing.cast(bool, encoding_info["signed"])
 
         super().__init__(endian=format_endianness, signed=format_signedness, **kwargs)
 
         self.vli_format = vli_format
         self.max_bytes = max_bytes
-        self._encode_integer_fn = encoding_info["encode"]
-        self._decode_integer_fn = encoding_info["decode"]
+        self._encode_integer_fn = typing.cast(
+            Callable[[int], bytes], encoding_info["encode"]
+        )
+        self._decode_integer_fn = typing.cast(
+            Callable[[BinaryIO], int], encoding_info["decode"]
+        )
 
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
         """Load a variable-length integer from the given stream."""
         return self._decode_integer_fn(stream)
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: int, context: Any, all_fields: StrDict
+    ) -> None:
         """Dump an integer to the given stream."""
         try:
             encoded_int = self._encode_integer_fn(data)
@@ -202,7 +240,9 @@ class VariableLengthInteger(Integer):
 
         stream.write(encoded_int)
 
-    def _size_for_value(self, value):
+    def _size_for_value(self, value: Optional[int]) -> int:
+        if value is None:
+            return len(self._get_null_value())
         return len(self._encode_integer_fn(value))
 
 
@@ -215,28 +255,28 @@ class UnsignedInteger(Integer):
     .. seealso:: :class:`.Integer`
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class Int8(Integer):
     """An 8-bit signed integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=1, **kwargs)
 
 
 class Int16(Integer):
     """A 16-bit signed integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=2, **kwargs)
 
 
 class Int32(Integer):
     """A 32-bit signed integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=4, **kwargs)
 
 
@@ -257,25 +297,25 @@ class UInt8(Int8):
 class UInt16(Int16):
     """A 16-bit unsigned integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt32(Int32):
     """A 32-bit unsigned integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt64(Int64):
     """A 64-bit unsigned integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
-class Timestamp(Integer):
+class Timestamp(Field[datetime.datetime]):
     r"""A timestamp stored as an integer offset from the `Unix epoch`_.
 
     Timestamps are stored in UTC. When dumping, naive datetimes are assumed to
@@ -300,16 +340,37 @@ class Timestamp(Integer):
             >>> field = Timestamp32(tz_aware=True)
             >>> field.from_bytes(b'\xa3\xc3\x55\x5c')
             datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)
+    :param str endian:
+        The byte order to store the timestamp in. Defaults to the host machine's byte
+        order as given by :data:`sys.byteorder`.
+    :param bool signed:
+        Whether the timestamp should be stored as a signed integer or not. It's highly
+        recommended this be left at the default (True) for compatibility with other
+        Unix systems.
 
     .. versionadded:: 0.6.0
+    .. versionchanged:: 0.8.0
+        * This class no longer inherits from :class:`Integer`.
+        * ``size`` is now a required argument.
+        * The class throws :class:`UndefinedSizeError` when loading and dumping if the
+          field doesn't have a defined size. Before it used to crash with a TypeError
+          due to this oversight.
 
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
     _RESOLUTION_UNITS = {"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9}
 
-    def __init__(self, *, resolution="s", tz_aware=False, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        *,
+        size: int,
+        resolution: str = "s",
+        tz_aware: bool = False,
+        endian: Optional[str] = None,
+        signed: bool = True,
+        **kwargs: Any
+    ):
         if resolution not in self._RESOLUTION_UNITS:
             raise errors.ConfigurationError(
                 "Invalid resolution. Expected one of %s but got %r"
@@ -317,21 +378,42 @@ class Timestamp(Integer):
                 field=self,
             )
 
+        super().__init__(size=size, **kwargs)
+
+        self.endian = endian or sys.byteorder
+        self.signed = signed
         self.resolution = resolution
         self.tz_aware = tz_aware
         self._units = self._RESOLUTION_UNITS[resolution]
 
-    def _do_load(self, stream, context, loaded_fields):
-        value = super()._do_load(stream, context, loaded_fields)
+    def _do_load(
+        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+    ) -> datetime.datetime:
+        if self.size is None:
+            raise errors.UndefinedSizeError(field=self)
+        value = helpers.read_int(stream, self.size, self.signed, self.endian)
         if not self.tz_aware:
             return datetime.datetime.fromtimestamp(value / self._units)
         return datetime.datetime.fromtimestamp(
             value / self._units, datetime.timezone.utc
         )
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self,
+        stream: BinaryIO,
+        data: datetime.datetime,
+        context: Any,
+        all_fields: StrDict,
+    ) -> None:
+        if self.size is None:
+            raise errors.UndefinedSizeError(field=self)
         timestamp = int(data.timestamp() * self._units)
-        super()._do_dump(stream, timestamp, context, all_fields)
+        try:
+            helpers.write_int(stream, timestamp, self.size, self.signed, self.endian)
+        except (ValueError, OverflowError) as err:
+            raise errors.UnserializableValueError(
+                field=self, value=data, reason=str(err)
+            )
 
 
 class Timestamp32(Timestamp):
@@ -341,7 +423,7 @@ class Timestamp32(Timestamp):
     .. seealso:: :class:`.Timestamp`
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=4, **kwargs)
 
 
@@ -352,5 +434,5 @@ class Timestamp64(Timestamp):
     .. seealso:: :class:`.Timestamp`
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=8, **kwargs)

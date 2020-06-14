@@ -1,35 +1,42 @@
 """Fields representing strings and byte sequences."""
 
-
 import codecs
 import io
+from typing import Any
+from typing import BinaryIO
+from typing import Optional
 
 from binobj import errors
 from binobj import helpers
 from binobj.fields.base import Field
+from binobj.typedefs import StrDict
 
 
 __all__ = ["Bytes", "String", "StringZ"]
 
 
-class Bytes(Field):
+class Bytes(Field[bytes]):
     """Raw binary data."""
 
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> bytes:
         return self._read_exact_size(stream, loaded_fields)
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: bytes, context: Any, all_fields: StrDict
+    ) -> None:
         write_size = self._get_expected_size(all_fields)
         if len(data) != write_size:
             raise errors.ValueSizeError(field=self, value=data)
 
         stream.write(data)
 
-    def _size_for_value(self, value):
+    def _size_for_value(self, value: Optional[bytes]) -> int:
+        if value is None:
+            return len(self._get_null_value())
         return len(value)
 
 
-class String(Field):
+class String(Field[str]):
     """A fixed-length string.
 
     :param int size:
@@ -58,7 +65,13 @@ class String(Field):
     .. _ISO 8859-1: https://en.wikipedia.org/wiki/ISO/IEC_8859-1
     """
 
-    def __init__(self, *, encoding="iso-8859-1", pad_byte=None, **kwargs):
+    def __init__(
+        self,
+        *,
+        encoding: str = "iso-8859-1",
+        pad_byte: Optional[bytes] = None,
+        **kwargs: Any
+    ):
         super().__init__(**kwargs)
 
         if pad_byte is not None:
@@ -74,19 +87,23 @@ class String(Field):
         self.encoding = encoding
         self.pad_byte = pad_byte
 
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(
+        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+    ) -> Optional[str]:
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream, loaded_fields)
         return to_load.decode(self.encoding)
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
+    ) -> None:
         """Dump a fixed-length string into the stream."""
         if self.size is None:
             raise errors.UndefinedSizeError(field=self)
 
         stream.write(self._encode_and_resize(data))
 
-    def _encode_and_resize(self, string):
+    def _encode_and_resize(self, string: str) -> bytes:
         """Encode a string and size it to this field.
 
         :param str string:
@@ -112,7 +129,9 @@ class String(Field):
 
         return to_dump
 
-    def _size_for_value(self, value):
+    def _size_for_value(self, value: Optional[str]) -> int:
+        if value is None:
+            return len(self._get_null_value())
         return len(value.encode(self.encoding))
 
 
@@ -123,7 +142,7 @@ class StringZ(String):
     encodings.
     """
 
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> str:
         iterator = helpers.iter_bytes(stream, self.size)
         reader = codecs.iterdecode(iterator, self.encoding)
         result = io.StringIO()
@@ -138,8 +157,12 @@ class StringZ(String):
             "Hit EOF before finding the trailing null.", field=self
         )
 
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
+    ) -> None:
         stream.write(self._encode_and_resize(data + "\0"))
 
-    def _size_for_value(self, value):
+    def _size_for_value(self, value: Optional[str]) -> int:
+        if value is None:
+            return len(self._get_null_value())
         return len((value + "\0").encode(self.encoding))

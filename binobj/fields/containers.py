@@ -1,12 +1,23 @@
 """Fields used for forming more complex structures with other fields."""
 
 import collections.abc
+from typing import Any
+from typing import BinaryIO
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Union as _Union
 
 from binobj import errors
 from binobj.fields.base import Field
+from binobj.typedefs import StrDict
 
 
 __all__ = ["Array", "Nested", "Union"]
+
+
+# (seq, stream, values, context, loaded_fields)
+HaltCheckFn = Callable[["Array", BinaryIO, List, Any, StrDict], bool]
 
 
 class Array(Field):
@@ -42,7 +53,14 @@ class Array(Field):
         an integer constant.
     """
 
-    def __init__(self, component, *, count=None, halt_check=None, **kwargs):
+    def __init__(
+        self,
+        component: Field,
+        *,
+        count: _Union[int, Field, str] = None,
+        halt_check: Optional[HaltCheckFn] = None,
+        **kwargs: Any
+    ):
         super().__init__(**kwargs)
         self.component = component
         self.halt_check = halt_check or self.should_halt

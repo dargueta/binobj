@@ -2,56 +2,65 @@
 
 import abc
 import collections.abc
+import enum
 import functools
 import io
 import warnings
+import typing
+from typing import Any
+from typing import BinaryIO
+from typing import Callable
+from typing import Generic
+from typing import Iterable
+from typing import Optional
+from typing import overload
+from typing import Type
+from typing import TypeVar
+from typing import Union
 
 from binobj import errors
+from binobj.typedefs import StrDict
+
+
+if typing.TYPE_CHECKING:
+    from binobj.structures import Struct
 
 
 __all__ = ["DEFAULT", "NOT_PRESENT", "UNDEFINED", "Field"]
 
 
-class _NamedSentinel:
-    """An object type used for creating sentinel objects that can be retrieved
-    by name.
-    """
+class _Default(enum.Enum):
+    token = 0
 
-    # A mapping of sentinels from name to instance.
-    __sentinels = {}
 
-    def __init__(self, name):
-        self.name = name
+class _Undefined(enum.Enum):
+    token = 0
 
-    @classmethod
-    def get_sentinel(cls, name):
-        """Return the sentinel with the given name, creating it if necessary."""
-        return cls.__sentinels.setdefault(name, cls(name))
 
-    def __deepcopy__(self, memodict=None):
-        return self
-
-    def __repr__(self):  # pragma: no cover
-        return "<%s>" % self.name
+class _NotPresent(enum.Enum):
+    token = 0
 
 
 #: A sentinel value used to indicate that a setting or field is undefined.
-UNDEFINED = _NamedSentinel.get_sentinel("UNDEFINED")
+UNDEFINED = _Undefined.token
 
 
 #: A sentinel value used to indicate that the default value of a setting should
 #: be used. We need this because sometimes ``None`` is a valid value for that
 #: setting.
-DEFAULT = _NamedSentinel.get_sentinel("DEFAULT")
+DEFAULT = _Default.token
 
 
 #: A sentinel value used to indicate that a field is not present.
 #:
 #: .. versionadded:: 0.4.5
-NOT_PRESENT = _NamedSentinel.get_sentinel("NOT_PRESENT")
+NOT_PRESENT = _NotPresent.token
 
 
-class Field:
+T = TypeVar("T")
+
+
+class Field(Generic[T]):
     """The base class for all struct fields.
 
     :param str name:
@@ -112,6 +121,9 @@ class Field:
         - The ``context`` object passed to :meth:`from_stream` or :meth:`to_stream`.
         - When loading, the stream being loaded from. The stream pointer MUST
           be reset to its original position before the function returns.
+
+        .. versionchanged:: 0.8.0
+            The ``loaded_fields`` argument is now guaranteed to not be null.
     :param validate:
         A callable or list of callables that validates a given value for this
         field. The callable(s) will always be passed the deserialized value, so
@@ -145,15 +157,23 @@ class Field:
     def __init__(
         self,
         *,
-        name=None,
-        const=UNDEFINED,
-        default=UNDEFINED,
-        discard=False,
-        null_value=UNDEFINED,
-        size=None,
-        validate=(),
-        present=None
+        name: str = None,
+        const: Union[T, _Undefined] = UNDEFINED,
+        default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
+        discard: bool = False,
+        null_value: bytes = None,
+        size: Optional[int] = None,
+        validate: Iterable[Callable[[Optional[T]], bool]] = (),
+        present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None
     ):
+        if null_value is DEFAULT:
+            warnings.warn(
+                "Passing `DEFAULT` for the `null_value` argument is deprecated. Use"
+                " `None` instead.",
+                DeprecationWarning,
+            )
+            null_value = None
+
         self.const = const
         self.discard = discard
         self.null_value = null_value
@@ -168,19 +188,21 @@ class Field:
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
             # ``const``.
-            self._default = const
+            self._default = const  # type: Union[Optional[T], Callable[[], Optional[T]]]
         else:
             self._default = default
 
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
-        self.name = name  # type: str
-        self.index = None  # type: int
-        self.offset = None  # type: int
-        self._compute_fn = None  # type: callable
+        self.name = typing.cast(str, name)
+        self.index = typing.cast(int, None)
+        self.offset = None  # type: Optional[int]
+        self._compute_fn = (
+            None
+        )  # type: Optional[Callable[["Field", StrDict], Optional[T]]]
 
     @property
-    def size(self):
+    def size(self) -> Optional[int]:
         """The size of this field, in bytes.
 
         :type: int
@@ -190,7 +212,9 @@ class Field:
             self._size = self._size_for_value(self.const)
         return self._size
 
-    def bind_to_container(self, name, index, offset=None):
+    def bind_to_container(
+        self, name: str, index: int, offset: Optional[int] = None
+    ) -> None:
         """Bind this field to a container class.
 
         :param str name:
@@ -206,7 +230,9 @@ class Field:
         self.index = index
         self.offset = offset
 
-    def compute_value_for_dump(self, all_values):
+    def compute_value_for_dump(
+        self, all_values: StrDict
+    ) -> Union[Optional[T], _NotPresent]:
         """Calculate the value for this field upon dumping.
 
         :param dict all_values:
@@ -223,7 +249,8 @@ class Field:
 
         .. versionadded:: 0.3.1
         """
-        if not self.present(all_values):
+        # FIXME (dargueta): Don't pass None for the context variable.
+        if not self.present(all_values, None, None):
             return NOT_PRESENT
         if self.name in all_values:
             return all_values[self.name]
@@ -234,7 +261,7 @@ class Field:
 
         raise errors.MissingRequiredValueError(field=self)
 
-    def computes(self, method):
+    def computes(self, method: Callable[["Field", StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
 
         .. deprecated:: 0.6.0
@@ -288,15 +315,15 @@ class Field:
         self._compute_fn = method
 
     @property
-    def allow_null(self):
+    def allow_null(self) -> bool:
         """Is ``None`` an acceptable value for this field?
 
         :type: bool
         """
-        return self.null_value is not UNDEFINED
+        return self.null_value is not None
 
     @property
-    def default(self):
+    def default(self) -> Optional[T]:
         """The default value of this field, or :data:`UNDEFINED`.
 
         If the default value passed to the constructor was a callable, this
@@ -315,14 +342,14 @@ class Field:
         return default_value
 
     @property
-    def required(self):
+    def required(self) -> bool:
         """Is this field required for serialization?
 
         :type: bool
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value):
+    def _size_for_value(self, value: Optional[T]) -> Optional[int]:
         """Return the size of the serialized value in bytes, or ``None`` if it
         can't be computed.
 
@@ -342,7 +369,7 @@ class Field:
         """
         return None
 
-    def _get_expected_size(self, field_values):
+    def _get_expected_size(self, field_values: StrDict) -> int:
         """Determine the size of this field in bytes, given values for other fields.
 
         :param dict field_values:
@@ -390,7 +417,12 @@ class Field:
             return field_values[name]
         raise errors.MissingRequiredValueError(field=name)
 
-    def load(self, stream, context=None, loaded_fields=None):
+    def load(
+        self,
+        stream: BinaryIO,
+        context: Any = None,
+        loaded_fields: Optional[StrDict] = None,
+    ) -> Union[Optional[T], _NotPresent]:
         """Deprecated alias of :meth:`.from_stream`.
 
         .. deprecated:: 0.6.2
@@ -401,7 +433,13 @@ class Field:
         )
         return self.from_stream(stream, context, loaded_fields)
 
-    def loads(self, data, context=None, exact=True, loaded_fields=None):
+    def loads(
+        self,
+        data: bytes,
+        context: Any = None,
+        exact: bool = True,
+        loaded_fields: Optional[StrDict] = None,
+    ):
         """Deprecated alias of :meth:`.from_bytes`.
 
         .. deprecated:: 0.6.2
@@ -412,7 +450,12 @@ class Field:
         )
         return self.from_bytes(data, context, exact, loaded_fields)
 
-    def from_stream(self, stream, context=None, loaded_fields=None):
+    def from_stream(
+        self,
+        stream: BinaryIO,
+        context: Any = None,
+        loaded_fields: Optional[StrDict] = None,
+    ) -> Union[Optional[T], _NotPresent]:
         """Load data from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -427,6 +470,9 @@ class Field:
 
         :return: The deserialized data, or :data:`NOT_PRESENT`
         """
+        if loaded_fields is None:
+            loaded_fields = {}
+
         if not self.present(loaded_fields, context, stream):
             return NOT_PRESENT
 
@@ -439,7 +485,7 @@ class Field:
             err.field = self
             raise
 
-        if self.null_value is not UNDEFINED and loaded_value == self.null_value:
+        if self.null_value is not None and loaded_value == self.null_value:
             return None
 
         # TODO (dargueta): Change this to a validator instead.
@@ -451,7 +497,13 @@ class Field:
 
         return loaded_value
 
-    def from_bytes(self, data, context=None, exact=True, loaded_fields=None):
+    def from_bytes(
+        self,
+        data: bytes,
+        context: Any = None,
+        exact: bool = True,
+        loaded_fields: Optional[StrDict] = None,
+    ) -> Union[Optional[T], _NotPresent]:
         """Load from the given byte string.
 
         :param bytes data:
@@ -468,7 +520,7 @@ class Field:
             set automatically when a field is loaded by a
             :class:`~binobj.structures.Struct`.
 
-        :return: The deserialized data.
+        :return: The deserialized data, or :data:`NOT_PRESENT` if the field is missing.
         """
         if loaded_fields is None:
             loaded_fields = {}
@@ -484,7 +536,9 @@ class Field:
         return loaded_data
 
     @abc.abstractmethod
-    def _do_load(self, stream, context, loaded_fields):
+    def _do_load(
+        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+    ) -> Optional[T]:
         """Load an object from the stream.
 
         :param io.BufferedIOBase stream:
@@ -499,7 +553,13 @@ class Field:
         """
         raise NotImplementedError
 
-    def dump(self, stream, data=DEFAULT, context=None, all_fields=None):
+    def dump(
+        self,
+        stream: BinaryIO,
+        data: Union[Optional[T], _Default] = DEFAULT,
+        context: Any = None,
+        all_fields: Optional[StrDict] = None,
+    ) -> None:
         """Deprecated alias of :meth:`to_stream`.
 
         .. deprecated:: 0.6.2
@@ -510,7 +570,12 @@ class Field:
         )
         self.to_stream(stream, data, context, all_fields)
 
-    def dumps(self, data=DEFAULT, context=None, all_fields=None):
+    def dumps(
+        self,
+        data: Union[Optional[T], _Default] = DEFAULT,
+        context: Any = None,
+        all_fields: Optional[StrDict] = None,
+    ) -> bytes:
         """Deprecated alias of :meth:`to_bytes`.
 
         .. deprecated:: 0.6.2
@@ -521,7 +586,13 @@ class Field:
         )
         return self.to_bytes(data, context, all_fields)
 
-    def to_stream(self, stream, data=DEFAULT, context=None, all_fields=None):
+    def to_stream(
+        self,
+        stream: BinaryIO,
+        data: Union[Optional[T], _Default] = DEFAULT,
+        context: Any = None,
+        all_fields: Optional[StrDict] = None,
+    ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -543,15 +614,27 @@ class Field:
             data = self.default
             if data in (UNDEFINED, DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
-        elif data is None:
-            data = self._get_null_value()
 
         for validator in self.validators:
             validator(data)
 
-        self._do_dump(stream, data, context=context, all_fields=all_fields)
+        if data is None:
+            stream.write(self._get_null_value())
+            return
 
-    def to_bytes(self, data=DEFAULT, context=None, all_fields=None):
+        for validator in self.validators:
+            validator(data)
+
+        self._do_dump(
+            stream, typing.cast(T, data), context=context, all_fields=all_fields
+        )
+
+    def to_bytes(
+        self,
+        data: Union[Optional[T], _Default] = DEFAULT,
+        context: Any = None,
+        all_fields: Optional[StrDict] = None,
+    ) -> bytes:
         """Convert the given data into bytes.
 
         :param data:
@@ -572,7 +655,9 @@ class Field:
         return stream.getvalue()
 
     @abc.abstractmethod
-    def _do_dump(self, stream, data, context, all_fields):
+    def _do_dump(
+        self, stream: BinaryIO, data: T, context: Any, all_fields: StrDict
+    ) -> None:
         """Write the given data to the byte stream.
 
         :param io.BufferedIOBase stream:
@@ -588,7 +673,7 @@ class Field:
         """
         raise errors.UnserializableValueError(field=self, value=data)
 
-    def _get_null_value(self):
+    def _get_null_value(self) -> bytes:
         """Return the serialized value for ``None``.
 
         We need this function because there's some logic involved in determining
@@ -604,7 +689,7 @@ class Field:
                 field=self,
                 value=None,
             )
-        if self.null_value is not DEFAULT:
+        if self.null_value is not None:
             return self.null_value
 
         # User wants us to use all null bytes for the default null value.
@@ -618,7 +703,9 @@ class Field:
 
         return b"\0" * self.size
 
-    def _read_exact_size(self, stream, loaded_fields=None):
+    def _read_exact_size(
+        self, stream: BinaryIO, loaded_fields: Optional[StrDict] = None
+    ) -> bytes:
         """Read exactly the number of bytes this object takes up or crash.
 
         :param io.BufferedIOBase stream: The stream to read from.
@@ -649,6 +736,14 @@ class Field:
 
         return data_read
 
+    @overload
+    def __get__(self, instance: None, owner: Type["Struct"]) -> "Field[T]":
+        ...
+
+    @overload
+    def __get__(self, instance: "Struct", owner: Type["Struct"]) -> Optional[T]:
+        ...
+
     def __get__(self, instance, owner):
         if instance is None:
             return self
@@ -656,7 +751,7 @@ class Field:
             return instance.__values__[self.name]
         return self.compute_value_for_dump(instance)
 
-    def __set__(self, instance, value):
+    def __set__(self, instance: "Struct", value: Optional[T]) -> None:
         if self._compute_fn or self.const is not UNDEFINED:
             raise errors.ImmutableFieldError()
 
@@ -664,5 +759,5 @@ class Field:
             validator(value)
         instance.__values__[self.name] = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s(name=%r)" % (type(self).__name__, self.name)

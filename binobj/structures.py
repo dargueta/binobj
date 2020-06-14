@@ -28,6 +28,7 @@ class StructMetadata:
     use to people writing wrapper classes or otherwise enhancing the behavior of the
     default :class:`.Struct` class.
     """
+
     components = attr.ib(type=Dict[str, fields.Field], factory=collections.OrderedDict)
     struct_validators = attr.ib(type=List[Callable], factory=list)
     field_validators = attr.ib(type=Dict[str, List[Callable]], factory=dict)

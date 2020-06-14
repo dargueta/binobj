@@ -1,11 +1,16 @@
 """Various helper functions for stream I/O."""
 
 import sys
+from typing import BinaryIO
+from typing import Optional
+from typing import Iterator
 
 from binobj import errors
 
 
-def read_int(stream, n_bytes, signed=True, endian=None):
+def read_int(
+    stream: BinaryIO, n_bytes: int, signed: bool = True, endian: Optional[str] = None
+) -> int:
     """Read an integer from the given byte stream.
 
     :param io.BufferedIOBase stream:
@@ -37,7 +42,13 @@ def read_int(stream, n_bytes, signed=True, endian=None):
     return int.from_bytes(data, endian, signed=signed)
 
 
-def write_int(stream, value, n_bytes, signed=True, endian=None):
+def write_int(
+    stream: BinaryIO,
+    value: int,
+    n_bytes: int,
+    signed: bool = True,
+    endian: Optional[str] = None,
+) -> None:
     """Write an integer to a stream.
 
     :param io.BufferedIOBase stream:
@@ -67,7 +78,7 @@ def write_int(stream, value, n_bytes, signed=True, endian=None):
     stream.write(value.to_bytes(n_bytes, endian, signed=signed))
 
 
-def iter_bytes(stream, max_bytes=None):
+def iter_bytes(stream: BinaryIO, max_bytes: Optional[int] = None) -> Iterator[bytes]:
     """Wrap a stream in an iterator that yields individual bytes, not lines.
 
     :param stream:
