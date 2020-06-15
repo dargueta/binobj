@@ -1,5 +1,23 @@
 """Errors for the binobj package."""
 
+import typing
+
+from typing import Any
+from typing import Collection
+from typing import Optional
+from typing import TypeVar
+from typing import Union
+
+from binobj.typedefs import FieldOrName
+from binobj.typedefs import StructOrName
+
+if typing.TYPE_CHECKING:
+    from binobj.fields import Field
+    from binobj.structures import Struct
+
+
+T = TypeVar("T")
+
 
 class Error(Exception):
     """Base class for all binobj errors.
@@ -7,7 +25,7 @@ class Error(Exception):
     Do not throw this exception directly.
     """
 
-    def __init__(self, message=None, *args):
+    def __init__(self, message: Optional[str] = None, *args: Any):
         # If there is no error message, use the first line of the docstring.
         if message is None:
             message = self.__doc__.splitlines()[0]
@@ -40,7 +58,14 @@ class ConfigurationError(Error):
         passed.
     """
 
-    def __init__(self, message=None, *, field=None, struct=None, obj=None):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        *,
+        field: Optional[FieldOrName] = None,
+        struct: Optional[StructOrName] = None,
+        obj: Any = None
+    ):
         if not (field or struct or obj):
             raise ValueError(
                 "At least one of `field`, `struct`, or `obj` must "
@@ -79,7 +104,14 @@ class SerializationError(Error):
         The value that caused the crash.
     """
 
-    def __init__(self, message=None, *, struct=None, field=None, value=None):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        *,
+        struct: Optional["Struct"] = None,
+        field: Optional["Field[T]"] = None,
+        value: Optional[T] = None
+    ):
         super().__init__(message)
         self.struct = struct
         self.field = field
@@ -99,7 +131,14 @@ class DeserializationError(Error):
         The offset into the data stream where the crash occurred.
     """
 
-    def __init__(self, message=None, *, field=None, data=None, offset=None):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        *,
+        field: Optional["Field[Any]"] = None,
+        data: Optional[bytes] = None,
+        offset: Optional[int] = None
+    ):
         super().__init__(message)
         self.field = field
         self.data = data
@@ -117,7 +156,9 @@ class ValidationError(Error):
         The invalid value.
     """
 
-    def __init__(self, message=None, *, field, value):
+    def __init__(
+        self, message: Optional[str] = None, *, field: "Field[T]", value: Optional[T]
+    ):
         if not message:
             message = "Invalid value for %s: %r" % (field, value)
 
@@ -135,7 +176,7 @@ class FieldReferenceError(Error):
         The name of the field that failed to be referenced.
     """
 
-    def __init__(self, message=None, *, field):
+    def __init__(self, message: Optional[str] = None, *, field: str):
         if not message:
             message = "Attempted to reference a missing or undefined field: " + repr(
                 field
@@ -166,7 +207,7 @@ class ImmutableFieldError(IllegalOperationError):
     .. versionadded:: 0.4.1
     """
 
-    def __init__(self, *, field=None):
+    def __init__(self, *, field: Optional["Field[Any]"] = None):
         if field is not None:
             message = "Cannot assign to immutable field: %r" % field
         else:
@@ -195,7 +236,7 @@ class FieldRedefinedError(ConfigurationError):
     .. versionadded:: 0.3.0
     """
 
-    def __init__(self, *, struct, field):
+    def __init__(self, *, struct: str, field: FieldOrName):
         super().__init__(
             "Struct %s defines field %r already defined in its parent class."
             % (struct, field),
@@ -214,7 +255,7 @@ class UndefinedSizeError(ConfigurationError):
     .. versionadded:: 0.3.1
     """
 
-    def __init__(self, *, field):
+    def __init__(self, *, field: FieldOrName):
         super().__init__(
             "Size of field %s couldn't be determined. The field might not have "
             "had its `size` set, or a variable-sized field has a bug." % field,
@@ -233,7 +274,9 @@ class UnserializableValueError(SerializationError):
         Optional. The reason for the failure.
     """
 
-    def __init__(self, *, field, value, reason=None):
+    def __init__(
+        self, *, field: "Field[T]", value: Optional[T], reason: Optional[str] = None
+    ):
         if reason is not None:
             message = "%s can't serialize value: %s" % (field, reason)
         else:
@@ -251,7 +294,7 @@ class MissingRequiredValueError(SerializationError):
         The missing field, or its name.
     """
 
-    def __init__(self, *, field):
+    def __init__(self, *, field: FieldOrName):
         super().__init__("Missing required value for field: %s" % field, field=field)
 
 
@@ -266,7 +309,7 @@ class UnexpectedValueError(SerializationError):
         instances.
     """
 
-    def __init__(self, *, struct, name):
+    def __init__(self, *, struct, name: Union[str, Collection[str]]):
         if isinstance(name, str):
             self.names = {name}
         else:
@@ -290,7 +333,7 @@ class ValueSizeError(UnserializableValueError):
         The value that's the wrong size.
     """
 
-    def __init__(self, *, field, value):
+    def __init__(self, *, field: "Field[T]", value: Optional[T]):
         super().__init__(
             reason="Value doesn't fit into %r bytes." % field.size,
             field=field,
@@ -307,7 +350,9 @@ class ArraySizeError(SerializationError):
         Optional. The actual number of items given to the field for serialization.
     """
 
-    def __init__(self, *, field, n_expected, n_given=None):
+    def __init__(
+        self, *, field: "Field[Any]", n_expected: int, n_given: Optional[int] = None
+    ):
         if n_given is not None:
             if n_given > n_expected:
                 message = "Expected {e} values, got at least {g}."
@@ -333,7 +378,7 @@ class UnexpectedEOFError(DeserializationError):
         in bytes.
     """
 
-    def __init__(self, *, field, size, offset):
+    def __init__(self, *, field: "Field[Any]", size: int, offset: int):
         super().__init__(
             "Unexpected EOF while trying to read %d bytes at offset %d."
             % (size, offset),

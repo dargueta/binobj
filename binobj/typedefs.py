@@ -5,6 +5,7 @@ from typing import Mapping
 from typing import MutableMapping
 from typing import Optional
 from typing import TypeVar
+from typing import Union
 
 
 if typing.TYPE_CHECKING:
@@ -19,3 +20,5 @@ MutableStrDict = MutableMapping[str, Any]
 
 FieldValidator = Callable[["Field[Any]", Any], Optional[bool]]
 StructValidator = Callable[["Struct"], Optional[bool]]
+FieldOrName = Union[str, "Field[Any]"]
+StructOrName = Union[str, "Struct"]

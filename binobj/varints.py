@@ -5,6 +5,7 @@
 
 import enum
 import math
+from typing import BinaryIO
 
 from binobj import helpers
 
@@ -33,12 +34,12 @@ class VarIntEncoding(enum.Enum):
     VLQ = "vlq"
 
 
-def _read_uint8(stream):
+def _read_uint8(stream: BinaryIO) -> int:
     """Read an unsigned 8-bit integer from the given byte stream."""
     return helpers.read_int(stream, 1, signed=False)
 
 
-def encode_integer_compact(value):
+def encode_integer_compact(value: int) -> bytes:
     """Encode an integer with signed VLQ encoding.
 
     :param int value: The value to encode.
@@ -70,7 +71,7 @@ def encode_integer_compact(value):
     return bytes(buf)
 
 
-def decode_integer_compact(stream):
+def decode_integer_compact(stream: BinaryIO) -> int:
     """Decode an integer with signed VLQ encoding.
 
     :param io.BufferedIOBase stream: The stream to read from.
@@ -96,7 +97,7 @@ def decode_integer_compact(stream):
             return value * sign
 
 
-def encode_integer_vlq(value):
+def encode_integer_vlq(value: int) -> bytes:
     """Encode an integer with the unsigned VLQ encoding.
 
     :param int value:
@@ -123,7 +124,7 @@ def encode_integer_vlq(value):
     return bytes(buf)
 
 
-def decode_integer_vlq(stream):
+def decode_integer_vlq(stream: BinaryIO) -> int:
     """Decode an unsigned VLQ-encoded integer from the given stream.
 
     :param io.BufferedIOBase stream: The stream to read from.
@@ -140,7 +141,7 @@ def decode_integer_vlq(stream):
             return value
 
 
-def encode_integer_uleb128(value):
+def encode_integer_uleb128(value: int) -> bytes:
     """Encode an integer with unsigned LEB128 encoding.
 
     :param int value: The value to encode.
@@ -165,7 +166,7 @@ def encode_integer_uleb128(value):
     return bytes(output)
 
 
-def decode_integer_uleb128(stream):
+def decode_integer_uleb128(stream: BinaryIO) -> int:
     """Decode an unsigned LEB128-encoded integer from the given stream.
 
     :param io.BufferedIOBase stream: The stream to read from.
@@ -185,7 +186,7 @@ def decode_integer_uleb128(stream):
             return value
 
 
-def encode_integer_leb128(value):
+def encode_integer_leb128(value: int) -> bytes:
     """Encode an integer with signed LEB128 encoding.
 
     :param int value: The value to encode.
@@ -222,7 +223,7 @@ def encode_integer_leb128(value):
     return bytes(output)
 
 
-def decode_integer_leb128(stream):
+def decode_integer_leb128(stream: BinaryIO) -> int:
     """Decode a signed LEB128-encoded integer from the given stream.
 
     :param io.BufferedIOBase stream: The stream to read from.

@@ -6,18 +6,35 @@ import collections.abc
 import copy
 import io
 from typing import Any
+from typing import BinaryIO
 from typing import Callable
 from typing import Dict
+from typing import Iterator
 from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import overload
+from typing import Sequence
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
 
 import attr
 
 from binobj import decorators
 from binobj import errors
 from binobj import fields
+from binobj.typedefs import MutableStrDict
+from binobj.typedefs import StrDict
 
 
 __all__ = ["Struct"]
+
+
+T = TypeVar("T")
+K = TypeVar("K")
+V = TypeVar("V")
+TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
 @attr.s
@@ -29,7 +46,9 @@ class StructMetadata:
     default :class:`.Struct` class.
     """
 
-    components = attr.ib(type=Dict[str, fields.Field], factory=collections.OrderedDict)
+    components = attr.ib(
+        type=Dict[str, fields.Field[Any]], factory=collections.OrderedDict
+    )
     struct_validators = attr.ib(type=List[Callable], factory=list)
     field_validators = attr.ib(type=Dict[str, List[Callable]], factory=dict)
     defaults = attr.ib(type=Dict[str, Any], factory=dict)
@@ -44,14 +63,21 @@ class StructMeta(abc.ABCMeta):
     """
 
     @classmethod
-    def __prepare__(cls, name, bases):
+    def __prepare__(
+        cls, name: str, bases: Sequence[Type]
+    ) -> collections.OrderedDict[str, Any]:
         return collections.OrderedDict()
 
-    def __new__(cls, class_name, bases, namespace):
+    def __new__(
+        mcs: Type["StructMeta"],
+        class_name: str,
+        bases: Tuple[type, ...],
+        namespace: MutableStrDict,
+    ) -> type:
         # Build a list of all of the base classes that appear to be Structs. If anything
         # else uses StructMeta as a metaclass then we're in trouble, since this will
         # detect that as a second base class.
-        struct_bases = [b for b in bases if issubclass(type(b), cls)]
+        struct_bases = [b for b in bases if issubclass(type(b), mcs)]
 
         if len(struct_bases) > 1:
             raise errors.MultipleInheritanceError(struct=class_name)
@@ -61,7 +87,7 @@ class StructMeta(abc.ABCMeta):
         if struct_bases:
             # Build a dictionary of all of the fields in the parent struct first,
             # then add in the fields defined in this struct.
-            base = struct_bases[0]
+            base = struct_bases[0]  # type: Type["Struct"]
 
             for comp_name, item in base.__binobj_struct__.components.items():
                 if isinstance(item, fields.Field):
@@ -97,16 +123,22 @@ class StructMeta(abc.ABCMeta):
 
         field_index = len(metadata.components)
 
-        cls._bind_fields(
+        mcs._bind_fields(
             class_name, namespace, metadata.components, field_index, offset
         )
-        cls._bind_validators(namespace, metadata)
+        mcs._bind_validators(namespace, metadata)
 
         namespace["__binobj_struct__"] = metadata
-        return super().__new__(cls, class_name, bases, namespace)
+        return super().__new__(mcs, class_name, bases, namespace)
 
     @staticmethod
-    def _bind_fields(class_name, namespace, components, field_index, offset):
+    def _bind_fields(
+        class_name: str,
+        namespace: StrDict,
+        components: Dict[str, fields.Field[Any]],
+        field_index: int,
+        offset: Optional[int],
+    ) -> None:
         """Bind all of this struct's fields to this struct."""
         # It's HIGHLY important that we don't accidentally bind the superclass'
         # fields to this struct. That's why we're iterating over ``namespace``
@@ -128,7 +160,7 @@ class StructMeta(abc.ABCMeta):
             field_index += 1
 
     @staticmethod
-    def _bind_validators(namespace, validators):
+    def _bind_validators(namespace: StrDict, validators) -> None:
         """Find all defined validators and assign them to their fields."""
         for item in namespace.values():
             if not isinstance(item, decorators.ValidatorMethodWrapper):
@@ -142,6 +174,21 @@ class StructMeta(abc.ABCMeta):
                 # Validator doesn't define any fields, must be a validator for
                 # the entire struct.
                 validators.struct_validators.append(item)
+
+
+@overload
+def recursive_to_dicts(item: "Struct") -> collections.OrderedDict[str, Any]:
+    ...
+
+
+@overload
+def recursive_to_dicts(item: Mapping[K, V]) -> collections.OrderedDict[K, V]:
+    ...
+
+
+@overload
+def recursive_to_dicts(item: Sequence[T]) -> List[T]:
+    ...
 
 
 def recursive_to_dicts(item):
@@ -188,14 +235,14 @@ class Struct(metaclass=StructMeta):
 
     __binobj_struct__ = StructMetadata()
 
-    def __init__(self, **values):
+    def __init__(self, **values: Any):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
 
         self.__values__ = values
 
-    def validate_contents(self):
+    def validate_contents(self) -> None:
         """Validate the stored values in this struct.
 
         :raise ~binobj.errors.ValidationError: Validation failed.
@@ -219,7 +266,7 @@ class Struct(metaclass=StructMeta):
         for validator in self.__binobj_struct__.struct_validators:
             validator(self, self)
 
-    def to_stream(self, stream, context=None):
+    def to_stream(self, stream: BinaryIO, context: Any = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
         :param io.BufferedIOBase stream:
@@ -240,7 +287,7 @@ class Struct(metaclass=StructMeta):
             if value is not fields.NOT_PRESENT:
                 field.to_stream(stream, value, context=context, all_fields=all_fields)
 
-    def to_bytes(self, context=None):
+    def to_bytes(self, context: Any = None) -> bytes:
         """Convert the given data into bytes.
 
         :param context:
@@ -254,7 +301,9 @@ class Struct(metaclass=StructMeta):
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(self, keep_discardable=False):
+    def to_dict(
+        self, keep_discardable: bool = False
+    ) -> collections.OrderedDict[str, Any]:
         """Convert this struct into an ordered dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct`
@@ -289,7 +338,12 @@ class Struct(metaclass=StructMeta):
         return recursive_to_dicts(dct)
 
     @classmethod
-    def from_stream(cls, stream, context=None, init_kwargs=None):
+    def from_stream(
+        cls: Type[TStruct],
+        stream: BinaryIO,
+        context: Any = None,
+        init_kwargs: StrDict = None,
+    ) -> TStruct:
         """Load a struct from the given stream.
 
         :param io.BufferedIOBase stream:
@@ -328,7 +382,13 @@ class Struct(metaclass=StructMeta):
         return instance
 
     @classmethod
-    def from_bytes(cls, data, context=None, exact=True, init_kwargs=None):
+    def from_bytes(
+        cls: TypeVar[TStruct],
+        data: bytes,
+        context: Any = None,
+        exact: bool = True,
+        init_kwargs: StrDict = None,
+    ) -> TStruct:
         """Load a struct from the given byte string.
 
         :param bytes data:
@@ -365,7 +425,12 @@ class Struct(metaclass=StructMeta):
         return loaded_data
 
     @classmethod
-    def partial_load(cls, stream, last_field=None, context=None):
+    def partial_load(
+        cls: Type[TStruct],
+        stream: BinaryIO,
+        last_field: str = None,
+        context: Any = None,
+    ) -> TStruct:
         """Partially load this object, either until EOF or the named field.
 
         All fields up to and including the field named in ``last_field`` will be
@@ -427,7 +492,7 @@ class Struct(metaclass=StructMeta):
         return cls(**result)
 
     @classmethod
-    def get_field(cls, stream, name, context=None):
+    def get_field(cls, stream: BinaryIO, name: str, context: Any = None) -> Any:
         """Return the value of a single field.
 
         If the field is at a fixed byte offset from the beginning of the struct,
@@ -483,7 +548,9 @@ class Struct(metaclass=StructMeta):
             stream.seek(original_offset)
         return loaded_data[name]
 
-    def partial_dump(self, stream, last_field=None, context=None):
+    def partial_dump(
+        self, stream: BinaryIO, last_field: Optional[str] = None, context: Any = None
+    ) -> None:
         """Partially dump the object, up to and including the last named field.
 
         All fields up to and including the field named in ``last_field`` will be
@@ -519,7 +586,7 @@ class Struct(metaclass=StructMeta):
                 return
 
     @classmethod
-    def get_size(cls):
+    def get_size(cls) -> Optional[int]:
         """Return the size of this struct in bytes, or ``None`` if there are
         variable-sized fields that can't be resolved.
 
@@ -540,33 +607,33 @@ class Struct(metaclass=StructMeta):
 
     # Container methods
 
-    def __getitem__(self, field_name):
+    def __getitem__(self, field_name: str) -> Any:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
             )
         return getattr(self, field_name)
 
-    def __setitem__(self, field_name, value):
+    def __setitem__(self, field_name: str, value: Any) -> None:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
             )
         setattr(self, field_name, value)
 
-    def __delitem__(self, field_name):
+    def __delitem__(self, field_name: str) -> Any:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
             )
         self.__values__.pop(field_name, None)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         for name, value in self.__values__.items():
             if value is not fields.UNDEFINED:
                 yield name
 
-    def __len__(self):
+    def __len__(self) -> int:
         size = 0
         for field in self.__binobj_struct__.components.values():
             if field.size is not None:
@@ -577,7 +644,7 @@ class Struct(metaclass=StructMeta):
 
         return size
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         # Allow comparison to UNDEFINED. The result is True if all fields in this
         # struct are undefined, False otherwise.
         if other is fields.UNDEFINED:
@@ -593,10 +660,10 @@ class Struct(metaclass=StructMeta):
         other_values = recursive_to_dicts({n: other[n] for n in list(other)})
         return other_values == self_values
 
-    def __bytes__(self):
+    def __bytes__(self) -> bytes:
         return self.to_bytes()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "%s(%s)" % (
             type(self).__qualname__,
             ", ".join("%s=%r" % kv for kv in self.__values__.items()),

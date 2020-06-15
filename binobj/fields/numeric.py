@@ -79,7 +79,7 @@ class Float(Field[float]):
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> float:
         data = self._read_exact_size(stream)
         try:
-            return struct.unpack(self.format_string, data)[0]
+            return struct.unpack(self.format_string, data)[0]  # type: ignore
         except struct.error as exc:
             raise errors.DeserializationError(message=str(exc), field=self, data=data)
 
@@ -283,14 +283,14 @@ class Int32(Integer):
 class Int64(Integer):
     """A 64-bit signed integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=8, **kwargs)
 
 
 class UInt8(Int8):
     """An 8-bit unsigned integer."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
