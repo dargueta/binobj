@@ -24,8 +24,10 @@ import attr
 from binobj import decorators
 from binobj import errors
 from binobj import fields
+from binobj.typedefs import FieldValidator
 from binobj.typedefs import MutableStrDict
 from binobj.typedefs import StrDict
+from binobj.typedefs import StructValidator
 
 
 __all__ = ["Struct"]
@@ -49,8 +51,8 @@ class StructMetadata:
     components = attr.ib(
         type=Dict[str, fields.Field[Any]], factory=collections.OrderedDict
     )
-    struct_validators = attr.ib(type=List[Callable], factory=list)
-    field_validators = attr.ib(type=Dict[str, List[Callable]], factory=dict)
+    struct_validators = attr.ib(type=List[StructValidator], factory=list)
+    field_validators = attr.ib(type=Dict[str, List[FieldValidator]], factory=dict)
     defaults = attr.ib(type=Dict[str, Any], factory=dict)
 
 
@@ -383,7 +385,7 @@ class Struct(metaclass=StructMeta):
 
     @classmethod
     def from_bytes(
-        cls: TypeVar[TStruct],
+        cls: Type[TStruct],
         data: bytes,
         context: Any = None,
         exact: bool = True,

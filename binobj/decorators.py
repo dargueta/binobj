@@ -1,6 +1,14 @@
 """Function and method decorators."""
 
 import functools
+from typing import Any
+from typing import Callable
+from typing import Iterable
+from typing import Optional
+from typing import Union
+
+from binobj.typedefs import FieldValidator
+from binobj.typedefs import StructValidator
 
 
 class ValidatorMethodWrapper:
@@ -14,16 +22,18 @@ class ValidatorMethodWrapper:
         should be used to validate the entire struct, not just a field.
     """
 
-    def __init__(self, func, field_names):
+    def __init__(
+        self, func: Union[FieldValidator, StructValidator], field_names: Iterable[str]
+    ):
         self.func = func
         self.field_names = tuple(field_names or ())
         functools.wraps(func)(self)
 
-    def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
+    def __call__(self, *args: Any, **kwargs: Any) -> Optional[bool]:
+        return self.func(*args, **kwargs)  # type: ignore
 
 
-def validates(*field_names):
+def validates(*field_names: str) -> Callable[[FieldValidator], ValidatorMethodWrapper]:
     """Mark a method as a validator for one or more fields.
 
     .. code-block:: python
@@ -58,13 +68,13 @@ def validates(*field_names):
             "pass Field objects."
         )
 
-    def decorator(func):
+    def decorator(func: FieldValidator) -> ValidatorMethodWrapper:
         return ValidatorMethodWrapper(func, field_names)
 
     return decorator
 
 
-def validates_struct(func):
+def validates_struct(func: StructValidator) -> ValidatorMethodWrapper:
     """Mark a method as a validator for the entire struct.
 
     The method being decorated should take a single argument aside from ``self``,

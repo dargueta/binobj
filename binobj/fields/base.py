@@ -161,14 +161,14 @@ class Field(Generic[T]):
         const: Union[T, _Undefined] = UNDEFINED,
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
         discard: bool = False,
-        null_value: bytes = None,
+        null_value: Union[Optional[bytes], _Undefined] = None,
         size: Optional[int] = None,
         validate: Iterable[Callable[[Optional[T]], bool]] = (),
         present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None
     ):
-        if null_value is DEFAULT:
+        if null_value is UNDEFINED:
             warnings.warn(
-                "Passing `DEFAULT` for the `null_value` argument is deprecated. Use"
+                "Passing `UNDEFINED` for the `null_value` argument is deprecated. Use"
                 " `None` instead.",
                 DeprecationWarning,
             )
@@ -194,12 +194,12 @@ class Field(Generic[T]):
 
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
-        self.name = typing.cast(str, name)
+        self.name = name
         self.index = typing.cast(int, None)
         self.offset = None  # type: Optional[int]
         self._compute_fn = (
             None
-        )  # type: Optional[Callable[["Field", StrDict], Optional[T]]]
+        )  # type: Optional[Callable[["Field[T]", StrDict], Optional[T]]]
 
     @property
     def size(self) -> Optional[int]:
@@ -253,7 +253,7 @@ class Field(Generic[T]):
         if not self.present(all_values, None, None):
             return NOT_PRESENT
         if self.name in all_values:
-            return all_values[self.name]
+            return typing.cast(Optional[T], all_values[self.name])
         if self._default is not UNDEFINED:
             return self.default
         if self._compute_fn is not None:
@@ -261,7 +261,7 @@ class Field(Generic[T]):
 
         raise errors.MissingRequiredValueError(field=self)
 
-    def computes(self, method: Callable[["Field", StrDict], Optional[T]]) -> None:
+    def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
 
         .. deprecated:: 0.6.0
@@ -439,7 +439,7 @@ class Field(Generic[T]):
         context: Any = None,
         exact: bool = True,
         loaded_fields: Optional[StrDict] = None,
-    ):
+    ) -> Union[Optional[T], _NotPresent]:
         """Deprecated alias of :meth:`.from_bytes`.
 
         .. deprecated:: 0.6.2
@@ -625,9 +625,7 @@ class Field(Generic[T]):
         for validator in self.validators:
             validator(data)
 
-        self._do_dump(
-            stream, typing.cast(T, data), context=context, all_fields=all_fields
-        )
+        self._do_dump(stream, data, context=context, all_fields=all_fields)
 
     def to_bytes(
         self,

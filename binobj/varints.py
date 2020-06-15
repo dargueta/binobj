@@ -5,9 +5,13 @@
 
 import enum
 import math
+import typing
 from typing import BinaryIO
 
 from binobj import helpers
+
+if typing.TYPE_CHECKING:
+    from typing import Optional
 
 
 class VarIntEncoding(enum.Enum):
@@ -79,7 +83,7 @@ def decode_integer_compact(stream: BinaryIO) -> int:
     :return: The decoded integer.
     :rtype: int
     """
-    sign = None
+    sign = None  # type: Optional[int]
     value = 0
 
     while True:

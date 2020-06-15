@@ -309,7 +309,7 @@ class UnexpectedValueError(SerializationError):
         instances.
     """
 
-    def __init__(self, *, struct, name: Union[str, Collection[str]]):
+    def __init__(self, *, struct: "Struct", name: Union[str, Collection[str]]):
         if isinstance(name, str):
             self.names = {name}
         else:

@@ -30,7 +30,7 @@ TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 HaltCheckFn = Callable[["Array", BinaryIO, List, Any, StrDict], bool]
 
 
-class Array(Field[T]):
+class Array(Field[List[T]]):
     """An array of other serializable objects.
 
     :param Field component:
@@ -121,13 +121,17 @@ class Array(Field[T]):
         if name not in field_values:
             raise errors.FieldReferenceError(
                 "Array size depends on field %r but it wasn't found." % name,
-                field=self.count,
+                field=name,
             )
         return field_values[name]
 
     @staticmethod
     def should_halt(
-        seq, stream: BinaryIO, values: List[T], context: Any, loaded_fields: StrDict
+        seq: "Array",
+        stream: BinaryIO,
+        values: List[T],
+        context: Any,
+        loaded_fields: StrDict,
     ) -> bool:
         """Determine if the deserializer should stop reading from the input.
 
@@ -268,7 +272,7 @@ class Array(Field[T]):
         return result
 
 
-class Nested(Field):
+class Nested(Field[TStruct]):
     """Used to nest one struct inside of another.
 
     :param Type[~binobj.structures.Struct] struct_class:
@@ -306,7 +310,7 @@ class Nested(Field):
         return self.struct_class.from_stream(stream, context)
 
 
-class Union(Field):
+class Union(Field[T]):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:
