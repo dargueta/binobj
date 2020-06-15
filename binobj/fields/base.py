@@ -417,39 +417,6 @@ class Field(Generic[T]):
             return field_values[name]
         raise errors.MissingRequiredValueError(field=name)
 
-    def load(
-        self,
-        stream: BinaryIO,
-        context: Any = None,
-        loaded_fields: Optional[StrDict] = None,
-    ) -> Union[Optional[T], _NotPresent]:
-        """Deprecated alias of :meth:`.from_stream`.
-
-        .. deprecated:: 0.6.2
-            Use :meth:`.from_stream`.
-        """
-        warnings.warn(
-            "load() is deprecated in favor of from_stream().", DeprecationWarning
-        )
-        return self.from_stream(stream, context, loaded_fields)
-
-    def loads(
-        self,
-        data: bytes,
-        context: Any = None,
-        exact: bool = True,
-        loaded_fields: Optional[StrDict] = None,
-    ) -> Union[Optional[T], _NotPresent]:
-        """Deprecated alias of :meth:`.from_bytes`.
-
-        .. deprecated:: 0.6.2
-            Use :meth:`.from_bytes`.
-        """
-        warnings.warn(
-            "loads() is deprecated in favor of from_bytes().", DeprecationWarning
-        )
-        return self.from_bytes(data, context, exact, loaded_fields)
-
     def from_stream(
         self,
         stream: BinaryIO,
@@ -552,39 +519,6 @@ class Field(Generic[T]):
         :return: The loaded object.
         """
         raise NotImplementedError
-
-    def dump(
-        self,
-        stream: BinaryIO,
-        data: Union[Optional[T], _Default] = DEFAULT,
-        context: Any = None,
-        all_fields: Optional[StrDict] = None,
-    ) -> None:
-        """Deprecated alias of :meth:`to_stream`.
-
-        .. deprecated:: 0.6.2
-            Use :meth:`.to_stream`.
-        """
-        warnings.warn(
-            "dump() is deprecated in favor of to_stream().", DeprecationWarning
-        )
-        self.to_stream(stream, data, context, all_fields)
-
-    def dumps(
-        self,
-        data: Union[Optional[T], _Default] = DEFAULT,
-        context: Any = None,
-        all_fields: Optional[StrDict] = None,
-    ) -> bytes:
-        """Deprecated alias of :meth:`to_bytes`.
-
-        .. deprecated:: 0.6.2
-            Use :meth:`.to_bytes` instead.
-        """
-        warnings.warn(
-            "dumps() is deprecated in favor of to_bytes().", DeprecationWarning
-        )
-        return self.to_bytes(data, context, all_fields)
 
     def to_stream(
         self,

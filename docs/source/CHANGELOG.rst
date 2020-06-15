@@ -19,8 +19,10 @@ Bugfixes
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
-``Field`` is now a generic container class, which means all subclasses must define
-their value type. *This only affects users that created their own subclasses.*
+* Removed ``load()``, ``loads()``, ``dump()``, and ``dumps()`` methods which were
+  deprecated in 0.6.2.
+* ``Field`` is now a generic container class, which means all subclasses must define
+  their value type. *This only affects users that created their own subclasses.*
 
 Other Changes
 ~~~~~~~~~~~~~
