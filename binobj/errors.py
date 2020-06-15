@@ -27,7 +27,7 @@ class Error(Exception):
 
     def __init__(self, message: Optional[str] = None, *args: Any):
         # If there is no error message, use the first line of the docstring.
-        if message is None:
+        if message is None and self.__doc__:
             message = self.__doc__.splitlines()[0]
         super().__init__(message, *args)
 
@@ -109,7 +109,7 @@ class SerializationError(Error):
         message: Optional[str] = None,
         *,
         struct: Optional["Struct"] = None,
-        field: Optional["Field[T]"] = None,
+        field: Optional[FieldOrName] = None,
         value: Optional[T] = None
     ):
         super().__init__(message)
@@ -209,7 +209,9 @@ class ImmutableFieldError(IllegalOperationError):
 
     def __init__(self, *, field: Optional["Field[Any]"] = None):
         if field is not None:
-            message = "Cannot assign to immutable field: %r" % field
+            message = (
+                "Cannot assign to immutable field: %r" % field
+            )  # type: Optional[str]
         else:
             message = None
 

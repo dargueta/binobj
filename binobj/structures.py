@@ -66,7 +66,7 @@ class StructMeta(abc.ABCMeta):
 
     @classmethod
     def __prepare__(
-        cls, name: str, bases: Sequence[Type]
+        cls, name: str, bases: Tuple[type, ...]
     ) -> collections.OrderedDict[str, Any]:
         return collections.OrderedDict()
 
