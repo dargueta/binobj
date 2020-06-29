@@ -380,7 +380,7 @@ class UnexpectedEOFError(DeserializationError):
         in bytes.
     """
 
-    def __init__(self, *, field: "Field[Any]", size: int, offset: int):
+    def __init__(self, *, field: Optional["Field[Any]"], size: int, offset: int):
         super().__init__(
             "Unexpected EOF while trying to read %d bytes at offset %d."
             % (size, offset),
