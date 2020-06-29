@@ -5,9 +5,9 @@ import collections
 import collections.abc
 import copy
 import io
+import typing
 from typing import Any
 from typing import BinaryIO
-from typing import Callable
 from typing import Dict
 from typing import Iterator
 from typing import List
@@ -64,18 +64,20 @@ class StructMeta(abc.ABCMeta):
     :class:`~binobj.fields.base.Field` components such as its name and index.
     """
 
+    # MyPy is kinda forcing me to use dunderscore names for arguments just because
+    # typeshed does it this way. The stupidity... >:[
     @classmethod
     def __prepare__(
-        cls, name: str, bases: Tuple[type, ...]
-    ) -> collections.OrderedDict[str, Any]:
+        mcs, __name: str, __bases: Tuple[type, ...], **kwargs: Any
+    ) -> MutableStrDict:
         return collections.OrderedDict()
 
     def __new__(
         mcs: Type["StructMeta"],
         class_name: str,
         bases: Tuple[type, ...],
-        namespace: MutableStrDict,
-    ) -> type:
+        namespace: Dict[str, Any],
+    ) -> "StructMeta":
         # Build a list of all of the base classes that appear to be Structs. If anything
         # else uses StructMeta as a metaclass then we're in trouble, since this will
         # detect that as a second base class.
@@ -256,17 +258,17 @@ class Struct(metaclass=StructMeta):
             value = self[f_name]
 
             # First, invoke the validators defined on the field object.
-            for validator in f_obj.validators:
-                validator(value)
+            for instance_validator in f_obj.validators:
+                instance_validator(value)
 
             # Second, invoke the validator methods for the field defined on this
             # Struct.
-            for validator in validators:
-                validator(self, f_obj, value)
+            for method_validator in validators:
+                method_validator(self, f_obj, value)
 
         # Validate the entirety of the struct.
-        for validator in self.__binobj_struct__.struct_validators:
-            validator(self, self)
+        for struct_validator in self.__binobj_struct__.struct_validators:
+            struct_validator(self, self)
 
     def to_stream(self, stream: BinaryIO, context: Any = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
@@ -365,7 +367,7 @@ class Struct(metaclass=StructMeta):
         :return: The loaded struct.
         """
         if init_kwargs:
-            results = copy.deepcopy(init_kwargs)
+            results = typing.cast(MutableStrDict, copy.deepcopy(init_kwargs))
         else:
             results = {}
 
@@ -467,7 +469,7 @@ class Struct(metaclass=StructMeta):
                 "%s doesn't have a field named %r." % (cls.__name__, last_field)
             )
 
-        result = {}
+        result = {}  # type: MutableStrDict
 
         for field in cls.__binobj_struct__.components.values():
             offset = stream.tell()

@@ -8,12 +8,14 @@ from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Type
 from typing import TypeVar
 from typing import Union as _Union
 
 from binobj import errors
 from binobj.fields.base import Field
+from binobj.fields.base import NOT_PRESENT
 from binobj.typedefs import StrDict
 
 if typing.TYPE_CHECKING:
@@ -27,10 +29,16 @@ T = TypeVar("T")
 TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
-HaltCheckFn = Callable[["Array", BinaryIO, List, Any, StrDict], bool]
+HaltCheckFn = Callable[["Array[T]", BinaryIO, List, Any, StrDict], bool]
+
+FieldOrTStruct = _Union[Field[Any], TStruct]
+LoadDecider = Callable[
+    [BinaryIO, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct
+]
+DumpDecider = Callable[[Any, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct]
 
 
-class Array(Field[List[T]]):
+class Array(Field[List[Optional[T]]]):
     """An array of other serializable objects.
 
     :param Field component:
@@ -92,8 +100,8 @@ class Array(Field[List[T]]):
 
         :param dict field_values:
             A dict mapping field names to their deserialized values. It doesn't
-            need to have every value in the struct; if ``count`` references a
-            field, it only requires that field to be present.
+            need to have every value in the struct; if :attr:`count` references a
+            field, it only requires that field to be present here.
 
         :return:
             The expected number of elements in this array, or ``None`` if the
@@ -101,6 +109,9 @@ class Array(Field[List[T]]):
         :rtype: int
 
         .. versionadded:: 0.6.1
+        .. versionchanged:: 0.8.0
+            Throws a `ConfigurationError` if this field's :attr:`count` is a `Field` but
+            doesn't have an assigned name.
         """
         if self.count is None:
             return None
@@ -109,6 +120,13 @@ class Array(Field[List[T]]):
 
         if isinstance(self.count, Field):
             name = self.count.name
+            if name is None:
+                # This will only happen if someone creates a field outside of a Struct
+                # and passes it to this field as the count object.
+                raise errors.ConfigurationError(
+                    "`count` field for %r has no assigned name." % self,
+                    field=self.count,
+                )
         elif isinstance(self.count, str):
             name = self.count
         else:
@@ -123,13 +141,13 @@ class Array(Field[List[T]]):
                 "Array size depends on field %r but it wasn't found." % name,
                 field=name,
             )
-        return field_values[name]
+        return typing.cast(int, field_values[name])
 
     @staticmethod
     def should_halt(
-        seq: "Array",
+        seq: "Array[T]",
         stream: BinaryIO,
-        values: List[T],
+        values: List[Optional[T]],
         context: Any,
         loaded_fields: StrDict,
     ) -> bool:
@@ -173,9 +191,19 @@ class Array(Field[List[T]]):
         :return: ``True`` if the deserializer should stop reading, ``False``
             otherwise.
         :rtype: bool
+
+        .. versionchanged:: 0.8.0
+            The default implementation now throws `UndefinedSizeError` if the length of
+            the array couldn't be determined. Previously this would crash with a
+            `TypeError`.
         """
         if seq.count is not None:
-            return seq.get_final_element_count(loaded_fields) <= len(values)
+            count = seq.get_final_element_count(loaded_fields)
+            if count is None:
+                # Theoretically this should never happen, as get_final_element_count()
+                # should only return None if seq.count is None.
+                raise errors.UndefinedSizeError(field=seq)
+            return count <= len(values)
 
         # Else: count is None. Our only option is to check to see if we hit EOF.
         offset = stream.tell()
@@ -220,8 +248,8 @@ class Array(Field[List[T]]):
     def _dump_unsized(
         self,
         stream: BinaryIO,
-        data: Iterable[T],
-        n_elems: int,
+        data: Iterable[Optional[T]],
+        n_elems: Optional[int],
         context: Any,
         all_fields: StrDict,
     ) -> None:
@@ -240,7 +268,7 @@ class Array(Field[List[T]]):
             )
             n_written += 1
 
-        if n_written < n_elems:
+        if n_elems is not None and n_written < n_elems:
             raise errors.ArraySizeError(
                 field=self, n_expected=n_elems, n_given=n_written
             )
@@ -262,11 +290,13 @@ class Array(Field[List[T]]):
         :return: The deserialized data.
         :rtype: list
         """
-        result = []
+        result = []  # type: List[Optional[T]]
         while not self.halt_check(
             self, stream, result, context=context, loaded_fields=loaded_fields
         ):
             component = self.component.from_stream(stream, context, loaded_fields)
+            if component is NOT_PRESENT:
+                continue
             result.append(component)
 
         return result
@@ -371,7 +401,7 @@ class Union(Field[T]):
 
     def __init__(
         self,
-        *choices: _Union["Field[Any]", "Struct"],
+        *choices: _Union["Field[Any]", Type["Struct"]],
         load_decider,
         dump_decider,
         **kwargs: Any

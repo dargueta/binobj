@@ -18,6 +18,8 @@ from typing import Type
 from typing import TypeVar
 from typing import Union
 
+import more_itertools as m_iter
+
 from binobj import errors
 from binobj.typedefs import StrDict
 
@@ -163,7 +165,7 @@ class Field(Generic[T]):
         discard: bool = False,
         null_value: Union[Optional[bytes], _Undefined] = None,
         size: Optional[int] = None,
-        validate: Iterable[Callable[[Optional[T]], bool]] = (),
+        validate: Iterable[Callable[["Field[T]", Optional[T]], bool]] = (),
         present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None
     ):
         if null_value is UNDEFINED:
@@ -179,22 +181,18 @@ class Field(Generic[T]):
         self.null_value = null_value
         self.present = present or (lambda *_: True)
         self._size = size
-
-        if isinstance(validate, collections.abc.Iterable):
-            self.validators = [functools.partial(v, self) for v in validate]
-        else:
-            self.validators = [functools.partial(validate, self)]
+        self.validators = [functools.partial(v, self) for v in m_iter.always_iterable(validate)]
 
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
             # ``const``.
-            self._default = const  # type: Union[Optional[T], Callable[[], Optional[T]]]
+            self._default = const  # type: Union[Optional[T], Callable[[], Optional[T]], _Undefined]
         else:
             self._default = default
 
         # These attributes are typically set by the struct containing the field
         # after the field's instantiated.
-        self.name = name
+        self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
         self.offset = None  # type: Optional[int]
         self._compute_fn = (
@@ -248,6 +246,11 @@ class Field(Generic[T]):
             function defined either.
 
         .. versionadded:: 0.3.1
+
+        .. versionchanged:: 0.8.0
+            If ``default`` is given by a callable and that callable returns
+            :data:`UNDEFINED`, it will throw :class:`MissingRequiredValueError` instead
+            of returning that.
         """
         # FIXME (dargueta): Don't pass None for the context variable.
         if not self.present(all_values, None, None):
@@ -255,7 +258,11 @@ class Field(Generic[T]):
         if self.name in all_values:
             return typing.cast(Optional[T], all_values[self.name])
         if self._default is not UNDEFINED:
-            return self.default
+            # Theoretically if self._default is a callable that returns UNDEFINED we
+            # could run into trouble here. Get the return value.
+            to_return = self.default
+            if to_return is not UNDEFINED:
+                return to_return
         if self._compute_fn is not None:
             return self._compute_fn(self, all_values)
 
@@ -323,7 +330,7 @@ class Field(Generic[T]):
         return self.null_value is not None
 
     @property
-    def default(self) -> Optional[T]:
+    def default(self) -> Union[T, None, _Undefined]:
         """The default value of this field, or :data:`UNDEFINED`.
 
         If the default value passed to the constructor was a callable, this
@@ -545,7 +552,7 @@ class Field(Generic[T]):
             all_fields = {}
 
         if data is DEFAULT:
-            data = self.default
+            data = self.default  # type: ignore
             if data in (UNDEFINED, DEFAULT):
                 raise errors.MissingRequiredValueError(field=self)
 
