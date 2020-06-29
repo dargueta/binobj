@@ -15,12 +15,17 @@ Bugfixes
   default value was ``None``.
 * The ``present`` callable was sometimes passed too few arguments, potentially
   resulting in a ``TypeError``.
+* Dumping an unsized iterable in an ``Array`` no longer crashes.
+* Dumping a missing field whose ``default`` callable returns ``UNDEFINED`` now
+  throws the expected ``MissingRequiredValueError`` exception instead of trying
+  to serialize ``UNDEFINED``.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
 * Removed ``load()``, ``loads()``, ``dump()``, and ``dumps()`` methods which were
   deprecated in 0.6.2.
+* ``Array`` now skips over fields loading as ``NOT_PRESENT`` when loading.
 * ``Field`` is now a generic container class, which means all subclasses must define
   their value type. *This only affects users that created their own subclasses.*
 
