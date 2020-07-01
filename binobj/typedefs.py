@@ -19,6 +19,7 @@ StrDict = Mapping[str, Any]
 MutableStrDict = MutableMapping[str, Any]
 
 FieldValidator = Callable[["Field[Any]", Any], Optional[bool]]
-StructValidator = Callable[["Struct"], Optional[bool]]
+MethodFieldValidator = Callable[["Struct", "Field[Any]", Any], Optional[bool]]
+StructValidator = Callable[["Struct", StrDict], Optional[bool]]
 FieldOrName = Union[str, "Field[Any]"]
 StructOrName = Union[str, "Struct"]

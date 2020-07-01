@@ -16,6 +16,28 @@ if typing.TYPE_CHECKING:
     from binobj.structures import Struct
 
 
+__all__ = [
+    "ArraySizeError",
+    "ConfigurationError",
+    "DeserializationError",
+    "Error",
+    "ExtraneousDataError",
+    "FieldRedefinedError",
+    "FieldReferenceError",
+    "IllegalOperationError",
+    "ImmutableFieldError",
+    "MissingRequiredValueError",
+    "MultipleInheritanceError",
+    "SerializationError",
+    "UndefinedSizeError",
+    "UnexpectedEOFError",
+    "UnexpectedValueError",
+    "UnserializableValueError",
+    "ValidationError",
+    "ValueSizeError",
+]
+
+
 T = TypeVar("T")
 
 

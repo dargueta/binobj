@@ -64,7 +64,7 @@ def test_array__sized__read():
 def test_array__sentinel():
     """Test deserializing a sequence that has a sentinel terminator."""
 
-    def halt(_seq, _str, values, **_extra):
+    def halt(_seq, _str, values, _context, _loaded_fields):
         return values and (values[-1] == 0xDEAD)
 
     sequence = fields.Array(fields.UInt16(endian="little"), halt_check=halt)

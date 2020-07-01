@@ -37,6 +37,7 @@ Other Changes
 * ``_NamedSentinel`` has been eliminated. In keeping with PEP 484, sentinel values
   such as ``UNDEFINED`` and ``NOT_IMPLEMENTED`` are now enums. For more information
   on why, see `Support for Singleton Types in Unions`_ in the PEP 484 documentation.
+* ``from binobj.errors import *`` now only imports the exception classes.
 
 .. _Support for Singleton Types in Unions: https://www.python.org/dev/peps/pep-0484/#support-for-singleton-types-in-unions
 

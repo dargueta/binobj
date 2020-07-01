@@ -1,7 +1,6 @@
 """Base classes and definitions common to all Fields."""
 
 import abc
-import collections.abc
 import enum
 import functools
 import io
@@ -22,6 +21,7 @@ import more_itertools as m_iter
 
 from binobj import errors
 from binobj.typedefs import StrDict
+from binobj.typedefs import FieldValidator
 
 
 if typing.TYPE_CHECKING:
@@ -163,30 +163,26 @@ class Field(Generic[T]):
         const: Union[T, _Undefined] = UNDEFINED,
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
         discard: bool = False,
-        null_value: Union[Optional[bytes], _Undefined] = None,
+        null_value: Union[bytes, _Default, _Undefined] = UNDEFINED,
         size: Optional[int] = None,
-        validate: Iterable[Callable[["Field[T]", Optional[T]], bool]] = (),
+        validate: Iterable[FieldValidator] = (),
         present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None
     ):
-        if null_value is UNDEFINED:
-            warnings.warn(
-                "Passing `UNDEFINED` for the `null_value` argument is deprecated. Use"
-                " `None` instead.",
-                DeprecationWarning,
-            )
-            null_value = None
-
         self.const = const
         self.discard = discard
         self.null_value = null_value
         self.present = present or (lambda *_: True)
         self._size = size
-        self.validators = [functools.partial(v, self) for v in m_iter.always_iterable(validate)]
+        self.validators = [
+            functools.partial(v, self) for v in m_iter.always_iterable(validate)
+        ]
 
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
             # ``const``.
-            self._default = const  # type: Union[Optional[T], Callable[[], Optional[T]], _Undefined]
+            self._default = (
+                const
+            )  # type: Union[Optional[T], Callable[[], Optional[T]], _Undefined]
         else:
             self._default = default
 
@@ -327,7 +323,7 @@ class Field(Generic[T]):
 
         :type: bool
         """
-        return self.null_value is not None
+        return self.null_value is not UNDEFINED
 
     @property
     def default(self) -> Union[T, None, _Undefined]:
@@ -553,8 +549,9 @@ class Field(Generic[T]):
 
         if data is DEFAULT:
             data = self.default  # type: ignore
-            if data in (UNDEFINED, DEFAULT):
-                raise errors.MissingRequiredValueError(field=self)
+
+        if data is UNDEFINED or data is DEFAULT:
+            raise errors.MissingRequiredValueError(field=self)
 
         for validator in self.validators:
             validator(data)
@@ -622,13 +619,13 @@ class Field(Generic[T]):
         :return: The serialized form of ``None`` for this field.
         :rtype: bytes
         """
-        if not self.allow_null:
+        if self.null_value is UNDEFINED:
             raise errors.UnserializableValueError(
                 reason="`None` is not an acceptable value for %s." % self,
                 field=self,
                 value=None,
             )
-        if self.null_value is not None:
+        if self.null_value is not DEFAULT:
             return self.null_value
 
         # User wants us to use all null bytes for the default null value.

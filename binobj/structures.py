@@ -12,6 +12,7 @@ from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import Mapping
+from typing import MutableMapping
 from typing import Optional
 from typing import overload
 from typing import Sequence
@@ -24,7 +25,7 @@ import attr
 from binobj import decorators
 from binobj import errors
 from binobj import fields
-from binobj.typedefs import FieldValidator
+from binobj.typedefs import MethodFieldValidator
 from binobj.typedefs import MutableStrDict
 from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
@@ -52,7 +53,7 @@ class StructMetadata:
         type=Dict[str, fields.Field[Any]], factory=collections.OrderedDict
     )
     struct_validators = attr.ib(type=List[StructValidator], factory=list)
-    field_validators = attr.ib(type=Dict[str, List[FieldValidator]], factory=dict)
+    field_validators = attr.ib(type=Dict[str, List[MethodFieldValidator]], factory=dict)
     defaults = attr.ib(type=Dict[str, Any], factory=dict)
 
 
@@ -91,7 +92,7 @@ class StructMeta(abc.ABCMeta):
         if struct_bases:
             # Build a dictionary of all of the fields in the parent struct first,
             # then add in the fields defined in this struct.
-            base = struct_bases[0]  # type: Type["Struct"]
+            base = typing.cast(Type["Struct"], struct_bases[0])
 
             for comp_name, item in base.__binobj_struct__.components.items():
                 if isinstance(item, fields.Field):
@@ -133,13 +134,14 @@ class StructMeta(abc.ABCMeta):
         mcs._bind_validators(namespace, metadata)
 
         namespace["__binobj_struct__"] = metadata
-        return super().__new__(mcs, class_name, bases, namespace)
+        # TODO (dargueta): Figure out how metaclasses are supposed to work with MyPy
+        return super().__new__(mcs, class_name, bases, namespace)  # type: ignore
 
     @staticmethod
     def _bind_fields(
         class_name: str,
         namespace: StrDict,
-        components: Dict[str, fields.Field[Any]],
+        components: MutableMapping[str, fields.Field[Any]],
         field_index: int,
         offset: Optional[int],
     ) -> None:
@@ -181,12 +183,12 @@ class StructMeta(abc.ABCMeta):
 
 
 @overload
-def recursive_to_dicts(item: "Struct") -> collections.OrderedDict[str, Any]:
+def recursive_to_dicts(item: "Struct") -> MutableMapping[str, Any]:
     ...
 
 
 @overload
-def recursive_to_dicts(item: Mapping[K, V]) -> collections.OrderedDict[K, V]:
+def recursive_to_dicts(item: Mapping[K, V]) -> MutableMapping[K, V]:
     ...
 
 
@@ -268,7 +270,7 @@ class Struct(metaclass=StructMeta):
 
         # Validate the entirety of the struct.
         for struct_validator in self.__binobj_struct__.struct_validators:
-            struct_validator(self, self)
+            struct_validator(self, typing.cast(StrDict, self))
 
     def to_stream(self, stream: BinaryIO, context: Any = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
@@ -305,9 +307,7 @@ class Struct(metaclass=StructMeta):
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(
-        self, keep_discardable: bool = False
-    ) -> collections.OrderedDict[str, Any]:
+    def to_dict(self, keep_discardable: bool = False) -> MutableMapping[str, Any]:
         """Convert this struct into an ordered dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct`
@@ -335,7 +335,7 @@ class Struct(metaclass=StructMeta):
             just the first level.
         """
         dct = collections.OrderedDict(
-            (field.name, field.compute_value_for_dump(self))
+            (field.name, field.compute_value_for_dump(typing.cast(StrDict, self)))
             for field in self.__binobj_struct__.components.values()
             if keep_discardable or not field.discard
         )
@@ -643,7 +643,7 @@ class Struct(metaclass=StructMeta):
             if field.size is not None:
                 size += field.size
             else:
-                field_value = field.compute_value_for_dump(self)
+                field_value = field.compute_value_for_dump(typing.cast(StrDict, self))
                 size += len(field.to_bytes(field_value))
 
         return size

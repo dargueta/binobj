@@ -291,9 +291,7 @@ class Array(Field[List[Optional[T]]]):
         :rtype: list
         """
         result = []  # type: List[Optional[T]]
-        while not self.halt_check(
-            self, stream, result, context=context, loaded_fields=loaded_fields
-        ):
+        while not self.halt_check(self, stream, result, context, loaded_fields):
             component = self.component.from_stream(stream, context, loaded_fields)
             if component is NOT_PRESENT:
                 continue
@@ -329,9 +327,13 @@ class Nested(Field[TStruct]):
         self._size = struct_class.get_size()
 
     def _do_dump(
-        self, stream: BinaryIO, data: StrDict, context: Any, all_fields: StrDict
+        self,
+        stream: BinaryIO,
+        data: _Union[StrDict, TStruct],
+        context: Any,
+        all_fields: StrDict,
     ) -> None:
-        instance = self.struct_class(**data)
+        instance = self.struct_class(**typing.cast(StrDict, data))
         return instance.to_stream(stream, context)
 
     def _do_load(
