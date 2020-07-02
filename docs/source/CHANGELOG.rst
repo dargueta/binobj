@@ -4,7 +4,7 @@ Changelog
 0.8.0
 -----
 
-(Unreleased)
+Released 2020-07-02
 
 New Features
 ~~~~~~~~~~~~
