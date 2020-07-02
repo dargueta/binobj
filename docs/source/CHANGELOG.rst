@@ -6,6 +6,11 @@ Changelog
 
 (Unreleased)
 
+New Features
+~~~~~~~~~~~~
+
+Official support for Python 3.9.
+
 Bugfixes
 ~~~~~~~~
 
@@ -19,6 +24,8 @@ Bugfixes
 * Dumping a missing field whose ``default`` callable returns ``UNDEFINED`` now
   throws the expected ``MissingRequiredValueError`` exception instead of trying
   to serialize ``UNDEFINED``.
+* Test on PyPy 3.6 like we claimed we were. Accidentally deleted that in the
+  travis.yml file.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
@@ -26,8 +33,8 @@ Breaking Changes
 * Removed ``load()``, ``loads()``, ``dump()``, and ``dumps()`` methods which were
   deprecated in 0.6.2.
 * ``Array`` now skips over fields loading as ``NOT_PRESENT`` when loading.
-* ``Field`` is now a generic container class, which means all subclasses must define
-  their value type. *This only affects users that created their own subclasses.*
+* ``Field`` is now a generic container class, which means all subclasses must
+  define their value type. *This only affects users that created their own subclasses.*
 
 Other Changes
 ~~~~~~~~~~~~~
@@ -38,6 +45,8 @@ Other Changes
   such as ``UNDEFINED`` and ``NOT_IMPLEMENTED`` are now enums. For more information
   on why, see `Support for Singleton Types in Unions`_ in the PEP 484 documentation.
 * ``from binobj.errors import *`` now only imports the exception classes.
+* Travis no longer supports PyPy 3.5 so we have to stop testing on it, but the
+  tests pass on CPython 3.5 and PyPy 3.6 so I think you're okay for now.
 
 .. _Support for Singleton Types in Unions: https://www.python.org/dev/peps/pep-0484/#support-for-singleton-types-in-unions
 

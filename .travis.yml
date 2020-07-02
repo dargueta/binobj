@@ -1,11 +1,11 @@
-dist: xenial
+dist: bionic
 language: python
 python:
   - '3.5'
   - '3.6'
   - '3.7'
   - '3.8'
-  - 'pypy3.5-7.0'
+  - 'pypy3'  # PyPy 3.6-7.1.1
 matrix:
   include:
     - env: TOXENV=lint
