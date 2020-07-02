@@ -3,7 +3,6 @@
 import typing
 
 from typing import Any
-from typing import Collection
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -14,6 +13,22 @@ from binobj.typedefs import StructOrName
 if typing.TYPE_CHECKING:
     from binobj.fields import Field
     from binobj.structures import Struct
+
+
+T = TypeVar("T")
+
+try:
+    from typing import Collection
+except ImportError:
+    # Python 3.5 doesn't have typing.Container so we have to implement it ourselves.
+    # Eventually we'll drop support for 3.5 and remove this nonsense.
+    from typing import Generic
+    from typing import Iterable
+
+    class Collection(Generic[T]):
+        def __contains__(self, item: T) -> bool: ...
+        def __iter__(self) -> Iterable[T]: ...
+        def __len__(self) -> int: ...
 
 
 __all__ = [
@@ -36,9 +51,6 @@ __all__ = [
     "ValidationError",
     "ValueSizeError",
 ]
-
-
-T = TypeVar("T")
 
 
 class Error(Exception):
