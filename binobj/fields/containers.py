@@ -18,6 +18,7 @@ from binobj.fields.base import Field
 from binobj.fields.base import NOT_PRESENT
 from binobj.typedefs import StrDict
 
+
 if typing.TYPE_CHECKING:
     from binobj.structures import Struct
 

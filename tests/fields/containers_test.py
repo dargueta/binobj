@@ -119,7 +119,7 @@ def test_array__fixed_in_struct():
     assert struct.trailer == "XYZ"
 
 
-def bswsa_should_halt(seq, stream, values, context, loaded_fields):
+def bswsa_should_halt(_seq, _stream, values, _context, _loaded_fields):
     """Halting function for :attr:`BasicStructWithSentinelArray.numbers`."""
     if values and values[-1] == 0:
         # Hit sentinel, remove it from the end of the array.
@@ -268,12 +268,12 @@ class UnionItemB(binobj.Struct):
     other = fields.UInt16(endian="little")
 
 
-def struct_load_decider(stream, choices, context, loaded_fields):
+def struct_load_decider(_stream, choices, _context, loaded_fields):
     data_type_id = loaded_fields["data_type"]
     return choices[data_type_id]
 
 
-def struct_dump_decider(data, choices, context, all_fields):
+def struct_dump_decider(_data, choices, _context, all_fields):
     data_type_id = all_fields["data_type"]
     return choices[data_type_id]
 
@@ -306,12 +306,12 @@ def test_union__structs__load_basic():
     assert struct.to_dict() == {"data_type": 1, "item": {"_id": 0x7F, "other": 0xAA55}}
 
 
-def fields_load_decider(stream, choices, context, loaded_fields):
+def fields_load_decider(_stream, choices, _context, loaded_fields):
     data_type_id = loaded_fields["data_type"]
     return choices[data_type_id]
 
 
-def fields_dump_decider(data, choices, context, all_fields):
+def fields_dump_decider(_data, choices, _context, all_fields):
     if isinstance(all_fields["item"], str):
         return choices[0]
     return choices[1]

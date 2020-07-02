@@ -4,8 +4,8 @@ import abc
 import enum
 import functools
 import io
-import warnings
 import typing
+import warnings
 from typing import Any
 from typing import BinaryIO
 from typing import Callable
@@ -20,8 +20,8 @@ from typing import Union
 import more_itertools as m_iter
 
 from binobj import errors
-from binobj.typedefs import StrDict
 from binobj.typedefs import FieldValidator
+from binobj.typedefs import StrDict
 
 
 if typing.TYPE_CHECKING:

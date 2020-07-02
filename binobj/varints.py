@@ -10,6 +10,7 @@ from typing import BinaryIO
 
 from binobj import helpers
 
+
 if typing.TYPE_CHECKING:
     from typing import Optional
 

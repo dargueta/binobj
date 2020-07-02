@@ -2,8 +2,8 @@
 
 import sys
 from typing import BinaryIO
-from typing import Optional
 from typing import Iterator
+from typing import Optional
 
 from binobj import errors
 

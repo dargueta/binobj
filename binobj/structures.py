@@ -69,7 +69,7 @@ class StructMeta(abc.ABCMeta):
     # typeshed does it this way. The stupidity... >:[
     @classmethod
     def __prepare__(
-        mcs, __name: str, __bases: Tuple[type, ...], **kwargs: Any
+        mcs, __name: str, __bases: Tuple[type, ...], **_kwargs: Any
     ) -> MutableStrDict:
         return collections.OrderedDict()
 
