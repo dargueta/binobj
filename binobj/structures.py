@@ -57,6 +57,96 @@ class StructMetadata:
     defaults = attr.ib(type=Dict[str, Any], factory=dict)
 
 
+def collect_annotated_fields(
+    class_name: str,
+    namespace: StrDict,
+    declared_fields: MutableMapping[str, fields.Field[Any]],
+    field_index: int,
+    byte_offset: Optional[int],
+) -> None:
+    """Collect all fields defined via type annotations in the struct.
+
+    Can only be used for collecting fields declared like so::
+
+        class MyStruct(binobj.Struct):
+            foo: UInt16
+            bar: Timestamp64(signed=False)  # Instances are allowed too
+            baz: StringZ = ""               # You can define default values like this
+
+    Annotations can be field classes and/or instances of Field objects. If using an
+    instance, it doesn't need to be bound to the actual class.
+    """
+    if "__annotations__" not in namespace:
+        raise errors.ConfigurationError(
+            "No type annotations found for struct class %r." % class_name,
+            struct=class_name,
+        )
+
+    for name, annotation in namespace["__annotations__"].items():
+        field_instance = None  # type: Optional[fields.Field[Any]]
+
+        if isinstance(annotation, type):
+            # We got a class object.
+            if issubclass(annotation, Struct):
+                # A Struct class is shorthand for Nested(Struct).
+                field_instance = fields.Nested(annotation)
+            elif issubclass(annotation, fields.Field):
+                # This is a Field class. Initialize it with no arguments aside from its
+                # default value, if provided. This gives us a Field instance.
+                default_value = namespace.get(name, fields.UNDEFINED)
+                field_instance = annotation(default=default_value)
+            else:
+                # Not a struct or field class -- ignore
+                continue
+        elif not isinstance(annotation, fields.Field):
+            # Not an instance of Field -- ignore
+            continue
+        else:
+            # Else: The annotation is a field instance. Atypical but we'll allow it.
+            field_instance = annotation
+
+        if name in declared_fields:
+            # Puke -- the field was already defined in the superclass.
+            raise errors.FieldRedefinedError(struct=class_name, field=name)
+
+        field_instance.bind_to_container(name, field_index, byte_offset)
+        if field_index is not None and annotation.size is not None:
+            byte_offset += field_instance.size
+        else:
+            byte_offset = None
+
+        declared_fields[name] = field_instance
+        field_index += 1
+
+
+def collect_assigned_fields(
+    class_name: str,
+    namespace: StrDict,
+    components: MutableMapping[str, fields.Field[Any]],
+    field_index: int,
+    offset: Optional[int],
+) -> None:
+    # It's HIGHLY important that we don't accidentally bind the superclass' fields to
+    # this struct. That's why we're iterating over ``namespace`` and adding the field
+    # into the ``components`` dict *inside* the loop.
+    for item_name, item in namespace.items():
+        if not isinstance(item, fields.Field):
+            continue
+        if item_name in components:
+            # Field was already defined in the superclass
+            raise errors.FieldRedefinedError(struct=class_name, field=item)
+
+        item.bind_to_container(item_name, field_index, offset)
+        if offset is not None and item.size is not None:
+            offset += item.size
+        else:
+            offset = None
+
+        components[item_name] = item
+
+        field_index += 1
+
+
 class StructMeta(abc.ABCMeta):
     """The metaclass for all serializable objects composed of other serializable
     objects.
