@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.8.1
+-----
+
+(Unreleased)
+
+Bugfixes
+~~~~~~~~
+
+* When a ``Field`` throws ``ImmutableFieldError`` it now includes its name in the
+  error message. It was accidentally omitted before.
+
 0.8.0
 -----
 

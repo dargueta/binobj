@@ -685,7 +685,7 @@ class Field(Generic[T]):
 
     def __set__(self, instance: "Struct", value: Optional[T]) -> None:
         if self._compute_fn or self.const is not UNDEFINED:
-            raise errors.ImmutableFieldError()
+            raise errors.ImmutableFieldError(field=self)
 
         for validator in self.validators:
             validator(value)

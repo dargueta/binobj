@@ -155,7 +155,9 @@ def test_set_const_crashes__setattr():
 
     Only use attribute access to avoid interaction with __setitem__.
     """
-    with pytest.raises(errors.ImmutableFieldError):
+    with pytest.raises(
+        errors.ImmutableFieldError, match="Cannot assign to immutable field: 'header'"
+    ):
         BasicStructWithArray().header = b"ABC"
 
 
@@ -164,7 +166,9 @@ def test_set_const_crashes__setitem():
 
     Only use dictionary access to avoid interaction with __set__.
     """
-    with pytest.raises(errors.ImmutableFieldError):
+    with pytest.raises(
+        errors.ImmutableFieldError, match="Cannot assign to immutable field: 'header'"
+    ):
         BasicStructWithArray()["header"] = b"ABC"
 
 
