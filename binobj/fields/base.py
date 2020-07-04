@@ -124,6 +124,8 @@ class Field(Generic[T]):
         - When loading, the stream being loaded from. The stream pointer MUST
           be reset to its original position before the function returns.
 
+        .. versionadded:: 0.4.5
+
         .. versionchanged:: 0.8.0
             The ``loaded_fields`` argument is now guaranteed to not be null.
     :param validate:
@@ -144,14 +146,6 @@ class Field(Generic[T]):
         The zero-based byte offset of the field in the struct. If the offset
         can't be computed (e.g. it's preceded by a variable-length field), this
         will be ``None``.
-
-        :type: int
-
-    .. attribute:: size
-
-        The size of this object, in bytes. Builtin fields set this automatically
-        if ``const`` is given but you'll need to implement :meth:`_size_for_value`
-        in custom fields.
 
         :type: int
     """
@@ -199,7 +193,9 @@ class Field(Generic[T]):
     def size(self) -> Optional[int]:
         """The size of this field, in bytes.
 
-        :type: int
+        If the field is of variable size, such as a null-terminated string, this will be
+        ``None``. Builtin fields set this automatically if ``const`` is given but you'll
+        need to implement :meth:`_size_for_value` in custom fields.
         """
         # Part of the _size_for_value() hack.
         if self._size is None and self.const is not UNDEFINED:

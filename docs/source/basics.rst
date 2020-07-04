@@ -289,7 +289,7 @@ your strings accordingly.
 
     import datetime
 
-    class Date(binobj.Field):
+    class Date(binobj.Field[datetime.date]):  # Fields are generic containers
         def _do_load(self, stream, context, loaded_fields):
             """Load a date from the stream."""
             date_bytes = stream.read(8)

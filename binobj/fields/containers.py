@@ -55,7 +55,7 @@ class Array(Field[List[Optional[T]]]):
           if your size field's name is a Python keyword.
 
         .. versionchanged:: 0.3.0
-            ``count`` can now be a :class:`~binobj.fields.base.Field` or string.
+            ``count`` can now be a :class:`~.fields.base.Field` or string.
 
     :param callable halt_check:
         A function taking five arguments. See :meth:`should_halt` for the
@@ -63,9 +63,9 @@ class Array(Field[List[Optional[T]]]):
         to avoid having to pass in a custom function every time.
 
     .. versionchanged:: 0.6.1
-        :meth:`.to_stream` and :meth:`.to_bytes` throw an :class:`~.errors.ArraySizeError`
-        if ``count`` is set and the iterable passed in is too long. Due to a bug
-        it used to be ignored when dumping.
+        :meth:`~.fields.base.Field.to_stream` and :meth:`~.fields.base.Field.to_bytes`
+        throw an :class:`~.errors.ArraySizeError` if ``count`` is set and the iterable
+        passed in is too long. Due to a bug it used to be ignored when dumping.
 
     .. versionchanged:: 0.7.0
         :attr:`.size` is set if ``component.size`` is defined and ``count`` is
@@ -177,15 +177,15 @@ class Array(Field[List[Optional[T]]]):
             The sequence being checked.
         :param io.BufferedIOBase stream:
             The data stream to read from. Except in rare circumstances, this is
-            the same stream that was passed to :meth:`.from_stream`. The stream
-            pointer should be returned to its original position when the function
-            exits.
+            the same stream that was passed to :meth:`~.fields.base.Field.from_stream`.
+            The stream pointer should be returned to its original position when the
+            function exits.
         :param list values:
             A list of the objects that have been deserialized so far. In general
             this function *should not* modify the list. A possible exception to
             this rule is to remove a sentinel value from the end of the list.
         :param context:
-            The ``context`` object passed to :meth:`.from_stream`.
+            The ``context`` object passed to :meth:`~.fields.base.Field.from_stream`.
         :param dict loaded_fields:
             The fields in the struct that have been loaded so far.
 

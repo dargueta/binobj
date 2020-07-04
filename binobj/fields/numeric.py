@@ -143,6 +143,7 @@ class Integer(Field[int]):
         such as sign-magnitude are not supported.
     :param int size:
         The size of the integer, in bytes.
+
         .. versionchanged:: 0.8.0
             The ``size`` argument is now required.
 
