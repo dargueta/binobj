@@ -693,3 +693,6 @@ class Field(Generic[T]):
 
     def __str__(self) -> str:
         return "%s(name=%r)" % (type(self).__name__, self.name)
+
+    def __repr__(self) -> str:
+        return "<%s.%s>" % (self.__module__, self)

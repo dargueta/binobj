@@ -1,6 +1,7 @@
 """Tests for fields."""
 
 import io
+import re
 import sys
 
 import pytest
@@ -156,7 +157,9 @@ def test_set_const_crashes__setattr():
     Only use attribute access to avoid interaction with __setitem__.
     """
     with pytest.raises(
-        errors.ImmutableFieldError, match="Cannot assign to immutable field: 'header'"
+        errors.ImmutableFieldError,
+        match=re.escape("Cannot assign to immutable field: <binobj.fields.stringlike.Bytes("
+        "name='header')"),
     ):
         BasicStructWithArray().header = b"ABC"
 
@@ -167,7 +170,9 @@ def test_set_const_crashes__setitem():
     Only use dictionary access to avoid interaction with __set__.
     """
     with pytest.raises(
-        errors.ImmutableFieldError, match="Cannot assign to immutable field: 'header'"
+        errors.ImmutableFieldError,
+        match=re.escape("Cannot assign to immutable field: <binobj.fields.stringlike.Bytes("
+        r"name='header')>"),
     ):
         BasicStructWithArray()["header"] = b"ABC"
 

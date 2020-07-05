@@ -12,6 +12,11 @@ Bugfixes
 * When a ``Field`` throws ``ImmutableFieldError`` it now includes its name in the
   error message. It was accidentally omitted before.
 
+Other Changes
+~~~~~~~~~~~~~
+
+* The ``repr()`` of a ``Field`` now includes the field name.
+
 0.8.0
 -----
 
