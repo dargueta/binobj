@@ -7,7 +7,7 @@ binobj
    :alt: Build status
    :target: https://travis-ci.org/dargueta/binobj
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8,%203.9-blue.svg
    :alt: Python versions
 
 .. |installs-month| image:: https://pepy.tech/badge/binobj/month
