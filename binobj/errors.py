@@ -306,6 +306,28 @@ class UndefinedSizeError(ConfigurationError):
         )
 
 
+class NoDefinedFieldsError(ConfigurationError):
+    def __init__(self, *, struct: StructOrName):
+        super().__init__("The struct %r has no defined fields." % struct, struct=struct)
+
+
+class MixedDeclarationsError(ConfigurationError):
+    """The class declares fields with PEP 526 and assignments; only one is allowed."""
+
+
+class InvalidTypeAnnotationError(ConfigurationError):
+    """The type annotation for a field is invalid."""
+
+    def __init__(self, *, field: FieldOrName, annotation: Any):
+        message = (
+            "The type annotation for field %r is invalid. For example, you can't use"
+            " typing.Union[X, Y] to emulate binobj.fields.Union. The annotation is: %r"
+        ) % (field, annotation)
+
+        super().__init__(message, field=field)
+        self.annotation = annotation
+
+
 class UnserializableValueError(SerializationError):
     """The value couldn't be serialized.
 

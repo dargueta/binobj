@@ -47,6 +47,8 @@ class StructMetadata:
     This class should be considered part of how Structs are implemented. It's only of
     use to people writing wrapper classes or otherwise enhancing the behavior of the
     default :class:`.Struct` class.
+
+    .. versionadded:: 0.7.1
     """
 
     components = attr.ib(
@@ -56,95 +58,83 @@ class StructMetadata:
     field_validators = attr.ib(type=Dict[str, List[MethodFieldValidator]], factory=dict)
     defaults = attr.ib(type=Dict[str, Any], factory=dict)
 
+    #: .. versionadded:: 0.9.0
+    num_own_fields = attr.ib(type=int, default=0)
 
-def collect_annotated_fields(
-    class_name: str,
-    namespace: StrDict,
-    declared_fields: MutableMapping[str, fields.Field[Any]],
-    field_index: int,
-    byte_offset: Optional[int],
-) -> None:
-    """Collect all fields defined via type annotations in the struct.
-
-    Can only be used for collecting fields declared like so::
-
-        class MyStruct(binobj.Struct):
-            foo: UInt16
-            bar: Timestamp64(signed=False)  # Instances are allowed too
-            baz: StringZ = ""               # You can define default values like this
-
-    Annotations can be field classes and/or instances of Field objects. If using an
-    instance, it doesn't need to be bound to the actual class.
-    """
-    if "__annotations__" not in namespace:
-        raise errors.ConfigurationError(
-            "No type annotations found for struct class %r." % class_name,
-            struct=class_name,
-        )
-
-    for name, annotation in namespace["__annotations__"].items():
-        field_instance = None  # type: Optional[fields.Field[Any]]
-
-        if isinstance(annotation, type):
-            # We got a class object.
-            if issubclass(annotation, Struct):
-                # A Struct class is shorthand for Nested(Struct).
-                field_instance = fields.Nested(annotation)
-            elif issubclass(annotation, fields.Field):
-                # This is a Field class. Initialize it with no arguments aside from its
-                # default value, if provided. This gives us a Field instance.
-                default_value = namespace.get(name, fields.UNDEFINED)
-                field_instance = annotation(default=default_value)
-            else:
-                # Not a struct or field class -- ignore
-                continue
-        elif not isinstance(annotation, fields.Field):
-            # Not an instance of Field -- ignore
-            continue
-        else:
-            # Else: The annotation is a field instance. Atypical but we'll allow it.
-            field_instance = annotation
-
-        if name in declared_fields:
-            # Puke -- the field was already defined in the superclass.
-            raise errors.FieldRedefinedError(struct=class_name, field=name)
-
-        field_instance.bind_to_container(name, field_index, byte_offset)
-        if field_index is not None and annotation.size is not None:
-            byte_offset += field_instance.size
-        else:
-            byte_offset = None
-
-        declared_fields[name] = field_instance
-        field_index += 1
+    #: .. versionadded:: 0.9.0
+    size_bytes = attr.ib(type=int, default=0)  # type: Optional[int]
 
 
 def collect_assigned_fields(
     class_name: str,
     namespace: StrDict,
-    components: MutableMapping[str, fields.Field[Any]],
-    field_index: int,
-    offset: Optional[int],
-) -> None:
+    declared_fields: MutableMapping[str, fields.Field[Any]],
+    byte_offset: Optional[int],
+) -> int:
+    """Collect all fields defined by class variable assignment to a struct.
+
+    Arguments:
+        class_name (str):
+            The name of the Struct class. Only used in error messages.
+        namespace (dict):
+            The class namespace, as passed to :meth:`StructMeta.__new__`.
+        declared_fields (dict):
+            A mapping of field names to the declared :class:`~.fields.base.Field`
+            objects in the struct. Declared fields will be added to this mapping as they
+            are found.
+        byte_offset (int):
+            The byte offset to start at, typically 0 unless this struct inherits from
+            another one. Will be ``None`` if the struct this class inherits from is of
+            variable size.
+
+    Returns
+        int: The number of fields found.
+
+    .. versionadded:: 0.9.0
+    """
+    field_index = len(declared_fields)
+    n_fields_found = 0
+
     # It's HIGHLY important that we don't accidentally bind the superclass' fields to
     # this struct. That's why we're iterating over ``namespace`` and adding the field
     # into the ``components`` dict *inside* the loop.
     for item_name, item in namespace.items():
         if not isinstance(item, fields.Field):
             continue
-        if item_name in components:
+        if item_name in declared_fields:
             # Field was already defined in the superclass
             raise errors.FieldRedefinedError(struct=class_name, field=item)
 
-        item.bind_to_container(item_name, field_index, offset)
-        if offset is not None and item.size is not None:
-            offset += item.size
+        item.bind_to_container(item_name, field_index, byte_offset)
+        if byte_offset is not None and item.size is not None:
+            byte_offset += item.size
         else:
-            offset = None
+            byte_offset = None
 
-        components[item_name] = item
-
+        declared_fields[item_name] = item
         field_index += 1
+        n_fields_found += 1
+
+    return n_fields_found
+
+
+def bind_validators_to_struct(namespace: StrDict, metadata:StructMetadata) -> None:
+    """Find all defined validators and assign them to their fields.
+
+    .. versionadded:: 0.9.0
+    """
+    for item in namespace.values():
+        if not isinstance(item, decorators.ValidatorMethodWrapper):
+            continue
+
+        if item.field_names:
+            # Attach this validator to each named field.
+            for field_name in item.field_names:
+                metadata.field_validators[field_name].append(item)
+        else:
+            # Validator doesn't define any fields, must be a validator for
+            # the entire struct.
+            metadata.struct_validators.append(item)
 
 
 class StructMeta(abc.ABCMeta):
@@ -202,11 +192,11 @@ class StructMeta(abc.ABCMeta):
 
             # Start the byte offset at the end of the base class. We won't be able to do
             # this if the base class has variable-length fields.
-            offset = base.get_size()
+            byte_offset = base.get_size()
         else:
             # Else: This struct doesn't inherit from another struct, so we're starting
             # at offset 0. There are no field or struct validators to copy.
-            offset = 0
+            byte_offset = 0
 
         metadata.field_validators.update(
             {
@@ -216,60 +206,13 @@ class StructMeta(abc.ABCMeta):
             }
         )
 
-        field_index = len(metadata.components)
-
-        mcs._bind_fields(
-            class_name, namespace, metadata.components, field_index, offset
-        )
-        mcs._bind_validators(namespace, metadata)
+        # Enumerate the declared fields and bind them to this struct.
+        collect_assigned_fields(class_name, namespace, metadata.components, byte_offset)
+        bind_validators_to_struct(namespace, metadata)
 
         namespace["__binobj_struct__"] = metadata
         # TODO (dargueta): Figure out how metaclasses are supposed to work with MyPy
         return super().__new__(mcs, class_name, bases, namespace)  # type: ignore
-
-    @staticmethod
-    def _bind_fields(
-        class_name: str,
-        namespace: StrDict,
-        components: MutableMapping[str, fields.Field[Any]],
-        field_index: int,
-        offset: Optional[int],
-    ) -> None:
-        """Bind all of this struct's fields to this struct."""
-        # It's HIGHLY important that we don't accidentally bind the superclass'
-        # fields to this struct. That's why we're iterating over ``namespace``
-        # and adding the field into the ``components`` dict *inside* the loop.
-        for item_name, item in namespace.items():
-            if not isinstance(item, fields.Field):
-                continue
-            if item_name in components:
-                raise errors.FieldRedefinedError(struct=class_name, field=item)
-
-            item.bind_to_container(item_name, field_index, offset)
-            if offset is not None and item.size is not None:
-                offset += item.size
-            else:
-                offset = None
-
-            components[item_name] = item
-
-            field_index += 1
-
-    @staticmethod
-    def _bind_validators(namespace: StrDict, validators) -> None:
-        """Find all defined validators and assign them to their fields."""
-        for item in namespace.values():
-            if not isinstance(item, decorators.ValidatorMethodWrapper):
-                continue
-
-            if item.field_names:
-                # Attach this validator to each named field.
-                for field_name in item.field_names:
-                    validators.field_validators[field_name].append(item)
-            else:
-                # Validator doesn't define any fields, must be a validator for
-                # the entire struct.
-                validators.struct_validators.append(item)
 
 
 @overload
