@@ -312,11 +312,17 @@ class NoDefinedFieldsError(ConfigurationError):
 
 
 class MixedDeclarationsError(ConfigurationError):
-    """The class declares fields with PEP 526 and assignments; only one is allowed."""
+    """The class declares fields with PEP 526 and assignments; only one is allowed.
+
+    .. versionadded:: 0.9.0
+    """
 
 
 class InvalidTypeAnnotationError(ConfigurationError):
-    """The type annotation for a field is invalid."""
+    """The type annotation for a field is invalid.
+
+    .. versionadded:: 0.9.0
+    """
 
     def __init__(self, *, field: FieldOrName, annotation: Any):
         message = (

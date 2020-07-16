@@ -31,6 +31,10 @@ from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
 
 
+if typing.TYPE_CHECKING:
+    from typing import ClassVar
+
+
 __all__ = ["Struct"]
 
 
@@ -272,7 +276,7 @@ class Struct(metaclass=StructMeta):
         an implementation detail and is subject to change.
     """
 
-    __binobj_struct__ = StructMetadata()
+    __binobj_struct__ = StructMetadata()  # type: ClassVar[StructMetadata]
 
     def __init__(self, **values: Any):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())
