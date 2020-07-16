@@ -101,6 +101,19 @@ class Field(Generic[T]):
     :param bytes null_value:
         A value to use to dump ``None``. When loading, the returned value will
         be ``None`` if this value is encountered.
+    :param size:
+        Optional. The size of the field. This can be a number of things:
+
+        * An integer constant. The field will always be the same size, no matter what
+          value is given to it.
+        * Another :class:`.Field` object. That field gives the size of this field, in
+          bytes.
+        * A string naming another field. It's equivalent to passing in a :class:`.Field`
+          instance, except used for references in the same class or a field defined in
+          the superclass.
+
+        .. versionadded:: 0.9.0
+            Support for Field and field name values.
     :param callable present:
         Optional. A callable that, when called with the struct as its argument,
         returns a boolean indicating if this field is "present" and should be
@@ -190,12 +203,15 @@ class Field(Generic[T]):
         )  # type: Optional[Callable[["Field[T]", StrDict], Optional[T]]]
 
     @property
-    def size(self) -> Optional[int]:
+    def size(self) -> Union[int, str, "Field", None]:
         """The size of this field, in bytes.
 
         If the field is of variable size, such as a null-terminated string, this will be
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
+
+        .. todo::
+            This return value is horrific. Get it down to just ``Optional[int]``.
         """
         # Part of the _size_for_value() hack.
         if self._size is None and self.const is not UNDEFINED:
