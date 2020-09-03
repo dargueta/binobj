@@ -47,7 +47,7 @@ class AnnotationInfo:
         # support isinstance() and issubclass().
         if type_class is Union:
             # Filter out None from the type arguments. Again, we have to use `is`. :(
-            type_args = tuple(t for t in type_args if t is not type(None))
+            type_args = tuple(t for t in type_args if t is not type(None))  # noqa: E721
 
             if len(type_args) == 1:
                 # The type annotation was Optional[T]. Pretend the annotation was T, and

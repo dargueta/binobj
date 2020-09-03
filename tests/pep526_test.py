@@ -7,14 +7,14 @@ errors and you will be sad.
 from typing import ClassVar
 
 import binobj
-from binobj.pep586 import dataclass
 from binobj import fields
+from binobj.pep586 import dataclass
 
 
 @dataclass
 class BasicClass(binobj.Struct):
     some_value: fields.UInt16
-    string: fields.String(size=16, encoding="ibm500")
+    string: fields.String(size=16, encoding="ibm500")  # noqa:F821
     other_string: fields.StringZ = "Default Value"
     ignored: ClassVar[int] = 1234
 

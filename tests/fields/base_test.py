@@ -158,8 +158,10 @@ def test_set_const_crashes__setattr():
     """
     with pytest.raises(
         errors.ImmutableFieldError,
-        match=re.escape("Cannot assign to immutable field: <binobj.fields.stringlike.Bytes("
-        "name='header')"),
+        match=re.escape(
+            "Cannot assign to immutable field: <binobj.fields.stringlike.Bytes("
+            "name='header')"
+        ),
     ):
         BasicStructWithArray().header = b"ABC"
 
@@ -171,8 +173,10 @@ def test_set_const_crashes__setitem():
     """
     with pytest.raises(
         errors.ImmutableFieldError,
-        match=re.escape("Cannot assign to immutable field: <binobj.fields.stringlike.Bytes("
-        r"name='header')>"),
+        match=re.escape(
+            "Cannot assign to immutable field: <binobj.fields.stringlike.Bytes("
+            "name='header')>"
+        ),
     ):
         BasicStructWithArray()["header"] = b"ABC"
 

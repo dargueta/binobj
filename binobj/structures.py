@@ -122,7 +122,7 @@ def collect_assigned_fields(
     return n_fields_found
 
 
-def bind_validators_to_struct(namespace: StrDict, metadata:StructMetadata) -> None:
+def bind_validators_to_struct(namespace: StrDict, metadata: StructMetadata) -> None:
     """Find all defined validators and assign them to their fields.
 
     .. versionadded:: 0.9.0
