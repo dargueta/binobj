@@ -1,3 +1,4 @@
+import functools
 import typing
 from typing import Any
 from typing import Callable
@@ -7,7 +8,6 @@ from typing import TypeVar
 from typing import Union
 
 import attr
-import typing_extensions
 
 import binobj
 from binobj import errors
@@ -15,6 +15,14 @@ from binobj import fields
 
 
 TStruct = TypeVar("TStruct", bound=binobj.Struct)
+
+
+try:
+    from typing import get_args as get_typing_args
+except ImportError:
+    from typing_inspect import get_args as _get_typing_args
+
+    get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
 
 @attr.s
@@ -31,7 +39,7 @@ class AnnotationInfo:
         cls, field_name: Any, annotation: Any, struct_class: Type[TStruct]
     ) -> "AnnotationInfo":
         type_class = annotation
-        type_args = typing_extensions.get_args(annotation)
+        type_args = get_typing_args(annotation)
         nullable = type(None) in type_args
 
         # Handle Optional[T] which gets rendered as Union[T, type(None)].
@@ -45,7 +53,7 @@ class AnnotationInfo:
                 # The type annotation was Optional[T]. Pretend the annotation was T, and
                 # resolve *its* arguments just in case T is of the form X[Y, ...].
                 type_class = type_args[0]
-                type_args = typing_extensions.get_args(type_class)
+                type_args = get_typing_args(type_class)
             else:
                 # If we get here then the type annotation for this field is a Union with
                 # two or more types. This means the caller is probably attempting to
@@ -64,16 +72,21 @@ class AnnotationInfo:
         )
 
 
-def annotation_to_field_instance(annotation:AnnotationInfo)->Optional[fields.Field[Any]]:
+def annotation_to_field_instance(
+    annotation: AnnotationInfo,
+) -> Optional[fields.Field[Any]]:
+    """Convert a type annotation to a Field object if it represents one."""
     if isinstance(annotation.type_class, type):
         # We got a class object. Could be a struct or field, ignore everything else.
         if issubclass(annotation.type_class, binobj.Struct):
             # A Struct class is shorthand for Nested(Struct).
             return fields.Nested(annotation.type_class)
         if issubclass(annotation.type_class, fields.Field):
-            # This is a Field class. Initialize it with no arguments aside from its
-            # default value, if provided. This gives us a Field instance.
-            return annotation.type_class(default=annotation.default_value)
+            # This is a Field class. Initialize it with no arguments aside from its name
+            # and default value, if provided. This gives us a Field instance.
+            return annotation.type_class(
+                name=annotation.name, default=annotation.default_value
+            )
 
         # Else: Not a struct or field class -- ignore
         return None
@@ -132,6 +145,7 @@ def dataclass(class_object: Type[TStruct]) -> Callable[[], Type[TStruct]]:
             field_name=name, annotation=raw_annotation, struct_class=class_object
         )
         field_instance = annotation_to_field_instance(annotation)
+
         if field_instance is None:
             # Not a field or struct, so we'll ignore it.
             continue
@@ -149,6 +163,15 @@ def dataclass(class_object: Type[TStruct]) -> Callable[[], Type[TStruct]]:
         meta.components[name] = field_instance
         field_index += 1
         n_fields_found += 1
+
+        # Overwrite the field declaration in the class with the derived field instance
+        # object. Otherwise, we'll end up with None or the default value provided:
+        #
+        #  class MyStruct:
+        #      foo: UInt8 = 123
+        #
+        # If we don't do this `MyStruct.foo` will be `123`, not a Field object.
+        setattr(class_object, name, field_instance)
 
     meta.size_bytes = byte_offset
     meta.num_own_fields = n_fields_found
