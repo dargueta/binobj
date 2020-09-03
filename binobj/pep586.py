@@ -1,7 +1,6 @@
 import functools
 import typing
 from typing import Any
-from typing import Callable
 from typing import Optional
 from typing import Type
 from typing import TypeVar
@@ -99,7 +98,7 @@ def annotation_to_field_instance(
     return annotation.type_class
 
 
-def dataclass(class_object: Type[TStruct]) -> Callable[[], Type[TStruct]]:
+def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
     """Mark a Struct as using `PEP 526`_ declarations for its fields.
 
     If you use this decorator, *all* fields must be declared with PEP 526 annotations.

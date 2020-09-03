@@ -4,6 +4,7 @@ from typing import Callable
 from typing import Mapping
 from typing import MutableMapping
 from typing import Optional
+from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -22,4 +23,4 @@ FieldValidator = Callable[["Field[Any]", Any], Optional[bool]]
 MethodFieldValidator = Callable[["Struct", "Field[Any]", Any], Optional[bool]]
 StructValidator = Callable[["Struct", StrDict], Optional[bool]]
 FieldOrName = Union[str, "Field[Any]"]
-StructOrName = Union[str, "Struct"]
+StructOrName = Union[str, "Struct", Type["Struct"]]
