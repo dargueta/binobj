@@ -21,12 +21,17 @@ class BasicClass(binobj.Struct):
 
 def test_field_extraction__basic():
     assert hasattr(BasicClass, "__annotations__")
-    assert hasattr(BasicClass,"__binobj_struct__"), "Metadata not found on class"
+    assert hasattr(BasicClass, "__binobj_struct__"), "Metadata not found on class"
 
     meta = BasicClass.__binobj_struct__
     assert meta.num_own_fields == 3, "Wrong number of fields detected"
     assert meta.components, "No components found."
     assert set(meta.components.keys()) == {"some_value", "string", "other_string"}
 
+
+def test_field_extraction__default_values():
     assert BasicClass.other_string.default == "Default Value"
+
+
+def test_field_extraction__field_properties_assigned():
     assert BasicClass.string.encoding == "ibm500"
