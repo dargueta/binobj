@@ -105,12 +105,25 @@ def test_dump__null_with_default_null():
 
 def test_dump__null_with_default_and_varlen():
     """Crash if trying to write ``None`` when using the default null_value and
-    column is of variable length."""
+    field has no defined size."""
     field = fields.StringZ(name="field", null_value=DEFAULT)
     assert field.allow_null is True
 
     with pytest.raises(errors.UnserializableValueError):
         field.to_bytes(None)
+
+
+@pytest.mark.parametrize("size_field", (fields.Int32(name="size"), "size"))
+def test_dump__null_with_default_and_field_ref(size_field):
+    """Successfully dump the expected number of nulls if the field is of variable length
+    but has a defined size."""
+    value_field = fields.String(
+        name="string", size=size_field, null_value=DEFAULT
+    )
+    assert value_field.allow_null is True
+
+    serialized_value = value_field.to_bytes(None, all_fields={"size": 5})
+    assert serialized_value == b"\x00" * 5
 
 
 def test_dump__no_null_value_crashes():

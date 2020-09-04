@@ -569,7 +569,7 @@ class Field(Generic[T]):
             validator(data)
 
         if data is None:
-            stream.write(self._get_null_value())
+            stream.write(self._get_null_value(all_fields))
             return
 
         for validator in self.validators:
@@ -621,7 +621,7 @@ class Field(Generic[T]):
         """
         raise errors.UnserializableValueError(field=self, value=data)
 
-    def _get_null_value(self) -> bytes:
+    def _get_null_value(self, all_fields: StrDict) -> bytes:
         """Return the serialized value for ``None``.
 
         We need this function because there's some logic involved in determining
@@ -641,15 +641,15 @@ class Field(Generic[T]):
             return self.null_value
 
         # User wants us to use all null bytes for the default null value.
-        if self.size is None:
+        try:
+            return b"\0" * self._get_expected_size(all_fields)
+        except errors.UndefinedSizeError:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
                 "because it has no fixed size." % self,
                 field=self,
                 value=None,
             )
-
-        return b"\0" * self.size
 
     def _read_exact_size(
         self, stream: BinaryIO, loaded_fields: Optional[StrDict] = None

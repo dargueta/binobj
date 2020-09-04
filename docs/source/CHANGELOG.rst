@@ -1,16 +1,22 @@
 Changelog
 =========
 
-0.8.1
+0.9.0
 -----
 
-(Unreleased)
+New Features
+~~~~~~~~~~~~
+
+* A field whose size depends on another field can now use ``DEFAULT`` for ``null_value``.
+
 
 Bugfixes
 ~~~~~~~~
 
 * When a ``Field`` throws ``ImmutableFieldError`` it now includes its name in the
   error message. It was accidentally omitted before.
+* A variable-sized field using ``DEFAULT`` for its null value would crash with a
+  ``TypeError`` upon serialization if it depended on another field for its size.
 
 Other Changes
 ~~~~~~~~~~~~~
