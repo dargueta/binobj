@@ -135,7 +135,7 @@ class Field(Generic[T]):
 
         Thus, if and only if ``flags`` has bit 15 set, ``foo`` will be read from
         the stream next. If ``flags`` has bit 15 clear, ``foo`` will be assigned
-        :data:`NOT_PRESENT`.
+        the field's :attr:`not_present_value` (defaults to :data:`NOT_PRESENT`).
 
         The callable takes three positional arguments:
 
@@ -149,6 +149,14 @@ class Field(Generic[T]):
 
         .. versionchanged:: 0.8.0
             The ``loaded_fields`` argument is now guaranteed to not be null.
+    :param not_present_value:
+        A custom value to return if a field is missing when loading (see the ``present``
+        argument). It can be ``None`` or match the datatype of the field, i.e. a string
+        for a :class:`~binobj.fields.stringlike.String`, an integer for an
+        :class:`~binobj.fields.numeric.Integer`, and so on. If not given, defaults to
+        :data:`NOT_PRESENT`.
+
+        .. versionadded:: 0.9.0
 
     .. attribute:: index
 
@@ -175,12 +183,14 @@ class Field(Generic[T]):
         null_value: Union[bytes, _Default, _Undefined] = UNDEFINED,
         size: Optional[int] = None,
         validate: Iterable[FieldValidator] = (),
-        present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None
+        present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None,
+        not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT,
     ):
         self.const = const
         self.discard = discard
         self.null_value = null_value
         self.present = present or (lambda *_: True)
+        self.not_present_value = not_present_value
         self._size = size
         self.validators = [
             functools.partial(v, self) for v in m_iter.always_iterable(validate)
@@ -248,7 +258,9 @@ class Field(Generic[T]):
 
         :return:
             The value the dumper will use for this field, or :data:`NOT_PRESENT`
-            if the field shouldn't be serialized.
+            if the field shouldn't be serialized. It *will not* return
+            :attr:`not_present_value` in this case, as the field should not be dumped at
+            all.
 
         :raise MissingRequiredValueError:
             No value could be derived for this field. It's missing in the input
@@ -458,7 +470,7 @@ class Field(Generic[T]):
             loaded_fields = {}
 
         if not self.present(loaded_fields, context, stream):
-            return NOT_PRESENT
+            return self.not_present_value
 
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:

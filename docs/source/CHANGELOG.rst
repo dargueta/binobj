@@ -9,6 +9,18 @@ New Features
 
 * A field whose size depends on another field can now use ``DEFAULT`` for ``null_value``.
 
+New Argument: ``not_present_value``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Instead of being hard-coded to return ``NOT_PRESENT`` when a field is missing,
+this new field argument allows returning a user-defined value. The default is
+still ``NOT_PRESENT``.
+
+.. code-block::
+
+    >>> my_field = UInt8(not_present_value=-1, present=lambda *_a, **_k: False)
+    >>> my_field.from_bytes(b"")
+    -1
 
 Bugfixes
 ~~~~~~~~
