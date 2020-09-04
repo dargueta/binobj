@@ -99,8 +99,10 @@ class Field(Generic[T]):
         this will crash with a :class:`KeyError` because ``name_size`` was
         discarded.
     :param bytes null_value:
-        A value to use to dump ``None``. When loading, the returned value will
-        be ``None`` if this value is encountered.
+        A byte string to use to represent ``None`` in serialized data. When loading, the
+        returned value will be ``None`` if this exact sequence of bytes is encountered.
+        If not given, the field is considered "not nullable" and any attempt to assign
+        ``None`` to it will result in a crash upon serialization.
     :param size:
         Optional. The size of the field. This can be a number of things:
 
