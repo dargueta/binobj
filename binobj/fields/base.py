@@ -116,6 +116,12 @@ class Field(Generic[T]):
 
         .. versionadded:: 0.9.0
             Support for Field and field name values.
+    :param validate:
+        A callable or list of callables that validates a given value for this
+        field. The callable(s) will always be passed the deserialized value, so
+        a validator for an :class:`~binobj.fields.numeric.Integer` field will
+        always be passed an integer, a :class:`~binobj.fields.stringlike.String`
+        validator will always be passed a string, and so on.
     :param callable present:
         Optional. A callable that, when called with the struct as its argument,
         returns a boolean indicating if this field is "present" and should be
@@ -143,12 +149,6 @@ class Field(Generic[T]):
 
         .. versionchanged:: 0.8.0
             The ``loaded_fields`` argument is now guaranteed to not be null.
-    :param validate:
-        A callable or list of callables that validates a given value for this
-        field. The callable(s) will always be passed the deserialized value, so
-        a validator for an :class:`~binobj.fields.numeric.Integer` field will
-        always be passed an integer, a :class:`~binobj.fields.stringlike.String`
-        validator will always be passed a string, and so on.
 
     .. attribute:: index
 
