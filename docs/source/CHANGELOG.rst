@@ -29,6 +29,7 @@ Bugfixes
   error message. It was accidentally omitted before.
 * A variable-sized field using ``DEFAULT`` for its null value would crash with a
   ``TypeError`` upon serialization if it depended on another field for its size.
+* Fixed wrong type annotation in ``size`` argument for ``Field`` and also its property.
 
 Other Changes
 ~~~~~~~~~~~~~

@@ -181,7 +181,7 @@ class Field(Generic[T]):
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined] = UNDEFINED,
-        size: Optional[int] = None,
+        size: Union[int, str, "Field[int]", None] = None,
         validate: Iterable[FieldValidator] = (),
         present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None,
         not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT,
@@ -215,7 +215,7 @@ class Field(Generic[T]):
         )  # type: Optional[Callable[["Field[T]", StrDict], Optional[T]]]
 
     @property
-    def size(self) -> Union[int, str, "Field", None]:
+    def size(self) -> Union[int, str, "Field[int]", None]:
         """The size of this field, in bytes.
 
         If the field is of variable size, such as a null-terminated string, this will be
