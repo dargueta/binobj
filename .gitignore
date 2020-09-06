@@ -63,7 +63,10 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build/
+docs/source/binobj.*.rst
+docs/source/binobj.rst
+docs/source/modules.rst
 
 # PyBuilder
 target/
