@@ -110,8 +110,8 @@ def collect_assigned_fields(
             raise errors.FieldRedefinedError(struct=class_name, field=item)
 
         item.bind_to_container(item_name, field_index, byte_offset)
-        if byte_offset is not None and item.size is not None:
-            byte_offset += item.size
+        if byte_offset is not None and item.has_fixed_size:
+            byte_offset += typing.cast(int, item.size)
         else:
             byte_offset = None
 
@@ -638,13 +638,11 @@ class Struct(metaclass=StructMeta):
 
         .. versionadded:: 0.3.0
         """
-        sizes = [f.size for f in cls.__binobj_struct__.components.values()]
-
-        # Don't try summing the sizes of the fields if anything in there isn't
-        # an integer.
-        if all(isinstance(s, int) for s in sizes):
-            return sum(sizes)
-        return None
+        field_objects = cls.__binobj_struct__.components.values()
+        try:
+            return sum(f.get_expected_size({}) for f in field_objects)
+        except (errors.UndefinedSizeError, errors.MissingRequiredValueError):
+            return None
 
     # Container methods
 
@@ -677,8 +675,8 @@ class Struct(metaclass=StructMeta):
     def __len__(self) -> int:
         size = 0
         for field in self.__binobj_struct__.components.values():
-            if field.size is not None:
-                size += field.size
+            if field.has_fixed_size:
+                size += typing.cast(int, field.size)
             else:
                 field_value = field.compute_value_for_dump(typing.cast(StrDict, self))
                 size += len(field.to_bytes(field_value))

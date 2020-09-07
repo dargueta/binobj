@@ -164,18 +164,21 @@ class Integer(Field[int]):
 
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
         """Load an integer from the given stream."""
-        if self.size is None:
+        if not self.has_fixed_size:
             raise errors.UndefinedSizeError(field=self)
-        return helpers.read_int(stream, self.size, self.signed, self.endian)
+        return helpers.read_int(
+            stream, self.get_expected_size(loaded_fields), self.signed, self.endian
+        )
 
     def _do_dump(
         self, stream: BinaryIO, data: int, context: Any, all_fields: StrDict
     ) -> None:
         """Dump an integer to the given stream."""
-        if self.size is None:
+        dump_size = self._size_for_value(data)
+        if dump_size is None:
             raise errors.UndefinedSizeError(field=self)
         try:
-            helpers.write_int(stream, data, self.size, self.signed, self.endian)
+            helpers.write_int(stream, data, dump_size, self.signed, self.endian)
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
@@ -210,8 +213,6 @@ class VariableLengthInteger(Integer):
         format_endianness = typing.cast(str, encoding_info["endian"])
         format_signedness = typing.cast(bool, encoding_info["signed"])
 
-        super().__init__(endian=format_endianness, signed=format_signedness, **kwargs)
-
         self.vli_format = vli_format
         self.max_bytes = max_bytes
         self._encode_integer_fn = typing.cast(
@@ -220,6 +221,7 @@ class VariableLengthInteger(Integer):
         self._decode_integer_fn = typing.cast(
             Callable[[BinaryIO], int], encoding_info["decode"]
         )
+        super().__init__(endian=format_endianness, signed=format_signedness, **kwargs)
 
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
         """Load a variable-length integer from the given stream."""
@@ -243,7 +245,7 @@ class VariableLengthInteger(Integer):
 
     def _size_for_value(self, value: Optional[int]) -> int:
         if value is None:
-            return len(self._get_null_value())
+            return len(self._get_null_repr())
         return len(self._encode_integer_fn(value))
 
 
@@ -351,6 +353,7 @@ class Timestamp(Field[datetime.datetime]):
 
     .. versionadded:: 0.6.0
     .. versionchanged:: 0.8.0
+
         * This class no longer inherits from :class:`Integer`.
         * ``size`` is now a required argument.
         * The class throws :class:`UndefinedSizeError` when loading and dumping if the
@@ -392,7 +395,9 @@ class Timestamp(Field[datetime.datetime]):
     ) -> datetime.datetime:
         if self.size is None:
             raise errors.UndefinedSizeError(field=self)
-        value = helpers.read_int(stream, self.size, self.signed, self.endian)
+        value = helpers.read_int(
+            stream, self.get_expected_size(loaded_fields), self.signed, self.endian
+        )
         if not self.tz_aware:
             return datetime.datetime.fromtimestamp(value / self._units)
         return datetime.datetime.fromtimestamp(
@@ -410,7 +415,13 @@ class Timestamp(Field[datetime.datetime]):
             raise errors.UndefinedSizeError(field=self)
         timestamp = int(data.timestamp() * self._units)
         try:
-            helpers.write_int(stream, timestamp, self.size, self.signed, self.endian)
+            helpers.write_int(
+                stream,
+                timestamp,
+                self.get_expected_size(all_fields),
+                self.signed,
+                self.endian,
+            )
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)

@@ -2,7 +2,9 @@ import sys
 
 import pytest
 
+from binobj import DEFAULT
 from binobj import errors
+from binobj import fields
 from binobj.fields import stringlike
 
 
@@ -22,6 +24,11 @@ def test_bytes__dump_too_long():
         field.to_bytes(b"!" * 11)
 
 
+def test_bytes__null():
+    field = fields.Bytes(size=7, null_value=DEFAULT)
+    assert field.to_bytes(None) == b"\x00" * 7
+
+
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = stringlike.String(size=13, encoding="utf-8")
@@ -39,6 +46,13 @@ def test_string__dump_no_size():
     field = stringlike.String()
     with pytest.raises(errors.UndefinedSizeError):
         field.to_bytes("asdf")
+
+
+@pytest.mark.parametrize("size_field", (fields.UInt8(name="size"), "size"))
+def test_string__dump_variable_size(size_field):
+    """Dumping a field with variable size should work."""
+    field = stringlike.String(size=size_field)
+    assert field.to_bytes("asdf", all_fields={"size": 4}) == b"asdf"
 
 
 def test_string__dump_too_long_before_encoding():
@@ -87,6 +101,22 @@ def test_string__dump_too_long_after_encoding__pad():
     field = stringlike.String(size=3, pad_byte=b"?", encoding="utf-16-le")
     with pytest.raises(errors.ValueSizeError):
         field.to_bytes("ab")
+
+
+def test_string__dump_null_default():
+    field = fields.String(size=7, null_value=DEFAULT)
+    assert field.to_bytes(None) == b"\x00" * 7
+
+
+def test_string__load_null_default():
+    field = fields.String(size=7, null_value=DEFAULT)
+    assert field.from_bytes(b"\x00" * 7) is None
+
+
+@pytest.mark.parametrize("null_value", (b"N\x00U\x00L\x00L\x00", "NULL"))
+def test_string__null_value(null_value):
+    field = fields.String(size=8, null_value=null_value, encoding="utf-16-le")
+    assert field.from_bytes(b"N\x00U\x00L\x00L\x00") is None
 
 
 def test_string__pad_byte_wrong_type():
@@ -151,3 +181,9 @@ def test_stringz_load_multibyte():
     field = stringlike.StringZ(encoding="utf-16")
     assert field.from_bytes(b"\xff\xfeA\x00b\x00C\x00d\x00\x00\x00") == "AbCd"
     assert field.from_bytes(b"\xfe\xff\x00A\x00b\x00C\x00d\x00\x00") == "AbCd"
+
+
+@pytest.mark.parametrize("null_value", (b"NULL\x00", "NULL"))
+def test_stringz__load_null_value(null_value):
+    field = stringlike.StringZ(null_value=null_value)
+    assert field.from_bytes(b"NULL\x00") is None

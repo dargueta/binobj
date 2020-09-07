@@ -8,7 +8,7 @@ from typing import ClassVar
 
 import binobj
 from binobj import fields
-from binobj.pep586 import dataclass
+from binobj.pep526 import dataclass
 
 
 @dataclass

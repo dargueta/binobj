@@ -93,8 +93,8 @@ class Array(Field[List[Optional[T]]]):
         else:
             raise TypeError("`count` must be an integer, string, or a `Field`.")
 
-        if isinstance(self.count, int) and component.size is not None:
-            self._size = self.count * component.size
+        if isinstance(self.count, int) and component.has_fixed_size:
+            self._size = self.count * typing.cast(int, component.size)
 
     def get_final_element_count(self, field_values: StrDict) -> Optional[int]:
         """Calculate the number of elements in the array based on other fields' values.

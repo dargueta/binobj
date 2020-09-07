@@ -12,11 +12,18 @@ from binobj import fields
 from binobj.fields import DEFAULT
 
 
-def test_load__null_with_null_value():
+def test_load__null_with_null_value_basic():
     null_value = b" :( "
     field = fields.Bytes(name="field", size=4, null_value=null_value)
     assert field.allow_null is True
     assert field.from_stream(io.BytesIO(null_value)) is None
+
+
+def test_load__null_with_default_null_value():
+    field = fields.Bytes(name="field", size=4, null_value=DEFAULT)
+    assert field.allow_null is True
+
+    assert field.from_stream(io.BytesIO(b"\x00" * 4)) is None
 
 
 def test_loads__field_insufficient_data():
@@ -117,9 +124,7 @@ def test_dump__null_with_default_and_varlen():
 def test_dump__null_with_default_and_field_ref(size_field):
     """Successfully dump the expected number of nulls if the field is of variable length
     but has a defined size."""
-    value_field = fields.String(
-        name="string", size=size_field, null_value=DEFAULT
-    )
+    value_field = fields.String(name="string", size=size_field, null_value=DEFAULT)
     assert value_field.allow_null is True
 
     serialized_value = value_field.to_bytes(None, all_fields={"size": 5})
@@ -356,5 +361,8 @@ def test_present__dump__not_present_not_given():
 
 @pytest.mark.parametrize("thing", (fields.UNDEFINED, fields.NOT_PRESENT))
 def test_present__dump_not_present_given_something(thing):
+    """If a field whose presence is controlled by something else is ``UNDEFINED`` or
+    ``NOT_PRESENT`` it shouldn't be dumped.
+    """
     struct = BasicPresentStruct(flags=1, thing=thing, other_thing=0x1337)
     assert struct.to_bytes() == b"\x01\x00\x37\x13"

@@ -4,10 +4,75 @@ Changelog
 0.9.0
 -----
 
+This is a significant release with an embarrassing number of bugfixes and a few
+new features enhancing field declarations, null value handling, and how absent
+fields are represented.
+
 New Features
 ~~~~~~~~~~~~
 
+Dataclass Annotations
+^^^^^^^^^^^^^^^^^^^^^
+
+The most exciting feature in this release is the ability to use `PEP 526`_ type
+annotations to declare fields on Python 3.6 and higher. Whereas before you had
+to assign class variables in the declarations, you can now do this:
+
+.. code-block:: python
+
+    @binobj.dataclass
+    class MyStruct(binobj.Struct):
+        # Preferred: use a class object
+        foo: UInt16
+
+        # You can define default values like this
+        bar: StringZ = ""
+
+        # You can pass struct classes -- no need for a `Nested` wrapper. Forward
+        # references using strings are *not* supported.
+        sub_struct: MyOtherStruct
+
+        # Instances are allowed but are less readable and will anger certain linters.
+        # Be careful not to *assign* the field instance!
+        baz: Timestamp64(signed=False)
+
+        # You can pass functions for default values just as if you were calling the
+        # constructor, but this looks confusing and is **not recommended**. This may
+        # throw an exception in the future if I decide it's too egregious.
+        bam: StringZ = lambda: os.sep
+
+        # To make BinObj ignore a plain class variable, mark it with ClassVar.
+        my_class_variable: ClassVar[int] = 123
+
+There are a few restrictions:
+
+* If you use the ``dataclass`` class decorator you *must* use PEP 526 type
+  annotations for *all* fields in the struct.
+* You can't use this on Python 3.5.
+
+.. _PEP 526: https://www.python.org/dev/peps/pep-0526/
+
+
+More flexible ``size``
+^^^^^^^^^^^^^^^^^^^^^^
+
+* All fields now accept a ``Field[int]`` object for the size argument in the
+  constructor, as well as a string naming a field (useful for subclasses where
+  the size field is in the superclass).
 * A field whose size depends on another field can now use ``DEFAULT`` for ``null_value``.
+
+``null_value`` doesn't need to be bytes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``null_value`` now accepts deserialized values in addition to raw byte strings.
+
+.. code-block:: python
+
+    # This used to be your only option:
+    field = String(size=8, encoding="utf-16-le", null_value=b"N\x00U\x00L\x00L\x00")
+
+    # You now can do this as well:
+    field = String(size=8, encoding="utf-16-le", null_value="NULL")
 
 New Argument: ``not_present_value``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30,6 +95,21 @@ Bugfixes
 * A variable-sized field using ``DEFAULT`` for its null value would crash with a
   ``TypeError`` upon serialization if it depended on another field for its size.
 * Fixed wrong type annotation in ``size`` argument for ``Field`` and also its property.
+* ``String`` didn't handle the case when its length was dictated by another field.
+  It'd blow up with a ``TypeError`` when serializing. Deserializing worked, though.
+* If ``null_value`` was ``DEFAULT`` the field would never load as ``None``. This
+  has been broken for a *really* long time.
+* ``null_value`` has been completely broken for quite some time; it works for some
+  fields. This has been fixed. Hopefully.
+
+Deprecations
+~~~~~~~~~~~~
+
+* ``Field._get_expected_size()`` has been made a public method. Use
+  ``get_expected_size()`` instead. The private form will still work but is
+  deprecated and will be removed in a future version.
+* Support for Python 3.5 *will be removed* in the next non-patch release, either
+  0.10.0 or 1.0, whichever is next.
 
 Other Changes
 ~~~~~~~~~~~~~

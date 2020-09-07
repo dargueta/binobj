@@ -4,6 +4,7 @@ import abc
 import enum
 import functools
 import io
+import os
 import typing
 import warnings
 from typing import Any
@@ -20,6 +21,7 @@ from typing import Union
 import more_itertools as m_iter
 
 from binobj import errors
+from binobj import helpers
 from binobj.typedefs import FieldValidator
 from binobj.typedefs import StrDict
 
@@ -63,7 +65,7 @@ T = TypeVar("T")
 
 
 class Field(Generic[T]):
-    """The base class for all struct fields.
+    r"""The base class for all struct fields.
 
     :param str name:
         The name of the field.
@@ -98,11 +100,15 @@ class Field(Generic[T]):
 
         this will crash with a :class:`KeyError` because ``name_size`` was
         discarded.
-    :param bytes null_value:
+    :param null_value:
         A byte string to use to represent ``None`` in serialized data. When loading, the
         returned value will be ``None`` if this exact sequence of bytes is encountered.
         If not given, the field is considered "not nullable" and any attempt to assign
         ``None`` to it will result in a crash upon serialization.
+
+        .. versionchanged:: 0.9.0
+            This can now also be a deserialized value. For example, you could pass "\N"
+            for a string or 0 for an integer.
     :param size:
         Optional. The size of the field. This can be a number of things:
 
@@ -115,7 +121,8 @@ class Field(Generic[T]):
           the superclass.
 
         .. versionadded:: 0.9.0
-            Support for Field and field name values.
+            Full support for :class:`Field`\s and field name values. This used to be
+            only supported by some fields, with others left out by accident.
     :param validate:
         A callable or list of callables that validates a given value for this
         field. The callable(s) will always be passed the deserialized value, so
@@ -180,7 +187,7 @@ class Field(Generic[T]):
         const: Union[T, _Undefined] = UNDEFINED,
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
         discard: bool = False,
-        null_value: Union[bytes, _Default, _Undefined] = UNDEFINED,
+        null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
         size: Union[int, str, "Field[int]", None] = None,
         validate: Iterable[FieldValidator] = (),
         present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None,
@@ -191,7 +198,6 @@ class Field(Generic[T]):
         self.null_value = null_value
         self.present = present or (lambda *_: True)
         self.not_present_value = not_present_value
-        self._size = size
         self.validators = [
             functools.partial(v, self) for v in m_iter.always_iterable(validate)
         ]
@@ -214,6 +220,11 @@ class Field(Generic[T]):
             None
         )  # type: Optional[Callable[["Field[T]", StrDict], Optional[T]]]
 
+        if size is not None or const is UNDEFINED:
+            self._size = size
+        else:
+            self._size = self._size_for_value(const)
+
     @property
     def size(self) -> Union[int, str, "Field[int]", None]:
         """The size of this field, in bytes.
@@ -221,14 +232,17 @@ class Field(Generic[T]):
         If the field is of variable size, such as a null-terminated string, this will be
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
-
-        .. todo::
-            This return value is horrific. Get it down to just ``Optional[int]``.
         """
-        # Part of the _size_for_value() hack.
-        if self._size is None and self.const is not UNDEFINED:
-            self._size = self._size_for_value(self.const)
+        # TODO (dargueta) This return value is horrific. Rework it if possible.
         return self._size
+
+    @property
+    def has_fixed_size(self) -> bool:
+        """Does this field have a fixed size?
+
+        .. versionadded:: 0.9.0
+        """
+        return isinstance(self.size, int)
 
     def bind_to_container(
         self, name: str, index: int, offset: Optional[int] = None
@@ -259,8 +273,8 @@ class Field(Generic[T]):
         :return:
             The value the dumper will use for this field, or :data:`NOT_PRESENT`
             if the field shouldn't be serialized. It *will not* return
-            :attr:`not_present_value` in this case, as the field should not be dumped at
-            all.
+            :attr:`.not_present_value` in this case, as the field should not be dumped
+            at all.
 
         :raise MissingRequiredValueError:
             No value could be derived for this field. It's missing in the input
@@ -396,9 +410,20 @@ class Field(Generic[T]):
             be computed, return ``None``.
         :rtype: int
         """
+        if self.has_fixed_size:
+            return typing.cast(int, self._size)
         return None
 
     def _get_expected_size(self, field_values: StrDict) -> int:
+        """Compatibility shim -- this function was made public in 0.9.0."""
+        warnings.warn(
+            "_get_expected_size was made public in 0.9.0. The private form has been"
+            " deprecated and will be removed in 1.0.",
+            DeprecationWarning,
+        )
+        return self.get_expected_size(field_values)
+
+    def get_expected_size(self, field_values: StrDict) -> int:
         """Determine the size of this field in bytes, given values for other fields.
 
         :param dict field_values:
@@ -414,9 +439,13 @@ class Field(Generic[T]):
         :raise UndefinedSizeError:
             The field doesn't have a defined size nor refers to another field to
             determine its size.
+
+        .. versionchanged:: 0.9.0
+            This used to be a private method. ``_get_expected_size()`` is still present
+            for compatibility but it will eventually be removed.
         """
-        if isinstance(self.size, int):
-            return self.size
+        if self.has_fixed_size:
+            return typing.cast(int, self.size)
 
         if self.size is None:
             # Field has an undefined size. If the caller gave us a value for
@@ -439,7 +468,8 @@ class Field(Generic[T]):
             name = self.size
         else:
             raise TypeError(
-                "Unexpected type for %r.size: %s" % (self, type(self.size).__name__)
+                "Unexpected type for %s.size: %s"
+                % (self.name, type(self.size).__name__)
             )
 
         if name in field_values:
@@ -472,6 +502,21 @@ class Field(Generic[T]):
         if not self.present(loaded_fields, context, stream):
             return self.not_present_value
 
+        # If the caller passed in `null_value` as a byte string we'll peek ahead in the
+        # stream and see if the bytes match up.
+        if self.allow_null and isinstance(self.null_value, bytes):
+            potential_null_bytes = helpers.peek_bytes(stream, len(self.null_value))
+            if potential_null_bytes == self.null_value:
+                # If we get here then the bytes we read ahead match null_value. Move the
+                # stream pointer to the beginning of the next field.
+                stream.seek(len(self.null_value), os.SEEK_CUR)
+                for validator in self.validators:
+                    validator(None)
+                return None
+
+            # else: the bytes we read didn't match null_value. Fall through and try to
+            # load the value using the field's normal loading code.
+
         # TODO (dargueta): This try-catch just to set the field feels dumb.
         try:
             loaded_value = self._do_load(
@@ -481,8 +526,10 @@ class Field(Generic[T]):
             err.field = self
             raise
 
-        if self.null_value is not None and loaded_value == self.null_value:
-            return None
+        # Here we handle the case where null_value was passed in as `T` rather than a
+        # byte string.
+        if self.allow_null and loaded_value == self.null_value:
+            loaded_value = None
 
         # TODO (dargueta): Change this to a validator instead.
         if self.const is not UNDEFINED and loaded_value != self.const:
@@ -583,7 +630,7 @@ class Field(Generic[T]):
             validator(data)
 
         if data is None:
-            stream.write(self._get_null_value(all_fields))
+            stream.write(self._get_null_repr(all_fields))
             return
 
         for validator in self.validators:
@@ -635,7 +682,7 @@ class Field(Generic[T]):
         """
         raise errors.UnserializableValueError(field=self, value=data)
 
-    def _get_null_value(self, all_fields: StrDict) -> bytes:
+    def _get_null_repr(self, all_fields: Optional[StrDict] = None) -> bytes:
         """Return the serialized value for ``None``.
 
         We need this function because there's some logic involved in determining
@@ -645,6 +692,9 @@ class Field(Generic[T]):
         :return: The serialized form of ``None`` for this field.
         :rtype: bytes
         """
+        if all_fields is None:
+            all_fields = {}
+
         if self.null_value is UNDEFINED:
             raise errors.UnserializableValueError(
                 reason="`None` is not an acceptable value for %s." % self,
@@ -656,7 +706,7 @@ class Field(Generic[T]):
 
         # User wants us to use all null bytes for the default null value.
         try:
-            return b"\0" * self._get_expected_size(all_fields)
+            return b"\0" * self.get_expected_size(all_fields)
         except errors.UndefinedSizeError:
             raise errors.UnserializableValueError(
                 reason="Can't guess appropriate serialization of `None` for %s "
@@ -690,7 +740,7 @@ class Field(Generic[T]):
             loaded_fields = {}
 
         offset = stream.tell()
-        n_bytes = self._get_expected_size(loaded_fields)
+        n_bytes = self.get_expected_size(loaded_fields)
 
         data_read = stream.read(n_bytes)
         if len(data_read) < n_bytes:
@@ -704,6 +754,12 @@ class Field(Generic[T]):
 
     @overload
     def __get__(self, instance: "Struct", owner: Type["Struct"]) -> Optional[T]:
+        ...
+
+    # This annotation is bogus and only here to make MyPy happy. See bug report here:
+    # https://github.com/python/mypy/issues/9416
+    @overload
+    def __get__(self, instance: "Field[Any]", owner: Type["Field[Any]"]) -> "Field[T]":
         ...
 
     def __get__(self, instance, owner):

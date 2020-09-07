@@ -18,13 +18,18 @@ __all__ = ["Bytes", "String", "StringZ"]
 class Bytes(Field[bytes]):
     """Raw binary data."""
 
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> bytes:
-        return self._read_exact_size(stream, loaded_fields)
+    def _do_load(
+        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+    ) -> Optional[bytes]:
+        data = self._read_exact_size(stream, loaded_fields)
+        if self.allow_null and data == self._get_null_repr(loaded_fields):
+            return None
+        return data
 
     def _do_dump(
         self, stream: BinaryIO, data: bytes, context: Any, all_fields: StrDict
     ) -> None:
-        write_size = self._get_expected_size(all_fields)
+        write_size = self.get_expected_size(all_fields)
         if len(data) != write_size:
             raise errors.ValueSizeError(field=self, value=data)
 
@@ -32,7 +37,7 @@ class Bytes(Field[bytes]):
 
     def _size_for_value(self, value: Optional[bytes]) -> int:
         if value is None:
-            return len(self._get_null_value())
+            return len(self._get_null_repr())
         return len(value)
 
 
@@ -72,8 +77,6 @@ class String(Field[str]):
         pad_byte: Optional[bytes] = None,
         **kwargs: Any
     ):
-        super().__init__(**kwargs)
-
         if pad_byte is not None:
             if not isinstance(pad_byte, (bytes, bytearray)):
                 raise errors.ConfigurationError(
@@ -86,12 +89,15 @@ class String(Field[str]):
 
         self.encoding = encoding
         self.pad_byte = pad_byte
+        super().__init__(**kwargs)
 
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
     ) -> Optional[str]:
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream, loaded_fields)
+        if self.allow_null and to_load == self._get_null_repr(loaded_fields):
+            return None
         return to_load.decode(self.encoding)
 
     def _do_dump(
@@ -101,23 +107,36 @@ class String(Field[str]):
         if self.size is None:
             raise errors.UndefinedSizeError(field=self)
 
-        stream.write(self._encode_and_resize(data))
+        stream.write(self._encode_and_resize(data, all_fields))
 
-    def _encode_and_resize(self, string: str) -> bytes:
+    def _encode_and_resize(
+        self, string: str, all_fields: Optional[StrDict] = None
+    ) -> bytes:
         """Encode a string and size it to this field.
 
         :param str string:
             The string to encode.
+        :param dict all_fields:
+            Optional. A dict of all fields that are being dumped. Used for calculating
+            the length of the field if that depends on the value of another field.
 
         :return: ``string`` encoded as ``size`` bytes.
         :rtype: bytes
         """
+        if all_fields is None:
+            all_fields = {}
+
         to_dump = string.encode(self.encoding)
 
-        if self.size is None:
+        try:
+            write_size = self.get_expected_size(all_fields)
+        except errors.UndefinedSizeError:
+            # The field has no defined size, so we don't care what we return. Delimited
+            # strings like StringZ will cause this exception to be thrown, but it's not
+            # an error.
             return to_dump
 
-        size_diff = len(to_dump) - self.size
+        size_diff = len(to_dump) - write_size
 
         # TODO (dargueta): Figure out why `field=self` gives MyPy indigestion below
         if size_diff > 0:
@@ -133,7 +152,7 @@ class String(Field[str]):
 
     def _size_for_value(self, value: Optional[str]) -> int:
         if value is None:
-            return len(self._get_null_value())
+            return len(self._get_null_repr())
         return len(value.encode(self.encoding))
 
 
@@ -145,7 +164,12 @@ class StringZ(String):
     """
 
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> str:
-        iterator = helpers.iter_bytes(stream, self.size)
+        try:
+            max_bytes = self.get_expected_size(loaded_fields)  # type: Optional[int]
+        except errors.UndefinedSizeError:
+            max_bytes = None
+
+        iterator = helpers.iter_bytes(stream, max_bytes)
         reader = codecs.iterdecode(iterator, self.encoding)
         result = io.StringIO()
 
@@ -166,5 +190,5 @@ class StringZ(String):
 
     def _size_for_value(self, value: Optional[str]) -> int:
         if value is None:
-            return len(self._get_null_value())
+            return len(self._get_null_repr())
         return len((value + "\0").encode(self.encoding))

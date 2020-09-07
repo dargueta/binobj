@@ -96,3 +96,21 @@ def iter_bytes(stream: BinaryIO, max_bytes: Optional[int] = None) -> Iterator[by
             return
         yield this_byte
         n_read += 1
+
+
+def peek_bytes(stream: BinaryIO, count: int, short_read_okay: bool = True) -> bytes:
+    """Read the next ``count`` bytes in the stream without moving the stream pointer.
+
+    .. versionadded:: 0.9.0
+    """
+    here = stream.tell()
+    try:
+        data = stream.read(count)
+    finally:
+        stream.seek(here)
+
+    if not short_read_okay and len(data) < count:
+        raise EOFError(
+            "Short read: expected %d bytes in stream, read %d." % (count, len(data))
+        )
+    return data

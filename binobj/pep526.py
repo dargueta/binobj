@@ -1,3 +1,37 @@
+"""Support for declaring fields in structs using `PEP 526`_ variable annotations.
+
+You can use the :func:`dataclass` decorator on your :class:`Struct`
+
+If you use this decorator, *all* fields must be declared with PEP 526 annotations.
+You can't mix this system with the original assignment-based one.
+
+Here are a few examples of how you can declare your fields::
+
+    @binobj.dataclass
+    class MyStruct(binobj.Struct):
+        # Preferred: use a class object
+        foo: UInt16
+
+        # You can define default values like this
+        bar: StringZ = ""
+
+        # You can pass struct classes -- no need for a `Nested` wrapper. Forward
+        # references using strings are *not* supported.
+        sub_struct: MyOtherStruct
+
+        # Instances are allowed but are less readable. Be careful not to *assign*
+        # the field instance!
+        baz: Timestamp64(signed=False)
+
+        # You can pass functions for default values just as if you were calling the
+        # constructor, but this looks confusing and is **not recommended**. This may
+        # throw an exception in the future if I decide it's too egregious.
+        bam: StringZ = lambda: os.sep
+
+.. versionadded:: 0.9.0
+
+.. _PEP 526: https://www.python.org/dev/peps/pep-0526/
+"""
 import functools
 import typing
 from typing import Any
@@ -13,13 +47,16 @@ from binobj import errors
 from binobj import fields
 
 
+__all__ = ["dataclass"]
+
+
 TStruct = TypeVar("TStruct", bound=binobj.Struct)
 
 
 try:
-    from typing import get_args as get_typing_args
+    from typing import get_args as get_typing_args  # type: ignore[attr-defined]
 except ImportError:
-    from typing_inspect import get_args as _get_typing_args
+    from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
@@ -154,8 +191,8 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             raise errors.FieldRedefinedError(struct=class_object.__name__, field=name)
 
         field_instance.bind_to_container(name, field_index, byte_offset)
-        if byte_offset is not None and field_instance.size is not None:
-            byte_offset += field_instance.size
+        if byte_offset is not None and field_instance.has_fixed_size:
+            byte_offset += typing.cast(int, field_instance.size)
         else:
             byte_offset = None
 
