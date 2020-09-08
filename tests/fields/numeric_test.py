@@ -6,6 +6,7 @@ from unittest import mock
 
 import pytest
 
+from binobj import DEFAULT
 from binobj import errors
 from binobj import varints
 from binobj.fields import numeric
@@ -19,6 +20,21 @@ def test_integer_overflow():
     field = numeric.UInt16()
     with pytest.raises(errors.UnserializableValueError):
         field.to_bytes(65536)
+
+
+def test_integer_neg_with_positive():
+    field = numeric.UInt32()
+    with pytest.raises(errors.UnserializableValueError):
+        field.to_bytes(-1)
+
+
+def test_integer_no_specified_size():
+    field = numeric.Integer()
+    with pytest.raises(errors.UndefinedSizeError):
+        field.from_bytes(b"abc")
+
+    with pytest.raises(errors.UndefinedSizeError):
+        field.to_bytes(123)
 
 
 def test_const_set_size__varint():
@@ -72,6 +88,48 @@ def test_varint__max_bytes():
 
     with pytest.raises(errors.ValueSizeError):
         field.to_bytes(100000)
+
+
+@pytest.mark.parametrize(
+    "null_value,serialized", ((-1, b"\x7f"), (b"\x7f\xff", b"\x7f\xff"))
+)
+def test_varint__dump_null_value(null_value, serialized):
+    field = numeric.VariableLengthInteger(
+        vli_format=varints.VarIntEncoding.LEB128, max_bytes=2, null_value=null_value
+    )
+    assert field.to_bytes(None) == serialized
+
+
+@pytest.mark.parametrize(
+    "null_value,serialized", ((-1, b"\x7f"), (b"\x7f\xff", b"\x7f\xff"))
+)
+def test_varint__load_null_value(null_value, serialized):
+    field = numeric.VariableLengthInteger(
+        vli_format=varints.VarIntEncoding.LEB128, max_bytes=2, null_value=null_value
+    )
+    assert field.from_bytes(serialized) is None
+
+
+def test_varint__load_null_value_default_warns():
+    """Passing DEFAULT for `null_value` will break variable length integers since
+    we can't guess what the falsy value for the datatype is (if that even exists).
+    """
+    field = numeric.VariableLengthInteger(
+        vli_format=varints.VarIntEncoding.LEB128, max_bytes=2, null_value=DEFAULT
+    )
+    with pytest.warns(errors.CannotDetermineNullWarning):
+        assert field.from_bytes(b"\x1f") == 31
+
+
+def test_varint__dump_null_value_default_crashes():
+    """Passing DEFAULT for `null_value` will always break variable length integers since
+    we can't guess what the falsy value for the datatype is (if that even exists).
+    """
+    field = numeric.VariableLengthInteger(
+        vli_format=varints.VarIntEncoding.LEB128, max_bytes=2, null_value=DEFAULT
+    )
+    with pytest.raises(errors.UnserializableValueError):
+        field.to_bytes(None)
 
 
 def test_float_bad_endian_crashes():

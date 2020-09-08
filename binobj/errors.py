@@ -471,3 +471,17 @@ class UnexpectedEOFError(DeserializationError):
 
 class ExtraneousDataError(DeserializationError):
     """Extra bytes were found at the end of the input after deserialization."""
+
+
+class CannotDetermineNullWarning(UserWarning):
+    """The `null_value` for this field couldn't be determined when loading.
+
+    .. versionadded:: 0.9.0
+    """
+    def __init__(self, *, field: "Field[Any]"):
+        super().__init__(
+            "Passing `DEFAULT` for `null_value` of unsized field is deprecated and will"
+            " throw an exception in the future. This configuration makes it impossible"
+            " to know what None should be and can result in unpredictable behavior."
+        )
+        self.field = field

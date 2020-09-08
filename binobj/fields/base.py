@@ -109,6 +109,13 @@ class Field(Generic[T]):
         .. versionchanged:: 0.9.0
             This can now also be a deserialized value. For example, you could pass "\N"
             for a string or 0 for an integer.
+
+        .. deprecated:: 0.9.0
+            Passing :data:`DEFAULT` for unsized fields such as
+            :class:`~binobj.fields.stringlike.StringZ` is deprecated and will trigger an
+            error in the future. This resolves the asymmetric behavior where using
+            :data:`DEFAULT` throws an error when dumping but happily loads whatever's
+            next in the stream when loading.
     :param size:
         Optional. The size of the field. This can be a number of things:
 
@@ -504,15 +511,25 @@ class Field(Generic[T]):
 
         # If the caller passed in `null_value` as a byte string we'll peek ahead in the
         # stream and see if the bytes match up.
-        if self.allow_null and isinstance(self.null_value, bytes):
-            potential_null_bytes = helpers.peek_bytes(stream, len(self.null_value))
-            if potential_null_bytes == self.null_value:
-                # If we get here then the bytes we read ahead match null_value. Move the
-                # stream pointer to the beginning of the next field.
-                stream.seek(len(self.null_value), os.SEEK_CUR)
-                for validator in self.validators:
-                    validator(None)
-                return None
+        if self.allow_null:
+            try:
+                null_repr = self._get_null_repr(loaded_fields)
+            except errors.UnserializableValueError:
+                # Null can't be represented in this current state, so we can't check to
+                # see if the *raw binary* form is null. This isn't an error UNLESS
+                # null_value is `DEFAULT`. If null_value is DEFAULT and we can't
+                # determine the size, then we're out of luck.
+                if self.null_value is DEFAULT:
+                    warnings.warn(errors.CannotDetermineNullWarning(field=self))
+            else:
+                potential_null_bytes = helpers.peek_bytes(stream, len(null_repr))
+                if potential_null_bytes == null_repr:
+                    # If we get here then the bytes we read ahead match null_value. Move
+                    # the stream pointer to the beginning of the next field.
+                    stream.seek(len(null_repr), os.SEEK_CUR)
+                    for validator in self.validators:
+                        validator(None)
+                    return None
 
             # else: the bytes we read didn't match null_value. Fall through and try to
             # load the value using the field's normal loading code.
@@ -526,8 +543,10 @@ class Field(Generic[T]):
             err.field = self
             raise
 
-        # Here we handle the case where null_value was passed in as `T` rather than a
-        # byte string.
+        # Here we handle the case where null_value is DEFAULT or an instance of `T`
+        # rather than a byte string. Note that there's no way for us to determine upon
+        # loading if something matches DEFAULT. This is why we're deprecating setting
+        # `null_value` to DEFAULT.
         if self.allow_null and loaded_value == self.null_value:
             loaded_value = None
 
@@ -702,7 +721,9 @@ class Field(Generic[T]):
                 value=None,
             )
         if self.null_value is not DEFAULT:
-            return self.null_value
+            if isinstance(self.null_value, bytes):
+                return self.null_value
+            return self.to_bytes(self.null_value, all_fields=all_fields)
 
         # User wants us to use all null bytes for the default null value.
         try:
