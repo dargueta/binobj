@@ -189,13 +189,13 @@ def test_stringz__load_null_value(null_value):
     assert field.from_bytes(b"NULL\x00") is None
 
 
-def test_stringz__load_default_null_warns():
+def test_stringz__load_default_null_crashes():
     field = stringlike.StringZ(null_value=DEFAULT)
-    with pytest.warns(errors.CannotDetermineNullWarning):
-        assert field.from_bytes(b"\x00") == ""
+    with pytest.raises(errors.CannotDetermineNullError):
+        field.from_bytes(b"\x00")
 
 
 def test_stringz__dump_default_null_crashes():
     field = stringlike.StringZ(null_value=DEFAULT)
     with pytest.raises(errors.UnserializableValueError):
-        assert field.to_bytes(None) == b"\x00"
+        field.to_bytes(None)

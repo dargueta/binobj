@@ -117,7 +117,7 @@ def test_varint__load_null_value_default_warns():
     field = numeric.VariableLengthInteger(
         vli_format=varints.VarIntEncoding.LEB128, max_bytes=2, null_value=DEFAULT
     )
-    with pytest.warns(errors.CannotDetermineNullWarning):
+    with pytest.raises(errors.CannotDetermineNullError):
         assert field.from_bytes(b"\x1f") == 31
 
 

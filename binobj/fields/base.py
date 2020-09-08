@@ -514,13 +514,13 @@ class Field(Generic[T]):
         if self.allow_null:
             try:
                 null_repr = self._get_null_repr(loaded_fields)
-            except errors.UnserializableValueError:
+            except errors.UnserializableValueError as err:
                 # Null can't be represented in this current state, so we can't check to
                 # see if the *raw binary* form is null. This isn't an error UNLESS
                 # null_value is `DEFAULT`. If null_value is DEFAULT and we can't
                 # determine the size, then we're out of luck.
                 if self.null_value is DEFAULT:
-                    warnings.warn(errors.CannotDetermineNullWarning(field=self))
+                    raise errors.CannotDetermineNullError(field=self) from err.__cause__
             else:
                 potential_null_bytes = helpers.peek_bytes(stream, len(null_repr))
                 if potential_null_bytes == null_repr:
