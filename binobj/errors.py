@@ -10,7 +10,7 @@ from binobj.typedefs import FieldOrName
 from binobj.typedefs import StructOrName
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from binobj.fields import Field
     from binobj.structures import Struct
 
@@ -27,7 +27,7 @@ except ImportError:
     from typing import Generic
     from typing import Iterable
 
-    class Collection(Generic[T]):  # type: ignore
+    class Collection(Generic[T]):  # type: ignore[no-redef]
         def __contains__(self, item: T) -> bool:
             ...
 
@@ -307,12 +307,21 @@ class UndefinedSizeError(ConfigurationError):
 
 
 class NoDefinedFieldsError(ConfigurationError):
+    """The struct has no defined fields.
+
+    This is most likely to happen when a user declares their struct with
+    :func:`~binobj.pep526.dataclass` but uses the old form of assignment-based field
+    definitions.
+
+    .. versionadded:: 0.9.0
+    """
+
     def __init__(self, *, struct: StructOrName):
         super().__init__("The struct %r has no defined fields." % struct, struct=struct)
 
 
 class MixedDeclarationsError(ConfigurationError):
-    """The class declares fields with PEP 526 and assignments; only one is allowed.
+    """The class declares fields with both PEP 526 and assignments; only one is allowed.
 
     .. versionadded:: 0.9.0
     """

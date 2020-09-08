@@ -9,7 +9,7 @@ from typing import TypeVar
 from typing import Union
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from binobj.fields.base import Field
     from binobj.structures import Struct
 

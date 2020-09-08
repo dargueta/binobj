@@ -60,7 +60,7 @@ class Float(Field[float]):
     def __init__(
         self, *, format_string: str, endian: Optional[str] = None, **kwargs: Any
     ):
-        if format_string == "e" and sys.version_info[:2] < (3, 6):
+        if format_string == "e" and sys.version_info[:2] < (3, 6):  # pragma: no cover
             raise errors.ConfigurationError(
                 "binary16 format not supported on this version of Python.", field=self
             )

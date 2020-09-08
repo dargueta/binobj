@@ -19,7 +19,7 @@ from binobj.fields.base import NOT_PRESENT
 from binobj.typedefs import StrDict
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from binobj.structures import Struct
 
 

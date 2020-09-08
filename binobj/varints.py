@@ -11,7 +11,7 @@ from typing import BinaryIO
 from binobj import helpers
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Optional
 
 

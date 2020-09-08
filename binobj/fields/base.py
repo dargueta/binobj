@@ -26,7 +26,7 @@ from binobj.typedefs import FieldValidator
 from binobj.typedefs import StrDict
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from binobj.structures import Struct
 
 

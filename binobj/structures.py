@@ -31,7 +31,7 @@ from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import ClassVar
 
 
