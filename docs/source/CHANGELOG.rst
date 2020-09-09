@@ -1,8 +1,34 @@
 Changelog
 =========
 
+0.9.1
+-----
+
+Released 2020-09-08
+
+Bugfixes
+~~~~~~~~
+
+0.9.0 was not installable on Python 3.5 due to a trailing comma that is valid
+syntax on 3.6+.
+
+Compatibility Notice
+~~~~~~~~~~~~~~~~~~~~
+
+Support for Python 3.5 is un-deprecated. I will continue to support it until one
+of the following occurs, whichever is first:
+
+* A significant bug is encountered that cannot be fixed while maintaining
+  compatibility.
+* ``pip`` drops support for it.
+
+Going forward, this will be the new policy for dropping support for *any* version
+of Python.
+
 0.9.0
 -----
+
+Released 2020-09-08
 
 This is a significant release with an embarrassing number of bugfixes and a few
 new features enhancing field declarations, null value handling, and how absent
@@ -120,11 +146,9 @@ behavior.
 Deprecations
 ~~~~~~~~~~~~
 
-* ``Field._get_expected_size()`` has been made a public method. Use
-  ``get_expected_size()`` instead. The private form will still work but is
-  deprecated and will be removed in a future version.
-* Support for Python 3.5 *will be removed* in the next non-patch release, either
-  0.10.0 or 1.0, whichever is next.
+``Field._get_expected_size()`` has been made a public method. Use ``get_expected_size()``
+instead. The private form will still work but is deprecated and will be removed in a
+future version.
 
 Other Changes
 ~~~~~~~~~~~~~

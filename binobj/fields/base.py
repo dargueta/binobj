@@ -198,7 +198,7 @@ class Field(Generic[T]):
         size: Union[int, str, "Field[int]", None] = None,
         validate: Iterable[FieldValidator] = (),
         present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None,
-        not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT,
+        not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT
     ):
         self.const = const
         self.discard = discard
