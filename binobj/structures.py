@@ -211,7 +211,9 @@ class StructMeta(abc.ABCMeta):
         )
 
         # Enumerate the declared fields and bind them to this struct.
-        collect_assigned_fields(class_name, namespace, metadata.components, byte_offset)
+        metadata.num_own_fields = collect_assigned_fields(
+            class_name, namespace, metadata.components, byte_offset
+        )
         bind_validators_to_struct(namespace, metadata)
 
         namespace["__binobj_struct__"] = metadata

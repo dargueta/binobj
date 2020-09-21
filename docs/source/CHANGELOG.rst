@@ -1,6 +1,37 @@
 Changelog
 =========
 
+0.9.2
+-----
+
+Released 2020-09-20
+
+Bugfixes
+~~~~~~~~
+
+* ``Optional[X]`` notation to mark a field as nullable never worked; it does now.
+* ``__binobj_struct__.num_own_fields`` wasn't getting set for structs with their
+  fields declared by assignment. As such, mixed field declarations (PEP 526 and
+  assignment) silently passed, resulting in undefined behavior.
+* ``MixedDeclarationsError`` is now thrown as expected when a struct mixes
+  assignment and PEP 526 field declarations.
+* ``typing.Union`` is now correctly rejected when a struct attempts to use it
+  as if it were a ``binobj.Union``. Using it will trigger a
+  ``InvalidTypeAnnotationError`` as it was supposed to from the beginning.
+
+Deprecations
+~~~~~~~~~~~~
+
+``pip`` has declared that Python 3.5 support will end January 2021. In keeping
+with the recently established compatibility rules, ``binobj`` will not make an
+effort to maintain Python 3.5 compatibility past then either.
+
+Other Changes
+~~~~~~~~~~~~~
+
+Deleted some dead code.
+
+
 0.9.1
 -----
 

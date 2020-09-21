@@ -21,10 +21,7 @@ class Bytes(Field[bytes]):
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
     ) -> Optional[bytes]:
-        data = self._read_exact_size(stream, loaded_fields)
-        if self.allow_null and data == self._get_null_repr(loaded_fields):
-            return None
-        return data
+        return self._read_exact_size(stream, loaded_fields)
 
     def _do_dump(
         self, stream: BinaryIO, data: bytes, context: Any, all_fields: StrDict
@@ -96,8 +93,6 @@ class String(Field[str]):
     ) -> Optional[str]:
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream, loaded_fields)
-        if self.allow_null and to_load == self._get_null_repr(loaded_fields):
-            return None
         return to_load.decode(self.encoding)
 
     def _do_dump(

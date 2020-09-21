@@ -4,9 +4,14 @@ This file MUST be ignored by Python 3.5 tests. If not, importing it will trigger
 errors and you will be sad.
 """
 
+import typing
 from typing import ClassVar
+from typing import Optional
+
+import pytest
 
 import binobj
+from binobj import errors
 from binobj import fields
 from binobj.pep526 import dataclass
 
@@ -16,7 +21,6 @@ class BasicClass(binobj.Struct):
     some_value: fields.UInt16
     string: fields.String(size=16, encoding="ibm500")  # noqa:F821
     other_string: fields.StringZ = "Default Value"
-    ignored: ClassVar[int] = 1234
 
 
 def test_field_extraction__basic():
@@ -35,3 +39,67 @@ def test_field_extraction__default_values():
 
 def test_field_extraction__field_properties_assigned():
     assert BasicClass.string.encoding == "ibm500"
+
+
+@pytest.mark.parametrize("field_type", (fields.StringZ, fields.UInt16))
+def test_field_redefine_detected_crashes(field_type):
+    with pytest.raises(errors.FieldRedefinedError):
+
+        @dataclass
+        class _BrokenClass(BasicClass):
+            other_string: field_type
+
+
+def test_typing_union_breaks():
+    """Attempting to use typing.Union for binobj.Union will break."""
+    with pytest.raises(errors.InvalidTypeAnnotationError):
+
+        @dataclass
+        class _BrokenClass(binobj.Struct):
+            some_value: typing.Union[binobj.UInt32, binobj.UInt16]
+
+
+@dataclass
+class NullableFieldsStruct(binobj.Struct):
+    nullable: Optional[fields.Int32]  # noqa:F821
+    not_nullable: fields.StringZ
+
+
+def test_optional_resolved_correctly():
+    assert NullableFieldsStruct.nullable.allow_null
+    assert not NullableFieldsStruct.not_nullable.allow_null
+
+
+@dataclass
+class IgnoredFields(binobj.Struct):
+    ignored: ClassVar[int] = 1234
+    unmarked_ignored: int
+    real_field: fields.StringZ
+
+
+def test_unmarked_fields_ignored():
+    assert hasattr(IgnoredFields, "__annotations__")
+    assert hasattr(IgnoredFields, "__binobj_struct__"), "Metadata not found on class"
+
+    meta = IgnoredFields.__binobj_struct__
+    assert meta.num_own_fields == 1, "Wrong number of fields detected"
+
+
+def test_mixed_declarations_crashes():
+    with pytest.raises(errors.MixedDeclarationsError):
+
+        @dataclass
+        class _BrokenClass(binobj.Struct):
+            normal_field = fields.UInt16()
+            pep526_field: fields.StringZ
+
+
+@dataclass
+class NestedFields(binobj.Struct):
+    basic: BasicClass
+    other: fields.Float32
+
+
+def test_nested_works():
+    assert isinstance(NestedFields.basic, fields.Nested)
+    assert NestedFields.basic.struct_class is BasicClass

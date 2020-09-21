@@ -55,10 +55,16 @@ TStruct = TypeVar("TStruct", bound=binobj.Struct)
 
 try:
     from typing import get_args as get_typing_args  # type: ignore[attr-defined]
+    from typing import get_origin as get_typing_origin  # type: ignore[attr-defined]
 except ImportError:
     from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
+    from typing_inspect import get_origin as get_typing_origin  # type: ignore[import]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
+
+
+if typing.TYPE_CHECKING:
+    from typing import Dict
 
 
 @attr.s
@@ -81,7 +87,7 @@ class AnnotationInfo:
         # Handle Optional[T] which gets rendered as Union[T, type(None)].
         # We have to compare types directly with `is` because the type annotations don't
         # support isinstance() and issubclass().
-        if type_class is Union:
+        if get_typing_origin(type_class) is Union:
             # Filter out None from the type arguments. Again, we have to use `is`. :(
             type_args = tuple(t for t in type_args if t is not type(None))  # noqa: E721
 
@@ -118,10 +124,15 @@ def annotation_to_field_instance(
             # A Struct class is shorthand for Nested(Struct).
             return fields.Nested(annotation.type_class)
         if issubclass(annotation.type_class, fields.Field):
-            # This is a Field class. Initialize it with no arguments aside from its name
-            # and default value, if provided. This gives us a Field instance.
+            # This is a Field class. Initialize it with only the arguments we're certain
+            # of. This gives us a Field instance.
+            if annotation.nullable:
+                kw = {"null_value": fields.DEFAULT}  # type: Dict[str, Any]
+            else:
+                kw = {}
+
             return annotation.type_class(
-                name=annotation.name, default=annotation.default_value
+                name=annotation.name, default=annotation.default_value, **kw
             )
 
         # Else: Not a struct or field class -- ignore
