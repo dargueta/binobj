@@ -37,12 +37,12 @@ setup: .python-version setup.cfg
 lint: $(SOURCEFILES)
 	tox -e lint
 
-# TODO (dargueta): Make `clean` work on Windows. Windows doesn't have `rm`.
 .PHONY: clean
 clean:
-	git clean -fd $(DOCSDIR)
-	rm -rf .tox .cache .pytest_cache *.egg-info *.eggs .coverage dist build .mypy_cache
-	find . -name '__pycache__' -type d -exec rm -rf '{}' \+
+	$(MAKE) -C $(DOCSDIR) clean
+	$(RM) $(DOCSSOURCE)/binobj.*.rst  $(DOCSSOURCE)/binobj.rst  $(DOCSSOURCE)/modules.rst
+	$(RM) -r .tox .cache .pytest_cache *.egg-info *.eggs .coverage dist build .mypy_cache
+	find . -name '__pycache__' -type d -exec $(RM) -r '{}' \+
 
 # Run the unit tests if the source code has changed.
 .PHONY: test

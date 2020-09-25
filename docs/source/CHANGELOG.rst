@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.9.2-post1
+-----------
+
+Released 2020-09-24
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Loosened version requirement of ``typing-inspect`` package.
+* Upgraded some test dependencies
+* Improved behavior of ``make clean``
+* Made MyPy settings stricter
+
 0.9.2
 -----
 
