@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.10.0
+------
+
+Bugfixes
+~~~~~~~~
+
+* Fixed wrong type annotations for ``validate`` and ``present`` arguments of ``Field``.
+* Fixed outdated docstring for ``null_value`` argument of ``Field``.
+
 0.9.2-post1
 -----------
 

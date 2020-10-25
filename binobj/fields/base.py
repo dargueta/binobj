@@ -101,13 +101,14 @@ class Field(Generic[T]):
         this will crash with a :class:`KeyError` because ``name_size`` was
         discarded.
     :param null_value:
-        A byte string to use to represent ``None`` in serialized data. When loading, the
-        returned value will be ``None`` if this exact sequence of bytes is encountered.
-        If not given, the field is considered "not nullable" and any attempt to assign
-        ``None`` to it will result in a crash upon serialization.
+        Either a byte string or a value to use to represent ``None`` in serialized data.
+
+        When loading, the returned value will be ``None`` if this exact sequence of
+        bytes is encountered. If not given, the field is considered "not nullable" and
+        any attempt to assign ``None`` to it will result in a crash upon serialization.
 
         .. versionchanged:: 0.9.0
-            This can now also be a deserialized value. For example, you could pass "\N"
+            This can now also be a deserialized value. For example, you could pass r"\N"
             for a string or 0 for an integer.
 
         .. deprecated:: 0.9.0
@@ -196,14 +197,14 @@ class Field(Generic[T]):
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
         size: Union[int, str, "Field[int]", None] = None,
-        validate: Iterable[FieldValidator] = (),
-        present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None,
+        validate: Union[FieldValidator, Iterable[FieldValidator]] = (),
+        present: Callable[[StrDict, Any, Optional[BinaryIO]], int] = (lambda *_: True),
         not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT
     ):
         self.const = const
         self.discard = discard
         self.null_value = null_value
-        self.present = present or (lambda *_: True)
+        self.present = present
         self.not_present_value = not_present_value
         self.validators = [
             functools.partial(v, self) for v in m_iter.always_iterable(validate)
