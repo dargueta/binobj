@@ -136,11 +136,11 @@ class String(Field[str]):
         # TODO (dargueta): Figure out why `field=self` gives MyPy indigestion below
         if size_diff > 0:
             # String is too long.
-            raise errors.ValueSizeError(field=self, value=to_dump)  # type: ignore
+            raise errors.ValueSizeError(field=self, value=to_dump)
         if size_diff < 0:
             if self.pad_byte is None:
                 # String is too short and we're not padding it.
-                raise errors.ValueSizeError(field=self, value=to_dump)  # type: ignore
+                raise errors.ValueSizeError(field=self, value=to_dump)
             to_dump += self.pad_byte * -size_diff
 
         return to_dump

@@ -29,8 +29,8 @@ class ValidatorMethodWrapper:
         self.field_names = tuple(field_names or ())
         functools.wraps(func)(self)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Optional[bool]:
-        return self.func(*args, **kwargs)  # type: ignore
+    def __call__(self, *args: Any) -> Optional[bool]:
+        return self.func(*args)
 
 
 def validates(*field_names: str) -> Callable[[FieldValidator], ValidatorMethodWrapper]:

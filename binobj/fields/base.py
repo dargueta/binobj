@@ -382,7 +382,7 @@ class Field(Generic[T]):
         each access of this property.
 
         .. versionchanged:: 0.6.1
-            If no default is defined but ``const`` is, this property return
+            If no default is defined but ``const`` is, this property returns
             the value for ``const``.
         """
         default_value = self._default
@@ -641,7 +641,9 @@ class Field(Generic[T]):
             all_fields = {}
 
         if data is DEFAULT:
-            data = self.default  # type: ignore
+            # Typecast is not entirely truthful; this may return UNDEFINED if the field
+            # has no default value.
+            data = typing.cast(Optional[T], self.default)
 
         if data is UNDEFINED or data is DEFAULT:
             raise errors.MissingRequiredValueError(field=self)

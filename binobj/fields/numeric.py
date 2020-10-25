@@ -79,7 +79,7 @@ class Float(Field[float]):
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> float:
         data = self._read_exact_size(stream)
         try:
-            return struct.unpack(self.format_string, data)[0]  # type: ignore
+            return struct.unpack(self.format_string, data)[0]
         except struct.error as exc:
             raise errors.DeserializationError(message=str(exc), field=self, data=data)
 

@@ -2,9 +2,12 @@
 
 import typing
 from typing import Any
+from typing import Iterable
 from typing import Optional
 from typing import TypeVar
 from typing import Union
+
+import more_itertools as m_iter
 
 from binobj.typedefs import FieldOrName
 from binobj.typedefs import StructOrName
@@ -16,26 +19,6 @@ if typing.TYPE_CHECKING:  # pragma: no cover
 
 
 T = TypeVar("T")
-
-
-try:
-    from typing import Collection
-except ImportError:
-    # Python 3.5 doesn't have typing.Container and neither does typing_extensions, so we
-    # have to implement it ourselves. Eventually we'll drop support for 3.5 and remove
-    # this nonsense.
-    from typing import Generic
-    from typing import Iterable
-
-    class Collection(Generic[T]):  # type: ignore[no-redef]
-        def __contains__(self, item: T) -> bool:
-            ...
-
-        def __iter__(self) -> Iterable[T]:
-            ...
-
-        def __len__(self) -> int:
-            ...
 
 
 __all__ = [
@@ -404,11 +387,8 @@ class UnexpectedValueError(SerializationError):
         instances.
     """
 
-    def __init__(self, *, struct: "Struct", name: Union[str, Collection[str]]):
-        if isinstance(name, str):
-            self.names = {name}
-        else:
-            self.names = set(name)
+    def __init__(self, *, struct: "Struct", name: Union[str, Iterable[str]]):
+        self.names = set(m_iter.always_iterable(name))
 
         msg = "%d unrecognized field(s) given to %s for serialization: %s" % (
             len(self.names),
@@ -428,7 +408,7 @@ class ValueSizeError(UnserializableValueError):
         The value that's the wrong size.
     """
 
-    def __init__(self, *, field: "Field[T]", value: Optional[T]):
+    def __init__(self, *, field: "Field[Any]", value: Any):
         super().__init__(
             reason="Value doesn't fit into %r bytes." % field.size,
             field=field,

@@ -53,20 +53,22 @@ class StructMetadata:
     default :class:`.Struct` class.
 
     .. versionadded:: 0.7.1
+
+    .. versionchanged:: 0.10.0
+        Removed the ``defaults`` attribute. It was never used.
     """
 
     components = attr.ib(
-        type=Dict[str, fields.Field[Any]], factory=collections.OrderedDict
+        type=MutableMapping[str, fields.Field[Any]], factory=collections.OrderedDict
     )
     struct_validators = attr.ib(type=List[StructValidator], factory=list)
     field_validators = attr.ib(type=Dict[str, List[MethodFieldValidator]], factory=dict)
-    defaults = attr.ib(type=Dict[str, Any], factory=dict)
 
     #: .. versionadded:: 0.9.0
     num_own_fields = attr.ib(type=int, default=0)
 
     #: .. versionadded:: 0.9.0
-    size_bytes = attr.ib(type=int, default=0)  # type: Optional[int]
+    size_bytes = attr.ib(type=Optional[int], default=0)
 
 
 def collect_assigned_fields(
@@ -217,8 +219,17 @@ class StructMeta(abc.ABCMeta):
         bind_validators_to_struct(namespace, metadata)
 
         namespace["__binobj_struct__"] = metadata
+        struct_class = super().__new__(mcs, class_name, bases, namespace)
+
+        # Set __objclass__ on all fields to aid type introspection. The `inspect` module
+        # uses this as an aid.
+        for field in metadata.components.values():
+            # TODO (dargueta): Declare __objclass__ once we drop support for 3.5
+            # We need PEP-526 for that unfortunately.
+            field.__objclass__ = struct_class  # type: ignore[attr-defined]
+
         # TODO (dargueta): Figure out how metaclasses are supposed to work with MyPy
-        return super().__new__(mcs, class_name, bases, namespace)  # type: ignore
+        return struct_class  # type: ignore[return-value]
 
 
 @overload
@@ -276,6 +287,9 @@ class Struct(metaclass=StructMeta):
         Field definitions, validators, and other metadata can be found in the
         new ``__binobj_struct__`` class attribute. However, it should be considered
         an implementation detail and is subject to change.
+
+    .. versionchanged:: 0.10.0
+        The ``__objclass__`` attribute is set on all fields.
     """
 
     __binobj_struct__ = StructMetadata()  # type: ClassVar[StructMetadata]
