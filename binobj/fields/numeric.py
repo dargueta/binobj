@@ -363,6 +363,7 @@ class Timestamp(Field[datetime.datetime]):
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
+
     _RESOLUTION_UNITS = {"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9}
 
     def __init__(
@@ -393,8 +394,6 @@ class Timestamp(Field[datetime.datetime]):
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
     ) -> datetime.datetime:
-        if self.size is None:
-            raise errors.UndefinedSizeError(field=self)
         value = helpers.read_int(
             stream, self.get_expected_size(loaded_fields), self.signed, self.endian
         )
@@ -411,8 +410,6 @@ class Timestamp(Field[datetime.datetime]):
         context: Any,
         all_fields: StrDict,
     ) -> None:
-        if self.size is None:
-            raise errors.UndefinedSizeError(field=self)
         timestamp = int(data.timestamp() * self._units)
         try:
             helpers.write_int(
