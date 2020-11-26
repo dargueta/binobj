@@ -13,7 +13,7 @@ def read_int(
 ) -> int:
     """Read an integer from the given byte stream.
 
-    :param io.BufferedIOBase stream:
+    :param BinaryIO stream:
         The stream to read from.
     :param int n_bytes:
         The number of bytes to read for this integer.
@@ -51,7 +51,7 @@ def write_int(
 ) -> None:
     """Write an integer to a stream.
 
-    :param io.BufferedIOBase stream:
+    :param BinaryIO stream:
         The stream to write the integer to.
     :param int value:
         The integer to dump into the stream.

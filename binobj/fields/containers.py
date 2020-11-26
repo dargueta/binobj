@@ -175,7 +175,7 @@ class Array(Field[List[Optional[T]]]):
 
         :param Array seq:
             The sequence being checked.
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The data stream to read from. Except in rare circumstances, this is
             the same stream that was passed to :meth:`~.fields.base.Field.from_stream`.
             The stream pointer should be returned to its original position when the
@@ -194,9 +194,10 @@ class Array(Field[List[Optional[T]]]):
         :rtype: bool
 
         .. versionchanged:: 0.8.0
-            The default implementation now throws `UndefinedSizeError` if the length of
-            the array couldn't be determined. Previously this would crash with a
-            `TypeError`.
+            The default implementation now throws
+            :class:`~.errors.UndefinedSizeError` if the length of the array
+            couldn't be determined. Previously this would crash with a
+            :class:`TypeError`.
         """
         if seq.count is not None:
             count = seq.get_final_element_count(loaded_fields)
@@ -222,7 +223,7 @@ class Array(Field[List[Optional[T]]]):
     ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             A binary stream to write the serialized data into.
         :param iterable data:
             An iterable of values to dump.
@@ -279,7 +280,7 @@ class Array(Field[List[Optional[T]]]):
     ) -> List[Optional[T]]:
         """Load a structure list from the given stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             A bit stream to read data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore

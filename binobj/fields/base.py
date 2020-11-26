@@ -45,21 +45,23 @@ class _NotPresent(enum.Enum):
     token = 0
 
 
-#: A sentinel value used to indicate that a setting or field is undefined.
 UNDEFINED = _Undefined.token
+"""A sentinel value used to indicate that a setting or field is undefined."""
 
 
-#: A sentinel value used to indicate that the default value of a setting should
-#: be used. We need this because sometimes ``None`` is a valid value for that
-#: setting.
 DEFAULT = _Default.token
+"""A sentinel value used to indicate that the default value of a setting should
+be used.
+
+We need this because sometimes ``None`` is a valid value for that setting.
+"""
 
 
-#: A sentinel value used to indicate that a field is not present.
-#:
-#: .. versionadded:: 0.4.5
 NOT_PRESENT = _NotPresent.token
+"""A sentinel value used to indicate that a field is not present.
 
+.. versionadded:: 0.4.5
+"""
 
 T = TypeVar("T")
 
@@ -492,7 +494,7 @@ class Field(Generic[T]):
     ) -> Union[Optional[T], _NotPresent]:
         """Load data from the given stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to load data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
@@ -604,7 +606,7 @@ class Field(Generic[T]):
     ) -> Optional[T]:
         """Load an object from the stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -625,7 +627,7 @@ class Field(Generic[T]):
     ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to write the serialized data into.
         :param data:
             The data to dump. Can be omitted only if this is a constant field or
@@ -691,7 +693,7 @@ class Field(Generic[T]):
     ) -> None:
         """Write the given data to the byte stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to write to.
         :param data:
             The data to dump. Guaranteed to not be ``None``.
@@ -744,7 +746,7 @@ class Field(Generic[T]):
     ) -> bytes:
         """Read exactly the number of bytes this object takes up or crash.
 
-        :param io.BufferedIOBase stream: The stream to read from.
+        :param BinaryIO stream: The stream to read from.
         :param dict loaded_fields:
             A dict mapping names of fields to their loaded values. This allows
             us to read a variable-length field that depends on the value of
