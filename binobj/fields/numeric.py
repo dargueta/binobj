@@ -155,6 +155,8 @@ class Integer(Field[int]):
     .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representations
     """
 
+    __overrideable_attributes__ = ("endian",)
+
     def __init__(
         self, *, endian: Optional[str] = None, signed: bool = True, **kwargs: Any
     ):

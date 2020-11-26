@@ -201,7 +201,7 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             # Puke -- the field was already defined in the superclass.
             raise errors.FieldRedefinedError(struct=class_object.__name__, field=name)
 
-        field_instance.bind_to_container(name, field_index, byte_offset)
+        field_instance.bind_to_container(meta, name, field_index, byte_offset)
         if byte_offset is not None and field_instance.has_fixed_size:
             byte_offset += typing.cast(int, field_instance.size)
         else:

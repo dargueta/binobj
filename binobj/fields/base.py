@@ -12,6 +12,7 @@ from typing import BinaryIO
 from typing import Callable
 from typing import Generic
 from typing import Iterable
+from typing import Mapping
 from typing import Optional
 from typing import overload
 from typing import Type
@@ -27,7 +28,9 @@ from binobj.typedefs import StrDict
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
+    from typing import Container
     from binobj.structures import Struct
+    from binobj.structures import StructMetadata
 
 
 __all__ = ["DEFAULT", "NOT_PRESENT", "UNDEFINED", "Field"]
@@ -190,6 +193,15 @@ class Field(Generic[T]):
         :type: int
     """
 
+    __overrideable_attributes__ = ()  # type: Union[Container[str], Mapping[str, str]]
+
+    # TODO (dargueta): Define __explicit_init_args__ attribute once we drop 3.5 support
+
+    def __new__(cls: Type["Field[Any]"], *args: Any, **kwargs: Any):
+        instance = super().__new__(cls, *args, **kwargs)
+        instance.__explicit_init_args__ = frozenset(kwargs.keys())
+        return instance
+
     def __init__(
         self,
         *,
@@ -255,10 +267,12 @@ class Field(Generic[T]):
         return isinstance(self.size, int)
 
     def bind_to_container(
-        self, name: str, index: int, offset: Optional[int] = None
+        self, struct_info: "StructMetadata", name:str, index: int, offset: Optional[int] = None
     ) -> None:
-        """Bind this field to a container class.
+        """Bind this field to a Struct and apply any predefined defaults.
 
+        :param binobj.structures.StructMetadata struct_info:
+            The metadata object describing the Struct this field will be bound into.
         :param str name:
             The name of this field.
         :param int index:
@@ -267,10 +281,29 @@ class Field(Generic[T]):
             The byte offset of this field in the container, or ``None`` if
             unknown. This is usually equal to the sum of the sizes of the fields
             preceding this one in the container.
+
+        .. versionchanged:: 0.10.0
+            Added the ``struct_info`` parameter.
         """
         self.name = name
         self.index = index
         self.offset = offset
+
+        if not isinstance(self.__overrideable_attributes__, Mapping):
+            overrideables = {n: n for n in self.__overrideable_attributes__}
+        else:
+            overrideables = self.__overrideable_attributes__
+
+        for argument_name, attribute_name in overrideables.items():
+            if argument_name in self.__explicit_init_args__:
+                continue
+
+            typed_default_name = type(self).__name__ + "__" + argument_name
+            if typed_default_name in struct_info.defaults:
+                setattr(self, attribute_name, struct_info.defaults[typed_default_name])
+            elif argument_name in struct_info.defaults:
+                setattr(self, attribute_name, struct_info.defaults[argument_name])
+            # Else: struct doesn't define a default value
 
     def compute_value_for_dump(
         self, all_values: StrDict

@@ -366,3 +366,33 @@ def test_present__dump_not_present_given_something(thing):
     """
     struct = BasicPresentStruct(flags=1, thing=thing, other_thing=0x1337)
     assert struct.to_bytes() == b"\x01\x00\x37\x13"
+
+
+def test_binding_defaults_applied__basic():
+    opposite_endian = "big" if sys.byteorder == "little" else "little"
+
+    class Test(binobj.Struct):
+        class Meta:
+            defaults = {"endian": opposite_endian}
+
+        opposite = fields.Int32()
+        unaffected = fields.Int32(endian=sys.byteorder)
+
+    assert Test.opposite.endian == opposite_endian, "Default value wasn't applied"
+    assert Test.unaffected.endian == sys.byteorder, "Explicit argument was overridden"
+
+
+def test_binding_defaults_applied__class_name_prefix():
+    opposite_endian = "big" if sys.byteorder == "little" else "little"
+
+    class Test(binobj.Struct):
+        class Meta:
+            defaults = {"Int16__endian": opposite_endian}
+
+        opposite = fields.Int16()
+        same_16 = fields.Int16(endian=sys.byteorder)
+        unaffected = fields.Int32(endian=sys.byteorder)
+
+    assert Test.opposite.endian == opposite_endian, "Default value wasn't applied"
+    assert Test.same_16.endian == sys.byteorder, "Explicit argument was overridden"
+    assert Test.unaffected.endian == sys.byteorder, "Explicit argument was overridden"

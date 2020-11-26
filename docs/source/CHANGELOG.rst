@@ -4,6 +4,63 @@ Changelog
 0.10.0
 ------
 
+New Features
+~~~~~~~~~~~~
+
+**Struct Defaults!**
+
+You can specify default values for fields at the struct level now, meaning you don't
+need to pass the same value over and over again to each field. For example:
+
+Before...
+
+.. code-block:: python
+
+    class Person(binobj.Struct):
+        first_name = StringZ(encoding="ibm500")
+        middle_name = StringZ(encoding="ibm500")
+        last_name = StringZ(encoding="ibm500")
+        id = StringZ(encoding="ascii")
+
+Now, you can pass a dictionary in a nested class called ``Meta`` with the names of the
+argument you wish to override and the value:
+
+.. code-block:: python
+
+    class Person(binobj.Struct):
+        class Meta:
+            defaults = {
+                # All strings will use EBCDIC as the text encoding if they don't
+                # get passed an explicit value.
+                "encoding": "ibm500"
+            }
+
+        first_name = StringZ()
+        middle_name = StringZ()
+        last_name = StringZ()
+        id = StringZ(encoding="ascii")
+
+You can use the field class names as a prefix to provide different values for different
+field types. Suppose I want all integers to have a default value of 0, and all strings
+to have a default value of "":
+
+.. code-block:: python
+
+    class Person:
+        class Meta:
+            defaults = {
+                "encoding": "ibm500",
+                "StringZ__default": "",
+                "Int8__default": 0
+            }
+
+        id = StringZ(encoding="ascii")
+        first_name = StringZ()
+        middle_name = StringZ()
+        last_name = StringZ()
+        age = Int8()
+        num_children = Int8()
+
 Bugfixes
 ~~~~~~~~
 
