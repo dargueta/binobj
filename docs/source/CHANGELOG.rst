@@ -7,10 +7,21 @@ Changelog
 New Features
 ~~~~~~~~~~~~
 
-**Struct Defaults!**
+**Customize Struct Creation!**
 
-You can specify default values for fields at the struct level now, meaning you don't
-need to pass the same value over and over again to each field. For example:
+You can customize how a Struct is created by nesting a class named ``Meta`` into it,
+like so:
+
+.. code-block:: python
+
+    class MyStruct(binobj.Struct):
+        class Meta:
+            # Options in here
+
+        # Define your fields out here as before
+
+For now we only support passing fallback values for arguments not passed to a field,
+such as defaults, null values, etc.
 
 Before...
 
@@ -29,7 +40,7 @@ argument you wish to override and the value:
 
     class Person(binobj.Struct):
         class Meta:
-            defaults = {
+            argument_defaults = {
                 # All strings will use EBCDIC as the text encoding if they don't
                 # get passed an explicit value.
                 "encoding": "ibm500"
@@ -48,7 +59,7 @@ to have a default value of "":
 
     class Person:
         class Meta:
-            defaults = {
+            argument_defaults = {
                 "encoding": "ibm500",
                 "StringZ__default": "",
                 "Int8__default": 0

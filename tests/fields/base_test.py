@@ -373,7 +373,7 @@ def test_binding_defaults_applied__basic():
 
     class Test(binobj.Struct):
         class Meta:
-            defaults = {"endian": opposite_endian}
+            argument_defaults = {"endian": opposite_endian}
 
         opposite = fields.Int32()
         unaffected = fields.Int32(endian=sys.byteorder)
@@ -387,7 +387,7 @@ def test_binding_defaults_applied__class_name_prefix():
 
     class Test(binobj.Struct):
         class Meta:
-            defaults = {"Int16__endian": opposite_endian}
+            argument_defaults = {"Int16__endian": opposite_endian}
 
         opposite = fields.Int16()
         same_16 = fields.Int16(endian=sys.byteorder)

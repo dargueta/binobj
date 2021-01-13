@@ -61,7 +61,7 @@ class StructMetadata:
 
     name = attr.ib(type=str)
     """The name of the class this metadata is for.
-    
+
     .. versionadded:: 0.10.0
     """
 
@@ -91,15 +91,18 @@ class StructMetadata:
     .. versionadded:: 0.9.0
     """
 
-    defaults = attr.ib(type=MutableStrDict, factory=dict)
-    """A mapping of derived keys for defaults to the default values.
-    
+    argument_defaults = attr.ib(type=MutableStrDict, factory=dict)
+    """A mapping of argument names or derived keys to their default values.
+
     Keys can take several forms:
-    
+
     * A class name, followed by two underscores, then the field name. Class names are
       case-sensitive.
     * A single attribute name. This has the lowest precedence but the broadest reach.
     """
+
+    def load_meta_options(self, meta: type) -> None:
+        self.argument_defaults = dict(getattr(meta, "argument_defaults", {}))
 
 
 def collect_assigned_fields(
@@ -245,9 +248,9 @@ class StructMeta(abc.ABCMeta):
             }
         )
 
-        # If the class defines defaults in a `Meta` class, add those in.
-        if "Meta" in namespace and hasattr(namespace["Meta"], "defaults"):
-            metadata.defaults = dict(namespace["Meta"].defaults)
+        # Load any construction options the caller may have defined.
+        if "Meta" in namespace:
+            metadata.load_meta_options(namespace["Meta"])
 
         # Enumerate the declared fields and bind them to this struct.
         metadata.num_own_fields = collect_assigned_fields(

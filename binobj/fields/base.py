@@ -29,6 +29,7 @@ from binobj.typedefs import StrDict
 
 if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Container
+
     from binobj.structures import Struct
     from binobj.structures import StructMetadata
 
@@ -267,7 +268,11 @@ class Field(Generic[T]):
         return isinstance(self.size, int)
 
     def bind_to_container(
-        self, struct_info: "StructMetadata", name:str, index: int, offset: Optional[int] = None
+        self,
+        struct_info: "StructMetadata",
+        name: str,
+        index: int,
+        offset: Optional[int] = None,
     ) -> None:
         """Bind this field to a Struct and apply any predefined defaults.
 
@@ -299,10 +304,16 @@ class Field(Generic[T]):
                 continue
 
             typed_default_name = type(self).__name__ + "__" + argument_name
-            if typed_default_name in struct_info.defaults:
-                setattr(self, attribute_name, struct_info.defaults[typed_default_name])
-            elif argument_name in struct_info.defaults:
-                setattr(self, attribute_name, struct_info.defaults[argument_name])
+            if typed_default_name in struct_info.argument_defaults:
+                setattr(
+                    self,
+                    attribute_name,
+                    struct_info.argument_defaults[typed_default_name],
+                )
+            elif argument_name in struct_info.argument_defaults:
+                setattr(
+                    self, attribute_name, struct_info.argument_defaults[argument_name]
+                )
             # Else: struct doesn't define a default value
 
     def compute_value_for_dump(
