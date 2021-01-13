@@ -79,7 +79,7 @@ class Float(Field[float]):
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> float:
         data = self._read_exact_size(stream)
         try:
-            return struct.unpack(self.format_string, data)[0]  # type: ignore
+            return struct.unpack(self.format_string, data)[0]
         except struct.error as exc:
             raise errors.DeserializationError(message=str(exc), field=self, data=data)
 
@@ -154,6 +154,8 @@ class Integer(Field[int]):
 
     .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representations
     """
+
+    __overrideable_attributes__ = ("endian",)
 
     def __init__(
         self, *, endian: Optional[str] = None, signed: bool = True, **kwargs: Any
@@ -363,6 +365,7 @@ class Timestamp(Field[datetime.datetime]):
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
+
     _RESOLUTION_UNITS = {"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9}
 
     def __init__(
@@ -393,8 +396,6 @@ class Timestamp(Field[datetime.datetime]):
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
     ) -> datetime.datetime:
-        if self.size is None:
-            raise errors.UndefinedSizeError(field=self)
         value = helpers.read_int(
             stream, self.get_expected_size(loaded_fields), self.signed, self.endian
         )
@@ -411,8 +412,6 @@ class Timestamp(Field[datetime.datetime]):
         context: Any,
         all_fields: StrDict,
     ) -> None:
-        if self.size is None:
-            raise errors.UndefinedSizeError(field=self)
         timestamp = int(data.timestamp() * self._units)
         try:
             helpers.write_int(

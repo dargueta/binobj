@@ -6,6 +6,7 @@ import collections.abc
 import copy
 import io
 import typing
+import warnings
 from typing import Any
 from typing import BinaryIO
 from typing import Dict
@@ -31,8 +32,8 @@ from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
 
 
-if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import ClassVar
+# if typing.TYPE_CHECKING:  # pragma: no cover
+#     from typing import ClassVar
 
 
 __all__ = ["Struct"]
@@ -44,7 +45,7 @@ V = TypeVar("V")
 TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
-@attr.s
+@attr.s(kw_only=True)
 class StructMetadata:
     """Info about the :class:`.Struct` it belongs to, like its fields and validators.
 
@@ -52,27 +53,62 @@ class StructMetadata:
     use to people writing wrapper classes or otherwise enhancing the behavior of the
     default :class:`.Struct` class.
 
+    .. versionchanged:: 0.10.0
+        Arguments are now keyword-only.
+
     .. versionadded:: 0.7.1
     """
 
+    name = attr.ib(type=str)
+    """The name of the class this metadata is for.
+
+    .. versionadded:: 0.10.0
+    """
+
     components = attr.ib(
-        type=Dict[str, fields.Field[Any]], factory=collections.OrderedDict
+        type=MutableMapping[str, fields.Field[Any]], factory=collections.OrderedDict
     )
+    """A mapping of field names to the actual field object."""
+
     struct_validators = attr.ib(type=List[StructValidator], factory=list)
+    """A list of validators for this struct."""
+
     field_validators = attr.ib(type=Dict[str, List[MethodFieldValidator]], factory=dict)
-    defaults = attr.ib(type=Dict[str, Any], factory=dict)
+    """A mapping of field names to validators to execute for that field."""
 
-    #: .. versionadded:: 0.9.0
     num_own_fields = attr.ib(type=int, default=0)
+    """The number of fields defined in this class (i.e. excluding superclasses).
 
-    #: .. versionadded:: 0.9.0
-    size_bytes = attr.ib(type=int, default=0)  # type: Optional[int]
+    .. versionadded:: 0.9.0
+    """
+
+    size_bytes = attr.ib(type=Optional[int], default=0)
+    """The total size of the struct in bytes, if it's a fixed value.
+
+    This is only used for classes declared using PEP 526 type annotations and should
+    otherwise be ignored.
+
+    .. versionadded:: 0.9.0
+    """
+
+    argument_defaults = attr.ib(type=MutableStrDict, factory=dict)
+    """A mapping of argument names or derived keys to their default values.
+
+    Keys can take several forms:
+
+    * A class name, followed by two underscores, then the field name. Class names are
+      case-sensitive.
+    * A single attribute name. This has the lowest precedence but the broadest reach.
+    """
+
+    def load_meta_options(self, meta: type) -> None:
+        self.argument_defaults = dict(getattr(meta, "argument_defaults", {}))
 
 
 def collect_assigned_fields(
     class_name: str,
     namespace: StrDict,
-    declared_fields: MutableMapping[str, fields.Field[Any]],
+    class_metadata: StructMetadata,
     byte_offset: Optional[int],
 ) -> int:
     """Collect all fields defined by class variable assignment to a struct.
@@ -82,10 +118,8 @@ def collect_assigned_fields(
             The name of the Struct class. Only used in error messages.
         namespace (dict):
             The class namespace, as passed to :meth:`StructMeta.__new__`.
-        declared_fields (dict):
-            A mapping of field names to the declared :class:`~.fields.base.Field`
-            objects in the struct. Declared fields will be added to this mapping as they
-            are found.
+        class_metadata (StructMetadata):
+            The metadata object for the Struct being created.
         byte_offset (int):
             The byte offset to start at, typically 0 unless this struct inherits from
             another one. Will be ``None`` if the struct this class inherits from is of
@@ -94,9 +128,13 @@ def collect_assigned_fields(
     Returns
         int: The number of fields found.
 
+    .. versionchanged:: 0.10.0
+        The function now takes the entire class metadata as the third argument instead
+        of just a mapping of the declared fields.
+
     .. versionadded:: 0.9.0
     """
-    field_index = len(declared_fields)
+    field_index = len(class_metadata.components)
     n_fields_found = 0
 
     # It's HIGHLY important that we don't accidentally bind the superclass' fields to
@@ -105,17 +143,17 @@ def collect_assigned_fields(
     for item_name, item in namespace.items():
         if not isinstance(item, fields.Field):
             continue
-        if item_name in declared_fields:
+        if item_name in class_metadata.components:
             # Field was already defined in the superclass
             raise errors.FieldRedefinedError(struct=class_name, field=item)
 
-        item.bind_to_container(item_name, field_index, byte_offset)
+        item.bind_to_container(class_metadata, item_name, field_index, byte_offset)
         if byte_offset is not None and item.has_fixed_size:
             byte_offset += typing.cast(int, item.size)
         else:
             byte_offset = None
 
-        declared_fields[item_name] = item
+        class_metadata.components[item_name] = item
         field_index += 1
         n_fields_found += 1
 
@@ -171,7 +209,7 @@ class StructMeta(abc.ABCMeta):
         if len(struct_bases) > 1:
             raise errors.MultipleInheritanceError(struct=class_name)
 
-        metadata = StructMetadata()
+        metadata = StructMetadata(name=class_name)
 
         if struct_bases:
             # Build a dictionary of all of the fields in the parent struct first,
@@ -210,15 +248,28 @@ class StructMeta(abc.ABCMeta):
             }
         )
 
+        # Load any construction options the caller may have defined.
+        if "Meta" in namespace:
+            metadata.load_meta_options(namespace["Meta"])
+
         # Enumerate the declared fields and bind them to this struct.
         metadata.num_own_fields = collect_assigned_fields(
-            class_name, namespace, metadata.components, byte_offset
+            class_name, namespace, metadata, byte_offset
         )
         bind_validators_to_struct(namespace, metadata)
 
         namespace["__binobj_struct__"] = metadata
+        struct_class = super().__new__(mcs, class_name, bases, namespace)
+
+        # Set __objclass__ on all fields to aid type introspection. The `inspect` module
+        # uses this as an aid.
+        for field in metadata.components.values():
+            # TODO (dargueta): Declare __objclass__ once we drop support for 3.5
+            # We need PEP-526 for that unfortunately.
+            field.__objclass__ = struct_class  # type: ignore[attr-defined]
+
         # TODO (dargueta): Figure out how metaclasses are supposed to work with MyPy
-        return super().__new__(mcs, class_name, bases, namespace)  # type: ignore
+        return struct_class  # type: ignore[return-value]
 
 
 @overload
@@ -276,9 +327,12 @@ class Struct(metaclass=StructMeta):
         Field definitions, validators, and other metadata can be found in the
         new ``__binobj_struct__`` class attribute. However, it should be considered
         an implementation detail and is subject to change.
+
+    .. versionchanged:: 0.10.0
+        The ``__objclass__`` attribute is set on all fields.
     """
 
-    __binobj_struct__ = StructMetadata()  # type: ClassVar[StructMetadata]
+    __binobj_struct__ = StructMetadata(name=typing.cast(str, None))
 
     def __init__(self, **values: Any):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())
@@ -314,7 +368,7 @@ class Struct(metaclass=StructMeta):
     def to_stream(self, stream: BinaryIO, context: Any = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to write the serialized data into.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
@@ -389,7 +443,7 @@ class Struct(metaclass=StructMeta):
     ) -> TStruct:
         """Load a struct from the given stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to load data from.
         :param context:
             Additional data to pass to the components'
@@ -488,7 +542,7 @@ class Struct(metaclass=StructMeta):
             Because the struct is only partially loaded, struct-level validators
             are *not* executed. Individual fields still are.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to load from.
         :param str last_field:
             The name of the last field to load in the object. If given, enough
@@ -547,7 +601,7 @@ class Struct(metaclass=StructMeta):
         that unrelated validation errors can be thrown if other fields have
         problems.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to read from. It's assumed that the stream pointer is
             positioned at the start of a struct. The stream pointer is returned
             to its original position even if an exception occurred.
@@ -602,7 +656,7 @@ class Struct(metaclass=StructMeta):
         If ``last_field`` isn't given, as many fields will be serialized as
         possible up to the first missing one.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to dump into.
         :param str last_field:
             The name of the last field in the object to dump.
@@ -689,6 +743,11 @@ class Struct(metaclass=StructMeta):
         # Allow comparison to UNDEFINED. The result is True if all fields in this
         # struct are undefined, False otherwise.
         if other is fields.UNDEFINED:
+            warnings.warn(
+                "Comparing a struct to UNDEFINED to see if all its fields are undefined"
+                " is deprecated. Starting version 1.0 this will always return False.",
+                DeprecationWarning,
+            )
             return all(v is fields.UNDEFINED for v in self.__values__.values())
 
         # Compare only defined values by using __iter__ to get the keys that are

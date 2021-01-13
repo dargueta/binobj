@@ -12,6 +12,7 @@ from typing import BinaryIO
 from typing import Callable
 from typing import Generic
 from typing import Iterable
+from typing import Mapping
 from typing import Optional
 from typing import overload
 from typing import Type
@@ -27,7 +28,10 @@ from binobj.typedefs import StrDict
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
+    from typing import Collection
+
     from binobj.structures import Struct
+    from binobj.structures import StructMetadata
 
 
 __all__ = ["DEFAULT", "NOT_PRESENT", "UNDEFINED", "Field"]
@@ -45,21 +49,23 @@ class _NotPresent(enum.Enum):
     token = 0
 
 
-#: A sentinel value used to indicate that a setting or field is undefined.
 UNDEFINED = _Undefined.token
+"""A sentinel value used to indicate that a setting or field is undefined."""
 
 
-#: A sentinel value used to indicate that the default value of a setting should
-#: be used. We need this because sometimes ``None`` is a valid value for that
-#: setting.
 DEFAULT = _Default.token
+"""A sentinel value used to indicate that the default value of a setting should
+be used.
+
+We need this because sometimes ``None`` is a valid value for that setting.
+"""
 
 
-#: A sentinel value used to indicate that a field is not present.
-#:
-#: .. versionadded:: 0.4.5
 NOT_PRESENT = _NotPresent.token
+"""A sentinel value used to indicate that a field is not present.
 
+.. versionadded:: 0.4.5
+"""
 
 T = TypeVar("T")
 
@@ -101,13 +107,14 @@ class Field(Generic[T]):
         this will crash with a :class:`KeyError` because ``name_size`` was
         discarded.
     :param null_value:
-        A byte string to use to represent ``None`` in serialized data. When loading, the
-        returned value will be ``None`` if this exact sequence of bytes is encountered.
-        If not given, the field is considered "not nullable" and any attempt to assign
-        ``None`` to it will result in a crash upon serialization.
+        Either a byte string or a value to use to represent ``None`` in serialized data.
+
+        When loading, the returned value will be ``None`` if this exact sequence of
+        bytes is encountered. If not given, the field is considered "not nullable" and
+        any attempt to assign ``None`` to it will result in a crash upon serialization.
 
         .. versionchanged:: 0.9.0
-            This can now also be a deserialized value. For example, you could pass "\N"
+            This can now also be a deserialized value. For example, you could pass r"\N"
             for a string or 0 for an integer.
 
         .. deprecated:: 0.9.0
@@ -187,6 +194,15 @@ class Field(Generic[T]):
         :type: int
     """
 
+    __overrideable_attributes__ = ()  # type: Union[Collection[str], Mapping[str, str]]
+
+    # TODO (dargueta): Define __explicit_init_args__ attribute once we drop 3.5 support
+
+    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any):
+        instance = super().__new__(cls)
+        instance.__explicit_init_args__ = frozenset(kwargs.keys())
+        return instance
+
     def __init__(
         self,
         *,
@@ -196,14 +212,14 @@ class Field(Generic[T]):
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
         size: Union[int, str, "Field[int]", None] = None,
-        validate: Iterable[FieldValidator] = (),
-        present: Optional[Callable[[StrDict, Any, Optional[BinaryIO]], int]] = None,
+        validate: Union[FieldValidator, Iterable[FieldValidator]] = (),
+        present: Callable[[StrDict, Any, Optional[BinaryIO]], int] = (lambda *_: True),
         not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT
     ):
         self.const = const
         self.discard = discard
         self.null_value = null_value
-        self.present = present or (lambda *_: True)
+        self.present = present
         self.not_present_value = not_present_value
         self.validators = [
             functools.partial(v, self) for v in m_iter.always_iterable(validate)
@@ -252,10 +268,16 @@ class Field(Generic[T]):
         return isinstance(self.size, int)
 
     def bind_to_container(
-        self, name: str, index: int, offset: Optional[int] = None
+        self,
+        struct_info: "StructMetadata",
+        name: str,
+        index: int,
+        offset: Optional[int] = None,
     ) -> None:
-        """Bind this field to a container class.
+        """Bind this field to a Struct and apply any predefined defaults.
 
+        :param binobj.structures.StructMetadata struct_info:
+            The metadata object describing the Struct this field will be bound into.
         :param str name:
             The name of this field.
         :param int index:
@@ -264,10 +286,38 @@ class Field(Generic[T]):
             The byte offset of this field in the container, or ``None`` if
             unknown. This is usually equal to the sum of the sizes of the fields
             preceding this one in the container.
+
+        .. versionchanged:: 0.10.0
+            Added the ``struct_info`` parameter.
         """
         self.name = name
         self.index = index
         self.offset = offset
+
+        if not isinstance(self.__overrideable_attributes__, Mapping):
+            overrideables = typing.cast(
+                Mapping[str, Any], {n: n for n in self.__overrideable_attributes__}
+            )
+        else:
+            overrideables = self.__overrideable_attributes__
+
+        for argument_name, attribute_name in overrideables.items():
+            # TODO (dargueta): Remove this directive once we drop 3.5 support
+            if argument_name in self.__explicit_init_args__:  # type: ignore
+                continue
+
+            typed_default_name = type(self).__name__ + "__" + argument_name
+            if typed_default_name in struct_info.argument_defaults:
+                setattr(
+                    self,
+                    attribute_name,
+                    struct_info.argument_defaults[typed_default_name],
+                )
+            elif argument_name in struct_info.argument_defaults:
+                setattr(
+                    self, attribute_name, struct_info.argument_defaults[argument_name]
+                )
+            # Else: struct doesn't define a default value
 
     def compute_value_for_dump(
         self, all_values: StrDict
@@ -381,7 +431,7 @@ class Field(Generic[T]):
         each access of this property.
 
         .. versionchanged:: 0.6.1
-            If no default is defined but ``const`` is, this property return
+            If no default is defined but ``const`` is, this property returns
             the value for ``const``.
         """
         default_value = self._default
@@ -491,7 +541,7 @@ class Field(Generic[T]):
     ) -> Union[Optional[T], _NotPresent]:
         """Load data from the given stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to load data from.
         :param context:
             Additional data to pass to this method. Subclasses must ignore
@@ -603,7 +653,7 @@ class Field(Generic[T]):
     ) -> Optional[T]:
         """Load an object from the stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
         :param context:
             Additional data to pass to this method. Subclasses must ignore
             anything they don't recognize.
@@ -624,7 +674,7 @@ class Field(Generic[T]):
     ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to write the serialized data into.
         :param data:
             The data to dump. Can be omitted only if this is a constant field or
@@ -640,7 +690,9 @@ class Field(Generic[T]):
             all_fields = {}
 
         if data is DEFAULT:
-            data = self.default  # type: ignore
+            # Typecast is not entirely truthful; this may return UNDEFINED if the field
+            # has no default value.
+            data = typing.cast(Optional[T], self.default)
 
         if data is UNDEFINED or data is DEFAULT:
             raise errors.MissingRequiredValueError(field=self)
@@ -688,7 +740,7 @@ class Field(Generic[T]):
     ) -> None:
         """Write the given data to the byte stream.
 
-        :param io.BufferedIOBase stream:
+        :param BinaryIO stream:
             The stream to write to.
         :param data:
             The data to dump. Guaranteed to not be ``None``.
@@ -741,7 +793,7 @@ class Field(Generic[T]):
     ) -> bytes:
         """Read exactly the number of bytes this object takes up or crash.
 
-        :param io.BufferedIOBase stream: The stream to read from.
+        :param BinaryIO stream: The stream to read from.
         :param dict loaded_fields:
             A dict mapping names of fields to their loaded values. This allows
             us to read a variable-length field that depends on the value of

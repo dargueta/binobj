@@ -18,25 +18,29 @@ if typing.TYPE_CHECKING:  # pragma: no cover
 class VarIntEncoding(enum.Enum):
     """All available encoding schemes for variable-length integers."""
 
-    #: Signed big-endian integer in `modified VLQ`_ format.
-    #:
-    #: .. _modified VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#Sign_bit
     COMPACT_INDICES = "compact"
+    """Signed big-endian integer in `modified VLQ`_ format.
 
-    #: Signed little-endian integer in `LEB128`_ format.
-    #:
-    #: .. _LEB128: https://en.wikipedia.org/wiki/LEB128
+    .. _modified VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#Sign_bit
+    """
+
     LEB128 = "leb128"
+    """Signed little-endian integer in `LEB128`_ format.
 
-    #: Unsigned little-endian integer in `LEB128`_ format.
-    #:
-    #: .. _LEB128: https://en.wikipedia.org/wiki/LEB128
+    .. _LEB128: https://en.wikipedia.org/wiki/LEB128
+    """
+
     ULEB128 = "uleb128"
+    """Unsigned little-endian integer in `LEB128`_ format.
 
-    #: Unsigned big-endian integer in `VLQ`_ format.
-    #:
-    #: .. _VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#General_structure
+    .. _LEB128: https://en.wikipedia.org/wiki/LEB128
+    """
+
     VLQ = "vlq"
+    """Unsigned big-endian integer in `VLQ`_ format.
+
+    .. _VLQ: https://en.wikipedia.org/wiki/Variable-length_quantity#General_structure
+    """
 
 
 def _read_uint8(stream: BinaryIO) -> int:
@@ -79,7 +83,7 @@ def encode_integer_compact(value: int) -> bytes:
 def decode_integer_compact(stream: BinaryIO) -> int:
     """Decode an integer with signed VLQ encoding.
 
-    :param io.BufferedIOBase stream: The stream to read from.
+    :param BinaryIO stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -132,7 +136,7 @@ def encode_integer_vlq(value: int) -> bytes:
 def decode_integer_vlq(stream: BinaryIO) -> int:
     """Decode an unsigned VLQ-encoded integer from the given stream.
 
-    :param io.BufferedIOBase stream: The stream to read from.
+    :param BinaryIO stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -174,7 +178,7 @@ def encode_integer_uleb128(value: int) -> bytes:
 def decode_integer_uleb128(stream: BinaryIO) -> int:
     """Decode an unsigned LEB128-encoded integer from the given stream.
 
-    :param io.BufferedIOBase stream: The stream to read from.
+    :param BinaryIO stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int
@@ -231,7 +235,7 @@ def encode_integer_leb128(value: int) -> bytes:
 def decode_integer_leb128(stream: BinaryIO) -> int:
     """Decode a signed LEB128-encoded integer from the given stream.
 
-    :param io.BufferedIOBase stream: The stream to read from.
+    :param BinaryIO stream: The stream to read from.
 
     :return: The decoded integer.
     :rtype: int

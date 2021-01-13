@@ -1,6 +1,83 @@
 Changelog
 =========
 
+0.10.0
+------
+
+New Features
+~~~~~~~~~~~~
+
+**Customize Struct Creation!**
+
+You can customize how a Struct is created by nesting a class named ``Meta`` into it,
+like so:
+
+.. code-block:: python
+
+    class MyStruct(binobj.Struct):
+        class Meta:
+            # Options in here
+
+        # Define your fields out here as before
+
+For now we only support passing fallback values for arguments not passed to a field,
+such as defaults, null values, etc.
+
+Before...
+
+.. code-block:: python
+
+    class Person(binobj.Struct):
+        first_name = StringZ(encoding="ibm500")
+        middle_name = StringZ(encoding="ibm500")
+        last_name = StringZ(encoding="ibm500")
+        id = StringZ(encoding="ascii")
+
+Now, you can pass a dictionary in a nested class called ``Meta`` with the names of the
+argument you wish to override and the value:
+
+.. code-block:: python
+
+    class Person(binobj.Struct):
+        class Meta:
+            argument_defaults = {
+                # All strings will use EBCDIC as the text encoding if they don't
+                # get passed an explicit value.
+                "encoding": "ibm500"
+            }
+
+        first_name = StringZ()
+        middle_name = StringZ()
+        last_name = StringZ()
+        id = StringZ(encoding="ascii")
+
+You can use the field class names as a prefix to provide different values for different
+field types. Suppose I want all integers to have a default value of 0, and all strings
+to have a default value of "":
+
+.. code-block:: python
+
+    class Person:
+        class Meta:
+            argument_defaults = {
+                "encoding": "ibm500",
+                "StringZ__default": "",
+                "Int8__default": 0
+            }
+
+        id = StringZ(encoding="ascii")
+        first_name = StringZ()
+        middle_name = StringZ()
+        last_name = StringZ()
+        age = Int8()
+        num_children = Int8()
+
+Bugfixes
+~~~~~~~~
+
+* Fixed wrong type annotations for ``validate`` and ``present`` arguments of ``Field``.
+* Fixed outdated docstring for ``null_value`` argument of ``Field``.
+
 0.9.2-post1
 -----------
 
