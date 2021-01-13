@@ -5,14 +5,14 @@ python:
   - '3.6'
   - '3.7'
   - '3.8'
-  - '3.9-dev'
+  - '3.9'
   - 'pypy3'  # PyPy 3.6-7.1.1
 matrix:
   include:
     - env: TOXENV=lint
-      python: '3.7'
+      python: '3.8'
     - env: TOXENV=mypy
-      python: '3.7'
+      python: '3.8'
 
 install:
   - pip3 install -U pip setuptools tox-travis
