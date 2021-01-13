@@ -32,8 +32,8 @@ from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
 
 
-if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import ClassVar
+# if typing.TYPE_CHECKING:  # pragma: no cover
+#     from typing import ClassVar
 
 
 __all__ = ["Struct"]
@@ -332,7 +332,7 @@ class Struct(metaclass=StructMeta):
         The ``__objclass__`` attribute is set on all fields.
     """
 
-    __binobj_struct__ = StructMetadata(name=None)  # type: ClassVar[StructMetadata]
+    __binobj_struct__ = StructMetadata(name=typing.cast(str, None))
 
     def __init__(self, **values: Any):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())

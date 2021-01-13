@@ -28,7 +28,7 @@ from binobj.typedefs import StrDict
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import Container
+    from typing import Collection
 
     from binobj.structures import Struct
     from binobj.structures import StructMetadata
@@ -194,12 +194,12 @@ class Field(Generic[T]):
         :type: int
     """
 
-    __overrideable_attributes__ = ()  # type: Union[Container[str], Mapping[str, str]]
+    __overrideable_attributes__ = ()  # type: Union[Collection[str], Mapping[str, str]]
 
     # TODO (dargueta): Define __explicit_init_args__ attribute once we drop 3.5 support
 
-    def __new__(cls: Type["Field[Any]"], *args: Any, **kwargs: Any):
-        instance = super().__new__(cls, *args, **kwargs)
+    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any):
+        instance = super().__new__(cls)
         instance.__explicit_init_args__ = frozenset(kwargs.keys())
         return instance
 
@@ -295,12 +295,15 @@ class Field(Generic[T]):
         self.offset = offset
 
         if not isinstance(self.__overrideable_attributes__, Mapping):
-            overrideables = {n: n for n in self.__overrideable_attributes__}
+            overrideables = typing.cast(
+                Mapping[str, Any], {n: n for n in self.__overrideable_attributes__}
+            )
         else:
             overrideables = self.__overrideable_attributes__
 
         for argument_name, attribute_name in overrideables.items():
-            if argument_name in self.__explicit_init_args__:
+            # TODO (dargueta): Remove this directive once we drop 3.5 support
+            if argument_name in self.__explicit_init_args__:  # type: ignore
                 continue
 
             typed_default_name = type(self).__name__ + "__" + argument_name
