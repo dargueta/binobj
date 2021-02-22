@@ -268,7 +268,7 @@ class Array(Field[List[Optional[T]]]):
             self.component.to_stream(
                 stream, value, context=context, all_fields=all_fields
             )
-            n_written += 1
+            n_written += 1  # noqa: SIM113
 
         if n_elems is not None and n_written < n_elems:
             raise errors.ArraySizeError(

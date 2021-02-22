@@ -91,18 +91,18 @@ class AnnotationInfo:
             # Filter out None from the type arguments. Again, we have to use `is`. :(
             type_args = tuple(t for t in type_args if t is not type(None))  # noqa: E721
 
-            if len(type_args) == 1:
-                # The type annotation was Optional[T]. Pretend the annotation was T, and
-                # resolve *its* arguments just in case T is of the form X[Y, ...].
-                type_class = type_args[0]
-                type_args = get_typing_args(type_class)
-            else:
+            if len(type_args) != 1:
                 # If we get here then the type annotation for this field is a Union with
                 # two or more types. This means the caller is probably attempting to
                 # declare a `binobj.fields.Union`.
                 raise errors.InvalidTypeAnnotationError(
                     field=field_name, annotation=annotation
                 )
+
+            # The type annotation was Optional[T]. Pretend the annotation was T, and
+            # resolve *its* arguments just in case T is of the form X[Y, ...].
+            type_class = type_args[0]
+            type_args = get_typing_args(type_class)
 
         return cls(
             name=field_name,
@@ -208,8 +208,8 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             byte_offset = None
 
         meta.components[name] = field_instance
-        field_index += 1
-        n_fields_found += 1
+        field_index += 1  # noqa: SIM113
+        n_fields_found += 1  # noqa: SIM113
 
         # Overwrite the field declaration in the class with the derived field instance
         # object. Otherwise, we'll end up with None or the default value provided:

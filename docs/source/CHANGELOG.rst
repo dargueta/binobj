@@ -1,8 +1,37 @@
 Changelog
 =========
 
+0.11.0
+------
+
+Released 2021-02-21
+
+New Features
+~~~~~~~~~~~~
+
+Added experimental support for Python 3.10. I say "experimental" because 3.10 is still
+in alpha.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+Dropped support for Python 3.5 as it went EOL at the beginning of this year.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Removed ``dev`` and ``test`` extras as it was confusing sites like
+  `libraries.io <https://libraries.io>`_ and `pepy.tech <https://pepy.tech>`_, plus it
+  was never even documented in the first place.
+* Upgraded test dependencies.
+* Dropping 3.5 support allowed for some changes to the type declarations so they're more
+  accurate.
+* Minor code hygiene changes.
+
 0.10.0
 ------
+
+Released 2021-01-12
 
 New Features
 ~~~~~~~~~~~~

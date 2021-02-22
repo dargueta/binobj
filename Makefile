@@ -6,7 +6,7 @@ DOCSDIR=docs
 DOCSSOURCE=$(DOCSDIR)/source
 DOCSTARGET=$(DOCSDIR)/build
 
-PYTHON_VERSIONS=3.7.2 3.6.8 3.5.6 3.8.0 pypy3.5-7.1.0 pypy3.6-7.1.0
+PYTHON_VERSIONS=3.7.9 3.6.12 3.8.7 3.9.1 pypy3.6-7.3.0
 
 # The presence of .python-version indicates whether we have a virtualenv set up
 # or not.
@@ -31,7 +31,7 @@ $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 .PHONY: setup
 setup: .python-version setup.cfg
 	pip3 install -U pip setuptools
-	pip3 install -Ue .[dev]
+	pip3 install -Ue . -rtest-requirements.txt -rdev-requirements.txt
 
 .PHONY: lint
 lint: $(SOURCEFILES)

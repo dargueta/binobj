@@ -10,11 +10,13 @@ import warnings
 from typing import Any
 from typing import BinaryIO
 from typing import Callable
+from typing import Collection
 from typing import Generic
 from typing import Iterable
 from typing import Mapping
 from typing import Optional
 from typing import overload
+from typing import Set
 from typing import Type
 from typing import TypeVar
 from typing import Union
@@ -28,8 +30,6 @@ from binobj.typedefs import StrDict
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import Collection
-
     from binobj.structures import Struct
     from binobj.structures import StructMetadata
 
@@ -194,9 +194,9 @@ class Field(Generic[T]):
         :type: int
     """
 
-    __overrideable_attributes__ = ()  # type: Union[Collection[str], Mapping[str, str]]
-
-    # TODO (dargueta): Define __explicit_init_args__ attribute once we drop 3.5 support
+    __objclass__: type
+    __overrideable_attributes__: Union[Collection[str], Mapping[str, str]] = ()
+    __explicit_init_args__: Set[str]
 
     def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any):
         instance = super().__new__(cls)
@@ -228,9 +228,9 @@ class Field(Generic[T]):
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
             # ``const``.
-            self._default = (
-                const
-            )  # type: Union[Optional[T], Callable[[], Optional[T]], _Undefined]
+            self._default: Union[
+                Optional[T], Callable[[], Optional[T]], _Undefined
+            ] = const
         else:
             self._default = default
 
@@ -238,10 +238,8 @@ class Field(Generic[T]):
         # after the field's instantiated.
         self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
-        self.offset = None  # type: Optional[int]
-        self._compute_fn = (
-            None
-        )  # type: Optional[Callable[["Field[T]", StrDict], Optional[T]]]
+        self.offset: Optional[int] = None
+        self._compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]] = None
 
         if size is not None or const is UNDEFINED:
             self._size = size
@@ -302,8 +300,7 @@ class Field(Generic[T]):
             overrideables = self.__overrideable_attributes__
 
         for argument_name, attribute_name in overrideables.items():
-            # TODO (dargueta): Remove this directive once we drop 3.5 support
-            if argument_name in self.__explicit_init_args__:  # type: ignore
+            if argument_name in self.__explicit_init_args__:
                 continue
 
             typed_default_name = type(self).__name__ + "__" + argument_name

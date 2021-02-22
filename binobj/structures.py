@@ -32,10 +32,6 @@ from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
 
 
-# if typing.TYPE_CHECKING:  # pragma: no cover
-#     from typing import ClassVar
-
-
 __all__ = ["Struct"]
 
 
@@ -154,8 +150,8 @@ def collect_assigned_fields(
             byte_offset = None
 
         class_metadata.components[item_name] = item
-        field_index += 1
-        n_fields_found += 1
+        field_index += 1  # noqa: SIM113
+        n_fields_found += 1  # noqa: SIM113
 
     return n_fields_found
 
@@ -264,9 +260,7 @@ class StructMeta(abc.ABCMeta):
         # Set __objclass__ on all fields to aid type introspection. The `inspect` module
         # uses this as an aid.
         for field in metadata.components.values():
-            # TODO (dargueta): Declare __objclass__ once we drop support for 3.5
-            # We need PEP-526 for that unfortunately.
-            field.__objclass__ = struct_class  # type: ignore[attr-defined]
+            field.__objclass__ = struct_class
 
         # TODO (dargueta): Figure out how metaclasses are supposed to work with MyPy
         return struct_class  # type: ignore[return-value]
@@ -332,7 +326,7 @@ class Struct(metaclass=StructMeta):
         The ``__objclass__`` attribute is set on all fields.
     """
 
-    __binobj_struct__ = StructMetadata(name=typing.cast(str, None))
+    __binobj_struct__: StructMetadata
 
     def __init__(self, **values: Any):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())

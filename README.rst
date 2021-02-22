@@ -7,7 +7,7 @@ binobj
    :alt: Build status
    :target: https://travis-ci.org/dargueta/binobj
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8,%203.9-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.6,%203.7,%203.8,%203.9,%203.10-blue.svg
    :alt: Python versions
 
 .. |installs-month| image:: https://pepy.tech/badge/binobj/month
@@ -44,23 +44,23 @@ The same example rewritten using ``binobj``:
 .. code-block:: python
 
     class BMP(binobj.Struct):
-        magic = binobj.Bytes(const=b'BM')
-        file_size = binobj.UInt32()
-        _reserved = binobj.Bytes(const=b'\0\0\0\0', discard=True)
-        pixels_offset = binobj.UInt32()
+        magic: Bytes = b"BM"
+        file_size: UInt32
+        _reserved: binobj.Bytes(const=b"\0\0\0\0", discard=True)
+        pixels_offset: UInt32()
 
         # Legacy DIB header
-        header_size = binobj.UInt32(const=40)
-        image_width = binobj.Int32()
-        image_height = binobj.Int32()
-        n_color_planes = binobj.UInt16()
-        n_bits_per_pixel = binobj.UInt16()
-        compression_method = binobj.UInt32(default=0)
-        bitmap_size = binobj.UInt32()
-        v_resolution = binobj.Int32()
-        h_resolution = binobj.Int32()
-        n_palette_colors = binobj.UInt32()
-        n_important_colors = binobj.UInt32()
+        header_size: UInt32 = 40
+        image_width: Int32
+        image_height: Int32
+        n_color_planes: UInt16
+        n_bits_per_pixel: UInt16
+        compression_method: UInt32 = 0
+        bitmap_size: UInt32
+        v_resolution: Int32
+        h_resolution: Int32
+        n_palette_colors: UInt32
+        n_important_colors: UInt32
 
     bmp = BMP(file_size=1024, pixels_offset=12, image_width=32, image_height=32, ...)
     header_bytes = bytes(bmp)
@@ -77,10 +77,7 @@ System Requirements
 
 - This package will *not* work on a `mixed-endian`_ system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on Python 3.5-3.8, PyPy3.5, and PyPy3.6.
-
-Sorry, I have no intention of supporting Python 2. Feel free to fork this and do
-a backport if you like! I'd be interested to see it and might even contribute.
+- This has been tested on CPython 3.6-3.10, and PyPy3.6.
 
 .. _mixed-endian: https://en.wikipedia.org/wiki/Endianness#Mixed
 
