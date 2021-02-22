@@ -27,6 +27,7 @@ Other Changes
 * Dropping 3.5 support allowed for some changes to the type declarations so they're more
   accurate.
 * Minor code hygiene changes.
+* Updated copyright year in license file.
 
 0.10.0
 ------
