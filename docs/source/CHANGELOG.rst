@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.10.1
+------
+
+Released 2021-02-24
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+* Updated copyright year
+* Removed ``dev`` and ``test`` extras as it was confusing sites like
+  `libraries.io <https://libraries.io>`_ and `pepy.tech <https://pepy.tech>`_, plus it
+  was never even documented in the first place.
+
 0.10.0
 ------
 
