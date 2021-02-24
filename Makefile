@@ -31,7 +31,7 @@ $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
 .PHONY: setup
 setup: .python-version setup.cfg
 	pip3 install -U pip setuptools
-	pip3 install -Ue .[dev]
+	pip3 install -Ue . -rtest-requirements.txt -rdev-requirements.txt
 
 .PHONY: lint
 lint: $(SOURCEFILES)
