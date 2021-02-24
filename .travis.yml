@@ -1,7 +1,6 @@
 dist: bionic
 language: python
 python:
-  - '3.5'
   - '3.6'
   - '3.7'
   - '3.8'
@@ -15,6 +14,6 @@ matrix:
       python: '3.8'
 
 install:
-  - pip3 install -U pip setuptools tox-travis
-  - pip3 install .[dev]
+  - pip3 install -U pip setuptools -rdev-requirements.txt tox-travis
+  - pip3 install .
 script: tox
