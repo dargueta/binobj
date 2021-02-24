@@ -38,16 +38,25 @@ Dropped support for Python 3.5 as it went EOL at the beginning of this year.
 Other Changes
 ~~~~~~~~~~~~~
 
-* Removed ``dev`` and ``test`` extras as it was confusing sites like
-  `libraries.io <https://libraries.io>`_ and `pepy.tech <https://pepy.tech>`_, plus it
-  was never even documented in the first place.
-* Upgraded test dependencies.
 * Dropping 3.5 support allowed for some changes to the type declarations so they're more
   accurate.
 * Minor code hygiene changes.
-* Updated copyright year in license file.
 * Removed ``attrs`` as a dependency in favor of ``dataclasses`` from the Python standard
   library. A backport will automatically be installed on Python 3.6.
+
+
+0.10.1
+------
+
+Released 2021-02-24
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+* Updated copyright year
+* Removed ``dev`` and ``test`` extras as it was confusing sites like
+  `libraries.io <https://libraries.io>`_ and `pepy.tech <https://pepy.tech>`_, plus it
+  was never even documented in the first place.
 
 0.10.0
 ------
