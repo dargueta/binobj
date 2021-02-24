@@ -12,6 +12,24 @@ New Features
 Added experimental support for Python 3.10. I say "experimental" because 3.10 is still
 in alpha.
 
+Deprecations
+~~~~~~~~~~~~
+
+Specifying a callable as a default argument was a terrible idea in retrospect. Even at
+the time in the release notes I said it "[...] looks confusing and is not recommended.
+This may throw an exception in the future if I decide it's too egregious."
+
+Thus, please don't do this:
+
+.. code-block:: python
+
+    @binobj.dataclass
+    class MyStruct(binobj.Struct):
+        path_separator: StringZ = lambda: os.sep
+
+For now it will only issue a DeprecationWarning, but will crash in the future. I'll
+provide a different way to do this in an upcoming release.
+
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
@@ -28,6 +46,8 @@ Other Changes
   accurate.
 * Minor code hygiene changes.
 * Updated copyright year in license file.
+* Removed ``attrs`` as a dependency in favor of ``dataclasses`` from the Python standard
+  library. A backport will automatically be installed on Python 3.6.
 
 0.10.0
 ------

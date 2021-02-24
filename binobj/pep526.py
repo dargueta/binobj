@@ -32,6 +32,8 @@ Here are a few examples of how you can declare your fields::
 
 .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
 """
+
+import dataclasses
 import functools
 import typing
 from typing import Any
@@ -39,8 +41,6 @@ from typing import Optional
 from typing import Type
 from typing import TypeVar
 from typing import Union
-
-import attr
 
 import binobj
 from binobj import errors
@@ -67,14 +67,14 @@ if typing.TYPE_CHECKING:
     from typing import Dict
 
 
-@attr.s
+@dataclasses.dataclass
 class AnnotationInfo:
-    name = attr.ib(type=str)
-    type_class = attr.ib(type)
-    type_args = attr.ib(type=tuple, default=())
-    has_default = attr.ib(type=bool, default=None)
-    default_value = attr.ib(type=Any, default=fields.UNDEFINED)
-    nullable = attr.ib(type=bool, default=False)
+    name: str
+    type_class: type
+    type_args: tuple = ()
+    has_default: Optional[bool] = None
+    default_value: Any = fields.UNDEFINED
+    nullable: bool = False
 
     @classmethod
     def from_annotation(

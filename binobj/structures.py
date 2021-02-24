@@ -4,6 +4,7 @@ import abc
 import collections
 import collections.abc
 import copy
+import dataclasses
 import io
 import typing
 import warnings
@@ -20,8 +21,6 @@ from typing import Sequence
 from typing import Tuple
 from typing import Type
 from typing import TypeVar
-
-import attr
 
 from binobj import decorators
 from binobj import errors
@@ -41,7 +40,7 @@ V = TypeVar("V")
 TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
-@attr.s(kw_only=True)
+@dataclasses.dataclass
 class StructMetadata:
     """Info about the :class:`.Struct` it belongs to, like its fields and validators.
 
@@ -55,30 +54,32 @@ class StructMetadata:
     .. versionadded:: 0.7.1
     """
 
-    name = attr.ib(type=str)
+    name: str
     """The name of the class this metadata is for.
 
     .. versionadded:: 0.10.0
     """
 
-    components = attr.ib(
-        type=MutableMapping[str, fields.Field[Any]], factory=collections.OrderedDict
+    components: MutableMapping[str, fields.Field[Any]] = dataclasses.field(
+        default_factory=collections.OrderedDict
     )
     """A mapping of field names to the actual field object."""
 
-    struct_validators = attr.ib(type=List[StructValidator], factory=list)
+    struct_validators: List[StructValidator] = dataclasses.field(default_factory=list)
     """A list of validators for this struct."""
 
-    field_validators = attr.ib(type=Dict[str, List[MethodFieldValidator]], factory=dict)
+    field_validators: Dict[str, List[MethodFieldValidator]] = dataclasses.field(
+        default_factory=dict
+    )
     """A mapping of field names to validators to execute for that field."""
 
-    num_own_fields = attr.ib(type=int, default=0)
+    num_own_fields: int = 0
     """The number of fields defined in this class (i.e. excluding superclasses).
 
     .. versionadded:: 0.9.0
     """
 
-    size_bytes = attr.ib(type=Optional[int], default=0)
+    size_bytes: Optional[int] = 0
     """The total size of the struct in bytes, if it's a fixed value.
 
     This is only used for classes declared using PEP 526 type annotations and should
@@ -87,7 +88,7 @@ class StructMetadata:
     .. versionadded:: 0.9.0
     """
 
-    argument_defaults = attr.ib(type=MutableStrDict, factory=dict)
+    argument_defaults: MutableStrDict = dataclasses.field(default_factory=dict)
     """A mapping of argument names or derived keys to their default values.
 
     Keys can take several forms:
@@ -304,29 +305,26 @@ def recursive_to_dicts(item):
 class Struct(metaclass=StructMeta):
     """An ordered collection of fields and other structures.
 
-    .. attribute:: __binobj_struct__
-
-        A class attribute defining features of the struct, such as its fields,
-        validators, default values, etc. It's only of use for code that inspects struct
-        definitions.
-
-        :type: binobj.structures.StructMetadata
-
     .. versionchanged:: 0.5.0
-        A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
-        and only if all of its fields are also undefined.
+        A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if and only
+        if all of its fields are also undefined.
 
     .. versionchanged:: 0.7.1
         Removed the private-ish ``__components__`` and ``__validators__`` attributes.
-        Field definitions, validators, and other metadata can be found in the
-        new ``__binobj_struct__`` class attribute. However, it should be considered
-        an implementation detail and is subject to change.
+        Field definitions, validators, and other metadata can be found in the new
+        ``__binobj_struct__`` class attribute. However, it should be considered an
+        implementation detail and is subject to change.
 
     .. versionchanged:: 0.10.0
         The ``__objclass__`` attribute is set on all fields.
     """
 
     __binobj_struct__: StructMetadata
+    """A class attribute defining features of the struct, such as its fields,
+    validators, default values, etc.
+
+    It's only of use for code that inspects struct definitions.
+    """
 
     def __init__(self, **values: Any):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())
