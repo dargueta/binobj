@@ -30,6 +30,7 @@ class ValidatorMethodWrapper:
         functools.wraps(func)(self)
 
     def __call__(self, *args: Any) -> Optional[bool]:
+        """Execute the wrapped function."""
         return self.func(*args)
 
 

@@ -198,7 +198,12 @@ class Field(Generic[T]):
 
     # TODO (dargueta): Define __explicit_init_args__ attribute once we drop 3.5 support
 
-    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any):
+    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any) -> "Field[Any]":
+        """Create a new instance, recording which keyword arguments were passed in.
+
+        Recording the explicit arguments is necessary so that a field can use the
+        fallback values its container class gives for anything else.
+        """
         instance = super().__new__(cls)
         instance.__explicit_init_args__ = frozenset(kwargs.keys())
         return instance
@@ -255,7 +260,7 @@ class Field(Generic[T]):
         If the field is of variable size, such as a null-terminated string, this will be
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
-        """
+        """  # noqa: D400,D401
         # TODO (dargueta) This return value is horrific. Rework it if possible.
         return self._size
 
@@ -264,7 +269,7 @@ class Field(Generic[T]):
         """Does this field have a fixed size?
 
         .. versionadded:: 0.9.0
-        """
+        """  # noqa: D400,D401
         return isinstance(self.size, int)
 
     def bind_to_container(
@@ -398,7 +403,7 @@ class Field(Generic[T]):
           field occurring after it.
 
         .. versionadded:: 0.3.0
-        """
+        """  # noqa: D401
         if self._compute_fn:
             raise errors.ConfigurationError(
                 "Can't define two computing functions for field %r." % self, field=self
@@ -419,7 +424,7 @@ class Field(Generic[T]):
         """Is ``None`` an acceptable value for this field?
 
         :type: bool
-        """
+        """  # noqa: D400
         return self.null_value is not UNDEFINED
 
     @property
@@ -433,7 +438,7 @@ class Field(Generic[T]):
         .. versionchanged:: 0.6.1
             If no default is defined but ``const`` is, this property returns
             the value for ``const``.
-        """
+        """  # noqa: D401
         default_value = self._default
         if callable(default_value):
             return default_value()
@@ -446,18 +451,17 @@ class Field(Generic[T]):
         """Is this field required for serialization?
 
         :type: bool
-        """
+        """  # noqa: D400
         return self.const is UNDEFINED and self.default is UNDEFINED
 
     def _size_for_value(self, value: Optional[T]) -> Optional[int]:
-        """Return the size of the serialized value in bytes, or ``None`` if it
-        can't be computed.
+        """Get the size of the serialized value, or ``None`` if it can't be computed.
 
-        This is an ugly hack for computing ``size`` properly when only ``const``
-        is given. It's *HIGHLY DISCOURAGED* to implement this function in your
-        own field subclasses, since it *must not* call :meth:`from_stream`,
-        :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`. Doing so
-        could result in infinite recursion.
+        This is an ugly hack for computing ``size`` properly when only ``const`` is
+        given. It's *HIGHLY DISCOURAGED* to implement this function in your own field
+        subclasses, since it *must not* call :meth:`from_stream`, :meth:`from_bytes`,
+        :meth:`to_stream`, or :meth:`to_bytes`. Doing so could result in infinite
+        recursion.
 
         :param value:
             The value to serialize.
@@ -533,7 +537,7 @@ class Field(Generic[T]):
             return field_values[name]
         raise errors.MissingRequiredValueError(field=name)
 
-    def from_stream(
+    def from_stream(  # noqa: C901
         self,
         stream: BinaryIO,
         context: Any = None,

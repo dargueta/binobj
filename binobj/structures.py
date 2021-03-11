@@ -180,8 +180,7 @@ def bind_validators_to_struct(namespace: StrDict, metadata: StructMetadata) -> N
 
 
 class StructMeta(abc.ABCMeta):
-    """The metaclass for all serializable objects composed of other serializable
-    objects.
+    """The metaclass for all serializable objects made of other serializable objects.
 
     It defines the ``__binobj_struct__`` class variables and sets some values on the
     :class:`~binobj.fields.base.Field` components such as its name and index.
@@ -288,8 +287,9 @@ def recursive_to_dicts(item: Sequence[T]) -> List[T]:
 
 
 def recursive_to_dicts(item):
-    """When a :class:`Struct` is converted to a dictionary, ensure that any
-    nested structures are also converted to dictionaries.
+    """Ensure that any nested structures are also converted to dictionaries.
+
+    This is used when a :class:`Struct` is converted to a dictionary.
 
     :param item:
         Anything. If it's an unsupported type it'll get returned as is.
@@ -553,7 +553,7 @@ class Struct(metaclass=StructMeta):
             :meth:`~binobj.fields.base.Field.from_stream` method.
 
         :return: The loaded struct.
-        """
+        """  # noqa: D401
         if (
             last_field is not None
             and last_field not in cls.__binobj_struct__.components
@@ -663,7 +663,7 @@ class Struct(metaclass=StructMeta):
         :param context:
             Any object containing extra information to pass to the fields'
             :meth:`~binobj.fields.base.Field.from_stream` methods.
-        """
+        """  # noqa: D401
         data = self.__values__
 
         for field in self.__binobj_struct__.components.values():
@@ -684,8 +684,10 @@ class Struct(metaclass=StructMeta):
 
     @classmethod
     def get_size(cls) -> Optional[int]:
-        """Return the size of this struct in bytes, or ``None`` if there are
-        variable-sized fields that can't be resolved.
+        """Return the size of this struct in bytes, if possible.
+
+        If there are variable-sized fields that can't be resolved, this function returns
+        ``None`` instead.
 
         Do *not* use this on instances; use ``len(instance)`` instead.
 

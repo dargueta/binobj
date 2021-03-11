@@ -1,9 +1,4 @@
-"""
-binobj
-======
-
-A Python library for reading and writing structured binary data.
-"""
+"""A Python library for reading and writing structured binary data."""
 
 import pkg_resources as _pkgr
 

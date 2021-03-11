@@ -58,7 +58,7 @@ try:
     from typing import get_origin as get_typing_origin  # type: ignore[attr-defined]
 except ImportError:
     from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
-    from typing_inspect import get_origin as get_typing_origin  # type: ignore[import]
+    from typing_inspect import get_origin as get_typing_origin  # type: ignore[import,no-redef]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
