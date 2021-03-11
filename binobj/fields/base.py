@@ -450,14 +450,13 @@ class Field(Generic[T]):
         return self.const is UNDEFINED and self.default is UNDEFINED
 
     def _size_for_value(self, value: Optional[T]) -> Optional[int]:
-        """Return the size of the serialized value in bytes, or ``None`` if it
-        can't be computed.
+        """Get the size of the serialized value, or ``None`` if it can't be computed.
 
-        This is an ugly hack for computing ``size`` properly when only ``const``
-        is given. It's *HIGHLY DISCOURAGED* to implement this function in your
-        own field subclasses, since it *must not* call :meth:`from_stream`,
-        :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`. Doing so
-        could result in infinite recursion.
+        This is an ugly hack for computing ``size`` properly when only ``const`` is
+        given. It's *HIGHLY DISCOURAGED* to implement this function in your own field
+        subclasses, since it *must not* call :meth:`from_stream`, :meth:`from_bytes`,
+        :meth:`to_stream`, or :meth:`to_bytes`. Doing so could result in infinite
+        recursion.
 
         :param value:
             The value to serialize.

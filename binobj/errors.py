@@ -244,8 +244,10 @@ class ImmutableFieldError(IllegalOperationError):
 
 
 class MultipleInheritanceError(ConfigurationError):
-    """A Struct can't inherit from more than one Struct, since the field order
-    would be ambiguous.
+    """A Struct can't inherit from more than one Struct.
+
+    This restriction is in place because the field ordering could be non-intuitive given
+    Python's MRO.
 
     .. versionadded:: 0.3.0
     """
