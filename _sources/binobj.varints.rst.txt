@@ -1,0 +1,7 @@
+binobj.varints module
+=====================
+
+.. automodule:: binobj.varints
+   :members:
+   :undoc-members:
+   :show-inheritance:

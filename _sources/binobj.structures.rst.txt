@@ -1,0 +1,7 @@
+binobj.structures module
+========================
+
+.. automodule:: binobj.structures
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>binobj.helpers module &#8212; binobj 0.10.1 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">binobj.helpers module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-binobj.helpers">
+<span id="binobj-helpers-module"></span><h1>binobj.helpers module<a class="headerlink" href="#module-binobj.helpers" title="Permalink to this headline">¶</a></h1>
+<p>Various helper functions for stream I/O.</p>
+<dl class="py function">
+<dt id="binobj.helpers.iter_bytes">
+<code class="sig-name descname"><span class="pre">iter_bytes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bytes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.helpers.iter_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap a stream in an iterator that yields individual bytes, not lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> – A stream opened in binary mode.</p></li>
+<li><p><strong>max_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum number of bytes to read.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.2.1.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="binobj.helpers.peek_bytes">
+<code class="sig-name descname"><span class="pre">peek_bytes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_read_okay</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.helpers.peek_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the next <code class="docutils literal notranslate"><span class="pre">count</span></code> bytes in the stream without moving the stream pointer.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="binobj.helpers.read_int">
+<code class="sig-name descname"><span class="pre">read_int</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bytes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endian</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.helpers.read_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read an integer from the given byte stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to read from.</p></li>
+<li><p><strong>n_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes to read for this integer.</p></li>
+<li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, interpret this integer as a two’s-complement signed integer.
+Otherwise, interpret it as an unsigned integer.</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness of the integer, either <code class="docutils literal notranslate"><span class="pre">big</span></code> or <code class="docutils literal notranslate"><span class="pre">little</span></code>. If not
+given, will default to the system’s native byte order as given by
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The integer loaded from the byte stream.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.UnexpectedEOFError" title="binobj.errors.UnexpectedEOFError"><strong>UnexpectedEOFError</strong></a> – The end of the stream was hit before <code class="docutils literal notranslate"><span class="pre">n_bytes</span></code> bytes were read.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="binobj.helpers.write_int">
+<code class="sig-name descname"><span class="pre">write_int</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bytes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endian</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.helpers.write_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write an integer to a stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to write the integer to.</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The integer to dump into the stream.</p></li>
+<li><p><strong>n_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes the integer should take up. Exactly this many bytes
+will be written into the stream, so ensure that there’s enough bits to
+represent <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></li>
+<li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, write this integer in two’s-complement format. Otherwise,
+write it as an unsigned integer. A negative <code class="docutils literal notranslate"><span class="pre">value</span></code> will trigger an
+<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowError</span></code></a> if this is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use when writing the integer, either <code class="docutils literal notranslate"><span class="pre">big</span></code> or
+<code class="docutils literal notranslate"><span class="pre">little</span></code>. If not given, will default to the system’s native byte order
+as given by <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.9)"><strong>OverflowError</strong></a> – <code class="docutils literal notranslate"><span class="pre">value</span></code> can’t be represented only by <code class="docutils literal notranslate"><span class="pre">n_bytes</span></code> bytes. The number is
+too big, or it’s negative and <code class="docutils literal notranslate"><span class="pre">signed</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/binobj.helpers.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">binobj.helpers module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017-2021, Diego Argueta.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+    </div>
+  </body>
+</html>

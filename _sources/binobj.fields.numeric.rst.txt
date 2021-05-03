@@ -1,0 +1,7 @@
+binobj.fields.numeric module
+============================
+
+.. automodule:: binobj.fields.numeric
+   :members:
+   :undoc-members:
+   :show-inheritance:

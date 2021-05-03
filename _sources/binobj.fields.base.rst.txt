@@ -1,0 +1,7 @@
+binobj.fields.base module
+=========================
+
+.. automodule:: binobj.fields.base
+   :members:
+   :undoc-members:
+   :show-inheritance:

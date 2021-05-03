@@ -1,0 +1,7 @@
+binobj.decorators module
+========================
+
+.. automodule:: binobj.decorators
+   :members:
+   :undoc-members:
+   :show-inheritance:

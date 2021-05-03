@@ -1,0 +1,29 @@
+binobj package
+==============
+
+.. automodule:: binobj
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   binobj.fields
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   binobj.decorators
+   binobj.errors
+   binobj.helpers
+   binobj.pep526
+   binobj.structures
+   binobj.typedefs
+   binobj.varints

@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to binobj’s documentation! &#8212; binobj 0.10.1 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="A Crash Course" href="basics.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="basics.html" title="A Crash Course"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">binobj 0.10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to binobj’s documentation!</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-binobj-s-documentation">
+<h1>Welcome to binobj’s documentation!<a class="headerlink" href="#welcome-to-binobj-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://travis-ci.org/dargueta/binobj"><img alt="Build status" src="https://travis-ci.org/dargueta/binobj.svg?branch=master" /></a> <img alt="Python versions" src="https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8,%203.9-blue.svg" /> <a class="reference external" href="https://pepy.tech/project/binobj"><img alt="Installs per month" src="https://pepy.tech/badge/binobj/month" /></a> <a class="reference external" href="https://pepy.tech/project/binobj"><img alt="Total installs" src="https://pepy.tech/badge/binobj" /></a></p>
+<p>A cross-platform Python 3 library for reading and writing structured binary data
+in an object-oriented (ish) style.</p>
+<div class="section" id="why-use-binobj">
+<h2>Why use <code class="docutils literal notranslate"><span class="pre">binobj</span></code>?<a class="headerlink" href="#why-use-binobj" title="Permalink to this headline">¶</a></h2>
+<p>You may have used Python’s built-in <code class="docutils literal notranslate"><span class="pre">struct</span></code> library to load and dump binary
+data. It’s unwieldy for larger or more complex data structures, and the format
+strings are easy to get wrong. <code class="docutils literal notranslate"><span class="pre">binobj</span></code> is different in that it takes a class-based
+approach to declaring binary structures.</p>
+<p>Take a look at this example using <code class="docutils literal notranslate"><span class="pre">struct</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="sa">b</span><span class="s1">&#39;BM&#39;</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">header_bytes</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&lt;2sIIIIiiHHIIiiII&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span>
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;2sIIIIiiHHIIiiII&#39;</span><span class="p">,</span> <span class="n">header_bytes</span><span class="p">)</span>
+<span class="n">n_pixels</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">loaded</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The same example rewritten using <code class="docutils literal notranslate"><span class="pre">binobj</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BMP</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">magic</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">Bytes</span><span class="p">(</span><span class="n">const</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;BM&#39;</span><span class="p">)</span>
+    <span class="n">file_size</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">()</span>
+    <span class="n">_reserved</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">Bytes</span><span class="p">(</span><span class="n">const</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\0\0\0\0</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">discard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pixels_offset</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">()</span>
+
+    <span class="c1"># Legacy DIB header</span>
+    <span class="n">header_size</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">(</span><span class="n">const</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+    <span class="n">image_width</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">Int32</span><span class="p">()</span>
+    <span class="n">image_height</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">Int32</span><span class="p">()</span>
+    <span class="n">n_color_planes</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt16</span><span class="p">()</span>
+    <span class="n">n_bits_per_pixel</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt16</span><span class="p">()</span>
+    <span class="n">compression_method</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">bitmap_size</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">()</span>
+    <span class="n">v_resolution</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">Int32</span><span class="p">()</span>
+    <span class="n">h_resolution</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">Int32</span><span class="p">()</span>
+    <span class="n">n_palette_colors</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">()</span>
+    <span class="n">n_important_colors</span> <span class="o">=</span> <span class="n">binobj</span><span class="o">.</span><span class="n">UInt32</span><span class="p">()</span>
+
+<span class="n">bmp</span> <span class="o">=</span> <span class="n">BMP</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">pixels_offset</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">image_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">image_height</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">header_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bmp</span><span class="p">)</span>
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">BMP</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">header_bytes</span><span class="p">)</span>
+<span class="n">n_pixels</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">image_width</span> <span class="o">*</span> <span class="n">loaded</span><span class="o">.</span><span class="n">image_height</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> also has other advantages in that it supports strings in any encoding
+Python supports, toggling endianness on a per-field basis (necessary for ISO 9660
+images), a variety of integer encodings, computed fields, validation, and more.</p>
+</div>
+<div class="section" id="system-requirements">
+<h2>System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>This package will <em>not</em> work on a <a class="reference external" href="https://en.wikipedia.org/wiki/Endianness#Mixed">mixed-endian</a> system. Those are pretty rare
+nowadays so chances are you won’t have a problem.</p></li>
+<li><p>This has been tested on Python 3.5-3.9, PyPy3.5, and PyPy3.6.</p></li>
+</ul>
+<p>Sorry, I have no intention of supporting Python 2. Feel free to fork this and do
+a backport if you like! I’d be interested to see it and might even contribute.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>You can install this with <code class="docutils literal notranslate"><span class="pre">pip</span></code> like so:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install binobj
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Be sure to use <code class="docutils literal notranslate"><span class="pre">pip3</span></code> and not <code class="docutils literal notranslate"><span class="pre">pip</span></code>, because <code class="docutils literal notranslate"><span class="pre">pip</span></code> defaults to Python 2.</p></li>
+<li><p>If you get a “Permission Denied” error, try:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install --user binobj
+</pre></div>
+</div>
+<p>Side note: Don’t use <code class="docutils literal notranslate"><span class="pre">sudo</span></code> (even <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">-EH</span></code>) to force a package to install,
+as that’s a security risk. See <a class="reference external" href="https://stackoverflow.com/a/42021993">this answer</a>
+on Stack Overflow to find out why.</p>
+</div>
+<div class="section" id="testing-and-development">
+<h2>Testing and Development<a class="headerlink" href="#testing-and-development" title="Permalink to this headline">¶</a></h2>
+<p>This package uses <a class="reference external" href="https://tox.readthedocs.io/en/latest/">Tox</a> to run tests on
+multiple versions of Python.</p>
+<div class="section" id="setup">
+<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<p>To set up your development environment, you’ll need to install a few things.</p>
+<ul class="simple">
+<li><p>For Python version management, I use <a class="reference external" href="https://github.com/pyenv/pyenv-virtualenv">pyenv-virtualenv</a>.
+Follow the installation instructions there.</p></li>
+<li><p>You’ll also need <code class="docutils literal notranslate"><span class="pre">make</span></code>. Depending on your platform you can install it in
+one of several ways:</p>
+<ul>
+<li><p>macOS: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">make</span></code></p></li>
+<li><p>Debian systems (e.g. Ubuntu): <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">make</span></code></p></li>
+<li><p>Windows: Use <a class="reference external" href="https://www.cygwin.com/">Cygwin</a> and install it during setup.</p></li>
+</ul>
+</li>
+</ul>
+<p>Once you have those installed, in the root directory of this repo run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make setup
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-tests">
+<h3>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h3>
+<p>To run the unit tests for all supported versions of Python, run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code>.
+The environments will automatically be rebuilt if needed.</p>
+</div>
+<div class="section" id="issues-and-feature-requests">
+<h3>Issues and Feature Requests<a class="headerlink" href="#issues-and-feature-requests" title="Permalink to this headline">¶</a></h3>
+<p>To report an issue, request a feature, or propose a change, please file a
+report on the project’s GitHub page <a class="reference external" href="https://github.com/dargueta/binobj/issues">here</a>.</p>
+</div>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>I’m releasing this under the terms of the <a class="reference external" href="https://tldrlegal.com/license/bsd-3-clause-license-(revised)">3-Clause BSD License</a>. For the full
+legal text, see <code class="docutils literal notranslate"><span class="pre">LICENSE.txt</span></code> in the repository.</p>
+</div>
+<div class="section" id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">Release history</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to binobj’s documentation!</a><ul>
+<li><a class="reference internal" href="#why-use-binobj">Why use <code class="docutils literal notranslate"><span class="pre">binobj</span></code>?</a></li>
+<li><a class="reference internal" href="#system-requirements">System Requirements</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#testing-and-development">Testing and Development</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#running-the-tests">Running the Tests</a></li>
+<li><a class="reference internal" href="#issues-and-feature-requests">Issues and Feature Requests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#license">License</a></li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basics.html"
+                        title="next chapter">A Crash Course</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="basics.html" title="A Crash Course"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">binobj 0.10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to binobj’s documentation!</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017-2021, Diego Argueta.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+    </div>
+  </body>
+</html>

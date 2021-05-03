@@ -1,0 +1,18 @@
+binobj.fields package
+=====================
+
+.. automodule:: binobj.fields
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   binobj.fields.base
+   binobj.fields.containers
+   binobj.fields.numeric
+   binobj.fields.stringlike

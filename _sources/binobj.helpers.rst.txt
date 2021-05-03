@@ -1,0 +1,7 @@
+binobj.helpers module
+=====================
+
+.. automodule:: binobj.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:

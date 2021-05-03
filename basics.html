@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Crash Course &#8212; binobj 0.10.1 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="CHANGELOG.html" />
+    <link rel="prev" title="Welcome to binobj’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="CHANGELOG.html" title="Changelog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to binobj’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">A Crash Course</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="a-crash-course">
+<h1>A Crash Course<a class="headerlink" href="#a-crash-course" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> allows you to create classes to declare the structure of binary files
+or streams in a convenient object-oriented way. It supports a variety of field
+types, and if you need something a bit more specialized you can always subclass
+<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or one of its subclasses to create the functionality
+you need.</p>
+<div class="section" id="plain-old-strings">
+<h2>Plain Old Strings<a class="headerlink" href="#plain-old-strings" title="Permalink to this headline">¶</a></h2>
+<p>Suppose you want to create an address book application in Python, and want to
+store people’s information in a file. Each person has a first name, a last name,
+and a phone number. You could do something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">binobj</span>
+<span class="kn">from</span> <span class="nn">binobj</span> <span class="kn">import</span> <span class="n">fields</span>
+
+<span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">phone</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>      <span class="c1"># Assuming a US phone number</span>
+</pre></div>
+</div>
+<p>A little explanation: <code class="docutils literal notranslate"><span class="pre">PersonInfo</span></code> is a structure with first name and last
+name ASCII strings that must be exactly eight bytes each, and a phone number that
+must be exactly twelve digits. Not too flexible, but we’re just getting started.</p>
+<p>Let’s save a contact to a file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;James&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Kirk&#39;</span><span class="p">,</span> <span class="n">phone</span><span class="o">=</span><span class="s1">&#39;817-555-9121&#39;</span><span class="p">)</span>
+
+<span class="c1"># **Always* open files in binary mode!</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;contacts.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fdesc</span><span class="p">:</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Unfortunately this will instantly crash:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">binobj</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ValueSizeError</span><span class="p">:</span> <span class="n">String</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;first_name&#39;</span><span class="p">)</span> <span class="n">can</span><span class="s1">&#39;t serialize value: Value doesn&#39;</span><span class="n">t</span> <span class="n">fit</span> <span class="n">into</span> <span class="mi">8</span> <span class="nb">bytes</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>This is because <code class="docutils literal notranslate"><span class="pre">James</span></code> is only five bytes long. Hm. We could pad the strings
+with trailing spaces and remove the trailing spaces when loading a record. Let’s
+try that.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;James   &#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Kirk    &#39;</span><span class="p">,</span>
+                    <span class="n">phone</span><span class="o">=</span><span class="s1">&#39;817-555-9121&#39;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;contacts.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fdesc</span><span class="p">:</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That worked! Let’s read the record back.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;contacts.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fdesc</span><span class="p">:</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s1">&#39;James   &#39;</span>
+<span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">last_name</span> <span class="o">==</span> <span class="s1">&#39;Kirk    &#39;</span>
+</pre></div>
+</div>
+<p>Looks like we got our data back correctly.</p>
+</div>
+<div class="section" id="text-and-encodings">
+<h2>Text and Encodings<a class="headerlink" href="#text-and-encodings" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> allows you to specify the character encoding of strings individually.
+Suppose you want to internationalize your app and make it handle names with
+accents in them, or even in other writing systems. We can change the strings to
+be UTF-8:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">phone</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Renée  &#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Duchamp &#39;</span><span class="p">,</span>
+                    <span class="n">phone</span><span class="o">=</span><span class="s1">&#39;123-456-7890&#39;</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;Ren</span><span class="se">\xc3\xa9</span><span class="s1">e  Duchamp 123-456-7890&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Be careful with multibyte encodings! The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument specifies the size
+of the field in <em>bytes</em>, not <em>characters</em>!</p>
+</div>
+</div>
+<div class="section" id="variable-length-fields">
+<h2>Variable-Length Fields<a class="headerlink" href="#variable-length-fields" title="Permalink to this headline">¶</a></h2>
+<p>It can get a bit tedious to remember to pad strings with spaces just so we can
+save the file without errors. Also: what happens if you need to store info for
+someone with a long last name like O’Shaughnessy or Ramachandran? We could use a
+variable-length string, like <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ" title="binobj.fields.stringlike.StringZ"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringZ</span></code></a>. This
+stores a string with a null byte to signal the end, like in C.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">phone</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>    <span class="c1"># Allow international phone numbers!</span>
+
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;contacts.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fdesc</span><span class="p">:</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Benjamin&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Sisko&#39;</span><span class="p">,</span>
+                        <span class="n">phone</span><span class="o">=</span><span class="s1">&#39;415-555-8570&#39;</span><span class="p">)</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
+
+    <span class="c1"># You can reuse structs if you like, they&#39;re mutable.</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">first_name</span> <span class="o">=</span> <span class="s1">&#39;James&#39;</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">last_name</span> <span class="o">=</span> <span class="s1">&#39;Kirk&#39;</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;817-555-9121&#39;</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arrays">
+<h2>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h2>
+<p>Let’s add a new feature to allow people to have two phone numbers. You can use
+an <a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><code class="xref py py-class docutils literal notranslate"><span class="pre">Array</span></code></a> for this.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">phone_numbers</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(),</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Nerys&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Kira&#39;</span><span class="p">)</span>
+<span class="n">person</span><span class="o">.</span><span class="n">phone_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;842-194-1959&#39;</span><span class="p">,</span> <span class="s1">&#39;842-138-1877&#39;</span><span class="p">]</span>
+
+<span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">()</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;Nerys</span><span class="se">\0</span><span class="s1">Kira</span><span class="se">\0</span><span class="s1">842-194-1959</span><span class="se">\0</span><span class="s1">842-138-1877</span><span class="se">\0</span><span class="s1">&#39;</span>
+
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;Nerys</span><span class="se">\0</span><span class="s1">Kira</span><span class="se">\0</span><span class="s1">842-194-1959</span><span class="se">\0</span><span class="s1">842-138-1877</span><span class="se">\0</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">person</span> <span class="o">==</span> <span class="n">loaded</span>
+</pre></div>
+</div>
+<p>Great! But what if someone only has one phone number, or (gasp) <em>no</em> phone
+numbers? Don’t worry, arrays can be of variable size. You’ll need to provide a
+function to tell <code class="docutils literal notranslate"><span class="pre">binobj</span></code> when the array ends. In this example, we’ll use an
+empty phone number to signal the end of the array.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">should_halt</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="c1"># Don&#39;t forget to remove the empty phone number that we use as a</span>
+        <span class="c1"># signal to stop.</span>
+        <span class="k">del</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">phone_numbers</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(),</span> <span class="n">halt_check</span><span class="o">=</span><span class="n">should_halt</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;Julian</span><span class="se">\0</span><span class="s1">Bashir</span><span class="se">\x00</span><span class="s1">173-994-0982</span><span class="se">\0\0</span><span class="s1">&#39;</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">person</span> <span class="o">==</span> <span class="p">{</span>
+    <span class="s1">&#39;first_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Julian&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;last_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Bashir&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;phone_numbers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;173-994-0982&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you’re using some sort of sentinel value to indicate the end of an array,
+it’s up to you to add it <em>before</em> serializing your struct. <code class="docutils literal notranslate"><span class="pre">binobj</span></code> doesn’t
+know how to do that for you (yet).</p>
+</div>
+</div>
+<div class="section" id="nested-structs">
+<h2>Nested Structs<a class="headerlink" href="#nested-structs" title="Permalink to this headline">¶</a></h2>
+<p>Let’s kick this up a notch and add support for addresses. You could store an
+address as a single string, which is fine, but what if we want to make it a bit
+more structured than that? Fortunately, we can nest a <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>
+inside another.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">USAddress</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">line_1</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>
+    <span class="n">line_2</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>     <span class="c1"># Don&#39;t make line 2 required</span>
+    <span class="n">city</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">zip_code</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">phone_numbers</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(),</span> <span class="n">halt_check</span><span class="o">=</span><span class="n">should_halt</span><span class="p">)</span>
+
+    <span class="c1"># Important: You must pass in your nested struct&#39;s *class*, not an</span>
+    <span class="c1"># instance of the class!</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">USAddress</span><span class="p">)</span>
+
+<span class="n">addr</span> <span class="o">=</span> <span class="n">USAddress</span><span class="p">(</span><span class="n">line_1</span><span class="o">=</span><span class="s1">&#39;123 Main Street&#39;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s1">&#39;Anytown&#39;</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span>
+                 <span class="n">zip_code</span><span class="o">=</span><span class="s1">&#39;94199&#39;</span><span class="p">)</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Jadzia&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Dax&#39;</span><span class="p">,</span> <span class="n">phone_numbers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+                    <span class="n">address</span><span class="o">=</span><span class="n">addr</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;Jadzia</span><span class="se">\x00</span><span class="s1">Dax</span><span class="se">\x00\x00</span><span class="s1">123 Main Street</span><span class="se">\x00\x00</span><span class="s1">Anytown</span><span class="se">\x00</span><span class="s1">CA94199&#39;</span>
+
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">loaded</span> <span class="o">==</span> <span class="n">person</span>
+</pre></div>
+</div>
+<p>If creating a bunch of <code class="docutils literal notranslate"><span class="pre">USAddress</span></code> objects and nesting them manually gets
+inconvenient, you can also pass in an entire dictionary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;first_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Jadzia&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;last_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Dax&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;phone_numbers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;line_1&#39;</span><span class="p">:</span> <span class="s1">&#39;123 Main Street&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;line_2&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="s1">&#39;Anytown&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;CA&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;zip_code&#39;</span><span class="p">:</span> <span class="s1">&#39;94199&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="o">**</span><span class="n">info</span><span class="p">)</span>
+<span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arrays-of-structs">
+<h2>Arrays of Structs<a class="headerlink" href="#arrays-of-structs" title="Permalink to this headline">¶</a></h2>
+<p>Can you make arrays of nested structs? Absolutely! We can take advantage of that
+to support multiple addresses for a single person. We’ll indicate the number of
+addresses a person has using an integer field.</p>
+<p>As of version 0.3.0 you can use a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> as the array
+size, so instead of creating a halting function like we did with <code class="docutils literal notranslate"><span class="pre">phone_numbers</span></code>,
+we can pass <code class="docutils literal notranslate"><span class="pre">n_addresses</span></code> as the value for <code class="docutils literal notranslate"><span class="pre">count</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># USAddress stays the same</span>
+
+<span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">phone_numbers</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(),</span> <span class="n">halt_check</span><span class="o">=</span><span class="n">should_halt</span><span class="p">)</span>
+    <span class="n">n_addresses</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">UInt8</span><span class="p">()</span>    <span class="c1"># 0-255 addresses</span>
+    <span class="n">addresses</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">USAddress</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="n">n_addresses</span><span class="p">)</span>
+
+<span class="c1"># Now let&#39;s write it to a file.</span>
+<span class="n">addresses</span> <span class="o">=</span> <span class="n">USAddress</span><span class="p">(</span><span class="n">line_1</span><span class="o">=</span><span class="s1">&#39;123 Main Street&#39;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s1">&#39;Anytown&#39;</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span>
+                      <span class="n">zip_code</span><span class="o">=</span><span class="s1">&#39;94199&#39;</span><span class="p">)</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Jadzia&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Dax&#39;</span><span class="p">,</span> <span class="n">phone_numbers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+                    <span class="n">n_addresses</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">addresses</span><span class="o">=</span><span class="p">[</span><span class="n">addr</span><span class="p">])</span>
+
+<span class="k">assert</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;Jadzia</span><span class="se">\x00</span><span class="s1">Dax</span><span class="se">\x00\x00\x01</span><span class="s1">123 Main Street</span><span class="se">\x00\x00</span><span class="s1">Anytown</span><span class="se">\x00</span><span class="s1">CA94199&#39;</span>
+
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">loaded</span> <span class="o">==</span> <span class="n">person</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-custom-fields">
+<h2>Creating Custom Fields<a class="headerlink" href="#creating-custom-fields" title="Permalink to this headline">¶</a></h2>
+<p>Suppose we want to give users the ability to record someone’s birthday. <code class="docutils literal notranslate"><span class="pre">binobj</span></code>
+doesn’t have a <code class="docutils literal notranslate"><span class="pre">Date</span></code> type, so we’re going to have to roll our own. There’s a
+number of ways we can represent a date but the easiest way seems to be to record
+the date as a string in <code class="docutils literal notranslate"><span class="pre">YYYYMMDD</span></code> format.</p>
+<p>When you’re creating your own field, there are only two methods you must implement
+yourself: <code class="docutils literal notranslate"><span class="pre">_do_load</span></code> and <code class="docutils literal notranslate"><span class="pre">_do_dump</span></code>.</p>
+<p>Always keep in mind: The <code class="docutils literal notranslate"><span class="pre">stream</span></code> argument to these methods is always a binary
+stream that reads and writes <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, so be sure to encode and decode
+your strings accordingly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Field</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]):</span>  <span class="c1"># Fields are generic containers</span>
+    <span class="k">def</span> <span class="nf">_do_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a date from the stream.&quot;&quot;&quot;</span>
+        <span class="n">date_bytes</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span> <span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_do_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">all_fields</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump a date into the stream.&quot;&quot;&quot;</span>
+        <span class="c1"># Let the user pass in a date or datetime</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+        <span class="n">date_string</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">date_string</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="putting-it-all-together">
+<h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h2>
+<p>Let’s look at the final version of our file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">binobj</span>
+<span class="kn">from</span> <span class="nn">binobj</span> <span class="kn">import</span> <span class="n">fields</span>
+
+
+<span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Field</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_do_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a date from the stream.&quot;&quot;&quot;</span>
+        <span class="n">date_bytes</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span> <span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_do_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">all_fields</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump a date into the stream.&quot;&quot;&quot;</span>
+        <span class="c1"># Let the user pass in a date or datetime</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+        <span class="n">date_string</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">date_string</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">USAddress</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">line_1</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>
+    <span class="n">line_2</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">city</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">zip_code</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">should_halt_phones</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">birthday</span> <span class="o">=</span> <span class="n">Date</span><span class="p">()</span>
+    <span class="n">phone_numbers</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(),</span>
+                                 <span class="n">halt_check</span><span class="o">=</span><span class="n">should_halt_phones</span><span class="p">)</span>
+    <span class="n">n_addresses</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">UInt8</span><span class="p">()</span>
+    <span class="n">addresses</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">USAddress</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="n">n_addresses</span><span class="p">)</span>
+
+    <span class="nd">@n_addresses</span><span class="o">.</span><span class="n">computes</span>
+    <span class="k">def</span> <span class="nf">_n_addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_fields</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_fields</span><span class="p">[</span><span class="s1">&#39;addresses&#39;</span><span class="p">])</span>
+
+<span class="n">addr_1</span> <span class="o">=</span> <span class="n">USAddress</span><span class="p">(</span><span class="n">line_1</span><span class="o">=</span><span class="s1">&#39;123 Main Street&#39;</span><span class="p">,</span> <span class="n">line_2</span><span class="o">=</span><span class="s1">&#39;Apt #104&#39;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s1">&#39;Anytown&#39;</span><span class="p">,</span>
+                   <span class="n">state</span><span class="o">=</span><span class="s1">&#39;TX&#39;</span><span class="p">,</span> <span class="n">zip_code</span><span class="o">=</span><span class="s1">&#39;75710&#39;</span><span class="p">)</span>
+<span class="n">addr_2</span> <span class="o">=</span> <span class="n">USAddress</span><span class="p">(</span><span class="n">line_1</span><span class="o">=</span><span class="s1">&#39;456 22nd Street&#39;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s1">&#39;Townsville&#39;</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">&#39;IL&#39;</span><span class="p">,</span>
+                   <span class="n">zip_code</span><span class="o">=</span><span class="s1">&#39;60184&#39;</span><span class="p">)</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="p">(</span>
+    <span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Miles&#39;</span><span class="p">,</span>
+    <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;O&#39;Brien&quot;</span><span class="p">,</span>
+    <span class="n">birthday</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2205</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+    <span class="n">phone_numbers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;586-188-1958&#39;</span><span class="p">,</span> <span class="s1">&#39;586-002-0611&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="n">addresses</span><span class="o">=</span><span class="p">[</span><span class="n">addr_1</span><span class="p">,</span> <span class="n">addr_2</span><span class="p">])</span>
+
+<span class="k">assert</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;Miles</span><span class="se">\x00</span><span class="s2">O&#39;Brien</span><span class="se">\x00</span><span class="s2">22051015586-188-1958</span><span class="se">\x00</span><span class="s2">&quot;</span> \
+                        <span class="sa">b</span><span class="s2">&quot;586-002-0611</span><span class="se">\x00\x00\x02</span><span class="s2">123 Main Street</span><span class="se">\x00</span><span class="s2">&quot;</span> \
+                        <span class="sa">b</span><span class="s2">&quot;Apt #104</span><span class="se">\x00</span><span class="s2">Anytown</span><span class="se">\x00</span><span class="s2">TX75710456 22nd Street</span><span class="se">\x00</span><span class="s2">&quot;</span> \
+                        <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">Townsville</span><span class="se">\x00</span><span class="s2">IL60184&quot;</span>
+
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">PersonInfo</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">))</span>
+
+<span class="c1"># We need to append the sentinel value to the phone numbers because it gets</span>
+<span class="c1"># stripped out when loading, but we had to put it in manually in ``person``.</span>
+<span class="n">loaded</span><span class="o">.</span><span class="n">phone_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">loaded</span> <span class="o">==</span> <span class="n">person</span>
+</pre></div>
+</div>
+<p>Pretty cool, huh? There’s loads more you can do. Check out the <code class="docutils literal notranslate"><span class="pre">full_examples</span></code>
+directory in the tests for more real-world examples of what you can do. The
+documentation in <a class="reference internal" href="binobj.fields.html#module-binobj.fields" title="binobj.fields"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code></a> and <a class="reference internal" href="binobj.structures.html#module-binobj.structures" title="binobj.structures"><code class="xref py py-mod docutils literal notranslate"><span class="pre">binobj.structures</span></code></a> might also
+be of interest to you.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">A Crash Course</a><ul>
+<li><a class="reference internal" href="#plain-old-strings">Plain Old Strings</a></li>
+<li><a class="reference internal" href="#text-and-encodings">Text and Encodings</a></li>
+<li><a class="reference internal" href="#variable-length-fields">Variable-Length Fields</a></li>
+<li><a class="reference internal" href="#arrays">Arrays</a></li>
+<li><a class="reference internal" href="#nested-structs">Nested Structs</a></li>
+<li><a class="reference internal" href="#arrays-of-structs">Arrays of Structs</a></li>
+<li><a class="reference internal" href="#creating-custom-fields">Creating Custom Fields</a></li>
+<li><a class="reference internal" href="#putting-it-all-together">Putting It All Together</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to binobj’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="CHANGELOG.html"
+                        title="next chapter">Changelog</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/basics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="CHANGELOG.html" title="Changelog"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to binobj’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">A Crash Course</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017-2021, Diego Argueta.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+    </div>
+  </body>
+</html>
