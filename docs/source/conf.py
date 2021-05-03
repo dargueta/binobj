@@ -30,15 +30,18 @@ sys.path.insert(0, os.path.abspath(os.path.join("..", "binobj")))
 # needs_sphinx = '1.0'
 
 add_module_names = False
+modindex_common_prefix = ["binobj."]
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
+    "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx.ext.todo",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -99,6 +102,9 @@ html_theme = "nature"
 #
 # html_theme_options = {}
 
+html_copy_source = False
+html_show_sourcelink = False
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -120,61 +126,5 @@ html_static_path = ["_static"]
 # }
 
 
-# -- Options for HTMLHelp output ------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = "binobjdoc"
-
-
-# -- Options for LaTeX output ---------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, "binobj.tex", "binobj Documentation", "Diego Argueta", "manual")
-]
-
-
-# -- Options for manual page output ---------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "binobj", "binobj Documentation", [author], 1)]
-
-
-# -- Options for Texinfo output -------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (
-        master_doc,
-        "binobj",
-        "binobj Documentation",
-        author,
-        "binobj",
-        "A Python library for reading and writing structured binary data.",
-        "Miscellaneous",
-    )
-]
-
-
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"py": ("https://docs.python.org/3/", None)}
+intersphinx_mapping = {"https://docs.python.org/3/": None}

@@ -1,0 +1,37 @@
+name: build-sphinx-to-gh-pages
+
+on:
+  push:
+    branches:
+      - master
+      - 0.10.2-cleanup  # Debug only
+
+jobs:
+  build_sphinx_docs:
+    name: Publish docs to Github Pages
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install -U pip
+          pip3 install -Ur dev-requirements.txt -e.
+
+      - name: Build Documentation
+        run: make docs
+
+      - name: Deploy docs
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: gh-pages
+          folder: docs/build
