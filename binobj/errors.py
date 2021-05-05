@@ -74,12 +74,12 @@ class ConfigurationError(Error):
         If the misconfigured object is neither a field nor a struct, pass it or
         its name here.
 
-    .. versionadded:: 0.3.0
-        The ``struct`` and ``obj`` arguments.
-
     :raise ValueError:
         None of the ``field``, ``struct``, or ``obj`` keyword arguments were
         passed.
+
+    .. versionadded:: 0.3.0
+        The ``struct`` and ``obj`` arguments.
     """
 
     def __init__(
@@ -294,10 +294,6 @@ class UndefinedSizeError(ConfigurationError):
 class NoDefinedFieldsError(ConfigurationError):
     """The struct has no defined fields.
 
-    This is most likely to happen when a user declares their struct with
-    :func:`~binobj.pep526.dataclass` but uses the old form of assignment-based field
-    definitions.
-
     .. versionadded:: 0.9.0
     """
 
@@ -421,7 +417,7 @@ class ValueSizeError(UnserializableValueError):
 class ArraySizeError(SerializationError):
     """The array can't be serialized because there are too many or too few items.
 
-    :param ~binobj.fields.base.Field: The field that failed to be serialized.
+    :param ~binobj.fields.base.Field field: The field that failed to be serialized.
     :param int n_expected: The expected number of items in the field.
     :param int n_given:
         Optional. The actual number of items given to the field for serialization.

@@ -194,10 +194,9 @@ class Array(Field[List[Optional[T]]]):
         :rtype: bool
 
         .. versionchanged:: 0.8.0
-            The default implementation now throws
-            :class:`~.errors.UndefinedSizeError` if the length of the array
-            couldn't be determined. Previously this would crash with a
-            :class:`TypeError`.
+            The default implementation now throws :class:`~.errors.UndefinedSizeError`
+            if the length of the array couldn't be determined. Previously this would
+            crash with a :class:`TypeError`.
         """
         if seq.count is not None:
             count = seq.get_final_element_count(loaded_fields)
@@ -376,8 +375,6 @@ class Union(Field[T]):
         * ``all_fields``: A dictionary of the fields about to be dumped. This is
           guaranteed to not be ``None``.
 
-    .. versionadded:: 0.3.0
-
     Usage with Structs::
 
         def load_decider(stream, classes, context, loaded_fields):
@@ -401,6 +398,8 @@ class Union(Field[T]):
                                 fields.UInt16(endian='little'),
                                 load_decider=fields_load_decider,
                                 dump_decider=fields_dump_decider)
+
+    .. versionadded:: 0.3.0
     """
 
     def __init__(

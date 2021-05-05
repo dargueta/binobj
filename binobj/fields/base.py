@@ -112,17 +112,6 @@ class Field(Generic[T]):
         When loading, the returned value will be ``None`` if this exact sequence of
         bytes is encountered. If not given, the field is considered "not nullable" and
         any attempt to assign ``None`` to it will result in a crash upon serialization.
-
-        .. versionchanged:: 0.9.0
-            This can now also be a deserialized value. For example, you could pass r"\N"
-            for a string or 0 for an integer.
-
-        .. deprecated:: 0.9.0
-            Passing :data:`DEFAULT` for unsized fields such as
-            :class:`~binobj.fields.stringlike.StringZ` is deprecated and will trigger an
-            error in the future. This resolves the asymmetric behavior where using
-            :data:`DEFAULT` throws an error when dumping but happily loads whatever's
-            next in the stream when loading.
     :param size:
         Optional. The size of the field. This can be a number of things:
 
@@ -133,10 +122,6 @@ class Field(Generic[T]):
         * A string naming another field. It's equivalent to passing in a :class:`.Field`
           instance, except used for references in the same class or a field defined in
           the superclass.
-
-        .. versionadded:: 0.9.0
-            Full support for :class:`Field`\s and field name values. This used to be
-            only supported by some fields, with others left out by accident.
     :param validate:
         A callable or list of callables that validates a given value for this
         field. The callable(s) will always be passed the deserialized value, so
@@ -166,18 +151,12 @@ class Field(Generic[T]):
         - When loading, the stream being loaded from. The stream pointer MUST
           be reset to its original position before the function returns.
 
-        .. versionadded:: 0.4.5
-
-        .. versionchanged:: 0.8.0
-            The ``loaded_fields`` argument is now guaranteed to not be null.
     :param not_present_value:
         A custom value to return if a field is missing when loading (see the ``present``
         argument). It can be ``None`` or match the datatype of the field, i.e. a string
         for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on. If not given, defaults to
         :data:`NOT_PRESENT`.
-
-        .. versionadded:: 0.9.0
 
     .. attribute:: index
 
@@ -192,6 +171,29 @@ class Field(Generic[T]):
         will be ``None``.
 
         :type: int
+
+    .. versionadded:: 0.4.5
+        The ``present`` argument.
+
+    .. versionchanged:: 0.8.0
+        This now inherits from :class:`typing.Generic`.
+
+    .. versionadded:: 0.9.0
+
+    * The ``not_present_value`` argument.
+    * ``size`` has full support for :class:`Field`\s and field name values. This
+      used to be only supported by some fields, with others left out by accident.
+
+    .. versionchanged:: 0.9.0
+        ``null_value`` can now also be a deserialized value. For example, you could
+        pass r"\\N" for a string or 0 for an integer.
+
+    .. deprecated:: 0.9.0
+        Passing :data:`DEFAULT` to ``null_value`` for unsized fields such as
+        :class:`~binobj.fields.stringlike.StringZ` is deprecated and will trigger an
+        error in the future. This resolves the asymmetric behavior where using
+        :data:`DEFAULT` throws an error when dumping but happily loads whatever's next
+        in the stream when loading.
     """
 
     __overrideable_attributes__ = ()  # type: Union[Collection[str], Mapping[str, str]]
@@ -347,8 +349,8 @@ class Field(Generic[T]):
 
         .. versionchanged:: 0.8.0
             If ``default`` is given by a callable and that callable returns
-            :data:`UNDEFINED`, it will throw :class:`MissingRequiredValueError` instead
-            of returning that.
+            :data:`UNDEFINED`, it will throw :class:`~.errors.MissingRequiredValueError`
+            instead of returning :data:`UNDEFINED`.
         """
         # FIXME (dargueta): Don't pass None for the context variable.
         if not self.present(all_values, None, None):

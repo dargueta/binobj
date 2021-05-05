@@ -144,13 +144,11 @@ class Integer(Field[int]):
     :param int size:
         The size of the integer, in bytes.
 
-        .. versionchanged:: 0.8.0
-            The ``size`` argument is now required.
-
     .. versionchanged:: 0.8.0
-        The class now throws :class:`UndefinedSizeError` when loading and dumping if
-        the field doesn't have a defined size. Before it used to crash with a TypeError
-        due to this oversight.
+        * The ``size`` argument is now required.
+        * The class now throws :class:`~.errors.UndefinedSizeError` when loading and
+          dumping if the field doesn't have a defined size. Before it used to crash with
+          a :class:`TypeError` due to this oversight.
 
     .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representations
     """
@@ -354,13 +352,14 @@ class Timestamp(Field[datetime.datetime]):
         Unix systems.
 
     .. versionadded:: 0.6.0
+
     .. versionchanged:: 0.8.0
 
         * This class no longer inherits from :class:`Integer`.
         * ``size`` is now a required argument.
-        * The class throws :class:`UndefinedSizeError` when loading and dumping if the
-          field doesn't have a defined size. Before it used to crash with a TypeError
-          due to this oversight.
+        * The class now throws :class:`~.errors.UndefinedSizeError` when loading and
+          dumping if the field doesn't have a defined size. Before it used to crash with
+          a :class:`TypeError` due to this oversight.
 
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`

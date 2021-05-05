@@ -32,10 +32,6 @@ from binobj.typedefs import StrDict
 from binobj.typedefs import StructValidator
 
 
-# if typing.TYPE_CHECKING:  # pragma: no cover
-#     from typing import ClassVar
-
-
 __all__ = ["Struct"]
 
 
@@ -53,10 +49,10 @@ class StructMetadata:
     use to people writing wrapper classes or otherwise enhancing the behavior of the
     default :class:`.Struct` class.
 
+    .. versionadded:: 0.7.1
+
     .. versionchanged:: 0.10.0
         Arguments are now keyword-only.
-
-    .. versionadded:: 0.7.1
     """
 
     name = attr.ib(type=str)
@@ -73,7 +69,9 @@ class StructMetadata:
     struct_validators = attr.ib(type=List[StructValidator], factory=list)
     """A list of validators for this struct."""
 
-    field_validators = attr.ib(type=Dict[str, List[MethodFieldValidator]], factory=dict)
+    field_validators = attr.ib(
+        type=MutableMapping[str, List[MethodFieldValidator]], factory=dict
+    )
     """A mapping of field names to validators to execute for that field."""
 
     num_own_fields = attr.ib(type=int, default=0)
@@ -128,11 +126,11 @@ def collect_assigned_fields(
     Returns
         int: The number of fields found.
 
+    .. versionadded:: 0.9.0
+
     .. versionchanged:: 0.10.0
         The function now takes the entire class metadata as the third argument instead
         of just a mapping of the declared fields.
-
-    .. versionadded:: 0.9.0
     """
     field_index = len(class_metadata.components)
     n_fields_found = 0
@@ -411,21 +409,22 @@ class Struct(metaclass=StructMeta):
             If True, don't exclude fields marked with ``discard=True`` from the
             result.
 
-            .. versionadded:: 0.6.1
-
         :rtype: collections.OrderedDict
 
         :raise MissingRequiredValueError:
             One or more fields don't have assigned values.
 
-        .. versionchanged:: 0.6.0
-            Fields with ``discard`` set are not included in the returned dict
-            by default.
-
         .. versionchanged:: 0.3.0
             This now recursively calls :meth:`.to_dict` on all nested structs and
             arrays so that the returned dictionary is completely converted, not
             just the first level.
+
+        .. versionchanged:: 0.6.0
+            Fields with ``discard`` set are not included in the returned dict
+            by default.
+
+        .. versionchanged:: 0.6.1
+            The ``keep_discardable`` argument was added.
         """
         dct = collections.OrderedDict(
             (field.name, field.compute_value_for_dump(typing.cast(StrDict, self)))
@@ -455,9 +454,10 @@ class Struct(metaclass=StructMeta):
             comprise the struct. You can also use this to *override* field values;
             anything given in here takes precedence over loaded values.
 
-            .. versionadded:: 0.7.0
-
         :return: The loaded struct.
+
+        .. versionadded:: 0.7.0
+            The ``init_kwargs`` argument.
         """
         if init_kwargs:
             results = typing.cast(MutableStrDict, copy.deepcopy(init_kwargs))
@@ -503,12 +503,13 @@ class Struct(metaclass=StructMeta):
             comprise the struct. You can also use this to *override* field values;
             anything given in here takes precedence over loaded values.
 
-            .. versionadded:: 0.7.0
-
         :return: The loaded struct.
         :raise ExtraneousDataError:
             ``exact`` is True and there's data left over at the end of the byte
             string.
+
+        .. versionadded:: 0.7.0
+            The ``init_kwargs`` argument.
         """
         stream = io.BytesIO(data)
         loaded_data = cls.from_stream(stream, context, init_kwargs)
