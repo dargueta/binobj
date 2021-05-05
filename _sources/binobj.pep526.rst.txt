@@ -1,7 +1,0 @@
-binobj.pep526 module
-====================
-
-.. automodule:: binobj.pep526
-   :members:
-   :undoc-members:
-   :show-inheritance:

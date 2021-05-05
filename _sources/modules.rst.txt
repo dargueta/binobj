@@ -1,7 +1,0 @@
-binobj
-======
-
-.. toctree::
-   :maxdepth: 4
-
-   binobj

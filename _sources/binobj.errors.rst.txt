@@ -1,7 +1,0 @@
-binobj.errors module
-====================
-
-.. automodule:: binobj.errors
-   :members:
-   :undoc-members:
-   :show-inheritance:

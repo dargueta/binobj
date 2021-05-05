@@ -1,7 +1,0 @@
-binobj.typedefs module
-======================
-
-.. automodule:: binobj.typedefs
-   :members:
-   :undoc-members:
-   :show-inheritance:

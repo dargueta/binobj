@@ -1,7 +1,0 @@
-binobj.fields.stringlike module
-===============================
-
-.. automodule:: binobj.fields.stringlike
-   :members:
-   :undoc-members:
-   :show-inheritance:
