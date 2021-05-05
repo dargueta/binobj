@@ -45,7 +45,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Field</strong> – The field that failed to be serialized.</p></li>
+<li><p><strong>field</strong> (<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><em>Field</em></a>) – The field that failed to be serialized.</p></li>
 <li><p><strong>n_expected</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The expected number of items in the field.</p></li>
 <li><p><strong>n_given</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Optional. The actual number of items given to the field for serialization.</p></li>
 </ul>
@@ -72,16 +72,14 @@ or <code class="docutils literal notranslate"><span class="pre">obj</span></code
 its name here.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – None of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments were
+passed.</p>
+</dd>
 </dl>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.3.0: </span>The <code class="docutils literal notranslate"><span class="pre">struct</span></code> and <code class="docutils literal notranslate"><span class="pre">obj</span></code> arguments.</p>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – None of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments were
-passed.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py exception">

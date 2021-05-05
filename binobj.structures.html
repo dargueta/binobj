@@ -81,14 +81,10 @@ anything they don’t recognize.</p></li>
 <li><p><strong>exact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <code class="docutils literal notranslate"><span class="pre">data</span></code> must contain exactly the number of bytes required. If not
 all the bytes in <code class="docutils literal notranslate"><span class="pre">data</span></code> were used when reading the struct, throw
 an exception.</p></li>
-<li><p><strong>init_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Additional keyword arguments to pass to the struct’s constructor,
+<li><p><strong>init_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Additional keyword arguments to pass to the struct’s constructor,
 for subclasses that take additional arguments beyond the fields that
 comprise the struct. You can also use this to <em>override</em> field values;
-anything given in here takes precedence over loaded values.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.7.0.</span></p>
-</div>
-</p></li>
+anything given in here takes precedence over loaded values.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -99,6 +95,9 @@ anything given in here takes precedence over loaded values.</p>
 string.</p>
 </dd>
 </dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.7.0: </span>Added the <code class="docutils literal notranslate"><span class="pre">init_kwargs</span></code> argument.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -112,20 +111,19 @@ string.</p>
 <li><p><strong>context</strong> – Additional data to pass to the components’
 <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> methods. Subclasses must
 ignore anything they don’t recognize.</p></li>
-<li><p><strong>init_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Additional keyword arguments to pass to the struct’s constructor,
+<li><p><strong>init_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Additional keyword arguments to pass to the struct’s constructor,
 for subclasses that take additional arguments beyond the fields that
 comprise the struct. You can also use this to <em>override</em> field values;
-anything given in here takes precedence over loaded values.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.7.0.</span></p>
-</div>
-</p></li>
+anything given in here takes precedence over loaded values.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The loaded struct.</p>
 </dd>
 </dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.7.0: </span>Added the <code class="docutils literal notranslate"><span class="pre">init_kwargs</span></code> argument.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -262,12 +260,8 @@ into native Python types. As such, validation is <em>not</em> performed since
 that was done while loading.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>keep_discardable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <p>If True, don’t exclude fields marked with <code class="docutils literal notranslate"><span class="pre">discard=True</span></code> from the
+<dd class="field-odd"><p><strong>keep_discardable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, don’t exclude fields marked with <code class="docutils literal notranslate"><span class="pre">discard=True</span></code> from the
 result.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.6.1.</span></p>
-</div>
-</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.9)">collections.OrderedDict</a></p>
@@ -277,13 +271,16 @@ result.</p>
 </dd>
 </dl>
 <div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.3.0: </span>This now recursively calls <a class="reference internal" href="#binobj.structures.Struct.to_dict" title="binobj.structures.Struct.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a> on all nested structs and
+arrays so that the returned dictionary is completely converted, not
+just the first level.</p>
+</div>
+<div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 0.6.0: </span>Fields with <code class="docutils literal notranslate"><span class="pre">discard</span></code> set are not included in the returned dict
 by default.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.3.0: </span>This now recursively calls <a class="reference internal" href="#binobj.structures.Struct.to_dict" title="binobj.structures.Struct.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a> on all nested structs and
-arrays so that the returned dictionary is completely converted, not
-just the first level.</p>
+<p><span class="versionmodified changed">Changed in version 0.6.1: </span>The <code class="docutils literal notranslate"><span class="pre">keep_discardable</span></code> argument was added.</p>
 </div>
 </dd></dl>
 
