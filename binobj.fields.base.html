@@ -87,17 +87,6 @@ discarded.</p>
 <p>When loading, the returned value will be <code class="docutils literal notranslate"><span class="pre">None</span></code> if this exact sequence of
 bytes is encountered. If not given, the field is considered “not nullable” and
 any attempt to assign <code class="docutils literal notranslate"><span class="pre">None</span></code> to it will result in a crash upon serialization.</p>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.9.0: </span>This can now also be a deserialized value. For example, you could pass r”N”
-for a string or 0 for an integer.</p>
-</div>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.9.0: </span>Passing <a class="reference internal" href="#binobj.fields.base.DEFAULT" title="binobj.fields.base.DEFAULT"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT</span></code></a> for unsized fields such as
-<a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ" title="binobj.fields.stringlike.StringZ"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringZ</span></code></a> is deprecated and will trigger an
-error in the future. This resolves the asymmetric behavior where using
-<a class="reference internal" href="#binobj.fields.base.DEFAULT" title="binobj.fields.base.DEFAULT"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT</span></code></a> throws an error when dumping but happily loads whatever’s
-next in the stream when loading.</p>
-</div>
 </p></li>
 <li><p><strong>size</strong> – <p>Optional. The size of the field. This can be a number of things:</p>
 <ul>
@@ -109,10 +98,6 @@ bytes.</p></li>
 instance, except used for references in the same class or a field defined in
 the superclass.</p></li>
 </ul>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.9.0: </span>Full support for <a class="reference internal" href="#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>s and field name values. This used to be
-only supported by some fields, with others left out by accident.</p>
-</div>
 </p></li>
 <li><p><strong>validate</strong> – A callable or list of callables that validates a given value for this
 field. The callable(s) will always be passed the deserialized value, so
@@ -140,22 +125,12 @@ dumped.</p></li>
 <li><p>When loading, the stream being loaded from. The stream pointer MUST
 be reset to its original position before the function returns.</p></li>
 </ul>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.4.5.</span></p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code> argument is now guaranteed to not be null.</p>
-</div>
 </p></li>
-<li><p><strong>not_present_value</strong> – <p>A custom value to return if a field is missing when loading (see the <code class="docutils literal notranslate"><span class="pre">present</span></code>
+<li><p><strong>not_present_value</strong> – A custom value to return if a field is missing when loading (see the <code class="docutils literal notranslate"><span class="pre">present</span></code>
 argument). It can be <code class="docutils literal notranslate"><span class="pre">None</span></code> or match the datatype of the field, i.e. a string
 for a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a>, an integer for an
 <a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a>, and so on. If not given, defaults to
-<a class="reference internal" href="#binobj.fields.base.NOT_PRESENT" title="binobj.fields.base.NOT_PRESENT"><code class="xref py py-data docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a>.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.9.0.</span></p>
-</div>
-</p></li>
+<a class="reference internal" href="#binobj.fields.base.NOT_PRESENT" title="binobj.fields.base.NOT_PRESENT"><code class="xref py py-data docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -183,6 +158,32 @@ will be <code class="docutils literal notranslate"><span class="pre">None</span>
 </dl>
 </dd></dl>
 
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.4.5: </span>The <code class="docutils literal notranslate"><span class="pre">present</span></code> argument.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code> argument is now guaranteed to not be null. Despite the
+documentation stating this, there was a bug where sometimes it would be null
+anyway.</p>
+</div>
+<div class="versionadded">
+<ul>
+<span class="versionmodified added">New in version 0.9.0: </span><li><p>The <code class="docutils literal notranslate"><span class="pre">not_present_value</span></code> argument.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> has full support for <a class="reference internal" href="#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>s and field name values. This
+used to be only supported by some fields, with others left out by accident.</p></li>
+</ul>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.9.0: </span><code class="docutils literal notranslate"><span class="pre">null_value</span></code> can now also be a deserialized value. For example, you could
+pass r”\N” for a string or 0 for an integer.</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.9.0: </span>Passing <a class="reference internal" href="#binobj.fields.base.DEFAULT" title="binobj.fields.base.DEFAULT"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT</span></code></a> to <code class="docutils literal notranslate"><span class="pre">null_value</span></code> for unsized fields such as
+<a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ" title="binobj.fields.stringlike.StringZ"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringZ</span></code></a> is deprecated and will trigger an
+error in the future. This resolves the asymmetric behavior where using
+<a class="reference internal" href="#binobj.fields.base.DEFAULT" title="binobj.fields.base.DEFAULT"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT</span></code></a> throws an error when dumping but happily loads whatever’s next
+in the stream when loading.</p>
+</div>
 <dl class="py method">
 <dt id="binobj.fields.base.Field.allow_null">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">allow_null</span></code><a class="headerlink" href="#binobj.fields.base.Field.allow_null" title="Permalink to this definition">¶</a></dt>
@@ -240,8 +241,8 @@ function defined either.</p>
 </div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 0.8.0: </span>If <code class="docutils literal notranslate"><span class="pre">default</span></code> is given by a callable and that callable returns
-<a class="reference internal" href="#binobj.fields.base.UNDEFINED" title="binobj.fields.base.UNDEFINED"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a>, it will throw <code class="xref py py-class docutils literal notranslate"><span class="pre">MissingRequiredValueError</span></code> instead
-of returning that.</p>
+<a class="reference internal" href="#binobj.fields.base.UNDEFINED" title="binobj.fields.base.UNDEFINED"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a>, it will throw <a class="reference internal" href="binobj.errors.html#binobj.errors.MissingRequiredValueError" title="binobj.errors.MissingRequiredValueError"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingRequiredValueError</span></code></a>
+instead of returning <a class="reference internal" href="#binobj.fields.base.UNDEFINED" title="binobj.fields.base.UNDEFINED"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a>.</p>
 </div>
 </dd></dl>
 

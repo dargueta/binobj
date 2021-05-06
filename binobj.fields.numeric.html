@@ -128,18 +128,15 @@ If not given, defaults to the system’s native byte ordering as given by
 <li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Indicates if this number is a two’s-complement signed or unsigned integer.
 Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> (signed). <a class="reference external" href="https://en.wikipedia.org/wiki/Signed_number_representations">Signed formats</a> other than two’s-complement
 such as sign-magnitude are not supported.</p></li>
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <p>The size of the integer, in bytes.</p>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument is now required.</p>
-</div>
-</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The size of the integer, in bytes.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The class now throws <code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code> when loading and dumping if
-the field doesn’t have a defined size. Before it used to crash with a TypeError
-due to this oversight.</p>
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument is now required.
+The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
+dumping if the field doesn’t have a defined size. Before it used to crash with a
+TypeError due to this oversight.</p>
 </div>
 </dd></dl>
 
@@ -184,9 +181,9 @@ Unix systems.</p></li>
 <ul>
 <span class="versionmodified changed">Changed in version 0.8.0: </span><li><p>This class no longer inherits from <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> is now a required argument.</p></li>
-<li><p>The class throws <code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code> when loading and dumping if the
-field doesn’t have a defined size. Before it used to crash with a TypeError
-due to this oversight.</p></li>
+<li><p>The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
+dumping if the field doesn’t have a defined size. Before it used to crash with
+a TypeError due to this oversight.</p></li>
 </ul>
 </div>
 <div class="admonition seealso">
