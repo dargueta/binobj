@@ -146,10 +146,9 @@ otherwise.</p>
 </dd>
 </dl>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The default implementation now throws
-<a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> if the length of the array
-couldn’t be determined. Previously this would crash with a
-<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a>.</p>
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The default implementation now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a>
+if the length of the array couldn’t be determined. Previously this would
+crash with a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a>.</p>
 </div>
 </dd></dl>
 
@@ -218,9 +217,6 @@ guaranteed to not be <code class="docutils literal notranslate"><span class="pre
 </ul>
 </dd>
 </dl>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.3.0.</span></p>
-</div>
 <p>Usage with Structs:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">load_decider</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
     <span class="n">data_type_id</span> <span class="o">=</span> <span class="n">loaded_fields</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span>
@@ -244,6 +240,9 @@ guaranteed to not be <code class="docutils literal notranslate"><span class="pre
                         <span class="n">load_decider</span><span class="o">=</span><span class="n">fields_load_decider</span><span class="p">,</span>
                         <span class="n">dump_decider</span><span class="o">=</span><span class="n">fields_dump_decider</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.3.0.</span></p>
 </div>
 </dd></dl>
 

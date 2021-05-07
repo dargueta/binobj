@@ -133,10 +133,10 @@ such as sign-magnitude are not supported.</p></li>
 </dd>
 </dl>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument is now required.
-The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
-dumping if the field doesn’t have a defined size. Before it used to crash with a
-TypeError due to this oversight.</p>
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span>* The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument is now required.
+* The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
+  dumping if the field doesn’t have a defined size. Before it used to crash with
+  a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a> due to this oversight.</p>
 </div>
 </dd></dl>
 
@@ -183,7 +183,7 @@ Unix systems.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> is now a required argument.</p></li>
 <li><p>The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
 dumping if the field doesn’t have a defined size. Before it used to crash with
-a TypeError due to this oversight.</p></li>
+a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a> due to this oversight.</p></li>
 </ul>
 </div>
 <div class="admonition seealso">
