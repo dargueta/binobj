@@ -38,10 +38,24 @@
 <span id="binobj-typedefs-module"></span><h1>binobj.typedefs module<a class="headerlink" href="#module-binobj.typedefs" title="Permalink to this headline">¶</a></h1>
 <p>Definitions of aliases for common type annotations.</p>
 <dl class="py data">
+<dt id="binobj.typedefs.FieldOrName">
+<code class="sig-name descname"><span class="pre">FieldOrName</span></code><a class="headerlink" href="#binobj.typedefs.FieldOrName" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> object or its name.</p>
+<p>alias of Union[str, Field[Any]]</p>
+</dd></dl>
+
+<dl class="py data">
 <dt id="binobj.typedefs.FieldValidator">
 <code class="sig-name descname"><span class="pre">FieldValidator</span></code><a class="headerlink" href="#binobj.typedefs.FieldValidator" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function that, given a field, returns True if it’s valid and False otherwise.</p>
 <p>alias of Callable[[Field[Any], Any], Optional[bool]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="binobj.typedefs.MethodFieldValidator">
+<code class="sig-name descname"><span class="pre">MethodFieldValidator</span></code><a class="headerlink" href="#binobj.typedefs.MethodFieldValidator" title="Permalink to this definition">¶</a></dt>
+<dd><p>A field validator that’s a method in its containing struct.</p>
+<p>alias of Callable[[Struct, Field[Any], Any], Optional[bool]]</p>
 </dd></dl>
 
 <dl class="py data">
@@ -56,6 +70,20 @@
 <code class="sig-name descname"><span class="pre">StrDict</span></code><a class="headerlink" href="#binobj.typedefs.StrDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Any mapping using strings as the keys.</p>
 <p>alias of Mapping[str, Any]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="binobj.typedefs.StructOrName">
+<code class="sig-name descname"><span class="pre">StructOrName</span></code><a class="headerlink" href="#binobj.typedefs.StructOrName" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> or its name.</p>
+<p>alias of Union[str, Struct, Type[Struct]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="binobj.typedefs.StructValidator">
+<code class="sig-name descname"><span class="pre">StructValidator</span></code><a class="headerlink" href="#binobj.typedefs.StructValidator" title="Permalink to this definition">¶</a></dt>
+<dd><p>A classmethod that validates an entire struct.</p>
+<p>alias of Callable[[Struct, Mapping[str, Any]], Optional[bool]]</p>
 </dd></dl>
 
 </div>
