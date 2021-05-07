@@ -17,9 +17,9 @@ class ValidatorMethodWrapper:
     :param callable func:
         The validator to invoke for the named fields.
     :param field_names:
-        An iterable of strings; the names of the fields to be validated by
-        ``func``. If ``None`` or the iterable is empty, this validator method
-        should be used to validate the entire struct, not just a field.
+        An iterable of strings; the names of the fields to be validated by ``func``. If
+        ``None`` or the iterable is empty, this validator method should be used to
+        validate the entire struct, not just a field.
     """
 
     def __init__(
@@ -49,13 +49,13 @@ def validates(*field_names: str) -> Callable[[FieldValidator], ValidatorMethodWr
         One or more names of fields that this validator should be activated for.
 
     .. warning::
-        If you specify multiple validator methods, the order in which they execute
-        is *not* guaranteed. If you need a specific ordering of checks, you must
-        put them in the same function.
+        If you specify multiple validator methods, the order in which they execute is
+        *not* guaranteed. If you need a specific ordering of checks, you must put them
+        in the same function.
 
     .. note::
-        Only functions and instance methods are supported. Class methods and
-        static methods will cause a crash.
+        Only functions and instance methods are supported. Class methods and static
+        methods will cause a crash.
     """
     if not field_names:
         # Called as `@validates()`
@@ -65,8 +65,8 @@ def validates(*field_names: str) -> Callable[[FieldValidator], ValidatorMethodWr
         raise TypeError("Missing field name arguments.")
     if not all(isinstance(n, str) for n in field_names):
         raise TypeError(
-            "All field names given to this decorator must be strings. Do not "
-            "pass Field objects."
+            "All field names given to this decorator must be strings. Do not pass"
+            " Field objects."
         )
 
     def decorator(func: FieldValidator) -> ValidatorMethodWrapper:
@@ -78,14 +78,14 @@ def validates(*field_names: str) -> Callable[[FieldValidator], ValidatorMethodWr
 def validates_struct(func: StructValidator) -> ValidatorMethodWrapper:
     """Mark a method as a validator for the entire struct.
 
-    The method being decorated should take a single argument aside from ``self``,
-    the dict to validate. The validator is invoked right after it's been loaded,
-    or right before it's dumped.
+    The method being decorated should take a single argument aside from ``self``, the
+    dict to validate. The validator is invoked right after it's been loaded, or right
+    before it's dumped.
 
-    It's highly inadvisable to modify the contents, because it's easy to create
-    invalid results. For example, if a struct has a field giving the length of
-    the array and you change the length of that array, the length field *won't*
-    update to compensate. You must do that yourself.
+    It's highly inadvisable to modify the contents, because it's easy to create invalid
+    results. For example, if a struct has a field giving the length of the array and you
+    change the length of that array, the length field *won't* update to compensate. You
+    must do that yourself.
 
     Usage::
 
@@ -95,7 +95,7 @@ def validates_struct(func: StructValidator) -> ValidatorMethodWrapper:
                 raise ValidationError("'foo' must be even", field='foo')
 
     .. note::
-        Only functions and instance methods are supported. Class methods and
-        static methods will cause a crash.
+        Only functions and instance methods are supported. Class methods and static
+        methods will cause a crash.
     """
     return ValidatorMethodWrapper(func, ())

@@ -59,24 +59,23 @@ class Error(Exception):
 class ConfigurationError(Error):
     """A field, struct, or other object was misconfigured.
 
-    At least one of the ``field``, ``struct``, or ``obj`` keyword arguments must
-    be passed to the constructor.
+    At least one of the ``field``, ``struct``, or ``obj`` keyword arguments must be
+    passed to the constructor.
 
     :param str message:
-        Optional. A description of what's wrong. If not given, a generic error
-        message will be chosen depending on which of the ``field``, ``struct``,
-        or ``obj`` keyword arguments is passed.
+        Optional. A description of what's wrong. If not given, a generic error message
+        will be chosen depending on which of the ``field``, ``struct``, or ``obj``
+        keyword arguments is passed.
     :param field:
         The misconfigured :class:`~binobj.fields.base.Field` or its name.
     :param struct:
         The misconfigured :class:`~binobj.structures.Struct` or its name.
     :param obj:
-        If the misconfigured object is neither a field nor a struct, pass it or
-        its name here.
+        If the misconfigured object is neither a field nor a struct, pass it or its name
+        here.
 
     :raise ValueError:
-        None of the ``field``, ``struct``, or ``obj`` keyword arguments were
-        passed.
+        None of the ``field``, ``struct``, or ``obj`` keyword arguments were passed.
 
     .. versionadded:: 0.3.0
         The ``struct`` and ``obj`` arguments.
@@ -92,8 +91,8 @@ class ConfigurationError(Error):
     ):
         if not (field or struct or obj):
             raise ValueError(
-                "At least one of `field`, `struct`, or `obj` must "
-                "be passed to the constructor."
+                "At least one of `field`, `struct`, or `obj` must be passed to the"
+                " constructor."
             )
 
         if not message:
@@ -226,9 +225,10 @@ class ImmutableFieldError(IllegalOperationError):
     :param ~binobj.fields.base.Field field:
         The field an attempt was made to be assigned to.
 
-        .. versionadded:: 0.6.1
 
     .. versionadded:: 0.4.1
+    .. versionadded:: 0.6.1
+        The ``field`` argument.
     """
 
     def __init__(self, *, field: Optional["Field[Any]"] = None):
@@ -277,16 +277,16 @@ class UndefinedSizeError(ConfigurationError):
     """The size of the field couldn't be determined, possibly due to misconfiguration.
 
     :param field:
-        The :class:`~binobj.fields.base.Field` that's missing its size, or the name
-        of that field.
+        The :class:`~binobj.fields.base.Field` that's missing its size, or the name of
+        that field.
 
     .. versionadded:: 0.3.1
     """
 
     def __init__(self, *, field: FieldOrName):
         super().__init__(
-            "Size of field %s couldn't be determined. The field might not have "
-            "had its `size` set, or a variable-sized field has a bug." % field,
+            "Size of field %s couldn't be determined. The field might not have had its"
+            " `size` set, or a variable-sized field has a bug." % field,
             field=field,
         )
 
@@ -380,9 +380,8 @@ class UnexpectedValueError(SerializationError):
     :param ~binobj.structures.Struct struct:
         The struct performing the serialization.
     :param name:
-        Either a string or an iterable of strings, each being the name of a
-        field that was unexpected. Don't pass :class:`~binobj.fields.base.Field`
-        instances.
+        Either a string or an iterable of strings, each being the name of a field that
+        was unexpected. Don't pass :class:`~binobj.fields.base.Field` instances.
     """
 
     def __init__(self, *, struct: "Struct", name: Union[str, Iterable[str]]):
@@ -447,8 +446,8 @@ class UnexpectedEOFError(DeserializationError):
     :param int size:
         The number of bytes that were attempted to be read.
     :param int offset:
-        The offset into the input stream/string where the error was encountered,
-        in bytes.
+        The offset into the input stream/string where the error was encountered, in
+        bytes.
     """
 
     def __init__(self, *, field: Optional["Field[Any]"], size: int, offset: int):

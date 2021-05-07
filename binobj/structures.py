@@ -172,8 +172,8 @@ def bind_validators_to_struct(namespace: StrDict, metadata: StructMetadata) -> N
             for field_name in item.field_names:
                 metadata.field_validators[field_name].append(item)
         else:
-            # Validator doesn't define any fields, must be a validator for
-            # the entire struct.
+            # Validator doesn't define any fields, must be a validator for the entire
+            # struct.
             metadata.struct_validators.append(item)
 
 
@@ -209,8 +209,8 @@ class StructMeta(abc.ABCMeta):
         metadata = StructMetadata(name=class_name)
 
         if struct_bases:
-            # Build a dictionary of all of the fields in the parent struct first,
-            # then add in the fields defined in this struct.
+            # Build a dictionary of all of the fields in the parent struct first, then
+            # add in the fields defined in this struct.
             base = typing.cast(Type["Struct"], struct_bases[0])
 
             for comp_name, item in base.__binobj_struct__.components.items():
@@ -317,14 +317,14 @@ class Struct(metaclass=StructMeta):
         :type: binobj.structures.StructMetadata
 
     .. versionchanged:: 0.5.0
-        A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if
-        and only if all of its fields are also undefined.
+        A Struct will compare equal to :data:`~binobj.fields.base.UNDEFINED` if and only
+        if all of its fields are also undefined.
 
     .. versionchanged:: 0.7.1
         Removed the private-ish ``__components__`` and ``__validators__`` attributes.
-        Field definitions, validators, and other metadata can be found in the
-        new ``__binobj_struct__`` class attribute. However, it should be considered
-        an implementation detail and is subject to change.
+        Field definitions, validators, and other metadata can be found in the new
+        ``__binobj_struct__`` class attribute. However, it should be considered an
+        implementation detail and is subject to change.
 
     .. versionchanged:: 0.10.0
         The ``__objclass__`` attribute is set on all fields.
@@ -369,8 +369,8 @@ class Struct(metaclass=StructMeta):
         :param BinaryIO stream:
             The stream to write the serialized data into.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         """
         self.validate_contents()
 
@@ -388,8 +388,8 @@ class Struct(metaclass=StructMeta):
         """Convert the given data into bytes.
 
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
 
         :return: The serialized data.
         :rtype: bytes
@@ -401,13 +401,12 @@ class Struct(metaclass=StructMeta):
     def to_dict(self, keep_discardable: bool = False) -> MutableMapping[str, Any]:
         """Convert this struct into an ordered dictionary.
 
-        The primary use for this method is converting a loaded :class:`Struct`
-        into native Python types. As such, validation is *not* performed since
-        that was done while loading.
+        The primary use for this method is converting a loaded :class:`Struct` into
+        native Python types. As such, validation is *not* performed since that was done
+        while loading.
 
         :param bool keep_discardable:
-            If True, don't exclude fields marked with ``discard=True`` from the
-            result.
+            If True, don't exclude fields marked with ``discard=True`` from the result.
 
         :rtype: collections.OrderedDict
 
@@ -415,13 +414,13 @@ class Struct(metaclass=StructMeta):
             One or more fields don't have assigned values.
 
         .. versionchanged:: 0.3.0
-            This now recursively calls :meth:`.to_dict` on all nested structs and
-            arrays so that the returned dictionary is completely converted, not
-            just the first level.
+            This now recursively calls :meth:`.to_dict` on all nested structs and arrays
+            so that the returned dictionary is completely converted, not just the first
+            level.
 
         .. versionchanged:: 0.6.0
-            Fields with ``discard`` set are not included in the returned dict
-            by default.
+            Fields with ``discard`` set are not included in the returned dict by
+            default.
 
         .. versionchanged:: 0.6.1
             The ``keep_discardable`` argument was added.
@@ -449,10 +448,10 @@ class Struct(metaclass=StructMeta):
             :meth:`~binobj.fields.base.Field.from_stream` methods. Subclasses must
             ignore anything they don't recognize.
         :param dict init_kwargs:
-            Additional keyword arguments to pass to the struct's constructor,
-            for subclasses that take additional arguments beyond the fields that
-            comprise the struct. You can also use this to *override* field values;
-            anything given in here takes precedence over loaded values.
+            Additional keyword arguments to pass to the struct's constructor, for
+            subclasses that take additional arguments beyond the fields that comprise
+            the struct. You can also use this to *override* field values; anything given
+            in here takes precedence over loaded values.
 
         :return: The loaded struct.
 
@@ -465,8 +464,8 @@ class Struct(metaclass=StructMeta):
             results = {}
 
         for name, field in cls.__binobj_struct__.components.items():
-            # We use setdefault() so we don't overwrite anything the caller may
-            # have passed to us in `init_kwargs`.
+            # We use setdefault() so we don't overwrite anything the caller may have
+            # passed to us in `init_kwargs`.
             results.setdefault(name, field.from_stream(stream, context, results))
 
         instance = cls(**results)
@@ -491,22 +490,20 @@ class Struct(metaclass=StructMeta):
         :param bytes data:
             A bytes-like object to get the data from.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param bool exact:
-            ``data`` must contain exactly the number of bytes required. If not
-            all the bytes in ``data`` were used when reading the struct, throw
-            an exception.
+            ``data`` must contain exactly the number of bytes required. If not all the
+            bytes in ``data`` were used when reading the struct, throw an exception.
         :param dict init_kwargs:
-            Additional keyword arguments to pass to the struct's constructor,
-            for subclasses that take additional arguments beyond the fields that
-            comprise the struct. You can also use this to *override* field values;
-            anything given in here takes precedence over loaded values.
+            Additional keyword arguments to pass to the struct's constructor, for
+            subclasses that take additional arguments beyond the fields that comprise
+            the struct. You can also use this to *override* field values; anything given
+            in here takes precedence over loaded values.
 
         :return: The loaded struct.
         :raise ExtraneousDataError:
-            ``exact`` is True and there's data left over at the end of the byte
-            string.
+            ``exact`` is True and there's data left over at the end of the byte string.
 
         .. versionadded:: 0.7.0
             The ``init_kwargs`` argument.
@@ -531,24 +528,22 @@ class Struct(metaclass=StructMeta):
     ) -> TStruct:
         """Partially load this object, either until EOF or the named field.
 
-        All fields up to and including the field named in ``last_field`` will be
-        loaded from ``stream``.
+        All fields up to and including the field named in ``last_field`` will be loaded
+        from ``stream``.
 
-        If ``last_field`` isn't given, as many complete fields as possible will
-        be loaded from ``stream``. Any partially loaded fields will be discarded
-        and the stream pointer will be reset to the end of the last complete
-        field read.
+        If ``last_field`` isn't given, as many complete fields as possible will be
+        loaded from ``stream``. Any partially loaded fields will be discarded and the
+        stream pointer will be reset to the end of the last complete field read.
 
         .. note::
-            Because the struct is only partially loaded, struct-level validators
-            are *not* executed. Individual fields still are.
+            Because the struct is only partially loaded, struct-level validators are
+            *not* executed. Individual fields still are.
 
         :param BinaryIO stream:
             The stream to load from.
         :param str last_field:
-            The name of the last field to load in the object. If given, enough
-            bytes for this and all previous fields *must* be present in the
-            stream.
+            The name of the last field to load in the object. If given, enough bytes for
+            this and all previous fields *must* be present in the stream.
         :param context:
             Any object containing extra information to pass to the fields'
             :meth:`~binobj.fields.base.Field.from_stream` method.
@@ -575,9 +570,9 @@ class Struct(metaclass=StructMeta):
                     # Hit EOF before we read all the fields we were supposed to.
                     raise
 
-                # Hit EOF in the middle of reading a field. Since the caller
-                # didn't specify how far we should read, this isn't an error. Go
-                # back to the beginning of this field and return.
+                # Hit EOF in the middle of reading a field. Since the caller didn't
+                # specify how far we should read, this isn't an error. Go back to the
+                # beginning of this field and return.
                 stream.seek(offset)
                 break
 
@@ -593,33 +588,31 @@ class Struct(metaclass=StructMeta):
     def get_field(cls, stream: BinaryIO, name: str, context: Any = None) -> Any:
         """Return the value of a single field.
 
-        If the field is at a fixed byte offset from the beginning of the struct,
-        it'll be read directly.
+        If the field is at a fixed byte offset from the beginning of the struct, it'll
+        be read directly.
 
-        If the field isn't at a fixed offset from the beginning of the struct
-        (e.g. a variable-length field occurs before it) then the entire struct
-        up to and including this field must be read. Unfortunately, this means
-        that unrelated validation errors can be thrown if other fields have
-        problems.
+        If the field isn't at a fixed offset from the beginning of the struct (e.g. a
+        variable-length field occurs before it) then the entire struct up to and
+        including this field must be read. Unfortunately, this means that unrelated
+        validation errors can be thrown if other fields have problems.
 
         :param BinaryIO stream:
-            The stream to read from. It's assumed that the stream pointer is
-            positioned at the start of a struct. The stream pointer is returned
-            to its original position even if an exception occurred.
+            The stream to read from. It's assumed that the stream pointer is positioned
+            at the start of a struct. The stream pointer is returned to its original
+            position even if an exception occurred.
         :param str name:
             The name of the field to retrieve.
         :param context:
             Optional. Any object containing extra information to pass to the
-            :meth:`~binobj.fields.base.Field.from_stream` method of the field.
-            For fields located at a variable offset, this will be passed to the
-            :meth:`~binobj.fields.base.Field.from_stream` method of *each* field
-            read.
+            :meth:`~binobj.fields.base.Field.from_stream` method of the field. For
+            fields located at a variable offset, this will be passed to the
+            :meth:`~binobj.fields.base.Field.from_stream` method of *each* field read.
 
         :return: The value of the field in the struct data.
 
         :raise UnexpectedEOFError:
-            The end of the stream was reached before the requested field could
-            be completely read.
+            The end of the stream was reached before the requested field could be
+            completely read.
         """
         if name not in cls.__binobj_struct__.components:
             raise ValueError("%s doesn't have a field named %r." % (cls.__name__, name))
@@ -627,8 +620,8 @@ class Struct(metaclass=StructMeta):
         field = cls.__binobj_struct__.components[name]
         original_offset = stream.tell()
 
-        # If the field is at a fixed offset from the beginning of the struct,
-        # then we can read and return it directly.
+        # If the field is at a fixed offset from the beginning of the struct, then we
+        # can read and return it directly.
         if field.offset is not None:
             try:
                 stream.seek(original_offset + field.offset)
@@ -636,10 +629,10 @@ class Struct(metaclass=StructMeta):
             finally:
                 stream.seek(original_offset)
 
-        # If we get here then the field is *not* at a fixed offset from the
-        # beginning of the struct and we have to read everything up to it. This
-        # can unfortunately result in validation errors if there is data before
-        # the desired field that's invalid.
+        # If we get here then the field is *not* at a fixed offset from the beginning of
+        # the struct and we have to read everything up to it. This can unfortunately
+        # result in validation errors if there is data before the desired field that's
+        # invalid.
         try:
             loaded_data = cls.partial_load(stream, name, context)
         finally:
@@ -654,8 +647,8 @@ class Struct(metaclass=StructMeta):
         All fields up to and including the field named in ``last_field`` will be
         serialized.
 
-        If ``last_field`` isn't given, as many fields will be serialized as
-        possible up to the first missing one.
+        If ``last_field`` isn't given, as many fields will be serialized as possible up
+        to the first missing one.
 
         :param BinaryIO stream:
             The stream to dump into.
@@ -670,13 +663,13 @@ class Struct(metaclass=StructMeta):
         for field in self.__binobj_struct__.components.values():
             value = data.get(field.name, field.default)
             if value is fields.UNDEFINED:
-                # Field is missing from the dump data. If the caller wants us to
-                # dump only the fields that're defined, we can bail out now.
+                # Field is missing from the dump data. If the caller wants us to dump
+                # only the fields that're defined, we can bail out now.
                 if last_field is None:
                     return
                 if field.required:
-                    # Caller wants us to dump up to and including ``last_field``
-                    # so we need to crash.
+                    # Caller wants us to dump up to and including ``last_field`` so we
+                    # need to crash.
                     raise errors.MissingRequiredValueError(field=field)
 
             field.to_stream(stream, value, context)

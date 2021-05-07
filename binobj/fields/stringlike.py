@@ -42,26 +42,25 @@ class String(Field[str]):
     """A fixed-length string.
 
     :param int size:
-        The field's size in *bytes*, not *characters*. For most text encodings
-        these are the same, but some encodings use multiple bytes per character.
+        The field's size in *bytes*, not *characters*. For most text encodings these are
+        the same, but some encodings use multiple bytes per character.
 
     :param str encoding:
-        The encoding to use for converting the string to and from bytes. Defaults
-        to `ISO 8859-1`_.
+        The encoding to use for converting the string to and from bytes. Defaults to
+        `ISO 8859-1`_.
 
     :param bytes pad_byte:
-        A single byte to use as padding for strings that are too short to fit
-        into the field. If not given, strings that aren't exactly ``size`` bytes
-        when encoded will trigger a :class:`~binobj.errors.ValueSizeError`.
+        A single byte to use as padding for strings that are too short to fit into the
+        field. If not given, strings that aren't exactly ``size`` bytes when encoded
+        will trigger a :class:`~binobj.errors.ValueSizeError`.
 
         .. versionadded:: 0.2.0
 
     .. note ::
         The ``utf-8-sig``, ``utf-16``, and ``utf-32`` codecs add a `byte order mark`_
-        (BOM) at the beginning of the string, so you'll need to take those
-        extra bytes into account when defining this field size. Alternatively,
-        you can use the codecs' variants that don't add the BOM, such as
-        ``utf-16-le`` or ``utf-16-be``.
+        (BOM) at the beginning of the string, so you'll need to take those extra bytes
+        into account when defining this field size. Alternatively, you can use the
+        codecs' variants that don't add the BOM, such as ``utf-16-le`` or ``utf-16-be``.
 
     .. _byte order mark: https://en.wikipedia.org/wiki/Byte_order_mark
     .. _ISO 8859-1: https://en.wikipedia.org/wiki/ISO/IEC_8859-1
@@ -154,8 +153,7 @@ class String(Field[str]):
 class StringZ(String):
     """A variable-length null-terminated string.
 
-    The terminating null is guaranteed to be the proper size for multi-byte
-    encodings.
+    The terminating null is guaranteed to be the proper size for multi-byte encodings.
     """
 
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> str:

@@ -1,9 +1,9 @@
 """Support for declaring fields in structs using `PEP 526`_ variable annotations.
 
-You can use the :func:`dataclass` decorator on your :class:`Struct`
+You can use the :func:`dataclass` decorator on your :class:`Struct`.
 
-If you use this decorator, *all* fields must be declared with PEP 526 annotations.
-You can't mix this system with the original assignment-based one.
+If you use this decorator, *all* fields must be declared with PEP 526 annotations. You
+can't mix this system with the original assignment-based one.
 
 Here are a few examples of how you can declare your fields::
 
