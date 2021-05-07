@@ -46,9 +46,9 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>callable</em>) – The validator to invoke for the named fields.</p></li>
-<li><p><strong>field_names</strong> – An iterable of strings; the names of the fields to be validated by
-<code class="docutils literal notranslate"><span class="pre">func</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code> or the iterable is empty, this validator method
-should be used to validate the entire struct, not just a field.</p></li>
+<li><p><strong>field_names</strong> – An iterable of strings; the names of the fields to be validated by <code class="docutils literal notranslate"><span class="pre">func</span></code>. If
+<code class="docutils literal notranslate"><span class="pre">None</span></code> or the iterable is empty, this validator method should be used to
+validate the entire struct, not just a field.</p></li>
 </ul>
 </dd>
 </dl>
@@ -72,14 +72,14 @@ should be used to validate the entire struct, not just a field.</p></li>
 </dl>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>If you specify multiple validator methods, the order in which they execute
-is <em>not</em> guaranteed. If you need a specific ordering of checks, you must
-put them in the same function.</p>
+<p>If you specify multiple validator methods, the order in which they execute is
+<em>not</em> guaranteed. If you need a specific ordering of checks, you must put them
+in the same function.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Only functions and instance methods are supported. Class methods and
-static methods will cause a crash.</p>
+<p>Only functions and instance methods are supported. Class methods and static
+methods will cause a crash.</p>
 </div>
 </dd></dl>
 
@@ -87,13 +87,13 @@ static methods will cause a crash.</p>
 <dt id="binobj.decorators.validates_struct">
 <code class="sig-name descname"><span class="pre">validates_struct</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Struct</span><span class="p"><span class="pre">,</span> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#binobj.decorators.ValidatorMethodWrapper" title="binobj.decorators.ValidatorMethodWrapper"><span class="pre">binobj.decorators.ValidatorMethodWrapper</span></a><a class="headerlink" href="#binobj.decorators.validates_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mark a method as a validator for the entire struct.</p>
-<p>The method being decorated should take a single argument aside from <code class="docutils literal notranslate"><span class="pre">self</span></code>,
-the dict to validate. The validator is invoked right after it’s been loaded,
-or right before it’s dumped.</p>
-<p>It’s highly inadvisable to modify the contents, because it’s easy to create
-invalid results. For example, if a struct has a field giving the length of
-the array and you change the length of that array, the length field <em>won’t</em>
-update to compensate. You must do that yourself.</p>
+<p>The method being decorated should take a single argument aside from <code class="docutils literal notranslate"><span class="pre">self</span></code>, the
+dict to validate. The validator is invoked right after it’s been loaded, or right
+before it’s dumped.</p>
+<p>It’s highly inadvisable to modify the contents, because it’s easy to create invalid
+results. For example, if a struct has a field giving the length of the array and you
+change the length of that array, the length field <em>won’t</em> update to compensate. You
+must do that yourself.</p>
 <p>Usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@validates_struct</span>
 <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct_dict</span><span class="p">):</span>
@@ -103,8 +103,8 @@ update to compensate. You must do that yourself.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Only functions and instance methods are supported. Class methods and
-static methods will cause a crash.</p>
+<p>Only functions and instance methods are supported. Class methods and static
+methods will cause a crash.</p>
 </div>
 </dd></dl>
 

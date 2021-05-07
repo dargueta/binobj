@@ -40,8 +40,7 @@
 <dl class="py data">
 <dt id="binobj.fields.base.DEFAULT">
 <code class="sig-name descname"><span class="pre">DEFAULT</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.DEFAULT" title="Permalink to this definition">¶</a></dt>
-<dd><p>A sentinel value used to indicate that the default value of a setting should
-be used.</p>
+<dd><p>A sentinel value used to indicate that the default value of a setting should be used.</p>
 <p>We need this because sometimes <code class="docutils literal notranslate"><span class="pre">None</span></code> is a valid value for that setting.</p>
 </dd></dl>
 
@@ -54,25 +53,24 @@ be used.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The name of the field.</p></li>
-<li><p><strong>const</strong> – <p>A constant value this field is expected to take. It will always have
-this value when dumped, and will fail validation if the field isn’t this
-value when loaded. Useful for reserved fields and file tags.</p>
-<p>This argument <em>must</em> be of the same type as the field, i.e. it must be
-a string for a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a>, an integer for
-an <a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a>, and so on.</p>
+<li><p><strong>const</strong> – <p>A constant value this field is expected to take. It will always have this value
+when dumped, and will fail validation if the field isn’t this value when loaded.
+Useful for reserved fields and file tags.</p>
+<p>This argument <em>must</em> be of the same type as the field, i.e. it must be a string
+for a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a>, an integer for an
+<a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a>, and so on.</p>
 </p></li>
-<li><p><strong>default</strong> – <p>The default value to use if a value for this field isn’t passed to the
-struct for serialization, or a callable taking no arguments that will
-return a default value.</p>
-<p>This argument (or the return value of the callable) <em>must</em> be of the
-same type as the field, i.e. it must be a string for a
+<li><p><strong>default</strong> – <p>The default value to use if a value for this field isn’t passed to the struct
+for serialization, or a callable taking no arguments that will return a default
+value.</p>
+<p>This argument (or the return value of the callable) <em>must</em> be of the same type
+as the field, i.e. it must be a string for a
 <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a>, an integer for an
 <a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a>, and so on.</p>
 </p></li>
-<li><p><strong>discard</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <p>When deserializing, don’t include this field in the returned results.
-This means that you won’t be able to use the value for anything later.
-For example, if you need to reference it in a <code class="docutils literal notranslate"><span class="pre">present</span></code> function like
-so:</p>
+<li><p><strong>discard</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <p>When deserializing, don’t include this field in the returned results. This means
+that you won’t be able to use the value for anything later. For example, if you
+need to reference it in a <code class="docutils literal notranslate"><span class="pre">present</span></code> function like so:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name_size</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">UInt16</span><span class="p">(</span><span class="n">discard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">filename</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 <span class="n">_filename_padding</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Bytes</span><span class="p">(</span>
@@ -80,8 +78,7 @@ so:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>this will crash with a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code></a> because <code class="docutils literal notranslate"><span class="pre">name_size</span></code> was
-discarded.</p>
+<p>this will crash with a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code></a> because <code class="docutils literal notranslate"><span class="pre">name_size</span></code> was discarded.</p>
 </p></li>
 <li><p><strong>null_value</strong> – <p>Either a byte string or a value to use to represent <code class="docutils literal notranslate"><span class="pre">None</span></code> in serialized data.</p>
 <p>When loading, the returned value will be <code class="docutils literal notranslate"><span class="pre">None</span></code> if this exact sequence of
@@ -99,31 +96,29 @@ instance, except used for references in the same class or a field defined in
 the superclass.</p></li>
 </ul>
 </p></li>
-<li><p><strong>validate</strong> – A callable or list of callables that validates a given value for this
-field. The callable(s) will always be passed the deserialized value, so
-a validator for an <a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a> field will
-always be passed an integer, a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a>
-validator will always be passed a string, and so on.</p></li>
+<li><p><strong>validate</strong> – A callable or list of callables that validates a given value for this field. The
+callable(s) will always be passed the deserialized value, so a validator for an
+<a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a> field will always be passed an integer,
+a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a> validator will always be passed a
+string, and so on.</p></li>
 <li><p><strong>present</strong> (<em>callable</em>) – <p>Optional. A callable that, when called with the struct as its argument,
-returns a boolean indicating if this field is “present” and should be
-loaded or dumped. For example, if we have a <code class="docutils literal notranslate"><span class="pre">flags</span></code> field that’s a
-bitmap indicating what fields come next, we could have something like
-this:</p>
+returns a boolean indicating if this field is “present” and should be loaded or
+dumped. For example, if we have a <code class="docutils literal notranslate"><span class="pre">flags</span></code> field that’s a bitmap indicating
+what fields come next, we could have something like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">flags</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">UInt16</span><span class="p">()</span>
 <span class="n">foo</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">present</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;flags&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x8000</span><span class="p">)</span>
 <span class="n">bar</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">present</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;flags&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x4000</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Thus, if and only if <code class="docutils literal notranslate"><span class="pre">flags</span></code> has bit 15 set, <code class="docutils literal notranslate"><span class="pre">foo</span></code> will be read from
-the stream next. If <code class="docutils literal notranslate"><span class="pre">flags</span></code> has bit 15 clear, <code class="docutils literal notranslate"><span class="pre">foo</span></code> will be assigned
-the field’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">not_present_value</span></code> (defaults to <a class="reference internal" href="#binobj.fields.base.NOT_PRESENT" title="binobj.fields.base.NOT_PRESENT"><code class="xref py py-data docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a>).</p>
+<p>Thus, if and only if <code class="docutils literal notranslate"><span class="pre">flags</span></code> has bit 15 set, <code class="docutils literal notranslate"><span class="pre">foo</span></code> will be read from the
+stream next. If <code class="docutils literal notranslate"><span class="pre">flags</span></code> has bit 15 clear, <code class="docutils literal notranslate"><span class="pre">foo</span></code> will be assigned the field’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">not_present_value</span></code> (defaults to <a class="reference internal" href="#binobj.fields.base.NOT_PRESENT" title="binobj.fields.base.NOT_PRESENT"><code class="xref py py-data docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a>).</p>
 <p>The callable takes three positional arguments:</p>
 <ul>
-<li><p>A dict of the fields that have already been loaded or are about to be
-dumped.</p></li>
+<li><p>A dict of the fields that have already been loaded or are about to be dumped.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">context</span></code> object passed to <a class="reference internal" href="#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> or <a class="reference internal" href="#binobj.fields.base.Field.to_stream" title="binobj.fields.base.Field.to_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_stream()</span></code></a>.</p></li>
-<li><p>When loading, the stream being loaded from. The stream pointer MUST
-be reset to its original position before the function returns.</p></li>
+<li><p>When loading, the stream being loaded from. The stream pointer MUST be reset
+to its original position before the function returns.</p></li>
 </ul>
 </p></li>
 <li><p><strong>not_present_value</strong> – A custom value to return if a field is missing when loading (see the <code class="docutils literal notranslate"><span class="pre">present</span></code>
@@ -148,9 +143,8 @@ for a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.f
 <dl class="py attribute">
 <dt id="binobj.fields.base.Field.offset">
 <code class="sig-name descname"><span class="pre">offset</span></code><a class="headerlink" href="#binobj.fields.base.Field.offset" title="Permalink to this definition">¶</a></dt>
-<dd><p>The zero-based byte offset of the field in the struct. If the offset
-can’t be computed (e.g. it’s preceded by a variable-length field), this
-will be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dd><p>The zero-based byte offset of the field in the struct. If the offset can’t be
+computed (e.g. it’s preceded by a variable-length field), this will be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
@@ -174,8 +168,8 @@ used to be only supported by some fields, with others left out by accident.</p><
 </ul>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.9.0: </span><code class="docutils literal notranslate"><span class="pre">null_value</span></code> can now also be a deserialized value. For example, you could
-pass r”\N” for a string or 0 for an integer.</p>
+<p><span class="versionmodified changed">Changed in version 0.9.0: </span><code class="docutils literal notranslate"><span class="pre">null_value</span></code> can now also be a deserialized value. For example, you could pass
+r”\N” for a string or 0 for an integer.</p>
 </div>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.9.0: </span>Passing <a class="reference internal" href="#binobj.fields.base.DEFAULT" title="binobj.fields.base.DEFAULT"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT</span></code></a> to <code class="docutils literal notranslate"><span class="pre">null_value</span></code> for unsized fields such as
@@ -205,9 +199,9 @@ in the stream when loading.</p>
 <li><p><strong>struct_info</strong> (<em>binobj.structures.StructMetadata</em>) – The metadata object describing the Struct this field will be bound into.</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The name of this field.</p></li>
 <li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of this field in the container.</p></li>
-<li><p><strong>offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The byte offset of this field in the container, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if
-unknown. This is usually equal to the sum of the sizes of the fields
-preceding this one in the container.</p></li>
+<li><p><strong>offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The byte offset of this field in the container, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if unknown. This
+is usually equal to the sum of the sizes of the fields preceding this one in
+the container.</p></li>
 </ul>
 </dd>
 </dl>
@@ -225,15 +219,15 @@ preceding this one in the container.</p></li>
 <dd class="field-odd"><p><strong>all_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – The dictionary of all the field data that’s about to be dumped.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The value the dumper will use for this field, or <a class="reference internal" href="#binobj.fields.base.NOT_PRESENT" title="binobj.fields.base.NOT_PRESENT"><code class="xref py py-data docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a>
-if the field shouldn’t be serialized. It <em>will not</em> return
+<dd class="field-even"><p>The value the dumper will use for this field, or <a class="reference internal" href="#binobj.fields.base.NOT_PRESENT" title="binobj.fields.base.NOT_PRESENT"><code class="xref py py-data docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a> if the
+field shouldn’t be serialized. It <em>will not</em> return
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">not_present_value</span></code> in this case, as the field should not be dumped
 at all.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.MissingRequiredValueError" title="binobj.errors.MissingRequiredValueError"><strong>MissingRequiredValueError</strong></a> – No value could be derived for this field. It’s missing in the input
-data, there’s no default defined, and it doesn’t have a compute
-function defined either.</p>
+<dd class="field-odd"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.MissingRequiredValueError" title="binobj.errors.MissingRequiredValueError"><strong>MissingRequiredValueError</strong></a> – No value could be derived for this field. It’s missing in the input data,
+there’s no default defined, and it doesn’t have a compute function defined
+either.</p>
 </dd>
 </dl>
 <div class="versionadded">
@@ -253,16 +247,16 @@ instead of returning <a class="reference internal" href="#binobj.fields.base.UND
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.0: </span>This decorator will be moved to <a class="reference internal" href="binobj.decorators.html#module-binobj.decorators" title="binobj.decorators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">binobj.decorators</span></code></a>.</p>
 </div>
-<p>You can use this for automatically assigning values based on other fields.
-For example, suppose we have this struct:</p>
+<p>You can use this for automatically assigning values based on other fields. For
+example, suppose we have this struct:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyStruct</span><span class="p">(</span><span class="n">Struct</span><span class="p">):</span>
     <span class="n">n_numbers</span> <span class="o">=</span> <span class="n">UInt8</span><span class="p">()</span>
     <span class="n">numbers</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">UInt8</span><span class="p">(),</span> <span class="n">count</span><span class="o">=</span><span class="n">n_numbers</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This works great for loading, but when we’re dumping we have to pass in a
-value for <code class="docutils literal notranslate"><span class="pre">n_numbers</span></code> explicitly. We can use the <code class="docutils literal notranslate"><span class="pre">computes</span></code> decorator
-to relieve us of that burden:</p>
+<p>This works great for loading, but when we’re dumping we have to pass in a value
+for <code class="docutils literal notranslate"><span class="pre">n_numbers</span></code> explicitly. We can use the <code class="docutils literal notranslate"><span class="pre">computes</span></code> decorator to relieve
+us of that burden:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyStruct</span><span class="p">(</span><span class="n">Struct</span><span class="p">):</span>
     <span class="n">n_numbers</span> <span class="o">=</span> <span class="n">UInt8</span><span class="p">()</span>
     <span class="n">numbers</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">UInt8</span><span class="p">(),</span> <span class="n">count</span><span class="o">=</span><span class="n">n_numbers</span><span class="p">)</span>
@@ -280,9 +274,9 @@ to relieve us of that burden:</p>
 <li><p>The field has a <code class="docutils literal notranslate"><span class="pre">default</span></code> or <code class="docutils literal notranslate"><span class="pre">const</span></code> value.</p></li>
 </ul>
 </li>
-<li><p>Computed fields are executed in the order that the fields are dumped,
-so a computed field must <em>not</em> rely on the value of another computed
-field occurring after it.</p></li>
+<li><p>Computed fields are executed in the order that the fields are dumped, so a
+computed field must <em>not</em> rely on the value of another computed field
+occurring after it.</p></li>
 </ul>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.3.0.</span></p>
@@ -293,12 +287,12 @@ field occurring after it.</p></li>
 <dt id="binobj.fields.base.Field.default">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">default</span></code><a class="headerlink" href="#binobj.fields.base.Field.default" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default value of this field, or <a class="reference internal" href="#binobj.fields.base.UNDEFINED" title="binobj.fields.base.UNDEFINED"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a>.</p>
-<p>If the default value passed to the constructor was a callable, this
-property will always give its return value. That callable is invoked on
-each access of this property.</p>
+<p>If the default value passed to the constructor was a callable, this property
+will always give its return value. That callable is invoked on each access of
+this property.</p>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.6.1: </span>If no default is defined but <code class="docutils literal notranslate"><span class="pre">const</span></code> is, this property returns
-the value for <code class="docutils literal notranslate"><span class="pre">const</span></code>.</p>
+<p><span class="versionmodified changed">Changed in version 0.6.1: </span>If no default is defined but <code class="docutils literal notranslate"><span class="pre">const</span></code> is, this property returns the value
+for <code class="docutils literal notranslate"><span class="pre">const</span></code>.</p>
 </div>
 </dd></dl>
 
@@ -310,13 +304,12 @@ the value for <code class="docutils literal notranslate"><span class="pre">const
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – A bytes-like object to get the data from.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore
-anything they don’t recognize.</p></li>
-<li><p><strong>exact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <code class="docutils literal notranslate"><span class="pre">data</span></code> must contain exactly the number of bytes required. If not
-all the bytes in <code class="docutils literal notranslate"><span class="pre">data</span></code> were used when reading the struct, throw
-an exception.</p></li>
-<li><p><strong>loaded_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields that have already been loaded. This is
-set automatically when a field is loaded by a
+<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
+don’t recognize.</p></li>
+<li><p><strong>exact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <code class="docutils literal notranslate"><span class="pre">data</span></code> must contain exactly the number of bytes required. If not all the
+bytes in <code class="docutils literal notranslate"><span class="pre">data</span></code> were used when reading the struct, throw an exception.</p></li>
+<li><p><strong>loaded_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields that have already been loaded. This is set
+automatically when a field is loaded by a
 <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>.</p></li>
 </ul>
 </dd>
@@ -334,10 +327,10 @@ set automatically when a field is loaded by a
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to load data from.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore
-anything they don’t recognize.</p></li>
-<li><p><strong>loaded_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields that have already been loaded. This is
-set automatically when a field is loaded by a
+<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
+don’t recognize.</p></li>
+<li><p><strong>loaded_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields that have already been loaded. This is set
+automatically when a field is loaded by a
 <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>.</p></li>
 </ul>
 </dd>
@@ -363,8 +356,8 @@ set automatically when a field is loaded by a
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="binobj.errors.html#binobj.errors.MissingRequiredValueError" title="binobj.errors.MissingRequiredValueError"><strong>MissingRequiredValueError</strong></a> – The field’s size references another field but the other field is
-missing from <code class="docutils literal notranslate"><span class="pre">field_values</span></code>.</p></li>
+<li><p><a class="reference internal" href="binobj.errors.html#binobj.errors.MissingRequiredValueError" title="binobj.errors.MissingRequiredValueError"><strong>MissingRequiredValueError</strong></a> – The field’s size references another field but the other field is missing
+from <code class="docutils literal notranslate"><span class="pre">field_values</span></code>.</p></li>
 <li><p><a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><strong>UndefinedSizeError</strong></a> – The field doesn’t have a defined size nor refers to another field to
 determine its size.</p></li>
 </ul>
@@ -412,12 +405,12 @@ need to implement <code class="xref py py-meth docutils literal notranslate"><sp
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – The data to dump. Can be omitted only if this is a constant field or
-a default value is defined.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore
-anything they don’t recognize.</p></li>
-<li><p><strong>all_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields about to be dumped. This is automatically
-set by the field’s containing <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>.</p></li>
+<li><p><strong>data</strong> – The data to dump. Can be omitted only if this is a constant field or a
+default value is defined.</p></li>
+<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
+don’t recognize.</p></li>
+<li><p><strong>all_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields about to be dumped. This is automatically set by
+the field’s containing <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -437,12 +430,12 @@ set by the field’s containing <a class="reference internal" href="binobj.struc
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to write the serialized data into.</p></li>
-<li><p><strong>data</strong> – The data to dump. Can be omitted only if this is a constant field or
-if a default value is defined.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore
-anything they don’t recognize.</p></li>
-<li><p><strong>all_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields about to be dumped. This is automatically
-set by the field’s containing <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>.</p></li>
+<li><p><strong>data</strong> – The data to dump. Can be omitted only if this is a constant field or if a
+default value is defined.</p></li>
+<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
+don’t recognize.</p></li>
+<li><p><strong>all_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the fields about to be dumped. This is automatically set by
+the field’s containing <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>

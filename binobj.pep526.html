@@ -37,9 +37,9 @@
   <div class="section" id="module-binobj.pep526">
 <span id="binobj-pep526-module"></span><h1>binobj.pep526 module<a class="headerlink" href="#module-binobj.pep526" title="Permalink to this headline">¶</a></h1>
 <p>Support for declaring fields in structs using <a class="reference external" href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a> variable annotations.</p>
-<p>You can use the <a class="reference internal" href="#binobj.pep526.dataclass" title="binobj.pep526.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> decorator on your <code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></p>
-<p>If you use this decorator, <em>all</em> fields must be declared with PEP 526 annotations.
-You can’t mix this system with the original assignment-based one.</p>
+<p>You can use the <a class="reference internal" href="#binobj.pep526.dataclass" title="binobj.pep526.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> decorator on your <code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code>.</p>
+<p>If you use this decorator, <em>all</em> fields must be declared with PEP 526 annotations. You
+can’t mix this system with the original assignment-based one.</p>
 <p>Here are a few examples of how you can declare your fields:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@binobj</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">MyStruct</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>

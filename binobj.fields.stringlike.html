@@ -52,13 +52,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The field’s size in <em>bytes</em>, not <em>characters</em>. For most text encodings
-these are the same, but some encodings use multiple bytes per character.</p></li>
-<li><p><strong>encoding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The encoding to use for converting the string to and from bytes. Defaults
-to <a class="reference external" href="https://en.wikipedia.org/wiki/ISO/IEC_8859-1">ISO 8859-1</a>.</p></li>
-<li><p><strong>pad_byte</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – <p>A single byte to use as padding for strings that are too short to fit
-into the field. If not given, strings that aren’t exactly <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes
-when encoded will trigger a <a class="reference internal" href="binobj.errors.html#binobj.errors.ValueSizeError" title="binobj.errors.ValueSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSizeError</span></code></a>.</p>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The field’s size in <em>bytes</em>, not <em>characters</em>. For most text encodings these are
+the same, but some encodings use multiple bytes per character.</p></li>
+<li><p><strong>encoding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The encoding to use for converting the string to and from bytes. Defaults to
+<a class="reference external" href="https://en.wikipedia.org/wiki/ISO/IEC_8859-1">ISO 8859-1</a>.</p></li>
+<li><p><strong>pad_byte</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – <p>A single byte to use as padding for strings that are too short to fit into the
+field. If not given, strings that aren’t exactly <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes when encoded
+will trigger a <a class="reference internal" href="binobj.errors.html#binobj.errors.ValueSizeError" title="binobj.errors.ValueSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSizeError</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.2.0.</span></p>
 </div>
@@ -69,10 +69,9 @@ when encoded will trigger a <a class="reference internal" href="binobj.errors.ht
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">utf-8-sig</span></code>, <code class="docutils literal notranslate"><span class="pre">utf-16</span></code>, and <code class="docutils literal notranslate"><span class="pre">utf-32</span></code> codecs add a <a class="reference external" href="https://en.wikipedia.org/wiki/Byte_order_mark">byte order mark</a>
-(BOM) at the beginning of the string, so you’ll need to take those
-extra bytes into account when defining this field size. Alternatively,
-you can use the codecs’ variants that don’t add the BOM, such as
-<code class="docutils literal notranslate"><span class="pre">utf-16-le</span></code> or <code class="docutils literal notranslate"><span class="pre">utf-16-be</span></code>.</p>
+(BOM) at the beginning of the string, so you’ll need to take those extra bytes
+into account when defining this field size. Alternatively, you can use the
+codecs’ variants that don’t add the BOM, such as <code class="docutils literal notranslate"><span class="pre">utf-16-le</span></code> or <code class="docutils literal notranslate"><span class="pre">utf-16-be</span></code>.</p>
 </div>
 </dd></dl>
 
@@ -81,8 +80,7 @@ you can use the codecs’ variants that don’t add the BOM, such as
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">StringZ</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.StringZ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</p>
 <p>A variable-length null-terminated string.</p>
-<p>The terminating null is guaranteed to be the proper size for multi-byte
-encodings.</p>
+<p>The terminating null is guaranteed to be the proper size for multi-byte encodings.</p>
 </dd></dl>
 
 </div>

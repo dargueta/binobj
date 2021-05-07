@@ -58,23 +58,22 @@
 <em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">ConfigurationError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Field</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Struct</span><span class="p"><span class="pre">,</span> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Struct</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.errors.ConfigurationError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#binobj.errors.Error" title="binobj.errors.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.errors.Error</span></code></a></p>
 <p>A field, struct, or other object was misconfigured.</p>
-<p>At least one of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments must
-be passed to the constructor.</p>
+<p>At least one of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments must be
+passed to the constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Optional. A description of what’s wrong. If not given, a generic error
-message will be chosen depending on which of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>,
-or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments is passed.</p></li>
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Optional. A description of what’s wrong. If not given, a generic error message
+will be chosen depending on which of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code>
+keyword arguments is passed.</p></li>
 <li><p><strong>field</strong> – The misconfigured <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or its name.</p></li>
 <li><p><strong>struct</strong> – The misconfigured <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> or its name.</p></li>
-<li><p><strong>obj</strong> – If the misconfigured object is neither a field nor a struct, pass it or
-its name here.</p></li>
+<li><p><strong>obj</strong> – If the misconfigured object is neither a field nor a struct, pass it or its name
+here.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – None of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments were
-passed.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – None of the <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">struct</span></code>, or <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments were passed.</p>
 </dd>
 </dl>
 <div class="versionadded">
@@ -164,15 +163,14 @@ passed.</p>
 <p>Cannot assign to an immutable or computed field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>field</strong> (<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><em>Field</em></a>) – <p>The field an attempt was made to be assigned to.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.6.1.</span></p>
-</div>
-</p>
+<dd class="field-odd"><p><strong>field</strong> (<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><em>Field</em></a>) – The field an attempt was made to be assigned to.</p>
 </dd>
 </dl>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.4.1.</span></p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.6.1: </span>The <code class="docutils literal notranslate"><span class="pre">field</span></code> argument.</p>
 </div>
 </dd></dl>
 
@@ -224,8 +222,8 @@ Python’s MRO.</p>
 <p>The size of the field couldn’t be determined, possibly due to misconfiguration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>field</strong> – The <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> that’s missing its size, or the name
-of that field.</p>
+<dd class="field-odd"><p><strong>field</strong> – The <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> that’s missing its size, or the name of
+that field.</p>
 </dd>
 </dl>
 <div class="versionadded">
@@ -243,8 +241,8 @@ of that field.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>field</strong> (<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><em>Field</em></a>) – The field that failed to be deserialized.</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes that were attempted to be read.</p></li>
-<li><p><strong>offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The offset into the input stream/string where the error was encountered,
-in bytes.</p></li>
+<li><p><strong>offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The offset into the input stream/string where the error was encountered, in
+bytes.</p></li>
 </ul>
 </dd>
 </dl>
@@ -259,9 +257,8 @@ in bytes.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct</strong> (<a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><em>Struct</em></a>) – The struct performing the serialization.</p></li>
-<li><p><strong>name</strong> – Either a string or an iterable of strings, each being the name of a
-field that was unexpected. Don’t pass <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>
-instances.</p></li>
+<li><p><strong>name</strong> – Either a string or an iterable of strings, each being the name of a field that
+was unexpected. Don’t pass <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instances.</p></li>
 </ul>
 </dd>
 </dl>

@@ -46,12 +46,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>format_string</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The <a class="reference external" href="https://docs.python.org/3/library/struct.html#format-characters">format character</a> used by the <a class="reference external" href="https://docs.python.org/3/library/struct.html#module-struct" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">struct</span></code></a> library to load and
-dump this floating-point number. Can be “f” (32 bits) or “d” (64 bits);
-Python 3.6 and up support “e” (16 bits). Any other values will cause an
-error.</p></li>
-<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use to load/store the float. Either “big” or “little”.
-If not given, defaults to the system’s native byte ordering as given by
+<li><p><strong>format_string</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The <a class="reference external" href="https://docs.python.org/3/library/struct.html#format-characters">format character</a> used by the <a class="reference external" href="https://docs.python.org/3/library/struct.html#module-struct" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">struct</span></code></a> library to load and dump this
+floating-point number. Can be “f” (32 bits) or “d” (64 bits); Python 3.6 and up
+support “e” (16 bits). Any other values will cause an error.</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use to load/store the float. Either “big” or “little”. If not
+given, defaults to the system’s native byte ordering as given by
 <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
 </ul>
 </dd>
@@ -65,8 +64,8 @@ If not given, defaults to the system’s native byte ordering as given by
 <p>A half-precision floating-point number in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Half-precision_floating-point_format">binary16</a> format.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This format is only supported on Python 3.6 and newer. Using this field
-in older versions of Python will crash.</p>
+<p>This format is only supported on Python 3.6 and newer. Using this field in older
+versions of Python will crash.</p>
 </div>
 </dd></dl>
 
@@ -117,13 +116,13 @@ in older versions of Python will crash.</p>
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Integer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Integer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A two’s-complement integer of some fixed size.</p>
-<p>This class is typically not used directly, except for integers with sizes
-that aren’t powers of two, e.g. for a 24-bit number.</p>
+<p>This class is typically not used directly, except for integers with sizes that
+aren’t powers of two, e.g. for a 24-bit number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use to load/store the integer. Either ‘big’ or ‘little’.
-If not given, defaults to the system’s native byte ordering as given by
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use to load/store the integer. Either ‘big’ or ‘little’. If
+not given, defaults to the system’s native byte ordering as given by
 <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
 <li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Indicates if this number is a two’s-complement signed or unsigned integer.
 Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> (signed). <a class="reference external" href="https://en.wikipedia.org/wiki/Signed_number_representations">Signed formats</a> other than two’s-complement
@@ -145,21 +144,20 @@ such as sign-magnitude are not supported.</p></li>
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Timestamp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>]</p>
 <p>A timestamp stored as an integer offset from the <a class="reference external" href="https://en.wikipedia.org/wiki/Unix_time">Unix epoch</a>.</p>
-<p>Timestamps are stored in UTC. When dumping, naive datetimes are assumed to
-be in the local timezone; when loading and <code class="docutils literal notranslate"><span class="pre">tz_aware</span></code> is False, loaded
-datetimes are in the local timezone.</p>
-<p>This class is typically not used directly, except for timestamps with sizes
-that aren’t powers of two, e.g. the 96-bit timestamps used by Amazon
-Redshift.</p>
+<p>Timestamps are stored in UTC. When dumping, naive datetimes are assumed to be in the
+local timezone; when loading and <code class="docutils literal notranslate"><span class="pre">tz_aware</span></code> is False, loaded datetimes are in the
+local timezone.</p>
+<p>This class is typically not used directly, except for timestamps with sizes that
+aren’t powers of two, e.g. the 96-bit timestamps used by Amazon Redshift.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The resolution timestamps will be stored with. Accepted values are “s”,
-“ms”, “us” (microseconds), and “ns”. Note that Python’s
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> objects don’t support nanosecond resolution.</p></li>
+<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The resolution timestamps will be stored with. Accepted values are “s”, “ms”,
+“us” (microseconds), and “ns”. Note that Python’s <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>
+objects don’t support nanosecond resolution.</p></li>
 <li><p><strong>tz_aware</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – <p>Controls whether loads return timezone-aware or naive
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>s. Loaded timestamps are naive by default,
-and in the platform’s local timezone.</p>
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>s. Loaded timestamps are naive by default, and in
+the platform’s local timezone.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="n">Timestamp32</span><span class="p">(</span><span class="n">tz_aware</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">field</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xa3\xc3\x55\x5c</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="go">datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)</span>
@@ -253,8 +251,8 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">UnsignedInteger</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>An unsigned two’s-complement integer of some fixed size.</p>
-<p>This class is typically not used directly, except for integers with sizes
-that aren’t powers of two, e.g. for a 24-bit number.</p>
+<p>This class is typically not used directly, except for integers with sizes that
+aren’t powers of two, e.g. for a 24-bit number.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
@@ -270,8 +268,8 @@ that aren’t powers of two, e.g. for a 24-bit number.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vli_format</strong> (<a class="reference internal" href="binobj.varints.html#binobj.varints.VarIntEncoding" title="binobj.varints.VarIntEncoding"><em>VarIntEncoding</em></a>) – Required. The encoding to use for the variable-length integer.</p></li>
-<li><p><strong>max_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum number of bytes to use for encoding this integer. If not
-given, there’s no restriction on the size.</p></li>
+<li><p><strong>max_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum number of bytes to use for encoding this integer. If not given,
+there’s no restriction on the size.</p></li>
 </ul>
 </dd>
 </dl>

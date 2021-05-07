@@ -46,33 +46,33 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><em>Field</em></a>) – The component this array is comprised of. Must be an instance.</p></li>
-<li><p><strong>count</strong> – <p>Optional. Some way of indicating the number of elements in this array.
-The value for this argument can be one of the following:</p>
+<li><p><strong>count</strong> – <p>Optional. Some way of indicating the number of elements in this array. The value
+for this argument can be one of the following:</p>
 <ul>
 <li><p>An integer. The array always contains this many elements.</p></li>
-<li><p>A <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance that must 1) be an
-integer; 2) occur before this array in the same struct.</p></li>
-<li><p>A string naming a field fitting the above criteria. You’ll need this
-if your size field’s name is a Python keyword.</p></li>
+<li><p>A <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance that must 1) be an integer;
+2) occur before this array in the same struct.</p></li>
+<li><p>A string naming a field fitting the above criteria. You’ll need this if your
+size field’s name is a Python keyword.</p></li>
 </ul>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.3.0: </span><code class="docutils literal notranslate"><span class="pre">count</span></code> can now be a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or string.</p>
-</div>
 </p></li>
-<li><p><strong>halt_check</strong> (<em>callable</em>) – A function taking five arguments. See <a class="reference internal" href="#binobj.fields.containers.Array.should_halt" title="binobj.fields.containers.Array.should_halt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">should_halt()</span></code></a> for the
-default implementation. Subclasses can override this function if desired
-to avoid having to pass in a custom function every time.</p></li>
+<li><p><strong>halt_check</strong> (<em>callable</em>) – A function taking five arguments. See <a class="reference internal" href="#binobj.fields.containers.Array.should_halt" title="binobj.fields.containers.Array.should_halt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">should_halt()</span></code></a> for the default
+implementation. Subclasses can override this function if desired to avoid having
+to pass in a custom function every time.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.3.0: </span><code class="docutils literal notranslate"><span class="pre">count</span></code> can now be a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or string.</p>
+</div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 0.6.1: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.to_stream" title="binobj.fields.base.Field.to_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_stream()</span></code></a> and <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.to_bytes" title="binobj.fields.base.Field.to_bytes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_bytes()</span></code></a>
 throw an <a class="reference internal" href="binobj.errors.html#binobj.errors.ArraySizeError" title="binobj.errors.ArraySizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArraySizeError</span></code></a> if <code class="docutils literal notranslate"><span class="pre">count</span></code> is set and the iterable
 passed in is too long. Due to a bug it used to be ignored when dumping.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.7.0: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size" title="binobj.fields.base.Field.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> is set if <code class="docutils literal notranslate"><span class="pre">component.size</span></code> is defined and <code class="docutils literal notranslate"><span class="pre">count</span></code> is
-an integer constant.</p>
+<p><span class="versionmodified changed">Changed in version 0.7.0: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size" title="binobj.fields.base.Field.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> is set if <code class="docutils literal notranslate"><span class="pre">component.size</span></code> is defined and <code class="docutils literal notranslate"><span class="pre">count</span></code> is an
+integer constant.</p>
 </div>
 <dl class="py method">
 <dt id="binobj.fields.containers.Array.get_final_element_count">
@@ -80,13 +80,13 @@ an integer constant.</p>
 <dd><p>Calculate the number of elements in the array based on other fields’ values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>field_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dict mapping field names to their deserialized values. It doesn’t
-need to have every value in the struct; if <code class="xref py py-attr docutils literal notranslate"><span class="pre">count</span></code> references a
-field, it only requires that field to be present here.</p>
+<dd class="field-odd"><p><strong>field_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dict mapping field names to their deserialized values. It doesn’t need to
+have every value in the struct; if <code class="xref py py-attr docutils literal notranslate"><span class="pre">count</span></code> references a field, it only
+requires that field to be present here.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The expected number of elements in this array, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the
-array doesn’t have a fixed size.</p>
+<dd class="field-even"><p>The expected number of elements in this array, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the array
+doesn’t have a fixed size.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
@@ -105,19 +105,19 @@ doesn’t have an assigned name.</p>
 <dt id="binobj.fields.containers.Array.should_halt">
 <em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">should_halt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><span class="pre">binobj.fields.containers.Array</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><a class="headerlink" href="#binobj.fields.containers.Array.should_halt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if the deserializer should stop reading from the input.</p>
-<p>This function should return <code class="docutils literal notranslate"><span class="pre">True</span></code> to indicate loading for this field
-should stop, or <code class="docutils literal notranslate"><span class="pre">False</span></code> to continue adding elements.</p>
+<p>This function should return <code class="docutils literal notranslate"><span class="pre">True</span></code> to indicate loading for this field should
+stop, or <code class="docutils literal notranslate"><span class="pre">False</span></code> to continue adding elements.</p>
 <p>The default implementation does the following:</p>
 <ul class="simple">
-<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is an integer, it compares <code class="docutils literal notranslate"><span class="pre">count</span></code> against the length
-of <code class="docutils literal notranslate"><span class="pre">values</span></code>. If <code class="docutils literal notranslate"><span class="pre">len(values)</span></code> is equal to or more than <code class="docutils literal notranslate"><span class="pre">count</span></code>
-it’ll return <code class="docutils literal notranslate"><span class="pre">True</span></code> (halt), <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is an integer, it compares <code class="docutils literal notranslate"><span class="pre">count</span></code> against the length of
+<code class="docutils literal notranslate"><span class="pre">values</span></code>. If <code class="docutils literal notranslate"><span class="pre">len(values)</span></code> is equal to or more than <code class="docutils literal notranslate"><span class="pre">count</span></code> it’ll return
+<code class="docutils literal notranslate"><span class="pre">True</span></code> (halt), <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
 <li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>, that field should
-already have been loaded and in <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>. The expected array
-size is taken from there, and compared as above.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is a string, it’s the name of a field already loaded and
-in <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>. The expected array size is taken from there, and
-compared as above.</p></li>
+already have been loaded and in <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>. The expected array size is
+taken from there, and compared as above.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is a string, it’s the name of a field already loaded and in
+<code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>. The expected array size is taken from there, and compared
+as above.</p></li>
 <li><p>Otherwise, the function assumes the array ends at EOF and only returns
 <code class="docutils literal notranslate"><span class="pre">True</span></code> if there’s no more data in the stream.</p></li>
 </ul>
@@ -126,13 +126,13 @@ compared as above.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seq</strong> (<a class="reference internal" href="#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><em>Array</em></a>) – The sequence being checked.</p></li>
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The data stream to read from. Except in rare circumstances, this is
-the same stream that was passed to <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a>.
-The stream pointer should be returned to its original position when the
-function exits.</p></li>
-<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – A list of the objects that have been deserialized so far. In general
-this function <em>should not</em> modify the list. A possible exception to
-this rule is to remove a sentinel value from the end of the list.</p></li>
+<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The data stream to read from. Except in rare circumstances, this is the same
+stream that was passed to <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a>. The
+stream pointer should be returned to its original position when the function
+exits.</p></li>
+<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – A list of the objects that have been deserialized so far. In general this
+function <em>should not</em> modify the list. A possible exception to this rule is
+to remove a sentinel value from the end of the list.</p></li>
 <li><p><strong>context</strong> – The <code class="docutils literal notranslate"><span class="pre">context</span></code> object passed to <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a>.</p></li>
 <li><p><strong>loaded_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – The fields in the struct that have been loaded so far.</p></li>
 </ul>
@@ -173,9 +173,9 @@ crash with a <a class="reference external" href="https://docs.python.org/3/libra
 </pre></div>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.7.0: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size" title="binobj.fields.base.Field.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> is set if the struct passed in is of fixed size. Prior to
-0.7.0, <code class="docutils literal notranslate"><span class="pre">Person.get_size()</span></code> would be None even if <code class="docutils literal notranslate"><span class="pre">Address.get_size()</span></code>
-returned a value. Now the sizes are the same.</p>
+<p><span class="versionmodified changed">Changed in version 0.7.0: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size" title="binobj.fields.base.Field.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> is set if the struct passed in is of fixed size. Prior to 0.7.0,
+<code class="docutils literal notranslate"><span class="pre">Person.get_size()</span></code> would be None even if <code class="docutils literal notranslate"><span class="pre">Address.get_size()</span></code> returned a
+value. Now the sizes are the same.</p>
 </div>
 </dd></dl>
 
@@ -188,28 +188,28 @@ returned a value. Now the sizes are the same.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>choices</strong> – One or more <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> classes or
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instances that can be used for
-loading and dumping.</p></li>
+<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instances that can be used for loading and
+dumping.</p></li>
 <li><p><strong>load_decider</strong> (<em>callable</em>) – <p>A function that decides which <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> class or
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance to use for loading the input.
-It must take four arguments:</p>
+<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance to use for loading the input. It
+must take four arguments:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>: The stream being loaded from.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">classes</span></code>: A list of classes that can be used for loading.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context object to pass directly to the loader selected
-from <code class="docutils literal notranslate"><span class="pre">classes</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>: A dictionary of the fields that have already been
-loaded. This is guaranteed to not be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context object to pass directly to the loader selected from
+<code class="docutils literal notranslate"><span class="pre">classes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>: A dictionary of the fields that have already been loaded.
+This is guaranteed to not be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </p></li>
 <li><p><strong>dump_decider</strong> (<em>callable</em>) – <p>A function that decides which <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> class or
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance to use for dumping the given
-data. It must take four arguments:</p>
+<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance to use for dumping the given data.
+It must take four arguments:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: The data to dump. This can be any type.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">classes</span></code>: A list of classes that can be used for dumping.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context object to pass directly to the dumper selected
-from <code class="docutils literal notranslate"><span class="pre">classes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context object to pass directly to the dumper selected from
+<code class="docutils literal notranslate"><span class="pre">classes</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">all_fields</span></code>: A dictionary of the fields about to be dumped. This is
 guaranteed to not be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>

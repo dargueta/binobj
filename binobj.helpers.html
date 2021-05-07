@@ -74,9 +74,8 @@
 <li><p><strong>n_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes to read for this integer.</p></li>
 <li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, interpret this integer as a two’s-complement signed integer.
 Otherwise, interpret it as an unsigned integer.</p></li>
-<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness of the integer, either <code class="docutils literal notranslate"><span class="pre">big</span></code> or <code class="docutils literal notranslate"><span class="pre">little</span></code>. If not
-given, will default to the system’s native byte order as given by
-<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness of the integer, either <code class="docutils literal notranslate"><span class="pre">big</span></code> or <code class="docutils literal notranslate"><span class="pre">little</span></code>. If not given, will
+default to the system’s native byte order as given by <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -100,20 +99,20 @@ given, will default to the system’s native byte order as given by
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to write the integer to.</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The integer to dump into the stream.</p></li>
-<li><p><strong>n_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes the integer should take up. Exactly this many bytes
-will be written into the stream, so ensure that there’s enough bits to
-represent <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></li>
-<li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, write this integer in two’s-complement format. Otherwise,
-write it as an unsigned integer. A negative <code class="docutils literal notranslate"><span class="pre">value</span></code> will trigger an
+<li><p><strong>n_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes the integer should take up. Exactly this many bytes will be
+written into the stream, so ensure that there’s enough bits to represent
+<code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></li>
+<li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, write this integer in two’s-complement format. Otherwise, write it
+as an unsigned integer. A negative <code class="docutils literal notranslate"><span class="pre">value</span></code> will trigger an
 <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowError</span></code></a> if this is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use when writing the integer, either <code class="docutils literal notranslate"><span class="pre">big</span></code> or
-<code class="docutils literal notranslate"><span class="pre">little</span></code>. If not given, will default to the system’s native byte order
-as given by <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The endianness to use when writing the integer, either “big” or “little”. If not
+given, will default to the system’s native byte order as given by
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.9)"><strong>OverflowError</strong></a> – <code class="docutils literal notranslate"><span class="pre">value</span></code> can’t be represented only by <code class="docutils literal notranslate"><span class="pre">n_bytes</span></code> bytes. The number is
-too big, or it’s negative and <code class="docutils literal notranslate"><span class="pre">signed</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.9)"><strong>OverflowError</strong></a> – <code class="docutils literal notranslate"><span class="pre">value</span></code> can’t be represented only by <code class="docutils literal notranslate"><span class="pre">n_bytes</span></code> bytes. The number is too big,
+or it’s negative and <code class="docutils literal notranslate"><span class="pre">signed</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
