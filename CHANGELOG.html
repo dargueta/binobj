@@ -46,6 +46,18 @@
 <h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
 <p>The documentation is now available <a class="reference external" href="https://dargueta.github.io/binobj/">online</a>!</p>
 </div>
+<div class="section" id="bugfixes">
+<h3>Bugfixes<a class="headerlink" href="#bugfixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Creating a dataclass with no fields now throws <code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.errors.NoDefinedFieldsError</span></code>.
+Unfortunately, because <code class="docutils literal notranslate"><span class="pre">dataclass</span></code> is a decorator that executes after the class is
+created, we can’t do the same with normal assigned fields.</p></li>
+<li><p>Fixed wrong docstring for <code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.errors.NoDefinedFieldsError</span></code> that said it
+was thrown when only assignments were used on a class marked with <code class="docutils literal notranslate"><span class="pre">dataclass</span></code>. It
+was supposed to be a <code class="xref py py-class docutils literal notranslate"><span class="pre">MixedDeclarationsError</span></code>.</p></li>
+<li><p>Fixed formatting and broken links in docstrings.</p></li>
+</ul>
+</div>
 <div class="section" id="internal-changes">
 <h3>Internal Changes<a class="headerlink" href="#internal-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
@@ -54,15 +66,6 @@
 <li><p>Set minimum test coverage to 95%.</p></li>
 <li><p>Split out packages used for unit tests and linting into separate files, as we were
 installing a bunch of stuff for the unit tests that weren’t needed.</p></li>
-</ul>
-</div>
-<div class="section" id="bugfixes">
-<h3>Bugfixes<a class="headerlink" href="#bugfixes" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p>Creating a dataclass with no fields now throws <code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.errors.NoDefinedFieldsError</span></code>.
-Unfortunately, because <code class="docutils literal notranslate"><span class="pre">dataclass</span></code> is a decorator that executes after the class is
-created, we can’t do the same with normal assigned fields.</p></li>
-<li><p>Fixed formatting and broken links in docstrings.</p></li>
 <li><p>Standardized order and placement of the “New in version X” and “Changed in version X”
 directives. They are now always at the bottom of the thing being documented, in
 chronological order.</p></li>
@@ -1046,8 +1049,8 @@ with that byte if they’re too short after encoding. For example:</p></li>
 <li><a class="reference internal" href="#">Changelog</a><ul>
 <li><a class="reference internal" href="#id1">0.10.2</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
-<li><a class="reference internal" href="#internal-changes">Internal Changes</a></li>
 <li><a class="reference internal" href="#bugfixes">Bugfixes</a></li>
+<li><a class="reference internal" href="#internal-changes">Internal Changes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#id2">0.10.1</a><ul>
