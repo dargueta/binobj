@@ -156,17 +156,16 @@ computed (e.g. it’s preceded by a variable-length field), this will be <code c
 <p><span class="versionmodified added">New in version 0.4.5: </span>The <code class="docutils literal notranslate"><span class="pre">present</span></code> argument.</p>
 </div>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code> argument is now guaranteed to not be null. Despite the
-documentation stating this, there was a bug where sometimes it would be null
-anyway.</p>
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span>This now inherits from <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Generic</span></code></a>.</p>
 </div>
 <div class="versionadded">
-<ul>
-<span class="versionmodified added">New in version 0.9.0: </span><li><p>The <code class="docutils literal notranslate"><span class="pre">not_present_value</span></code> argument.</p></li>
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">not_present_value</span></code> argument.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> has full support for <a class="reference internal" href="#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>s and field name values. This
 used to be only supported by some fields, with others left out by accident.</p></li>
 </ul>
-</div>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 0.9.0: </span><code class="docutils literal notranslate"><span class="pre">null_value</span></code> can now also be a deserialized value. For example, you could pass
 r”\N” for a string or 0 for an integer.</p>
