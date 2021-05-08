@@ -94,6 +94,14 @@ def test_mixed_declarations_crashes():
             pep526_field: fields.StringZ
 
 
+def test_decorator_with_only_assigned_fields_crashes():
+    with pytest.raises(errors.MixedDeclarationsError):
+
+        @dataclass
+        class MyStruct(binobj.Struct):
+            field = fields.Bytes(size=10)
+
+
 @dataclass
 class NestedFields(binobj.Struct):
     basic: BasicClass

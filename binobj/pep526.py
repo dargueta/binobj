@@ -220,6 +220,9 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
         # If we don't do this `MyStruct.foo` will be `123`, not a Field object.
         setattr(class_object, name, field_instance)
 
+    if n_fields_found == 0:
+        raise errors.NoDefinedFieldsError(struct=class_object)
+
     meta.size_bytes = byte_offset
     meta.num_own_fields = n_fields_found
     return class_object

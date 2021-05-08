@@ -350,14 +350,19 @@ def test_load__init_kwargs__not_modified():
     assert struct.required is not args["required"], "Value was not deep copied!"
 
 
-def test_no_fields_boom__really_has_no_fields():
+@pytest.mark.xfail(
+    reason="It's (currently) impossible to detect an empty regular struct."
+)
+def test_no_fields_boom__really_has_no_fields__assignment():
     with pytest.raises(errors.NoDefinedFieldsError):
+
         class MyStruct(binobj.Struct):
             pass
 
 
-def test_no_fields_boom__pep526_mistake():
-    with pytest.raises(errors.MixedDeclarationsError):
+def test_no_fields_boom__really_has_no_fields__dataclass():
+    with pytest.raises(errors.NoDefinedFieldsError):
+
         @dataclass
         class MyStruct(binobj.Struct):
-            field = fields.Bytes(size=10)
+            pass
