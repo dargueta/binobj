@@ -4,6 +4,8 @@ Changelog
 0.10.2
 ------
 
+Released 2021-05-08
+
 New Features
 ~~~~~~~~~~~~
 
