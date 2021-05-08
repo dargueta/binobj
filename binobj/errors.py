@@ -304,6 +304,10 @@ class NoDefinedFieldsError(ConfigurationError):
 class MixedDeclarationsError(ConfigurationError):
     """The class declares fields with both PEP 526 and assignments; only one is allowed.
 
+    Aside from mixing both kinds of declarations, this will also happen when a user
+    declares their struct with :func:`~binobj.pep526.dataclass` but uses the old form of
+    assignment-based field definitions.
+
     .. versionadded:: 0.9.0
     """
 
