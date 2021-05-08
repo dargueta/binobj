@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 0.10.2-cleanup  # Debug only
 
 jobs:
   build_sphinx_docs:
