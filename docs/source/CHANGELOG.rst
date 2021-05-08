@@ -1,6 +1,36 @@
 Changelog
 =========
 
+0.10.2
+------
+
+New Features
+~~~~~~~~~~~~
+
+The documentation is now available `online`_!
+
+.. _online: https://dargueta.github.io/binobj/
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+* Upgraded test dependencies.
+* Added a few more flake8 plugins for stricter linting of things.
+* Set minimum test coverage to 95%.
+* Split out packages used for unit tests and linting into separate files, as we were
+  installing a bunch of stuff for the unit tests that weren't needed.
+
+Bugfixes
+~~~~~~~~
+
+* Creating a dataclass with no fields now throws :class:`binobj.errors.NoDefinedFieldsError`.
+  Unfortunately, because ``dataclass`` is a decorator that executes after the class is
+  created, we can't do the same with normal assigned fields.
+* Fixed formatting and broken links in docstrings.
+* Standardized order and placement of the "New in version X" and "Changed in version X"
+  directives. They are now always at the bottom of the thing being documented, in
+  chronological order.
+
 0.10.1
 ------
 
@@ -16,6 +46,8 @@ Internal Changes
 
 0.10.0
 ------
+
+Released 2021-01-12
 
 New Features
 ~~~~~~~~~~~~
