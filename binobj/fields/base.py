@@ -54,8 +54,7 @@ UNDEFINED = _Undefined.token
 
 
 DEFAULT = _Default.token
-"""A sentinel value used to indicate that the default value of a setting should
-be used.
+"""A sentinel value used to indicate that the default value of a setting should be used.
 
 We need this because sometimes ``None`` is a valid value for that setting.
 """
@@ -76,27 +75,26 @@ class Field(Generic[T]):
     :param str name:
         The name of the field.
     :param const:
-        A constant value this field is expected to take. It will always have
-        this value when dumped, and will fail validation if the field isn't this
-        value when loaded. Useful for reserved fields and file tags.
+        A constant value this field is expected to take. It will always have this value
+        when dumped, and will fail validation if the field isn't this value when loaded.
+        Useful for reserved fields and file tags.
 
-        This argument *must* be of the same type as the field, i.e. it must be
-        a string for a :class:`~binobj.fields.stringlike.String`, an integer for
-        an :class:`~binobj.fields.numeric.Integer`, and so on.
+        This argument *must* be of the same type as the field, i.e. it must be a string
+        for a :class:`~binobj.fields.stringlike.String`, an integer for an
+        :class:`~binobj.fields.numeric.Integer`, and so on.
     :param default:
-        The default value to use if a value for this field isn't passed to the
-        struct for serialization, or a callable taking no arguments that will
-        return a default value.
+        The default value to use if a value for this field isn't passed to the struct
+        for serialization, or a callable taking no arguments that will return a default
+        value.
 
-        This argument (or the return value of the callable) *must* be of the
-        same type as the field, i.e. it must be a string for a
+        This argument (or the return value of the callable) *must* be of the same type
+        as the field, i.e. it must be a string for a
         :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on.
     :param bool discard:
-        When deserializing, don't include this field in the returned results.
-        This means that you won't be able to use the value for anything later.
-        For example, if you need to reference it in a ``present`` function like
-        so::
+        When deserializing, don't include this field in the returned results. This means
+        that you won't be able to use the value for anything later. For example, if you
+        need to reference it in a ``present`` function like so::
 
             name_size = fields.UInt16(discard=True)
             filename = fields.StringZ(encoding="utf-8")
@@ -104,25 +102,13 @@ class Field(Generic[T]):
                 const=b"\0", discard=True, present=lambda f, *_: f["name_size"] % 2
             )
 
-        this will crash with a :class:`KeyError` because ``name_size`` was
-        discarded.
+        this will crash with a :class:`KeyError` because ``name_size`` was discarded.
     :param null_value:
         Either a byte string or a value to use to represent ``None`` in serialized data.
 
         When loading, the returned value will be ``None`` if this exact sequence of
         bytes is encountered. If not given, the field is considered "not nullable" and
         any attempt to assign ``None`` to it will result in a crash upon serialization.
-
-        .. versionchanged:: 0.9.0
-            This can now also be a deserialized value. For example, you could pass r"\N"
-            for a string or 0 for an integer.
-
-        .. deprecated:: 0.9.0
-            Passing :data:`DEFAULT` for unsized fields such as
-            :class:`~binobj.fields.stringlike.StringZ` is deprecated and will trigger an
-            error in the future. This resolves the asymmetric behavior where using
-            :data:`DEFAULT` throws an error when dumping but happily loads whatever's
-            next in the stream when loading.
     :param size:
         Optional. The size of the field. This can be a number of things:
 
@@ -133,51 +119,39 @@ class Field(Generic[T]):
         * A string naming another field. It's equivalent to passing in a :class:`.Field`
           instance, except used for references in the same class or a field defined in
           the superclass.
-
-        .. versionadded:: 0.9.0
-            Full support for :class:`Field`\s and field name values. This used to be
-            only supported by some fields, with others left out by accident.
     :param validate:
-        A callable or list of callables that validates a given value for this
-        field. The callable(s) will always be passed the deserialized value, so
-        a validator for an :class:`~binobj.fields.numeric.Integer` field will
-        always be passed an integer, a :class:`~binobj.fields.stringlike.String`
-        validator will always be passed a string, and so on.
+        A callable or list of callables that validates a given value for this field. The
+        callable(s) will always be passed the deserialized value, so a validator for an
+        :class:`~binobj.fields.numeric.Integer` field will always be passed an integer,
+        a :class:`~binobj.fields.stringlike.String` validator will always be passed a
+        string, and so on.
     :param callable present:
         Optional. A callable that, when called with the struct as its argument,
-        returns a boolean indicating if this field is "present" and should be
-        loaded or dumped. For example, if we have a ``flags`` field that's a
-        bitmap indicating what fields come next, we could have something like
-        this::
+        returns a boolean indicating if this field is "present" and should be loaded or
+        dumped. For example, if we have a ``flags`` field that's a bitmap indicating
+        what fields come next, we could have something like this::
 
             flags = fields.UInt16()
             foo = fields.StringZ(present=lambda v, *_: v["flags"] & 0x8000)
             bar = fields.StringZ(present=lambda v, *_: v["flags"] & 0x4000)
 
-        Thus, if and only if ``flags`` has bit 15 set, ``foo`` will be read from
-        the stream next. If ``flags`` has bit 15 clear, ``foo`` will be assigned
-        the field's :attr:`not_present_value` (defaults to :data:`NOT_PRESENT`).
+        Thus, if and only if ``flags`` has bit 15 set, ``foo`` will be read from the
+        stream next. If ``flags`` has bit 15 clear, ``foo`` will be assigned the field's
+        :attr:`not_present_value` (defaults to :data:`NOT_PRESENT`).
 
         The callable takes three positional arguments:
 
-        - A dict of the fields that have already been loaded or are about to be
-          dumped.
+        - A dict of the fields that have already been loaded or are about to be dumped.
         - The ``context`` object passed to :meth:`from_stream` or :meth:`to_stream`.
-        - When loading, the stream being loaded from. The stream pointer MUST
-          be reset to its original position before the function returns.
+        - When loading, the stream being loaded from. The stream pointer MUST be reset
+          to its original position before the function returns.
 
-        .. versionadded:: 0.4.5
-
-        .. versionchanged:: 0.8.0
-            The ``loaded_fields`` argument is now guaranteed to not be null.
     :param not_present_value:
         A custom value to return if a field is missing when loading (see the ``present``
         argument). It can be ``None`` or match the datatype of the field, i.e. a string
         for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on. If not given, defaults to
         :data:`NOT_PRESENT`.
-
-        .. versionadded:: 0.9.0
 
     .. attribute:: index
 
@@ -187,18 +161,45 @@ class Field(Generic[T]):
 
     .. attribute:: offset
 
-        The zero-based byte offset of the field in the struct. If the offset
-        can't be computed (e.g. it's preceded by a variable-length field), this
-        will be ``None``.
+        The zero-based byte offset of the field in the struct. If the offset can't be
+        computed (e.g. it's preceded by a variable-length field), this will be ``None``.
 
         :type: int
+
+    .. versionadded:: 0.4.5
+        The ``present`` argument.
+
+    .. versionchanged:: 0.8.0
+        This now inherits from :class:`typing.Generic`.
+
+    .. versionadded:: 0.9.0
+
+    * The ``not_present_value`` argument.
+    * ``size`` has full support for :class:`Field`\s and field name values. This
+      used to be only supported by some fields, with others left out by accident.
+
+    .. versionchanged:: 0.9.0
+        ``null_value`` can now also be a deserialized value. For example, you could pass
+        r"\\N" for a string or 0 for an integer.
+
+    .. deprecated:: 0.9.0
+        Passing :data:`DEFAULT` to ``null_value`` for unsized fields such as
+        :class:`~binobj.fields.stringlike.StringZ` is deprecated and will trigger an
+        error in the future. This resolves the asymmetric behavior where using
+        :data:`DEFAULT` throws an error when dumping but happily loads whatever's next
+        in the stream when loading.
     """
 
     __overrideable_attributes__ = ()  # type: Union[Collection[str], Mapping[str, str]]
 
     # TODO (dargueta): Define __explicit_init_args__ attribute once we drop 3.5 support
 
-    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any):
+    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any) -> "Field[Any]":
+        """Create a new instance, recording which keyword arguments were passed in.
+
+        Recording the explicit arguments is necessary so that a field can use the
+        fallback values its container class gives for anything else.
+        """
         instance = super().__new__(cls)
         instance.__explicit_init_args__ = frozenset(kwargs.keys())
         return instance
@@ -234,8 +235,8 @@ class Field(Generic[T]):
         else:
             self._default = default
 
-        # These attributes are typically set by the struct containing the field
-        # after the field's instantiated.
+        # These attributes are typically set by the struct containing the field after
+        # the field's instantiated.
         self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
         self.offset = None  # type: Optional[int]
@@ -255,7 +256,7 @@ class Field(Generic[T]):
         If the field is of variable size, such as a null-terminated string, this will be
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
-        """
+        """  # noqa: D400,D401
         # TODO (dargueta) This return value is horrific. Rework it if possible.
         return self._size
 
@@ -264,7 +265,7 @@ class Field(Generic[T]):
         """Does this field have a fixed size?
 
         .. versionadded:: 0.9.0
-        """
+        """  # noqa: D400,D401
         return isinstance(self.size, int)
 
     def bind_to_container(
@@ -283,9 +284,9 @@ class Field(Generic[T]):
         :param int index:
             The index of this field in the container.
         :param int offset:
-            The byte offset of this field in the container, or ``None`` if
-            unknown. This is usually equal to the sum of the sizes of the fields
-            preceding this one in the container.
+            The byte offset of this field in the container, or ``None`` if unknown. This
+            is usually equal to the sum of the sizes of the fields preceding this one in
+            the container.
 
         .. versionchanged:: 0.10.0
             Added the ``struct_info`` parameter.
@@ -328,22 +329,22 @@ class Field(Generic[T]):
             The dictionary of all the field data that's about to be dumped.
 
         :return:
-            The value the dumper will use for this field, or :data:`NOT_PRESENT`
-            if the field shouldn't be serialized. It *will not* return
+            The value the dumper will use for this field, or :data:`NOT_PRESENT` if the
+            field shouldn't be serialized. It *will not* return
             :attr:`.not_present_value` in this case, as the field should not be dumped
             at all.
 
         :raise MissingRequiredValueError:
-            No value could be derived for this field. It's missing in the input
-            data, there's no default defined, and it doesn't have a compute
-            function defined either.
+            No value could be derived for this field. It's missing in the input data,
+            there's no default defined, and it doesn't have a compute function defined
+            either.
 
         .. versionadded:: 0.3.1
 
         .. versionchanged:: 0.8.0
             If ``default`` is given by a callable and that callable returns
-            :data:`UNDEFINED`, it will throw :class:`MissingRequiredValueError` instead
-            of returning that.
+            :data:`UNDEFINED`, it will throw :class:`~.errors.MissingRequiredValueError`
+            instead of returning :data:`UNDEFINED`.
         """
         # FIXME (dargueta): Don't pass None for the context variable.
         if not self.present(all_values, None, None):
@@ -367,16 +368,16 @@ class Field(Generic[T]):
         .. deprecated:: 0.6.0
             This decorator will be moved to :mod:`binobj.decorators`.
 
-        You can use this for automatically assigning values based on other fields.
-        For example, suppose we have this struct::
+        You can use this for automatically assigning values based on other fields. For
+        example, suppose we have this struct::
 
             class MyStruct(Struct):
                 n_numbers = UInt8()
                 numbers = Array(UInt8(), count=n_numbers)
 
-        This works great for loading, but when we're dumping we have to pass in a
-        value for ``n_numbers`` explicitly. We can use the ``computes`` decorator
-        to relieve us of that burden::
+        This works great for loading, but when we're dumping we have to pass in a value
+        for ``n_numbers`` explicitly. We can use the ``computes`` decorator to relieve
+        us of that burden::
 
             class MyStruct(Struct):
                 n_numbers = UInt8()
@@ -393,12 +394,12 @@ class Field(Generic[T]):
           * A value is explicitly set for the field by the calling code.
           * The field has a ``default`` or ``const`` value.
 
-        * Computed fields are executed in the order that the fields are dumped,
-          so a computed field must *not* rely on the value of another computed
-          field occurring after it.
+        * Computed fields are executed in the order that the fields are dumped, so a
+          computed field must *not* rely on the value of another computed field
+          occurring after it.
 
         .. versionadded:: 0.3.0
-        """
+        """  # noqa: D401
         if self._compute_fn:
             raise errors.ConfigurationError(
                 "Can't define two computing functions for field %r." % self, field=self
@@ -419,21 +420,21 @@ class Field(Generic[T]):
         """Is ``None`` an acceptable value for this field?
 
         :type: bool
-        """
+        """  # noqa: D400
         return self.null_value is not UNDEFINED
 
     @property
     def default(self) -> Union[T, None, _Undefined]:
         """The default value of this field, or :data:`UNDEFINED`.
 
-        If the default value passed to the constructor was a callable, this
-        property will always give its return value. That callable is invoked on
-        each access of this property.
+        If the default value passed to the constructor was a callable, this property
+        will always give its return value. That callable is invoked on each access of
+        this property.
 
         .. versionchanged:: 0.6.1
-            If no default is defined but ``const`` is, this property returns
-            the value for ``const``.
-        """
+            If no default is defined but ``const`` is, this property returns the value
+            for ``const``.
+        """  # noqa: D401
         default_value = self._default
         if callable(default_value):
             return default_value()
@@ -446,25 +447,24 @@ class Field(Generic[T]):
         """Is this field required for serialization?
 
         :type: bool
-        """
+        """  # noqa: D400
         return self.const is UNDEFINED and self.default is UNDEFINED
 
     def _size_for_value(self, value: Optional[T]) -> Optional[int]:
-        """Return the size of the serialized value in bytes, or ``None`` if it
-        can't be computed.
+        """Get the size of the serialized value, or ``None`` if it can't be computed.
 
-        This is an ugly hack for computing ``size`` properly when only ``const``
-        is given. It's *HIGHLY DISCOURAGED* to implement this function in your
-        own field subclasses, since it *must not* call :meth:`from_stream`,
-        :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`. Doing so
-        could result in infinite recursion.
+        This is an ugly hack for computing ``size`` properly when only ``const`` is
+        given. It's *HIGHLY DISCOURAGED* to implement this function in your own field
+        subclasses, since it *must not* call :meth:`from_stream`, :meth:`from_bytes`,
+        :meth:`to_stream`, or :meth:`to_bytes`. Doing so could result in infinite
+        recursion.
 
         :param value:
             The value to serialize.
 
         :return:
-            The size of ``value`` when serialized, in bytes. If the size cannot
-            be computed, return ``None``.
+            The size of ``value`` when serialized, in bytes. If the size cannot be
+            computed, return ``None``.
         :rtype: int
         """
         if self.has_fixed_size:
@@ -491,8 +491,8 @@ class Field(Generic[T]):
         :rtype: int
 
         :raise MissingRequiredValueError:
-            The field's size references another field but the other field is
-            missing from ``field_values``.
+            The field's size references another field but the other field is missing
+            from ``field_values``.
         :raise UndefinedSizeError:
             The field doesn't have a defined size nor refers to another field to
             determine its size.
@@ -505,9 +505,9 @@ class Field(Generic[T]):
             return typing.cast(int, self.size)
 
         if self.size is None:
-            # Field has an undefined size. If the caller gave us a value for
-            # that field, or if we have a default value defined, we might be able
-            # to determine the size of that value.
+            # Field has an undefined size. If the caller gave us a value for that field,
+            # or if we have a default value defined, we might be able to determine the
+            # size of that value.
             if self.name in field_values:
                 expected_size = self._size_for_value(field_values[self.name])
             elif self.default is not UNDEFINED:
@@ -533,7 +533,7 @@ class Field(Generic[T]):
             return field_values[name]
         raise errors.MissingRequiredValueError(field=name)
 
-    def from_stream(
+    def from_stream(  # noqa: C901
         self,
         stream: BinaryIO,
         context: Any = None,
@@ -544,11 +544,11 @@ class Field(Generic[T]):
         :param BinaryIO stream:
             The stream to load data from.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict loaded_fields:
-            A dictionary of the fields that have already been loaded. This is
-            set automatically when a field is loaded by a
+            A dictionary of the fields that have already been loaded. This is set
+            automatically when a field is loaded by a
             :class:`~binobj.structures.Struct`.
 
         :return: The deserialized data, or :data:`NOT_PRESENT`
@@ -621,15 +621,14 @@ class Field(Generic[T]):
         :param bytes data:
             A bytes-like object to get the data from.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param bool exact:
-            ``data`` must contain exactly the number of bytes required. If not
-            all the bytes in ``data`` were used when reading the struct, throw
-            an exception.
+            ``data`` must contain exactly the number of bytes required. If not all the
+            bytes in ``data`` were used when reading the struct, throw an exception.
         :param dict loaded_fields:
-            A dictionary of the fields that have already been loaded. This is
-            set automatically when a field is loaded by a
+            A dictionary of the fields that have already been loaded. This is set
+            automatically when a field is loaded by a
             :class:`~binobj.structures.Struct`.
 
         :return: The deserialized data, or :data:`NOT_PRESENT` if the field is missing.
@@ -655,11 +654,11 @@ class Field(Generic[T]):
 
         :param BinaryIO stream:
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict loaded_fields:
-            A dictionary of the fields that have already been loaded. This is
-            guaranteed to not be ``None``.
+            A dictionary of the fields that have already been loaded. This is guaranteed
+            to not be ``None``.
 
         :return: The loaded object.
         """
@@ -677,14 +676,14 @@ class Field(Generic[T]):
         :param BinaryIO stream:
             The stream to write the serialized data into.
         :param data:
-            The data to dump. Can be omitted only if this is a constant field or
-            if a default value is defined.
+            The data to dump. Can be omitted only if this is a constant field or if a
+            default value is defined.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict all_fields:
-            A dictionary of the fields about to be dumped. This is automatically
-            set by the field's containing :class:`~binobj.structures.Struct`.
+            A dictionary of the fields about to be dumped. This is automatically set by
+            the field's containing :class:`~binobj.structures.Struct`.
         """
         if all_fields is None:
             all_fields = {}
@@ -718,14 +717,14 @@ class Field(Generic[T]):
         """Convert the given data into bytes.
 
         :param data:
-            The data to dump. Can be omitted only if this is a constant field or
-            a default value is defined.
+            The data to dump. Can be omitted only if this is a constant field or a
+            default value is defined.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict all_fields:
-            A dictionary of the fields about to be dumped. This is automatically
-            set by the field's containing :class:`~binobj.structures.Struct`.
+            A dictionary of the fields about to be dumped. This is automatically set by
+            the field's containing :class:`~binobj.structures.Struct`.
 
         :return: The serialized data.
         :rtype: bytes
@@ -745,20 +744,20 @@ class Field(Generic[T]):
         :param data:
             The data to dump. Guaranteed to not be ``None``.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict all_fields:
-            A dictionary of the fields about to be dumped. This is guaranteed to
-            not be ``None``.
+            A dictionary of the fields about to be dumped. This is guaranteed to not be
+            ``None``.
         """
         raise errors.UnserializableValueError(field=self, value=data)
 
     def _get_null_repr(self, all_fields: Optional[StrDict] = None) -> bytes:
         """Return the serialized value for ``None``.
 
-        We need this function because there's some logic involved in determining
-        if ``None`` is a legal value, and guessing the serialization if no
-        default value is provided.
+        We need this function because there's some logic involved in determining if
+        ``None`` is a legal value, and guessing the serialization if no default value is
+        provided.
 
         :return: The serialized form of ``None`` for this field.
         :rtype: bytes
@@ -795,19 +794,19 @@ class Field(Generic[T]):
 
         :param BinaryIO stream: The stream to read from.
         :param dict loaded_fields:
-            A dict mapping names of fields to their loaded values. This allows
-            us to read a variable-length field that depends on the value of
-            another field occurring before it.
+            A dict mapping names of fields to their loaded values. This allows us to
+            read a variable-length field that depends on the value of another field
+            occurring before it.
 
-            .. versionadded:: 0.6.1
 
         :return: The correct number of bytes are read from the stream.
         :rtype: bytes
 
-        .. versionchanged:: 0.6.1
-            Variable-length fields are now supported.
-
         :raise UnexpectedEOFError: Not enough bytes were left in the stream.
+
+        .. versionchanged:: 0.6.1
+            * Variable-length fields are now supported.
+            * The ``loaded_fields`` argument.
         """
         if loaded_fields is None:
             loaded_fields = {}

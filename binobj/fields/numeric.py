@@ -45,13 +45,12 @@ class Float(Field[float]):
     This is a base class and should not be used directly.
 
     :param str format_string:
-        The `format character`_ used by the :mod:`struct` library to load and
-        dump this floating-point number. Can be "f" (32 bits) or "d" (64 bits);
-        Python 3.6 and up support "e" (16 bits). Any other values will cause an
-        error.
+        The `format character`_ used by the :mod:`struct` library to load and dump this
+        floating-point number. Can be "f" (32 bits) or "d" (64 bits); Python 3.6 and up
+        support "e" (16 bits). Any other values will cause an error.
     :param str endian:
-        The endianness to use to load/store the float. Either "big" or "little".
-        If not given, defaults to the system's native byte ordering as given by
+        The endianness to use to load/store the float. Either "big" or "little". If not
+        given, defaults to the system's native byte ordering as given by
         :data:`sys.byteorder`.
 
     .. _format character: https://docs.python.org/3/library/struct.html#format-characters
@@ -97,8 +96,8 @@ class Float16(Float):
     """A half-precision floating-point number in IEEE-754 `binary16`_ format.
 
     .. warning::
-        This format is only supported on Python 3.6 and newer. Using this field
-        in older versions of Python will crash.
+        This format is only supported on Python 3.6 and newer. Using this field in older
+        versions of Python will crash.
 
     .. _binary16: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     """
@@ -130,12 +129,12 @@ class Float64(Float):
 class Integer(Field[int]):
     """A two's-complement integer of some fixed size.
 
-    This class is typically not used directly, except for integers with sizes
-    that aren't powers of two, e.g. for a 24-bit number.
+    This class is typically not used directly, except for integers with sizes that
+    aren't powers of two, e.g. for a 24-bit number.
 
     :param str endian:
-        The endianness to use to load/store the integer. Either 'big' or 'little'.
-        If not given, defaults to the system's native byte ordering as given by
+        The endianness to use to load/store the integer. Either 'big' or 'little'. If
+        not given, defaults to the system's native byte ordering as given by
         :data:`sys.byteorder`.
     :param bool signed:
         Indicates if this number is a two's-complement signed or unsigned integer.
@@ -144,13 +143,11 @@ class Integer(Field[int]):
     :param int size:
         The size of the integer, in bytes.
 
-        .. versionchanged:: 0.8.0
-            The ``size`` argument is now required.
-
     .. versionchanged:: 0.8.0
-        The class now throws :class:`UndefinedSizeError` when loading and dumping if
-        the field doesn't have a defined size. Before it used to crash with a TypeError
-        due to this oversight.
+        * The ``size`` argument is now required.
+        * The class now throws :class:`~.errors.UndefinedSizeError` when loading and
+          dumping if the field doesn't have a defined size. Before it used to crash with
+          a :class:`TypeError` due to this oversight.
 
     .. _signed formats: https://en.wikipedia.org/wiki/Signed_number_representations
     """
@@ -193,8 +190,8 @@ class VariableLengthInteger(Integer):
     :param VarIntEncoding vli_format:
         Required. The encoding to use for the variable-length integer.
     :param int max_bytes:
-        The maximum number of bytes to use for encoding this integer. If not
-        given, there's no restriction on the size.
+        The maximum number of bytes to use for encoding this integer. If not given,
+        there's no restriction on the size.
     """
 
     def __init__(
@@ -254,8 +251,8 @@ class VariableLengthInteger(Integer):
 class UnsignedInteger(Integer):
     """An unsigned two's-complement integer of some fixed size.
 
-    This class is typically not used directly, except for integers with sizes
-    that aren't powers of two, e.g. for a 24-bit number.
+    This class is typically not used directly, except for integers with sizes that
+    aren't powers of two, e.g. for a 24-bit number.
 
     .. seealso:: :class:`.Integer`
     """
@@ -323,22 +320,21 @@ class UInt64(Int64):
 class Timestamp(Field[datetime.datetime]):
     r"""A timestamp stored as an integer offset from the `Unix epoch`_.
 
-    Timestamps are stored in UTC. When dumping, naive datetimes are assumed to
-    be in the local timezone; when loading and ``tz_aware`` is False, loaded
-    datetimes are in the local timezone.
+    Timestamps are stored in UTC. When dumping, naive datetimes are assumed to be in the
+    local timezone; when loading and ``tz_aware`` is False, loaded datetimes are in the
+    local timezone.
 
-    This class is typically not used directly, except for timestamps with sizes
-    that aren't powers of two, e.g. the 96-bit timestamps used by Amazon
-    Redshift.
+    This class is typically not used directly, except for timestamps with sizes that
+    aren't powers of two, e.g. the 96-bit timestamps used by Amazon Redshift.
 
     :param str resolution:
-        The resolution timestamps will be stored with. Accepted values are "s",
-        "ms", "us" (microseconds), and "ns". Note that Python's
-        :class:`~datetime.datetime` objects don't support nanosecond resolution.
+        The resolution timestamps will be stored with. Accepted values are "s", "ms",
+        "us" (microseconds), and "ns". Note that Python's :class:`~datetime.datetime`
+        objects don't support nanosecond resolution.
     :param bool tz_aware:
         Controls whether loads return timezone-aware or naive
-        :class:`~datetime.datetime`\s. Loaded timestamps are naive by default,
-        and in the platform's local timezone.
+        :class:`~datetime.datetime`\s. Loaded timestamps are naive by default, and in
+        the platform's local timezone.
 
         .. code-block:: python
 
@@ -354,13 +350,14 @@ class Timestamp(Field[datetime.datetime]):
         Unix systems.
 
     .. versionadded:: 0.6.0
+
     .. versionchanged:: 0.8.0
 
         * This class no longer inherits from :class:`Integer`.
         * ``size`` is now a required argument.
-        * The class throws :class:`UndefinedSizeError` when loading and dumping if the
-          field doesn't have a defined size. Before it used to crash with a TypeError
-          due to this oversight.
+        * The class now throws :class:`~.errors.UndefinedSizeError` when loading and
+          dumping if the field doesn't have a defined size. Before it used to crash with
+          a :class:`TypeError` due to this oversight.
 
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`

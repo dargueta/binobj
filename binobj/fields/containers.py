@@ -45,22 +45,22 @@ class Array(Field[List[Optional[T]]]):
     :param Field component:
         The component this array is comprised of. Must be an instance.
     :param count:
-        Optional. Some way of indicating the number of elements in this array.
-        The value for this argument can be one of the following:
+        Optional. Some way of indicating the number of elements in this array. The value
+        for this argument can be one of the following:
 
         * An integer. The array always contains this many elements.
-        * A :class:`~binobj.fields.base.Field` instance that must 1) be an
-          integer; 2) occur before this array in the same struct.
-        * A string naming a field fitting the above criteria. You'll need this
-          if your size field's name is a Python keyword.
-
-        .. versionchanged:: 0.3.0
-            ``count`` can now be a :class:`~.fields.base.Field` or string.
+        * A :class:`~binobj.fields.base.Field` instance that must 1) be an integer;
+          2) occur before this array in the same struct.
+        * A string naming a field fitting the above criteria. You'll need this if your
+          size field's name is a Python keyword.
 
     :param callable halt_check:
-        A function taking five arguments. See :meth:`should_halt` for the
-        default implementation. Subclasses can override this function if desired
-        to avoid having to pass in a custom function every time.
+        A function taking five arguments. See :meth:`should_halt` for the default
+        implementation. Subclasses can override this function if desired to avoid having
+        to pass in a custom function every time.
+
+    .. versionchanged:: 0.3.0
+        ``count`` can now be a :class:`~.fields.base.Field` or string.
 
     .. versionchanged:: 0.6.1
         :meth:`~.fields.base.Field.to_stream` and :meth:`~.fields.base.Field.to_bytes`
@@ -68,8 +68,8 @@ class Array(Field[List[Optional[T]]]):
         passed in is too long. Due to a bug it used to be ignored when dumping.
 
     .. versionchanged:: 0.7.0
-        :attr:`.size` is set if ``component.size`` is defined and ``count`` is
-        an integer constant.
+        :attr:`.size` is set if ``component.size`` is defined and ``count`` is an
+        integer constant.
     """
 
     def __init__(
@@ -87,8 +87,7 @@ class Array(Field[List[Optional[T]]]):
         if count is None or (
             isinstance(count, (int, str, Field)) and not isinstance(count, bool)
         ):
-            # The isinstance bool check is needed because `bool` is a subclass
-            # of `int`.
+            # The isinstance bool check is needed because `bool` is a subclass of `int`.
             self.count = count
         else:
             raise TypeError("`count` must be an integer, string, or a `Field`.")
@@ -100,13 +99,13 @@ class Array(Field[List[Optional[T]]]):
         """Calculate the number of elements in the array based on other fields' values.
 
         :param dict field_values:
-            A dict mapping field names to their deserialized values. It doesn't
-            need to have every value in the struct; if :attr:`count` references a
-            field, it only requires that field to be present here.
+            A dict mapping field names to their deserialized values. It doesn't need to
+            have every value in the struct; if :attr:`count` references a field, it only
+            requires that field to be present here.
 
         :return:
-            The expected number of elements in this array, or ``None`` if the
-            array doesn't have a fixed size.
+            The expected number of elements in this array, or ``None`` if the array
+            doesn't have a fixed size.
         :rtype: int
 
         .. versionadded:: 0.6.1
@@ -135,8 +134,8 @@ class Array(Field[List[Optional[T]]]):
                 "Unexpected type for `count`: %r" % type(self.count).__name__
             )
 
-        # The number of fields in this array is a field that should already have
-        # been loaded.
+        # The number of fields in this array is a field that should already have been
+        # loaded.
         if name not in field_values:
             raise errors.FieldReferenceError(
                 "Array size depends on field %r but it wasn't found." % name,
@@ -154,20 +153,20 @@ class Array(Field[List[Optional[T]]]):
     ) -> bool:
         """Determine if the deserializer should stop reading from the input.
 
-        This function should return ``True`` to indicate loading for this field
-        should stop, or ``False`` to continue adding elements.
+        This function should return ``True`` to indicate loading for this field should
+        stop, or ``False`` to continue adding elements.
 
         The default implementation does the following:
 
-        - If ``count`` is an integer, it compares ``count`` against the length
-          of ``values``. If ``len(values)`` is equal to or more than ``count``
-          it'll return ``True`` (halt), ``False`` otherwise.
+        - If ``count`` is an integer, it compares ``count`` against the length of
+          ``values``. If ``len(values)`` is equal to or more than ``count`` it'll return
+          ``True`` (halt), ``False`` otherwise.
         - If ``count`` is a :class:`~binobj.fields.base.Field`, that field should
-          already have been loaded and in ``loaded_fields``. The expected array
-          size is taken from there, and compared as above.
-        - If ``count`` is a string, it's the name of a field already loaded and
-          in ``loaded_fields``. The expected array size is taken from there, and
-          compared as above.
+          already have been loaded and in ``loaded_fields``. The expected array size is
+          taken from there, and compared as above.
+        - If ``count`` is a string, it's the name of a field already loaded and in
+          ``loaded_fields``. The expected array size is taken from there, and compared
+          as above.
         - Otherwise, the function assumes the array ends at EOF and only returns
           ``True`` if there's no more data in the stream.
 
@@ -176,14 +175,14 @@ class Array(Field[List[Optional[T]]]):
         :param Array seq:
             The sequence being checked.
         :param BinaryIO stream:
-            The data stream to read from. Except in rare circumstances, this is
-            the same stream that was passed to :meth:`~.fields.base.Field.from_stream`.
-            The stream pointer should be returned to its original position when the
-            function exits.
+            The data stream to read from. Except in rare circumstances, this is the same
+            stream that was passed to :meth:`~.fields.base.Field.from_stream`. The
+            stream pointer should be returned to its original position when the function
+            exits.
         :param list values:
-            A list of the objects that have been deserialized so far. In general
-            this function *should not* modify the list. A possible exception to
-            this rule is to remove a sentinel value from the end of the list.
+            A list of the objects that have been deserialized so far. In general this
+            function *should not* modify the list. A possible exception to this rule is
+            to remove a sentinel value from the end of the list.
         :param context:
             The ``context`` object passed to :meth:`~.fields.base.Field.from_stream`.
         :param dict loaded_fields:
@@ -194,10 +193,9 @@ class Array(Field[List[Optional[T]]]):
         :rtype: bool
 
         .. versionchanged:: 0.8.0
-            The default implementation now throws
-            :class:`~.errors.UndefinedSizeError` if the length of the array
-            couldn't be determined. Previously this would crash with a
-            :class:`TypeError`.
+            The default implementation now throws :class:`~.errors.UndefinedSizeError`
+            if the length of the array couldn't be determined. Previously this would
+            crash with a :class:`TypeError`.
         """
         if seq.count is not None:
             count = seq.get_final_element_count(loaded_fields)
@@ -228,11 +226,11 @@ class Array(Field[List[Optional[T]]]):
         :param iterable data:
             An iterable of values to dump.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict all_fields:
-            A dictionary of the fields about to be dumped. This is guaranteed to
-            not be ``None``.
+            A dictionary of the fields about to be dumped. This is guaranteed to not be
+            ``None``.
         """
         n_elems = self.get_final_element_count(all_fields)
         if not isinstance(data, collections.abc.Sized):
@@ -259,8 +257,8 @@ class Array(Field[List[Optional[T]]]):
         n_written = 0
         for value in data:
             if n_written == n_elems:
-                # We've already written the requisite number of items to the
-                # stream, but received at least one more item. Crash.
+                # We've already written the requisite number of items to the stream, but
+                # received at least one more item. Crash.
                 raise errors.ArraySizeError(
                     field=self, n_expected=n_elems, n_given=n_written + 1
                 )
@@ -283,11 +281,11 @@ class Array(Field[List[Optional[T]]]):
         :param BinaryIO stream:
             A bit stream to read data from.
         :param context:
-            Additional data to pass to this method. Subclasses must ignore
-            anything they don't recognize.
+            Additional data to pass to this method. Subclasses must ignore anything they
+            don't recognize.
         :param dict loaded_fields:
-            A dictionary of the fields that have already been loaded. This is
-            guaranteed to not be ``None``.
+            A dictionary of the fields that have already been loaded. This is guaranteed
+            to not be ``None``.
 
         :return: The deserialized data.
         :rtype: list
@@ -318,9 +316,9 @@ class Nested(Field[TStruct]):
             address = fields.Nested(Address)
 
     .. versionchanged:: 0.7.0
-        :attr:`.size` is set if the struct passed in is of fixed size. Prior to
-        0.7.0, ``Person.get_size()`` would be None even if ``Address.get_size()``
-        returned a value. Now the sizes are the same.
+        :attr:`.size` is set if the struct passed in is of fixed size. Prior to 0.7.0,
+        ``Person.get_size()`` would be None even if ``Address.get_size()`` returned a
+        value. Now the sizes are the same.
     """
 
     def __init__(self, struct_class: Type[TStruct], *args: Any, **kwargs: Any):
@@ -349,34 +347,32 @@ class Union(Field[T]):
 
     :param choices:
         One or more :class:`~binobj.structures.Struct` classes or
-        :class:`~binobj.fields.base.Field` instances that can be used for
-        loading and dumping.
+        :class:`~binobj.fields.base.Field` instances that can be used for loading and
+        dumping.
 
     :param callable load_decider:
         A function that decides which :class:`~binobj.structures.Struct` class or
-        :class:`~binobj.fields.base.Field` instance to use for loading the input.
-        It must take four arguments:
+        :class:`~binobj.fields.base.Field` instance to use for loading the input. It
+        must take four arguments:
 
         * ``stream``: The stream being loaded from.
         * ``classes``: A list of classes that can be used for loading.
-        * ``context``: The context object to pass directly to the loader selected
-          from ``classes``.
-        * ``loaded_fields``: A dictionary of the fields that have already been
-          loaded. This is guaranteed to not be ``None``.
+        * ``context``: The context object to pass directly to the loader selected from
+          ``classes``.
+        * ``loaded_fields``: A dictionary of the fields that have already been loaded.
+          This is guaranteed to not be ``None``.
 
     :param callable dump_decider:
         A function that decides which :class:`~binobj.structures.Struct` class or
-        :class:`~binobj.fields.base.Field` instance to use for dumping the given
-        data. It must take four arguments:
+        :class:`~binobj.fields.base.Field` instance to use for dumping the given data.
+        It must take four arguments:
 
         * ``data``: The data to dump. This can be any type.
         * ``classes``: A list of classes that can be used for dumping.
-        * ``context``: The context object to pass directly to the dumper selected
-          from ``classes``.
+        * ``context``: The context object to pass directly to the dumper selected from
+          ``classes``.
         * ``all_fields``: A dictionary of the fields about to be dumped. This is
           guaranteed to not be ``None``.
-
-    .. versionadded:: 0.3.0
 
     Usage with Structs::
 
@@ -401,6 +397,8 @@ class Union(Field[T]):
                                 fields.UInt16(endian='little'),
                                 load_decider=fields_load_decider,
                                 dump_decider=fields_dump_decider)
+
+    .. versionadded:: 0.3.0
     """
 
     def __init__(

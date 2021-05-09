@@ -38,7 +38,9 @@ Let's save a contact to a file.
     with open('contacts.dat', 'wb') as fdesc:
         person.to_stream(fdesc)
 
-Unfortunately this will instantly crash::
+Unfortunately this will instantly crash:
+
+.. code-block::
 
     binobj.errors.ValueSizeError: String(name='first_name') can't serialize value: Value doesn't fit into 8 bytes.
 
