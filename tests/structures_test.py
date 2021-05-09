@@ -7,6 +7,7 @@ import pytest
 import binobj
 from binobj import errors
 from binobj import fields
+from binobj.pep526 import dataclass
 
 
 class BasicStruct(binobj.Struct):
@@ -347,3 +348,21 @@ def test_load__init_kwargs__not_modified():
     assert struct.required == {"nested": "item"}
     assert args == {"required": {"nested": "item"}}, "Keyword arguments were modified!"
     assert struct.required is not args["required"], "Value was not deep copied!"
+
+
+@pytest.mark.xfail(
+    reason="It's (currently) impossible to detect an empty regular struct."
+)
+def test_no_fields_boom__really_has_no_fields__assignment():
+    with pytest.raises(errors.NoDefinedFieldsError):
+
+        class MyStruct(binobj.Struct):
+            pass
+
+
+def test_no_fields_boom__really_has_no_fields__dataclass():
+    with pytest.raises(errors.NoDefinedFieldsError):
+
+        @dataclass
+        class MyStruct(binobj.Struct):
+            pass

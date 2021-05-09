@@ -4,8 +4,6 @@ Changelog
 0.11.0
 ------
 
-Released 2021-02-21
-
 New Features
 ~~~~~~~~~~~~
 
@@ -43,6 +41,42 @@ Other Changes
 * Minor code hygiene changes.
 * Removed ``attrs`` as a dependency in favor of ``dataclasses`` from the Python standard
   library. A backport will automatically be installed on Python 3.6.
+
+
+0.10.2
+------
+
+Released 2021-05-08
+
+New Features
+~~~~~~~~~~~~
+
+The documentation is now available `online`_!
+
+.. _online: https://dargueta.github.io/binobj/
+
+Bugfixes
+~~~~~~~~
+
+* Creating a dataclass with no fields now throws :class:`binobj.errors.NoDefinedFieldsError`.
+  Unfortunately, because ``dataclass`` is a decorator that executes after the class is
+  created, we can't do the same with normal assigned fields.
+* Fixed wrong docstring for :class:`binobj.errors.NoDefinedFieldsError` that said it
+  was thrown when only assignments were used on a class marked with ``dataclass``. It
+  was supposed to be a :class:`~binobj.errors.MixedDeclarationsError`.
+* Fixed formatting and broken links in docstrings.
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+* Upgraded test dependencies.
+* Added a few more flake8 plugins for stricter linting of things.
+* Set minimum test coverage to 95%.
+* Split out packages used for unit tests and linting into separate files, as we were
+  installing a bunch of stuff for the unit tests that weren't needed.
+* Standardized order and placement of the "New in version X" and "Changed in version X"
+  directives. They are now always at the bottom of the thing being documented, in
+  chronological order.
 
 
 0.10.1

@@ -1,9 +1,9 @@
 """Support for declaring fields in structs using `PEP 526`_ variable annotations.
 
-You can use the :func:`dataclass` decorator on your :class:`Struct`
+You can use the :func:`dataclass` decorator on your :class:`Struct`.
 
-If you use this decorator, *all* fields must be declared with PEP 526 annotations.
-You can't mix this system with the original assignment-based one.
+If you use this decorator, *all* fields must be declared with PEP 526 annotations. You
+can't mix this system with the original assignment-based one.
 
 Here are a few examples of how you can declare your fields::
 
@@ -58,7 +58,7 @@ try:
     from typing import get_origin as get_typing_origin  # type: ignore[attr-defined]
 except ImportError:
     from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
-    from typing_inspect import get_origin as get_typing_origin  # type: ignore[import]
+    from typing_inspect import get_origin as get_typing_origin  # type: ignore[import,no-redef]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
@@ -219,6 +219,9 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
         #
         # If we don't do this `MyStruct.foo` will be `123`, not a Field object.
         setattr(class_object, name, field_instance)
+
+    if n_fields_found == 0:
+        raise errors.NoDefinedFieldsError(struct=class_object)
 
     meta.size_bytes = byte_offset
     meta.num_own_fields = n_fields_found

@@ -95,8 +95,8 @@ def decode_integer_compact(stream: BinaryIO) -> int:
         int8 = _read_uint8(stream)
 
         if sign is None:
-            # Sign hasn't been determined yet so this must be the first byte of
-            # the number.
+            # Sign hasn't been determined yet so this must be the first byte of the
+            # number.
             value = int8 & 0x3F
             sign = -1 if int8 & 0x40 else 1
         else:
@@ -206,18 +206,18 @@ def encode_integer_leb128(value: int) -> bytes:
     if value == 0:
         return b"\0"
 
-    # Calculate the number of bits in the integer and round up to the nearest
-    # multiple of 7. We need to add 1 bit because bit_length() only returns the
-    # number of bits required to encode the magnitude, but not the sign.
+    # Calculate the number of bits in the integer and round up to the nearest multiple
+    # of 7. We need to add 1 bit because bit_length() only returns the number of bits
+    # required to encode the magnitude, but not the sign.
 
     n_bits = value.bit_length() + 1
     if n_bits % 7:
         n_bits += 7 - (n_bits % 7)
 
     # Bit operations force a negative integer to its unsigned two's-complement
-    # representation, e.g. -127 & 0xff = 0x80, -10 & 0xfff = 0xff6, etc. We use
-    # this to sign-extend the number *and* make it unsigned. Once it's unsigned,
-    # we can use ULEB128.
+    # representation, e.g. -127 & 0xff = 0x80, -10 & 0xfff = 0xff6, etc. We use this to
+    # sign-extend the number *and* make it unsigned. Once it's unsigned, we can use
+    # ULEB128.
     mask = (1 << n_bits) - 1
     value &= mask
 

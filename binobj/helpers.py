@@ -21,9 +21,8 @@ def read_int(
         If ``True``, interpret this integer as a two's-complement signed integer.
         Otherwise, interpret it as an unsigned integer.
     :param str endian:
-        The endianness of the integer, either ``big`` or ``little``. If not
-        given, will default to the system's native byte order as given by
-        :data:`sys.byteorder`.
+        The endianness of the integer, either ``big`` or ``little``. If not given, will
+        default to the system's native byte order as given by :data:`sys.byteorder`.
 
     :return: The integer loaded from the byte stream.
     :rtype: int
@@ -56,21 +55,21 @@ def write_int(
     :param int value:
         The integer to dump into the stream.
     :param int n_bytes:
-        The number of bytes the integer should take up. Exactly this many bytes
-        will be written into the stream, so ensure that there's enough bits to
-        represent ``value``.
+        The number of bytes the integer should take up. Exactly this many bytes will be
+        written into the stream, so ensure that there's enough bits to represent
+        ``value``.
     :param bool signed:
-        If ``True``, write this integer in two's-complement format. Otherwise,
-        write it as an unsigned integer. A negative ``value`` will trigger an
+        If ``True``, write this integer in two's-complement format. Otherwise, write it
+        as an unsigned integer. A negative ``value`` will trigger an
         :class:`OverflowError` if this is ``False``.
     :param str endian:
-        The endianness to use when writing the integer, either ``big`` or
-        ``little``. If not given, will default to the system's native byte order
-        as given by :data:`sys.byteorder`.
+        The endianness to use when writing the integer, either "big" or "little". If not
+        given, will default to the system's native byte order as given by
+        :data:`sys.byteorder`.
 
     :raise OverflowError:
-        ``value`` can't be represented only by ``n_bytes`` bytes. The number is
-        too big, or it's negative and ``signed`` is ``False``.
+        ``value`` can't be represented only by ``n_bytes`` bytes. The number is too big,
+        or it's negative and ``signed`` is ``False``.
     """
     if not endian:
         endian = sys.byteorder
