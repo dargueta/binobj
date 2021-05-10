@@ -10,6 +10,7 @@ import warnings
 from typing import Any
 from typing import BinaryIO
 from typing import Callable
+from typing import ClassVar
 from typing import Collection
 from typing import Generic
 from typing import Iterable
@@ -190,9 +191,17 @@ class Field(Generic[T]):
         in the stream when loading.
     """
 
-    __objclass__: type
-    __overrideable_attributes__: Union[Collection[str], Mapping[str, str]] = ()
+    __overrideable_attributes__: ClassVar[Collection[str]] = ()
+    """The names of attributes that can be overridden using ``Meta`` class options."""
+
     __explicit_init_args__: Set[str]
+    """The names of arguments that were explicitly passed to the constructor."""
+
+    __objclass__: Type["Struct"]
+    """The :class:`~binobj.structures.Struct` class that this ``Field`` is bound to.
+
+    This is the class object, not a particular instance of the class.
+    """
 
     def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any) -> "Field[Any]":
         """Create a new instance, recording which keyword arguments were passed in.

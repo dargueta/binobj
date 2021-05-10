@@ -68,9 +68,9 @@ class StructMetadata:
     struct_validators: List[StructValidator] = dataclasses.field(default_factory=list)
     """A list of validators for this struct."""
 
-    field_validators: MutableMapping[str, List[MethodFieldValidator]] = dataclasses.field(
-        default_factory=dict
-    )
+    field_validators: MutableMapping[
+        str, List[MethodFieldValidator]
+    ] = dataclasses.field(default_factory=dict)
     """A mapping of field names to validators to execute for that field."""
 
     num_own_fields: int = 0
