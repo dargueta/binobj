@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>binobj.fields.numeric module &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -34,12 +35,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-binobj.fields.numeric">
+  <section id="module-binobj.fields.numeric">
 <span id="binobj-fields-numeric-module"></span><h1>binobj.fields.numeric module<a class="headerlink" href="#module-binobj.fields.numeric" title="Permalink to this headline">¶</a></h1>
 <p>Fields representing numeric values, such as integers and floats.</p>
 <dl class="py class">
-<dt id="binobj.fields.numeric.Float">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Float</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
 <p>A floating-point number in IEEE-754:2008 interchange format.</p>
 <p>This is a base class and should not be used directly.</p>
@@ -58,8 +59,8 @@ given, defaults to the system’s native byte ordering as given by
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Float16">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Float16</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float16" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float16">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Float16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float16" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
 <p>A half-precision floating-point number in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Half-precision_floating-point_format">binary16</a> format.</p>
 <div class="admonition warning">
@@ -70,50 +71,50 @@ versions of Python will crash.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Float32">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Float32</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float32" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float32">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float32" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
 <p>A single-precision floating-point number in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">binary32</a> format.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Float64">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Float64</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float64" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float64">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float64" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
 <p>A floating-point number stored in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">binary64</a> format.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Int16">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Int16</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int16" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int16">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Int16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int16" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A 16-bit signed integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Int32">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Int32</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int32" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int32">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Int32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int32" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A 32-bit signed integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Int64">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Int64</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int64" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int64">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Int64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int64" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A 64-bit signed integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Int8">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Int8</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int8" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int8">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Int8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int8" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>An 8-bit signed integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Integer">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Integer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Integer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Integer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Integer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A two’s-complement integer of some fixed size.</p>
 <p>This class is typically not used directly, except for integers with sizes that
@@ -140,8 +141,8 @@ such as sign-magnitude are not supported.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Timestamp">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Timestamp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>]</p>
 <p>A timestamp stored as an integer offset from the <a class="reference external" href="https://en.wikipedia.org/wiki/Unix_time">Unix epoch</a>.</p>
 <p>Timestamps are stored in UTC. When dumping, naive datetimes are assumed to be in the
@@ -191,8 +192,8 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Timestamp32">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Timestamp32</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp32" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp32">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Timestamp32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp32" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>]</p>
 <p>A timestamp saved as a 32-bit integer.</p>
 <div class="versionadded">
@@ -205,8 +206,8 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.Timestamp64">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Timestamp64</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp64" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp64">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Timestamp64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp64" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>]</p>
 <p>A timestamp saved as a 64-bit integer.</p>
 <div class="versionadded">
@@ -219,36 +220,36 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.UInt16">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">UInt16</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt16" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt16">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">UInt16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt16" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A 16-bit unsigned integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.UInt32">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">UInt32</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt32" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt32">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">UInt32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt32" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A 32-bit unsigned integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.UInt64">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">UInt64</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt64" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt64">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">UInt64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt64" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>A 64-bit unsigned integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.UInt8">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">UInt8</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt8" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt8">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">UInt8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt8" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>An 8-bit unsigned integer.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.UnsignedInteger">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">UnsignedInteger</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.UnsignedInteger">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">UnsignedInteger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>An unsigned two’s-complement integer of some fixed size.</p>
 <p>This class is typically not used directly, except for integers with sizes that
@@ -260,8 +261,8 @@ aren’t powers of two, e.g. for a 24-bit number.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.numeric.VariableLengthInteger">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">VariableLengthInteger</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.numeric.VariableLengthInteger">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">VariableLengthInteger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 <p>An integer of varying size.</p>
 <dl class="field-list simple">
@@ -275,7 +276,7 @@ there’s no restriction on the size.</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -313,7 +314,7 @@ there’s no restriction on the size.</p></li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

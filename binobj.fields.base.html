@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>binobj.fields.base module &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -34,20 +35,20 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-binobj.fields.base">
+  <section id="module-binobj.fields.base">
 <span id="binobj-fields-base-module"></span><h1>binobj.fields.base module<a class="headerlink" href="#module-binobj.fields.base" title="Permalink to this headline">¶</a></h1>
 <p>Base classes and definitions common to all Fields.</p>
 <dl class="py data">
-<dt id="binobj.fields.base.DEFAULT">
-<code class="sig-name descname"><span class="pre">DEFAULT</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.DEFAULT">
+<span class="sig-name descname"><span class="pre">DEFAULT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.DEFAULT" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sentinel value used to indicate that the default value of a setting should be used.</p>
 <p>We need this because sometimes <code class="docutils literal notranslate"><span class="pre">None</span></code> is a valid value for that setting.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.base.Field">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Field</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.base.Field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.base.T</span></code>]</p>
+<dt class="sig sig-object py" id="binobj.fields.base.Field">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.base.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.base.T</span></code>]</p>
 <p>The base class for all struct fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -130,8 +131,8 @@ for a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.f
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="binobj.fields.base.Field.index">
-<code class="sig-name descname"><span class="pre">index</span></code><a class="headerlink" href="#binobj.fields.base.Field.index" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.index">
+<span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#binobj.fields.base.Field.index" title="Permalink to this definition">¶</a></dt>
 <dd><p>The zero-based index of the field in the struct.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -141,8 +142,8 @@ for a <a class="reference internal" href="binobj.fields.stringlike.html#binobj.f
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="binobj.fields.base.Field.offset">
-<code class="sig-name descname"><span class="pre">offset</span></code><a class="headerlink" href="#binobj.fields.base.Field.offset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><a class="headerlink" href="#binobj.fields.base.Field.offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>The zero-based byte offset of the field in the struct. If the offset can’t be
 computed (e.g. it’s preceded by a variable-length field), this will be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <dl class="field-list simple">
@@ -177,9 +178,9 @@ error in the future. This resolves the asymmetric behavior where using
 <a class="reference internal" href="#binobj.fields.base.DEFAULT" title="binobj.fields.base.DEFAULT"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT</span></code></a> throws an error when dumping but happily loads whatever’s next
 in the stream when loading.</p>
 </div>
-<dl class="py method">
-<dt id="binobj.fields.base.Field.allow_null">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">allow_null</span></code><a class="headerlink" href="#binobj.fields.base.Field.allow_null" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="binobj.fields.base.Field.allow_null">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">allow_null</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#binobj.fields.base.Field.allow_null" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is <code class="docutils literal notranslate"><span class="pre">None</span></code> an acceptable value for this field?</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -189,8 +190,8 @@ in the stream when loading.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.bind_to_container">
-<code class="sig-name descname"><span class="pre">bind_to_container</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">StructMetadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.fields.base.Field.bind_to_container" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.bind_to_container">
+<span class="sig-name descname"><span class="pre">bind_to_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">StructMetadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.fields.base.Field.bind_to_container" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bind this field to a Struct and apply any predefined defaults.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -210,8 +211,8 @@ the container.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.compute_value_for_dump">
-<code class="sig-name descname"><span class="pre">compute_value_for_dump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">binobj.fields.base._NotPresent</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.base.Field.compute_value_for_dump" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.compute_value_for_dump">
+<span class="sig-name descname"><span class="pre">compute_value_for_dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.base.T</span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">binobj.fields.base._NotPresent</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.base.Field.compute_value_for_dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the value for this field upon dumping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -240,8 +241,8 @@ instead of returning <a class="reference internal" href="#binobj.fields.base.UND
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.computes">
-<code class="sig-name descname"><span class="pre">computes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#binobj.fields.base.Field" title="binobj.fields.base.Field"><span class="pre">binobj.fields.base.Field</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.fields.base.Field.computes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.computes">
+<span class="sig-name descname"><span class="pre">computes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#binobj.fields.base.Field" title="binobj.fields.base.Field"><span class="pre">binobj.fields.base.Field</span></a><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.base.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.base.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.fields.base.Field.computes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator that marks a function as computing the value for a field.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.0: </span>This decorator will be moved to <a class="reference internal" href="binobj.decorators.html#module-binobj.decorators" title="binobj.decorators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">binobj.decorators</span></code></a>.</p>
@@ -282,9 +283,9 @@ occurring after it.</p></li>
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="binobj.fields.base.Field.default">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">default</span></code><a class="headerlink" href="#binobj.fields.base.Field.default" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="binobj.fields.base.Field.default">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="pre">:</span> <span class="pre">Union[binobj.fields.base.T,</span> <span class="pre">None,</span> <span class="pre">binobj.fields.base._Undefined]</span></em><a class="headerlink" href="#binobj.fields.base.Field.default" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default value of this field, or <a class="reference internal" href="#binobj.fields.base.UNDEFINED" title="binobj.fields.base.UNDEFINED"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a>.</p>
 <p>If the default value passed to the constructor was a callable, this property
 will always give its return value. That callable is invoked on each access of
@@ -296,8 +297,8 @@ for <code class="docutils literal notranslate"><span class="pre">const</span></c
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.from_bytes">
-<code class="sig-name descname"><span class="pre">from_bytes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">binobj.fields.base._NotPresent</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.base.Field.from_bytes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.from_bytes">
+<span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.base.T</span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">binobj.fields.base._NotPresent</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.base.Field.from_bytes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load from the given byte string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -319,8 +320,8 @@ automatically when a field is loaded by a
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.from_stream">
-<code class="sig-name descname"><span class="pre">from_stream</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">binobj.fields.base._NotPresent</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.base.Field.from_stream" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.from_stream">
+<span class="sig-name descname"><span class="pre">from_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.base.T</span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">binobj.fields.base._NotPresent</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.base.Field.from_stream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load data from the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -340,8 +341,8 @@ automatically when a field is loaded by a
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.get_expected_size">
-<code class="sig-name descname"><span class="pre">get_expected_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.fields.base.Field.get_expected_size" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.get_expected_size">
+<span class="sig-name descname"><span class="pre">get_expected_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.fields.base.Field.get_expected_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the size of this field in bytes, given values for other fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -368,18 +369,18 @@ for compatibility but it will eventually be removed.</p>
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="binobj.fields.base.Field.has_fixed_size">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">has_fixed_size</span></code><a class="headerlink" href="#binobj.fields.base.Field.has_fixed_size" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="binobj.fields.base.Field.has_fixed_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">has_fixed_size</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#binobj.fields.base.Field.has_fixed_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Does this field have a fixed size?</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.9.0.</span></p>
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="binobj.fields.base.Field.required">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">required</span></code><a class="headerlink" href="#binobj.fields.base.Field.required" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="binobj.fields.base.Field.required">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">required</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#binobj.fields.base.Field.required" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is this field required for serialization?</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -388,9 +389,9 @@ for compatibility but it will eventually be removed.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="binobj.fields.base.Field.size">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">size</span></code><a class="headerlink" href="#binobj.fields.base.Field.size" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="binobj.fields.base.Field.size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[Union[int,</span> <span class="pre">str,</span> <span class="pre">binobj.fields.base.Field[int]]]</span></em><a class="headerlink" href="#binobj.fields.base.Field.size" title="Permalink to this definition">¶</a></dt>
 <dd><p>The size of this field, in bytes.</p>
 <p>If the field is of variable size, such as a null-terminated string, this will be
 <code class="docutils literal notranslate"><span class="pre">None</span></code>. Builtin fields set this automatically if <code class="docutils literal notranslate"><span class="pre">const</span></code> is given but you’ll
@@ -398,8 +399,8 @@ need to implement <code class="xref py py-meth docutils literal notranslate"><sp
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.to_bytes">
-<code class="sig-name descname"><span class="pre">to_bytes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data:</span> <span class="pre">Union[T</span></em>, <em class="sig-param"><span class="pre">None</span></em>, <em class="sig-param"><span class="pre">binobj.fields.base._Default]</span> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em>, <em class="sig-param"><span class="pre">context:</span> <span class="pre">Optional[Any]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">all_fields:</span> <span class="pre">Optional[Mapping[str</span></em>, <em class="sig-param"><span class="pre">Any]]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.fields.base.Field.to_bytes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data:</span> <span class="pre">Union[binobj.fields.base.T</span></em>, <em class="sig-param"><span class="pre">None</span></em>, <em class="sig-param"><span class="pre">binobj.fields.base._Default]</span> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em>, <em class="sig-param"><span class="pre">context:</span> <span class="pre">Optional[Any]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">all_fields:</span> <span class="pre">Optional[Mapping[str</span></em>, <em class="sig-param"><span class="pre">Any]]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.fields.base.Field.to_bytes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the given data into bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -422,8 +423,8 @@ the field’s containing <a class="reference internal" href="binobj.structures.h
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.base.Field.to_stream">
-<code class="sig-name descname"><span class="pre">to_stream</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream:</span> <span class="pre">BinaryIO</span></em>, <em class="sig-param"><span class="pre">data:</span> <span class="pre">Union[T</span></em>, <em class="sig-param"><span class="pre">None</span></em>, <em class="sig-param"><span class="pre">binobj.fields.base._Default]</span> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em>, <em class="sig-param"><span class="pre">context:</span> <span class="pre">Optional[Any]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">all_fields:</span> <span class="pre">Optional[Mapping[str</span></em>, <em class="sig-param"><span class="pre">Any]]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.fields.base.Field.to_stream" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.Field.to_stream">
+<span class="sig-name descname"><span class="pre">to_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream:</span> <span class="pre">BinaryIO</span></em>, <em class="sig-param"><span class="pre">data:</span> <span class="pre">Union[binobj.fields.base.T</span></em>, <em class="sig-param"><span class="pre">None</span></em>, <em class="sig-param"><span class="pre">binobj.fields.base._Default]</span> <span class="pre">=</span> <span class="pre">&lt;_Default.token:</span> <span class="pre">0&gt;</span></em>, <em class="sig-param"><span class="pre">context:</span> <span class="pre">Optional[Any]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">all_fields:</span> <span class="pre">Optional[Mapping[str</span></em>, <em class="sig-param"><span class="pre">Any]]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="headerlink" href="#binobj.fields.base.Field.to_stream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the given data into bytes and write it to <code class="docutils literal notranslate"><span class="pre">stream</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -443,8 +444,8 @@ the field’s containing <a class="reference internal" href="binobj.structures.h
 </dd></dl>
 
 <dl class="py data">
-<dt id="binobj.fields.base.NOT_PRESENT">
-<code class="sig-name descname"><span class="pre">NOT_PRESENT</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_NotPresent.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.NOT_PRESENT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.NOT_PRESENT">
+<span class="sig-name descname"><span class="pre">NOT_PRESENT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_NotPresent.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.NOT_PRESENT" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sentinel value used to indicate that a field is not present.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.4.5.</span></p>
@@ -452,12 +453,12 @@ the field’s containing <a class="reference internal" href="binobj.structures.h
 </dd></dl>
 
 <dl class="py data">
-<dt id="binobj.fields.base.UNDEFINED">
-<code class="sig-name descname"><span class="pre">UNDEFINED</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_Undefined.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.UNDEFINED" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.base.UNDEFINED">
+<span class="sig-name descname"><span class="pre">UNDEFINED</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_Undefined.token:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#binobj.fields.base.UNDEFINED" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sentinel value used to indicate that a setting or field is undefined.</p>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -495,7 +496,7 @@ the field’s containing <a class="reference internal" href="binobj.structures.h
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

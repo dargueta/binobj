@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>binobj.varints module &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -34,49 +35,49 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-binobj.varints">
+  <section id="module-binobj.varints">
 <span id="binobj-varints-module"></span><h1>binobj.varints module<a class="headerlink" href="#module-binobj.varints" title="Permalink to this headline">¶</a></h1>
 <p>Serializers and deserializers for <a class="reference external" href="https://en.wikipedia.org/wiki/Variable-length_quantity">variable-length integers</a>.</p>
 <dl class="py data">
-<dt id="binobj.varints.INTEGER_ENCODING_MAP">
-<code class="sig-name descname"><span class="pre">INTEGER_ENCODING_MAP</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{&lt;VarIntEncoding.COMPACT_INDICES:</span> <span class="pre">'compact'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_compact&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_compact&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'big',</span> <span class="pre">'signed':</span> <span class="pre">True},</span> <span class="pre">&lt;VarIntEncoding.LEB128:</span> <span class="pre">'leb128'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_leb128&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_leb128&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'little',</span> <span class="pre">'signed':</span> <span class="pre">True},</span> <span class="pre">&lt;VarIntEncoding.ULEB128:</span> <span class="pre">'uleb128'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_uleb128&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_uleb128&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'little',</span> <span class="pre">'signed':</span> <span class="pre">False},</span> <span class="pre">&lt;VarIntEncoding.VLQ:</span> <span class="pre">'vlq'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_vlq&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_vlq&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'big',</span> <span class="pre">'signed':</span> <span class="pre">False}}</span></em><a class="headerlink" href="#binobj.varints.INTEGER_ENCODING_MAP" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.INTEGER_ENCODING_MAP">
+<span class="sig-name descname"><span class="pre">INTEGER_ENCODING_MAP</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{&lt;VarIntEncoding.COMPACT_INDICES:</span> <span class="pre">'compact'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_compact&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_compact&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'big',</span> <span class="pre">'signed':</span> <span class="pre">True},</span> <span class="pre">&lt;VarIntEncoding.LEB128:</span> <span class="pre">'leb128'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_leb128&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_leb128&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'little',</span> <span class="pre">'signed':</span> <span class="pre">True},</span> <span class="pre">&lt;VarIntEncoding.ULEB128:</span> <span class="pre">'uleb128'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_uleb128&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_uleb128&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'little',</span> <span class="pre">'signed':</span> <span class="pre">False},</span> <span class="pre">&lt;VarIntEncoding.VLQ:</span> <span class="pre">'vlq'&gt;:</span> <span class="pre">{'encode':</span> <span class="pre">&lt;function</span> <span class="pre">encode_integer_vlq&gt;,</span> <span class="pre">'decode':</span> <span class="pre">&lt;function</span> <span class="pre">decode_integer_vlq&gt;,</span> <span class="pre">'endian':</span> <span class="pre">'big',</span> <span class="pre">'signed':</span> <span class="pre">False}}</span></em><a class="headerlink" href="#binobj.varints.INTEGER_ENCODING_MAP" title="Permalink to this definition">¶</a></dt>
 <dd><p>A mapping of encoding enums to encode/decode functions.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.varints.VarIntEncoding">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">VarIntEncoding</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.varints.VarIntEncoding" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.VarIntEncoding">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">VarIntEncoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.varints.VarIntEncoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
 <p>All available encoding schemes for variable-length integers.</p>
 <dl class="py attribute">
-<dt id="binobj.varints.VarIntEncoding.COMPACT_INDICES">
-<code class="sig-name descname"><span class="pre">COMPACT_INDICES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'compact'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.COMPACT_INDICES" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.VarIntEncoding.COMPACT_INDICES">
+<span class="sig-name descname"><span class="pre">COMPACT_INDICES</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'compact'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.COMPACT_INDICES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Signed big-endian integer in <a class="reference external" href="https://en.wikipedia.org/wiki/Variable-length_quantity#Sign_bit">modified VLQ</a> format.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="binobj.varints.VarIntEncoding.LEB128">
-<code class="sig-name descname"><span class="pre">LEB128</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'leb128'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.LEB128" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.VarIntEncoding.LEB128">
+<span class="sig-name descname"><span class="pre">LEB128</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'leb128'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.LEB128" title="Permalink to this definition">¶</a></dt>
 <dd><p>Signed little-endian integer in <a class="reference external" href="https://en.wikipedia.org/wiki/LEB128">LEB128</a> format.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="binobj.varints.VarIntEncoding.ULEB128">
-<code class="sig-name descname"><span class="pre">ULEB128</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'uleb128'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.ULEB128" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.VarIntEncoding.ULEB128">
+<span class="sig-name descname"><span class="pre">ULEB128</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'uleb128'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.ULEB128" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unsigned little-endian integer in <a class="reference external" href="https://en.wikipedia.org/wiki/LEB128">LEB128</a> format.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="binobj.varints.VarIntEncoding.VLQ">
-<code class="sig-name descname"><span class="pre">VLQ</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'vlq'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.VLQ" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.VarIntEncoding.VLQ">
+<span class="sig-name descname"><span class="pre">VLQ</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'vlq'</span></em><a class="headerlink" href="#binobj.varints.VarIntEncoding.VLQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unsigned big-endian integer in <a class="reference external" href="https://en.wikipedia.org/wiki/Variable-length_quantity#General_structure">VLQ</a> format.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.decode_integer_compact">
-<code class="sig-name descname"><span class="pre">decode_integer_compact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_compact" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.decode_integer_compact">
+<span class="sig-name descname"><span class="pre">decode_integer_compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_compact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode an integer with signed VLQ encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -92,8 +93,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.decode_integer_leb128">
-<code class="sig-name descname"><span class="pre">decode_integer_leb128</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_leb128" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.decode_integer_leb128">
+<span class="sig-name descname"><span class="pre">decode_integer_leb128</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_leb128" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode a signed LEB128-encoded integer from the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -109,8 +110,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.decode_integer_uleb128">
-<code class="sig-name descname"><span class="pre">decode_integer_uleb128</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_uleb128" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.decode_integer_uleb128">
+<span class="sig-name descname"><span class="pre">decode_integer_uleb128</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_uleb128" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode an unsigned LEB128-encoded integer from the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -126,8 +127,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.decode_integer_vlq">
-<code class="sig-name descname"><span class="pre">decode_integer_vlq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_vlq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.decode_integer_vlq">
+<span class="sig-name descname"><span class="pre">decode_integer_vlq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><a class="headerlink" href="#binobj.varints.decode_integer_vlq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode an unsigned VLQ-encoded integer from the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -143,8 +144,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.encode_integer_compact">
-<code class="sig-name descname"><span class="pre">encode_integer_compact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_compact" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.encode_integer_compact">
+<span class="sig-name descname"><span class="pre">encode_integer_compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_compact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode an integer with signed VLQ encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -160,8 +161,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.encode_integer_leb128">
-<code class="sig-name descname"><span class="pre">encode_integer_leb128</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_leb128" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.encode_integer_leb128">
+<span class="sig-name descname"><span class="pre">encode_integer_leb128</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_leb128" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode an integer with signed LEB128 encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -177,8 +178,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.encode_integer_uleb128">
-<code class="sig-name descname"><span class="pre">encode_integer_uleb128</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_uleb128" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.encode_integer_uleb128">
+<span class="sig-name descname"><span class="pre">encode_integer_uleb128</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_uleb128" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode an integer with unsigned LEB128 encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -194,8 +195,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="binobj.varints.encode_integer_vlq">
-<code class="sig-name descname"><span class="pre">encode_integer_vlq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_vlq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.varints.encode_integer_vlq">
+<span class="sig-name descname"><span class="pre">encode_integer_vlq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><a class="headerlink" href="#binobj.varints.encode_integer_vlq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode an integer with the unsigned VLQ encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -210,7 +211,7 @@
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -248,7 +249,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

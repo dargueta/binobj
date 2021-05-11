@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Changelog &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -38,16 +39,16 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="changelog">
+  <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
+<section id="id1">
 <h2>0.10.2<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>Released 2021-05-08</p>
-<div class="section" id="new-features">
+<section id="new-features">
 <h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
 <p>The documentation is now available <a class="reference external" href="https://dargueta.github.io/binobj/">online</a>!</p>
-</div>
-<div class="section" id="bugfixes">
+</section>
+<section id="bugfixes">
 <h3>Bugfixes<a class="headerlink" href="#bugfixes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Creating a dataclass with no fields now throws <code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.errors.NoDefinedFieldsError</span></code>.
@@ -58,8 +59,8 @@ was thrown when only assignments were used on a class marked with <code class="d
 was supposed to be a <code class="xref py py-class docutils literal notranslate"><span class="pre">MixedDeclarationsError</span></code>.</p></li>
 <li><p>Fixed formatting and broken links in docstrings.</p></li>
 </ul>
-</div>
-<div class="section" id="internal-changes">
+</section>
+<section id="internal-changes">
 <h3>Internal Changes<a class="headerlink" href="#internal-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Upgraded test dependencies.</p></li>
@@ -71,12 +72,12 @@ installing a bunch of stuff for the unit tests that weren’t needed.</p></li>
 directives. They are now always at the bottom of the thing being documented, in
 chronological order.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id2">
+</section>
+</section>
+<section id="id2">
 <h2>0.10.1<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <p>Released 2021-02-24</p>
-<div class="section" id="id3">
+<section id="id3">
 <h3>Internal Changes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Updated copyright year</p></li>
@@ -84,12 +85,12 @@ chronological order.</p></li>
 <a class="reference external" href="https://libraries.io">libraries.io</a> and <a class="reference external" href="https://pepy.tech">pepy.tech</a>, plus it
 was never even documented in the first place.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id4">
+</section>
+</section>
+<section id="id4">
 <h2>0.10.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <p>Released 2021-01-12</p>
-<div class="section" id="id5">
+<section id="id5">
 <h3>New Features<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p><strong>Customize Struct Creation!</strong></p>
 <p>You can customize how a Struct is created by nesting a class named <code class="docutils literal notranslate"><span class="pre">Meta</span></code> into it,
@@ -146,19 +147,19 @@ to have a default value of “”:</p>
     <span class="n">num_children</span> <span class="o">=</span> <span class="n">Int8</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id6">
+</section>
+<section id="id6">
 <h3>Bugfixes<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed wrong type annotations for <code class="docutils literal notranslate"><span class="pre">validate</span></code> and <code class="docutils literal notranslate"><span class="pre">present</span></code> arguments of <code class="docutils literal notranslate"><span class="pre">Field</span></code>.</p></li>
 <li><p>Fixed outdated docstring for <code class="docutils literal notranslate"><span class="pre">null_value</span></code> argument of <code class="docutils literal notranslate"><span class="pre">Field</span></code>.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="post1">
+</section>
+</section>
+<section id="post1">
 <h2>0.9.2-post1<a class="headerlink" href="#post1" title="Permalink to this headline">¶</a></h2>
 <p>Released 2020-09-24</p>
-<div class="section" id="other-changes">
+<section id="other-changes">
 <h3>Other Changes<a class="headerlink" href="#other-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Loosened version requirement of <code class="docutils literal notranslate"><span class="pre">typing-inspect</span></code> package.</p></li>
@@ -166,12 +167,12 @@ to have a default value of “”:</p>
 <li><p>Improved behavior of <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code></p></li>
 <li><p>Made MyPy settings stricter</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id7">
+</section>
+</section>
+<section id="id7">
 <h2>0.9.2<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <p>Released 2020-09-20</p>
-<div class="section" id="id8">
+<section id="id8">
 <h3>Bugfixes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Optional[X]</span></code> notation to mark a field as nullable never worked; it does now.</p></li>
@@ -184,27 +185,27 @@ assignment and PEP 526 field declarations.</p></li>
 as if it were a <code class="docutils literal notranslate"><span class="pre">binobj.Union</span></code>. Using it will trigger a
 <code class="docutils literal notranslate"><span class="pre">InvalidTypeAnnotationError</span></code> as it was supposed to from the beginning.</p></li>
 </ul>
-</div>
-<div class="section" id="deprecations">
+</section>
+<section id="deprecations">
 <h3>Deprecations<a class="headerlink" href="#deprecations" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span></code> has declared that Python 3.5 support will end January 2021. In keeping
 with the recently established compatibility rules, <code class="docutils literal notranslate"><span class="pre">binobj</span></code> will not make an
 effort to maintain Python 3.5 compatibility past then either.</p>
-</div>
-<div class="section" id="id9">
+</section>
+<section id="id9">
 <h3>Other Changes<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <p>Deleted some dead code.</p>
-</div>
-</div>
-<div class="section" id="id10">
+</section>
+</section>
+<section id="id10">
 <h2>0.9.1<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <p>Released 2020-09-08</p>
-<div class="section" id="id11">
+<section id="id11">
 <h3>Bugfixes<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <p>0.9.0 was not installable on Python 3.5 due to a trailing comma that is valid
 syntax on 3.6+.</p>
-</div>
-<div class="section" id="compatibility-notice">
+</section>
+<section id="compatibility-notice">
 <h3>Compatibility Notice<a class="headerlink" href="#compatibility-notice" title="Permalink to this headline">¶</a></h3>
 <p>Support for Python 3.5 is un-deprecated. I will continue to support it until one
 of the following occurs, whichever is first:</p>
@@ -215,17 +216,17 @@ compatibility.</p></li>
 </ul>
 <p>Going forward, this will be the new policy for dropping support for <em>any</em> version
 of Python.</p>
-</div>
-</div>
-<div class="section" id="id12">
+</section>
+</section>
+<section id="id12">
 <h2>0.9.0<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <p>Released 2020-09-08</p>
 <p>This is a significant release with an embarrassing number of bugfixes and a few
 new features enhancing field declarations, null value handling, and how absent
 fields are represented.</p>
-<div class="section" id="id13">
+<section id="id13">
 <h3>New Features<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="dataclass-annotations">
+<section id="dataclass-annotations">
 <h4>Dataclass Annotations<a class="headerlink" href="#dataclass-annotations" title="Permalink to this headline">¶</a></h4>
 <p>The most exciting feature in this release is the ability to use <a class="reference external" href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a> type
 annotations to declare fields on Python 3.6 and higher. Whereas before you had
@@ -261,8 +262,8 @@ to assign class variables in the declarations, you can now do this:</p>
 annotations for <em>all</em> fields in the struct.</p></li>
 <li><p>You can’t use this on Python 3.5.</p></li>
 </ul>
-</div>
-<div class="section" id="more-flexible-size">
+</section>
+<section id="more-flexible-size">
 <h4>More flexible <code class="docutils literal notranslate"><span class="pre">size</span></code><a class="headerlink" href="#more-flexible-size" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><p>All fields now accept a <code class="docutils literal notranslate"><span class="pre">Field[int]</span></code> object for the size argument in the
@@ -270,8 +271,8 @@ constructor, as well as a string naming a field (useful for subclasses where
 the size field is in the superclass).</p></li>
 <li><p>A field whose size depends on another field can now use <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> for <code class="docutils literal notranslate"><span class="pre">null_value</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="null-value-doesn-t-need-to-be-bytes">
+</section>
+<section id="null-value-doesn-t-need-to-be-bytes">
 <h4><code class="docutils literal notranslate"><span class="pre">null_value</span></code> doesn’t need to be bytes<a class="headerlink" href="#null-value-doesn-t-need-to-be-bytes" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">null_value</span></code> now accepts deserialized values in addition to raw byte strings.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This used to be your only option:</span>
@@ -281,8 +282,8 @@ the size field is in the superclass).</p></li>
 <span class="n">field</span> <span class="o">=</span> <span class="n">String</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-16-le&quot;</span><span class="p">,</span> <span class="n">null_value</span><span class="o">=</span><span class="s2">&quot;NULL&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="new-argument-not-present-value">
+</section>
+<section id="new-argument-not-present-value">
 <h4>New Argument: <code class="docutils literal notranslate"><span class="pre">not_present_value</span></code><a class="headerlink" href="#new-argument-not-present-value" title="Permalink to this headline">¶</a></h4>
 <p>Instead of being hard-coded to return <code class="docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code> when a field is missing,
 this new field argument allows returning a user-defined value. The default is
@@ -292,16 +293,16 @@ still <code class="docutils literal notranslate"><span class="pre">NOT_PRESENT</
 <span class="go">-1</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="miscellaneous">
+</section>
+<section id="miscellaneous">
 <h4>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">repr()</span></code> of a <code class="docutils literal notranslate"><span class="pre">Field</span></code> now includes the field name.</p></li>
 <li><p>Added new exception <code class="docutils literal notranslate"><span class="pre">CannotDetermineNullError</span></code>.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id14">
+</section>
+</section>
+<section id="id14">
 <h3>Bugfixes<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>When a <code class="docutils literal notranslate"><span class="pre">Field</span></code> throws <code class="docutils literal notranslate"><span class="pre">ImmutableFieldError</span></code> it now includes its name in the
@@ -316,34 +317,34 @@ has been broken for a <em>really</em> long time.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">null_value</span></code> when loading has been completely broken for quite some time; it
 now works for all fields <em>except</em> unsized ones such as <code class="docutils literal notranslate"><span class="pre">StringZ</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="breaking-changes">
+</section>
+<section id="breaking-changes">
 <h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 <p>Passing <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> for <code class="docutils literal notranslate"><span class="pre">null_value</span></code> of an unsized field such as <code class="docutils literal notranslate"><span class="pre">StringZ</span></code>
 will throw a <code class="docutils literal notranslate"><span class="pre">CannotDetermineNullError</span></code>. This resolves the asymmetric behavior
 where using <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> throws an error when dumping but erroneously tries to
 load whatever’s next in the stream when loading, resulting in unpredictable
 behavior.</p>
-</div>
-<div class="section" id="id15">
+</section>
+<section id="id15">
 <h3>Deprecations<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">Field._get_expected_size()</span></code> has been made a public method. Use <code class="docutils literal notranslate"><span class="pre">get_expected_size()</span></code>
 instead. The private form will still work but is deprecated and will be removed in a
 future version.</p>
-</div>
-<div class="section" id="id16">
+</section>
+<section id="id16">
 <h3>Other Changes<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> file now properly ignores autogenerated documentation files.</p>
-</div>
-</div>
-<div class="section" id="id17">
+</section>
+</section>
+<section id="id17">
 <h2>0.8.0<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
 <p>Released 2020-07-02</p>
-<div class="section" id="id18">
+<section id="id18">
 <h3>New Features<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
 <p>Official support for Python 3.9.</p>
-</div>
-<div class="section" id="id19">
+</section>
+<section id="id19">
 <h3>Bugfixes<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">_do_load()</span></code> could be given <code class="docutils literal notranslate"><span class="pre">None</span></code> for the <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code> argument even
@@ -359,8 +360,8 @@ to serialize <code class="docutils literal notranslate"><span class="pre">UNDEFI
 <li><p>Test on PyPy 3.6 like we claimed we were. Accidentally deleted that in the
 travis.yml file.</p></li>
 </ul>
-</div>
-<div class="section" id="id20">
+</section>
+<section id="id20">
 <h3>Breaking Changes<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Removed <code class="docutils literal notranslate"><span class="pre">load()</span></code>, <code class="docutils literal notranslate"><span class="pre">loads()</span></code>, <code class="docutils literal notranslate"><span class="pre">dump()</span></code>, and <code class="docutils literal notranslate"><span class="pre">dumps()</span></code> methods which were
@@ -369,8 +370,8 @@ deprecated in 0.6.2.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Field</span></code> is now a generic container class, which means all subclasses must
 define their value type. <em>This only affects users that created their own subclasses.</em></p></li>
 </ul>
-</div>
-<div class="section" id="id21">
+</section>
+<section id="id21">
 <h3>Other Changes<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>PEP 484 type annotations have been added.</p></li>
@@ -382,12 +383,12 @@ on why, see <a class="reference external" href="https://www.python.org/dev/peps/
 <li><p>Travis no longer supports PyPy 3.5 so we have to stop testing on it, but the
 tests pass on CPython 3.5 and PyPy 3.6 so I think you’re okay for now.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id22">
+</section>
+</section>
+<section id="id22">
 <h2>0.7.1<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
 <p>Released 2020-04-30</p>
-<div class="section" id="id23">
+<section id="id23">
 <h3>Other Changes<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">__components__</span></code> and <code class="docutils literal notranslate"><span class="pre">__validators__</span></code> were removed and consolidated into a
@@ -396,12 +397,12 @@ logical structure. This is a purely internal change and should not affect
 most users.</p></li>
 <li><p>Better documentation.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id24">
+</section>
+</section>
+<section id="id24">
 <h2>0.7.0<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h2>
 <p>Released 2019-11-25</p>
-<div class="section" id="id25">
+<section id="id25">
 <h3>New Features<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Array</span></code> now sets <code class="docutils literal notranslate"><span class="pre">size</span></code> if it’s a fixed length and its components have
@@ -416,86 +417,86 @@ the struct’s constructor. You can also use this to override a field’s value.
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MyStruct</span><span class="p">(</span><span class="n">foo</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="s2">&quot;456&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id26">
+</section>
+<section id="id26">
 <h3>Bugfixes<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
 <p>Fixed URL typos in documentation.</p>
-</div>
-<div class="section" id="id27">
+</section>
+<section id="id27">
 <h3>Deprecations<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
 <p>Support for Python 3.5 is deprecated. According to <a class="reference external" href="https://www.python.org/dev/peps/pep-0478/">3.5 release schedule</a>, 3.5.9
 was the last scheduled release on 2019-11-01.</p>
-</div>
-<div class="section" id="id28">
+</section>
+<section id="id28">
 <h3>Other Changes<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Now testing the released Python 3.8 version instead of the development version.</p></li>
 <li><p>Upgraded <em>many</em> testing dependencies.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id29">
+</section>
+</section>
+<section id="id29">
 <h2>0.6.6<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h2>
 <p>Released 2019-11-25</p>
-<div class="section" id="id30">
+<section id="id30">
 <h3>Bugfixes<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
 <p>For some bizarre reason package detection from the <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code> file stopped
 working in January 2019 and every single release since 0.5.2 hasn’t had the
 source code in it, and the wheels have been empty. In other words, you could
 install <code class="docutils literal notranslate"><span class="pre">binobj</span></code> but <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">binobj</span></code> would fail!</p>
 <p>This tweaks <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> so that you can use it again.</p>
-</div>
-</div>
-<div class="section" id="id31">
+</section>
+</section>
+<section id="id31">
 <h2>0.6.5<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h2>
 <p>Botched release, removed from PyPI.</p>
-</div>
-<div class="section" id="id32">
+</section>
+<section id="id32">
 <h2>0.6.4<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h2>
 <p>Released 2019-09-01</p>
-<div class="section" id="id33">
+<section id="id33">
 <h3>New Features<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
 <p>Add official support for PyPy 3.6.</p>
-</div>
-</div>
-<div class="section" id="id34">
+</section>
+</section>
+<section id="id34">
 <h2>0.6.3<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h2>
 <p>Released 2019-04-13</p>
-<div class="section" id="id35">
+<section id="id35">
 <h3>New Features<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
 <p>Add official support for Python 3.8.</p>
-</div>
-<div class="section" id="id36">
+</section>
+<section id="id36">
 <h3>Other Changes<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Minor documentation fixes.</p></li>
 <li><p>Convert entire repo to use <a class="reference external" href="https://black.readthedocs.io/en/stable/">black</a> for code formatting. I don’t agree with
 all of its opinions but I do think it’s better to be consistent everywhere.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id37">
+</section>
+</section>
+<section id="id37">
 <h2>0.6.2<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h2>
 <p>Released 2019-03-05</p>
-<div class="section" id="id38">
+<section id="id38">
 <h3>Deprecations<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">load</span></code>, <code class="docutils literal notranslate"><span class="pre">loads</span></code>, <code class="docutils literal notranslate"><span class="pre">dump</span></code>, and <code class="docutils literal notranslate"><span class="pre">dumps</span></code> of <code class="docutils literal notranslate"><span class="pre">Field</span></code> classes are
 deprecated in favor of <code class="docutils literal notranslate"><span class="pre">from_stream</span></code>, <code class="docutils literal notranslate"><span class="pre">from_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">to_stream</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">to_bytes</span></code> for consistency with the <code class="docutils literal notranslate"><span class="pre">Struct</span></code> methods.</p>
-</div>
-<div class="section" id="id39">
+</section>
+<section id="id39">
 <h3>Other Changes<a class="headerlink" href="#id39" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Minor typo fixes in the documentation.</p></li>
 <li><p>Changed imports in internal code to stop importing fields from <code class="docutils literal notranslate"><span class="pre">binobj</span></code>.</p></li>
 <li><p>Upgraded test dependencies.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id40">
+</section>
+</section>
+<section id="id40">
 <h2>0.6.1<a class="headerlink" href="#id40" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2019-02-22</p>
-<div class="section" id="id41">
+<section id="id41">
 <h3>Bugfixes<a class="headerlink" href="#id41" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Array</span></code> used to dump all items in the iterable given to it, ignoring <code class="docutils literal notranslate"><span class="pre">count</span></code>.
@@ -515,8 +516,8 @@ scalar fields do.</p></li>
 bytes or a bytearray. This was <em>not</em> in line with the other fields’ behavior
 where they would “let it crash” if given an invalid type.</p></li>
 </ul>
-</div>
-<div class="section" id="id42">
+</section>
+<section id="id42">
 <h3>Other Changes<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Validators are no longer called when setting a field value. This would cause
@@ -528,12 +529,12 @@ default value was passed in. If you think about it, this makes far more sense
 than the original behavior where it returned <code class="docutils literal notranslate"><span class="pre">UNDEFINED</span></code>.</p></li>
 <li><p>Added new example with CPIO archive reader.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id43">
+</section>
+</section>
+<section id="id43">
 <h2>0.6.0<a class="headerlink" href="#id43" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2019-02-16</p>
-<div class="section" id="id44">
+<section id="id44">
 <h3>New Features<a class="headerlink" href="#id44" title="Permalink to this headline">¶</a></h3>
 <p>New field types were added:</p>
 <ul class="simple">
@@ -543,8 +544,8 @@ on Python 3.6 and above. Attempting to use it on Python 3.5 will trigger a
 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Timestamp</span></code>, <code class="docutils literal notranslate"><span class="pre">Timestamp32</span></code>, and <code class="docutils literal notranslate"><span class="pre">Timestamp64</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="id45">
+</section>
+<section id="id45">
 <h3>Bugfixes<a class="headerlink" href="#id45" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Integer</span></code> accidentally used some positional arguments instead of keyword-only.
@@ -556,8 +557,8 @@ Only a breaking change for people who used it directly (rare) and ignored the
 was 0.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Struct.to_dict()</span></code> didn’t omit fields marked with <code class="docutils literal notranslate"><span class="pre">discard</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="id46">
+</section>
+<section id="id46">
 <h3>Breaking Changes<a class="headerlink" href="#id46" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Support for Python 3.4 was dropped (deprecated 0.5.1).</p></li>
@@ -569,8 +570,8 @@ left in due to a bug that has now been fixed.</p></li>
 <code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code> instead of other exception types, to be more in line
 with the other fields.</p></li>
 </ul>
-</div>
-<div class="section" id="id47">
+</section>
+<section id="id47">
 <h3>Other Changes<a class="headerlink" href="#id47" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Many many fixes and clarifications to documentation.</p></li>
@@ -578,50 +579,50 @@ with the other fields.</p></li>
 for the same standard, but ISO 8859-1 is the official name. Behavior is
 identical.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id48">
+</section>
+</section>
+<section id="id48">
 <h2>0.5.2<a class="headerlink" href="#id48" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2019-01-31</p>
 <p>Fix typo in homepage URL. Otherwise identical to 0.5.1.</p>
-</div>
-<div class="section" id="id49">
+</section>
+<section id="id49">
 <h2>0.5.1<a class="headerlink" href="#id49" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2019-01-31</p>
 <p>This release is functionally identical to 0.5.0; changes are completely internal.</p>
-<div class="section" id="id50">
+<section id="id50">
 <h3>Breaking Changes<a class="headerlink" href="#id50" title="Permalink to this headline">¶</a></h3>
 <p>Setuptools &lt; 30.3.0 (8 Dec 2016) will no longer work, as configuration has been
 moved to setup.cfg. Please install a newer version.</p>
-</div>
-<div class="section" id="id51">
+</section>
+<section id="id51">
 <h3>Deprecations<a class="headerlink" href="#id51" title="Permalink to this headline">¶</a></h3>
 <p>Support for Python 3.4 is deprecated and will be dropped in 0.6.0. Python 3.4
 reaches end-of-life in March 2019 and will no longer be maintained. See <a class="reference external" href="https://www.python.org/dev/peps/pep-0429/">PEP 429</a>
 for full details.</p>
-</div>
-<div class="section" id="id52">
+</section>
+<section id="id52">
 <h3>Other Changes<a class="headerlink" href="#id52" title="Permalink to this headline">¶</a></h3>
 <p>A lot of fixes for incorrect, partial, or outdated documentation.</p>
-</div>
-</div>
-<div class="section" id="id53">
+</section>
+</section>
+<section id="id53">
 <h2>0.5.0<a class="headerlink" href="#id53" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-12-21</p>
-<div class="section" id="features">
+<section id="features">
 <h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
 <p>Comparing a <code class="docutils literal notranslate"><span class="pre">Struct</span></code> instance to <code class="docutils literal notranslate"><span class="pre">UNDEFINED</span></code> is now True if and only if the
 struct has all of its fields undefined. Previously a struct would never compare
 equal to <code class="docutils literal notranslate"><span class="pre">UNDEFINED</span></code>.</p>
-</div>
-<div class="section" id="id54">
+</section>
+<section id="id54">
 <h3>Deprecations<a class="headerlink" href="#id54" title="Permalink to this headline">¶</a></h3>
 <p>Zigzag integer encoding support will be dropped in 0.6.0. It was an experimental
 feature added when I was experimenting with different variable-length integer
 formats. It’s highly specific to <a class="reference external" href="https://developers.google.com/protocol-buffers/">Protobuf</a> and just doesn’t seem useful to have
 here.</p>
-</div>
-<div class="section" id="id55">
+</section>
+<section id="id55">
 <h3>Breaking Changes<a class="headerlink" href="#id55" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">endian</span></code> and <code class="docutils literal notranslate"><span class="pre">signed</span></code> keyword arguments to <code class="docutils literal notranslate"><span class="pre">VariableLengthInteger</span></code>
@@ -639,16 +640,16 @@ Use <code class="docutils literal notranslate"><span class="pre">struct_instance
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="id56">
+</section>
+<section id="id56">
 <h3>Other Changes<a class="headerlink" href="#id56" title="Permalink to this headline">¶</a></h3>
 <p>Trivial fixes to documentation to fix broken links.</p>
-</div>
-</div>
-<div class="section" id="id57">
+</section>
+</section>
+<section id="id57">
 <h2>0.4.6<a class="headerlink" href="#id57" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-09-28</p>
-<div class="section" id="id58">
+<section id="id58">
 <h3>Bugfixes<a class="headerlink" href="#id58" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>A fair number of documentation fixes – better explanations, formatting fixes,
@@ -658,8 +659,8 @@ detected as a dependency for testing and documentation building.</p></li>
 <li><p>Work around installation crash while testing on Python 3.4, due to a <a class="reference external" href="https://github.com/pypa/setuptools/issues/951">known</a> race
 condition in <code class="docutils literal notranslate"><span class="pre">setuptools</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="id59">
+</section>
+<section id="id59">
 <h3>Other Changes<a class="headerlink" href="#id59" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Dependencies:
@@ -670,19 +671,19 @@ condition in <code class="docutils literal notranslate"><span class="pre">setupt
 <li><p>Add deprecation warnings for (almost) all dictionary methods in <code class="docutils literal notranslate"><span class="pre">Struct</span></code>.
 They’ve been deprecated since 0.4.1 but I didn’t add the warnings.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id60">
+</section>
+</section>
+<section id="id60">
 <h2>0.4.5<a class="headerlink" href="#id60" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-08-04</p>
-<div class="section" id="id61">
+<section id="id61">
 <h3>Bugfixes<a class="headerlink" href="#id61" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">StringZ</span></code> failed to include the trailing null when reporting its size.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pylint</span></code> was missing from the development dependencies.</p></li>
 </ul>
-</div>
-<div class="section" id="id62">
+</section>
+<section id="id62">
 <h3>Features<a class="headerlink" href="#id62" title="Permalink to this headline">¶</a></h3>
 <p>Added <code class="docutils literal notranslate"><span class="pre">present</span></code> argument to <code class="docutils literal notranslate"><span class="pre">Field</span></code> that accepts a callable returning a
 boolean indicating if the field is present. This is useful for optional
@@ -698,19 +699,19 @@ earlier in the stream:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="id63">
+</section>
+</section>
+<section id="id63">
 <h2>0.4.4<a class="headerlink" href="#id63" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-07-14</p>
-<div class="section" id="id64">
+<section id="id64">
 <h3>Bugfixes<a class="headerlink" href="#id64" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Loading floats didn’t work at all because <code class="docutils literal notranslate"><span class="pre">size</span></code> wasn’t set in the constructor.</p></li>
 <li><p>Fixed minor typo in the documentation.</p></li>
 </ul>
-</div>
-<div class="section" id="id65">
+</section>
+<section id="id65">
 <h3>Other Changes<a class="headerlink" href="#id65" title="Permalink to this headline">¶</a></h3>
 <p>This release is a significant rearrangement of the code, but no behavior has
 changed.</p>
@@ -727,12 +728,12 @@ modules:</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stringlike</span></code>: All fields that are text strings or bytes.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id66">
+</section>
+</section>
+<section id="id66">
 <h2>0.4.3<a class="headerlink" href="#id66" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-07-09</p>
-<div class="section" id="id67">
+<section id="id67">
 <h3>Bugfixes<a class="headerlink" href="#id67" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>You no longer need to specify the signedness of variable-length integer fields,
@@ -740,8 +741,8 @@ since those are hard-coded by the standards anyway.</p></li>
 <li><p>Outdated documentation was missing some arguments in <code class="docutils literal notranslate"><span class="pre">_do_load</span></code> and <code class="docutils literal notranslate"><span class="pre">_do_dump</span></code>
 examples.</p></li>
 </ul>
-</div>
-<div class="section" id="id68">
+</section>
+<section id="id68">
 <h3>Features<a class="headerlink" href="#id68" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Added the <code class="docutils literal notranslate"><span class="pre">Float32</span></code> and <code class="docutils literal notranslate"><span class="pre">Float64</span></code> fields. These support 32- and 64-bit
@@ -749,8 +750,8 @@ floating-point numbers stored in IEEE-754:2008 interchange format.</p></li>
 <li><p>Added support for signed and unsigned <a class="reference external" href="https://en.wikipedia.org/wiki/LEB128">LEB128</a>
 variable-length integers.</p></li>
 </ul>
-</div>
-<div class="section" id="id69">
+</section>
+<section id="id69">
 <h3>Deprecations<a class="headerlink" href="#id69" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Passing the <code class="docutils literal notranslate"><span class="pre">signed</span></code> or <code class="docutils literal notranslate"><span class="pre">endian</span></code> keyword arguments to a <code class="docutils literal notranslate"><span class="pre">VariableLengthInteger</span></code>
@@ -766,25 +767,25 @@ them from <code class="docutils literal notranslate"><span class="pre">binobj.fi
 <span class="kn">from</span> <span class="nn">binobj.fields</span> <span class="kn">import</span> <span class="n">String</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id70">
+</section>
+<section id="id70">
 <h3>Other Changes<a class="headerlink" href="#id70" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Use the “Alabaster” theme for documentation instead of RTD.</p></li>
 <li><p>Relax the dependency on <code class="docutils literal notranslate"><span class="pre">bumpversion</span></code>.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id71">
+</section>
+</section>
+<section id="id71">
 <h2>0.4.2<a class="headerlink" href="#id71" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-06-07</p>
-<div class="section" id="id72">
+<section id="id72">
 <h3>Bugfixes<a class="headerlink" href="#id72" title="Permalink to this headline">¶</a></h3>
 <p>Variable-length integer fields now set their <code class="docutils literal notranslate"><span class="pre">size</span></code> attribute if <code class="docutils literal notranslate"><span class="pre">const</span></code> is
 defined. <em>Not</em> doing so was apparently a deliberate decision, which I no longer
 understand.</p>
-</div>
-<div class="section" id="id73">
+</section>
+<section id="id73">
 <h3>Other Changes<a class="headerlink" href="#id73" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Union</span></code> now throws a <code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code> if it gets a <code class="docutils literal notranslate"><span class="pre">Field</span></code> class
@@ -796,12 +797,12 @@ hard to debug <code class="docutils literal notranslate"><span class="pre">TypeE
 size. I’m not sure why I ever thought that <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> should only be a fixed
 length.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id74">
+</section>
+</section>
+<section id="id74">
 <h2>0.4.1<a class="headerlink" href="#id74" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-05-13</p>
-<div class="section" id="id75">
+<section id="id75">
 <h3>Bugfixes<a class="headerlink" href="#id75" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Struct size couldn’t be calculated if the struct contained computed fields or
@@ -823,8 +824,8 @@ that doesn’t exist.</p></li>
 access used to throw a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> even if it was a computed field. Now it
 throws the expected <code class="docutils literal notranslate"><span class="pre">MissingRequiredValueError</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="id76">
+</section>
+<section id="id76">
 <h3>Other Changes<a class="headerlink" href="#id76" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Dictionary methods on <code class="docutils literal notranslate"><span class="pre">Struct</span></code> like <code class="docutils literal notranslate"><span class="pre">get</span></code>, <code class="docutils literal notranslate"><span class="pre">setdefault</span></code>, etc. are
@@ -834,12 +835,12 @@ throws the expected <code class="docutils literal notranslate"><span class="pre"
 <li><p>Bump tested CPython versions to the latest release, i.e. 3.4.7 -&gt; 3.4.8, etc.</p></li>
 <li><p>Bump PyPy3.5 5.10 to v6.0</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id77">
+</section>
+</section>
+<section id="id77">
 <h2>0.4.0<a class="headerlink" href="#id77" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-04-21</p>
-<div class="section" id="id78">
+<section id="id78">
 <h3>Bugfixes<a class="headerlink" href="#id78" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Removed unused <code class="docutils literal notranslate"><span class="pre">__computed_fields__</span></code> property from <code class="docutils literal notranslate"><span class="pre">Struct</span></code> classes. It was
@@ -848,14 +849,14 @@ accidentally left in.</p></li>
 wave to the file, not the amplitude.</p></li>
 <li><p>Miscellaneous tweaks and typo corrections in documentation.</p></li>
 </ul>
-</div>
-<div class="section" id="id79">
+</section>
+<section id="id79">
 <h3>Features<a class="headerlink" href="#id79" title="Permalink to this headline">¶</a></h3>
 <p>Added support for adding validators on fields, both as methods in their <code class="docutils literal notranslate"><span class="pre">Struct</span></code>
 and passed in to the constructor. You can also have validator methods that
 validate the entire <code class="docutils literal notranslate"><span class="pre">Struct</span></code> just after loading or just before dumping.</p>
-</div>
-<div class="section" id="id80">
+</section>
+<section id="id80">
 <h3>Breaking Changes<a class="headerlink" href="#id80" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Dropped support for Python 3.3, which has been deprecated. Please upgrade to a
@@ -863,8 +864,8 @@ newer version of Python.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">VariableSizedFieldError</span></code> was deprecated in 0.3.1. It has been removed and
 completely replaced by <code class="docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="id81">
+</section>
+<section id="id81">
 <h3>Other Changes<a class="headerlink" href="#id81" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Start testing on Python 3.7.</p></li>
@@ -872,12 +873,12 @@ completely replaced by <code class="docutils literal notranslate"><span class="p
 as it circumvents validators. <code class="docutils literal notranslate"><span class="pre">__values__</span></code> will be removed in a future
 release.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id82">
+</section>
+</section>
+<section id="id82">
 <h2>0.3.1<a class="headerlink" href="#id82" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-03-28</p>
-<div class="section" id="id83">
+<section id="id83">
 <h3>Bugfixes<a class="headerlink" href="#id83" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed bug where <code class="docutils literal notranslate"><span class="pre">Bytes</span></code> wasn’t checking how many bytes it was writing when
@@ -886,8 +887,8 @@ dumping.</p></li>
 <code class="docutils literal notranslate"><span class="pre">len(const)</span></code> wasn’t equivalent to the field size, e.g. for <code class="docutils literal notranslate"><span class="pre">String</span></code> fields
 using a UTF-16 encoding.</p></li>
 </ul>
-</div>
-<div class="section" id="id84">
+</section>
+<section id="id84">
 <h3>Other Changes<a class="headerlink" href="#id84" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">VariableSizedFieldError</span></code> has been <strong>deprecated</strong>, and will be replaced by
@@ -897,19 +898,19 @@ was misleadingly narrow in scope.</p></li>
 loading and dumping methods in <code class="docutils literal notranslate"><span class="pre">Struct</span></code>. They were left in by mistake and
 never used.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id85">
+</section>
+</section>
+<section id="id85">
 <h2>0.3.0<a class="headerlink" href="#id85" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-03-23</p>
-<div class="section" id="id86">
+<section id="id86">
 <h3>Bugfixes<a class="headerlink" href="#id86" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed field redefinition detection. Subclassing wasn’t supported in earlier
 versions but the code was still there.</p></li>
 </ul>
-</div>
-<div class="section" id="id87">
+</section>
+<section id="id87">
 <h3>Features<a class="headerlink" href="#id87" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Array</span></code> can now take another <code class="docutils literal notranslate"><span class="pre">Field</span></code> or a string naming a <code class="docutils literal notranslate"><span class="pre">Field</span></code> as its
@@ -939,23 +940,23 @@ using fields, structs, or any combination of the two.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">struct</span></code> and <code class="docutils literal notranslate"><span class="pre">obj</span></code> keyword arguments to <code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code> to
 give more flexibility in what errors it and its subclasses can be used for.</p></li>
 </ol>
-</div>
-<div class="section" id="id88">
+</section>
+<section id="id88">
 <h3>Breaking Changes<a class="headerlink" href="#id88" title="Permalink to this headline">¶</a></h3>
 <p>None.</p>
-</div>
-<div class="section" id="documentation">
+</section>
+<section id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Changed development stage from alpha stage to beta.</p></li>
 <li><p>Expanded documentation of existing code, fixed inter-module references.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id89">
+</section>
+</section>
+<section id="id89">
 <h2>0.2.1<a class="headerlink" href="#id89" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-03-18</p>
-<div class="section" id="id90">
+<section id="id90">
 <h3>Bugfixes<a class="headerlink" href="#id90" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Fixed argument names in overridden methods of some fields differing from their
@@ -970,8 +971,8 @@ also a legitimate input type.</p></li>
 deserialized. This was supposed to be included in 0.1.0 but somehow was
 overlooked.</p></li>
 </ol>
-</div>
-<div class="section" id="id91">
+</section>
+<section id="id91">
 <h3>Breaking Changes<a class="headerlink" href="#id91" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>The fix for bug 2:</p>
@@ -993,8 +994,8 @@ fields.</p></li>
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="id92">
+</section>
+<section id="id92">
 <h3>Documentation<a class="headerlink" href="#id92" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Added WAV file example and unit tests.</p></li>
@@ -1002,20 +1003,20 @@ fields.</p></li>
 the BMP format anyway.</p></li>
 <li><p>Added comprehensive tutorial on basics with a bit of intermediate stuff.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id93">
+</section>
+</section>
+<section id="id93">
 <h2>0.2.0<a class="headerlink" href="#id93" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-03-04</p>
-<div class="section" id="id94">
+<section id="id94">
 <h3>Bugfixes<a class="headerlink" href="#id94" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">StringZ</span></code> can now load strings in character encodings that use more than one
 byte to represent null, e.g. UTF-16.</p></li>
 <li><p>Fixed some typos in documentation.</p></li>
 </ul>
-</div>
-<div class="section" id="id95">
+</section>
+<section id="id95">
 <h3>Features<a class="headerlink" href="#id95" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">String</span></code> and its subclasses now take a <code class="docutils literal notranslate"><span class="pre">pad_byte</span></code> argument that pads strings
@@ -1025,18 +1026,18 @@ with that byte if they’re too short after encoding. For example:</p></li>
 <span class="go">b&#39;a   &#39;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id96">
+</section>
+<section id="id96">
 <h3>Breaking Changes<a class="headerlink" href="#id96" title="Permalink to this headline">¶</a></h3>
 <p>None.</p>
-</div>
-</div>
-<div class="section" id="id97">
+</section>
+</section>
+<section id="id97">
 <h2>0.1.0<a class="headerlink" href="#id97" title="Permalink to this headline">¶</a></h2>
 <p>Released: 2018-03-03</p>
 <p>Initial release.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1259,7 +1260,7 @@ with that byte if they’re too short after encoding. For example:</p></li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

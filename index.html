@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Welcome to binobj’s documentation! &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -38,12 +39,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-binobj-s-documentation">
+  <section id="welcome-to-binobj-s-documentation">
 <h1>Welcome to binobj’s documentation!<a class="headerlink" href="#welcome-to-binobj-s-documentation" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="https://travis-ci.org/dargueta/binobj"><img alt="Build status" src="https://travis-ci.org/dargueta/binobj.svg?branch=master" /></a> <img alt="Python versions" src="https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8,%203.9-blue.svg" /> <a class="reference external" href="https://pepy.tech/project/binobj"><img alt="Installs per month" src="https://pepy.tech/badge/binobj/month" /></a> <a class="reference external" href="https://pepy.tech/project/binobj"><img alt="Total installs" src="https://pepy.tech/badge/binobj" /></a></p>
 <p>A cross-platform Python 3 library for reading and writing structured binary data
 in an object-oriented (ish) style.</p>
-<div class="section" id="why-use-binobj">
+<section id="why-use-binobj">
 <h2>Why use <code class="docutils literal notranslate"><span class="pre">binobj</span></code>?<a class="headerlink" href="#why-use-binobj" title="Permalink to this headline">¶</a></h2>
 <p>You may have used Python’s built-in <code class="docutils literal notranslate"><span class="pre">struct</span></code> library to load and dump binary
 data. It’s unwieldy for larger or more complex data structures, and the format
@@ -85,18 +86,18 @@ approach to declaring binary structures.</p>
 <p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> also has other advantages in that it supports strings in any encoding
 Python supports, toggling endianness on a per-field basis (necessary for ISO 9660
 images), a variety of integer encodings, computed fields, validation, and more.</p>
-</div>
-<div class="section" id="system-requirements">
+</section>
+<section id="system-requirements">
 <h2>System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>This package will <em>not</em> work on a <a class="reference external" href="https://en.wikipedia.org/wiki/Endianness#Mixed">mixed-endian</a> system. Those are pretty rare
 nowadays so chances are you won’t have a problem.</p></li>
-<li><p>This has been tested on Python 3.5-3.9, PyPy3.5, and PyPy3.6.</p></li>
+<li><p>This has been tested on Python 3.5-3.9, PyPy3.5, PyPy3.6, and PyPy3.7.</p></li>
 </ul>
 <p>Sorry, I have no intention of supporting Python 2. Feel free to fork this and do
 a backport if you like! I’d be interested to see it and might even contribute.</p>
-</div>
-<div class="section" id="installation">
+</section>
+<section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>You can install this with <code class="docutils literal notranslate"><span class="pre">pip</span></code> like so:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install binobj
@@ -112,12 +113,12 @@ a backport if you like! I’d be interested to see it and might even contribute.
 <p>Side note: Don’t use <code class="docutils literal notranslate"><span class="pre">sudo</span></code> (even <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">-EH</span></code>) to force a package to install,
 as that’s a security risk. See <a class="reference external" href="https://stackoverflow.com/a/42021993">this answer</a>
 on Stack Overflow to find out why.</p>
-</div>
-<div class="section" id="testing-and-development">
+</section>
+<section id="testing-and-development">
 <h2>Testing and Development<a class="headerlink" href="#testing-and-development" title="Permalink to this headline">¶</a></h2>
 <p>This package uses <a class="reference external" href="https://tox.readthedocs.io/en/latest/">Tox</a> to run tests on
 multiple versions of Python.</p>
-<div class="section" id="setup">
+<section id="setup">
 <h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
 <p>To set up your development environment, you’ll need to install a few things.</p>
 <ul class="simple">
@@ -136,24 +137,24 @@ one of several ways:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make setup
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-the-tests">
+</section>
+<section id="running-the-tests">
 <h3>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h3>
 <p>To run the unit tests for all supported versions of Python, run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code>.
 The environments will automatically be rebuilt if needed.</p>
-</div>
-<div class="section" id="issues-and-feature-requests">
+</section>
+<section id="issues-and-feature-requests">
 <h3>Issues and Feature Requests<a class="headerlink" href="#issues-and-feature-requests" title="Permalink to this headline">¶</a></h3>
 <p>To report an issue, request a feature, or propose a change, please file a
 report on the project’s GitHub page <a class="reference external" href="https://github.com/dargueta/binobj/issues">here</a>.</p>
-</div>
-</div>
-<div class="section" id="license">
+</section>
+</section>
+<section id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
 <p>I’m releasing this under the terms of the <a class="reference external" href="https://tldrlegal.com/license/bsd-3-clause-license-(revised)">3-Clause BSD License</a>. For the full
 legal text, see <code class="docutils literal notranslate"><span class="pre">LICENSE.txt</span></code> in the repository.</p>
-</div>
-<div class="section" id="table-of-contents">
+</section>
+<section id="table-of-contents">
 <h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
@@ -161,16 +162,16 @@ legal text, see <code class="docutils literal notranslate"><span class="pre">LIC
 <li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">Release history</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
+</section>
+<section id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -233,7 +234,7 @@ legal text, see <code class="docutils literal notranslate"><span class="pre">LIC
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

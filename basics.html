@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>A Crash Course &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -42,14 +43,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="a-crash-course">
+  <section id="a-crash-course">
 <h1>A Crash Course<a class="headerlink" href="#a-crash-course" title="Permalink to this headline">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> allows you to create classes to declare the structure of binary files
 or streams in a convenient object-oriented way. It supports a variety of field
 types, and if you need something a bit more specialized you can always subclass
 <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or one of its subclasses to create the functionality
 you need.</p>
-<div class="section" id="plain-old-strings">
+<section id="plain-old-strings">
 <h2>Plain Old Strings<a class="headerlink" href="#plain-old-strings" title="Permalink to this headline">¶</a></h2>
 <p>Suppose you want to create an address book application in Python, and want to
 store people’s information in a file. Each person has a first name, a last name,
@@ -97,8 +98,8 @@ try that.</p>
 </pre></div>
 </div>
 <p>Looks like we got our data back correctly.</p>
-</div>
-<div class="section" id="text-and-encodings">
+</section>
+<section id="text-and-encodings">
 <h2>Text and Encodings<a class="headerlink" href="#text-and-encodings" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> allows you to specify the character encoding of strings individually.
 Suppose you want to internationalize your app and make it handle names with
@@ -120,8 +121,8 @@ be UTF-8:</p>
 <p>Be careful with multibyte encodings! The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument specifies the size
 of the field in <em>bytes</em>, not <em>characters</em>!</p>
 </div>
-</div>
-<div class="section" id="variable-length-fields">
+</section>
+<section id="variable-length-fields">
 <h2>Variable-Length Fields<a class="headerlink" href="#variable-length-fields" title="Permalink to this headline">¶</a></h2>
 <p>It can get a bit tedious to remember to pad strings with spaces just so we can
 save the file without errors. Also: what happens if you need to store info for
@@ -146,8 +147,8 @@ stores a string with a null byte to signal the end, like in C.</p>
     <span class="n">person</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="arrays">
+</section>
+<section id="arrays">
 <h2>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h2>
 <p>Let’s add a new feature to allow people to have two phone numbers. You can use
 an <a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><code class="xref py py-class docutils literal notranslate"><span class="pre">Array</span></code></a> for this.</p>
@@ -200,8 +201,8 @@ empty phone number to signal the end of the array.</p>
 it’s up to you to add it <em>before</em> serializing your struct. <code class="docutils literal notranslate"><span class="pre">binobj</span></code> doesn’t
 know how to do that for you (yet).</p>
 </div>
-</div>
-<div class="section" id="nested-structs">
+</section>
+<section id="nested-structs">
 <h2>Nested Structs<a class="headerlink" href="#nested-structs" title="Permalink to this headline">¶</a></h2>
 <p>Let’s kick this up a notch and add support for addresses. You could store an
 address as a single string, which is fine, but what if we want to make it a bit
@@ -253,8 +254,8 @@ inconvenient, you can also pass in an entire dictionary:</p>
 <span class="nb">bytes</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="arrays-of-structs">
+</section>
+<section id="arrays-of-structs">
 <h2>Arrays of Structs<a class="headerlink" href="#arrays-of-structs" title="Permalink to this headline">¶</a></h2>
 <p>Can you make arrays of nested structs? Absolutely! We can take advantage of that
 to support multiple addresses for a single person. We’ll indicate the number of
@@ -283,8 +284,8 @@ we can pass <code class="docutils literal notranslate"><span class="pre">n_addre
 <span class="k">assert</span> <span class="n">loaded</span> <span class="o">==</span> <span class="n">person</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="creating-custom-fields">
+</section>
+<section id="creating-custom-fields">
 <h2>Creating Custom Fields<a class="headerlink" href="#creating-custom-fields" title="Permalink to this headline">¶</a></h2>
 <p>Suppose we want to give users the ability to record someone’s birthday. <code class="docutils literal notranslate"><span class="pre">binobj</span></code>
 doesn’t have a <code class="docutils literal notranslate"><span class="pre">Date</span></code> type, so we’re going to have to roll our own. There’s a
@@ -316,8 +317,8 @@ your strings accordingly.</p>
         <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">date_string</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="putting-it-all-together">
+</section>
+<section id="putting-it-all-together">
 <h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h2>
 <p>Let’s look at the final version of our file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
@@ -400,8 +401,8 @@ your strings accordingly.</p>
 directory in the tests for more real-world examples of what you can do. The
 documentation in <a class="reference internal" href="binobj.fields.html#module-binobj.fields" title="binobj.fields"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code></a> and <a class="reference internal" href="binobj.structures.html#module-binobj.structures" title="binobj.structures"><code class="xref py py-mod docutils literal notranslate"><span class="pre">binobj.structures</span></code></a> might also
 be of interest to you.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -466,7 +467,7 @@ be of interest to you.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

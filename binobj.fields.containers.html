@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>binobj.fields.containers module &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -34,13 +35,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-binobj.fields.containers">
+  <section id="module-binobj.fields.containers">
 <span id="binobj-fields-containers-module"></span><h1>binobj.fields.containers module<a class="headerlink" href="#module-binobj.fields.containers" title="Permalink to this headline">¶</a></h1>
 <p>Fields used for forming more complex structures with other fields.</p>
 <dl class="py class">
-<dt id="binobj.fields.containers.Array">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Array</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Array" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.T</span></code>]]]</p>
+<dt class="sig sig-object py" id="binobj.fields.containers.Array">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.T</span></code>]]]</p>
 <p>An array of other serializable objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -75,8 +76,8 @@ passed in is too long. Due to a bug it used to be ignored when dumping.</p>
 integer constant.</p>
 </div>
 <dl class="py method">
-<dt id="binobj.fields.containers.Array.get_final_element_count">
-<code class="sig-name descname"><span class="pre">get_final_element_count</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.containers.Array.get_final_element_count" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.containers.Array.get_final_element_count">
+<span class="sig-name descname"><span class="pre">get_final_element_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.fields.containers.Array.get_final_element_count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the number of elements in the array based on other fields’ values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -102,8 +103,8 @@ doesn’t have an assigned name.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="binobj.fields.containers.Array.should_halt">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">should_halt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><span class="pre">binobj.fields.containers.Array</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><a class="headerlink" href="#binobj.fields.containers.Array.should_halt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.containers.Array.should_halt">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">should_halt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><span class="pre">binobj.fields.containers.Array</span></a><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.containers.T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.containers.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><a class="headerlink" href="#binobj.fields.containers.Array.should_halt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if the deserializer should stop reading from the input.</p>
 <p>This function should return <code class="docutils literal notranslate"><span class="pre">True</span></code> to indicate loading for this field should
 stop, or <code class="docutils literal notranslate"><span class="pre">False</span></code> to continue adding elements.</p>
@@ -155,8 +156,8 @@ crash with a <a class="reference external" href="https://docs.python.org/3/libra
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.containers.Nested">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Nested</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Nested" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.containers.Nested">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Nested</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Nested" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.TStruct</span></code>]</p>
 <p>Used to nest one struct inside of another.</p>
 <dl class="field-list simple">
@@ -180,8 +181,8 @@ value. Now the sizes are the same.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="binobj.fields.containers.Union">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Union</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Union" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.fields.containers.Union">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Union</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Union" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.T</span></code>]</p>
 <p>A field that can be one of several different types of structs or fields.</p>
 <dl class="field-list simple">
@@ -246,7 +247,7 @@ guaranteed to not be <code class="docutils literal notranslate"><span class="pre
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -284,7 +285,7 @@ guaranteed to not be <code class="docutils literal notranslate"><span class="pre
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

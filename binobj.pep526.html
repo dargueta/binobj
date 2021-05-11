@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>binobj.pep526 module &#8212; binobj 0.10.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -34,7 +35,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-binobj.pep526">
+  <section id="module-binobj.pep526">
 <span id="binobj-pep526-module"></span><h1>binobj.pep526 module<a class="headerlink" href="#module-binobj.pep526" title="Permalink to this headline">¶</a></h1>
 <p>Support for declaring fields in structs using <a class="reference external" href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a> variable annotations.</p>
 <p>You can use the <a class="reference internal" href="#binobj.pep526.dataclass" title="binobj.pep526.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> decorator on your <code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code>.</p>
@@ -67,8 +68,8 @@ can’t mix this system with the original assignment-based one.</p>
 <p><span class="versionmodified added">New in version 0.9.0.</span></p>
 </div>
 <dl class="py function">
-<dt id="binobj.pep526.dataclass">
-<code class="sig-name descname"><span class="pre">dataclass</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_object</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">TStruct</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">TStruct</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.pep526.dataclass" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="binobj.pep526.dataclass">
+<span class="sig-name descname"><span class="pre">dataclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_object</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.pep526.TStruct</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.pep526.TStruct</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#binobj.pep526.dataclass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mark a Struct as using <a class="reference external" href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a> declarations for its fields.</p>
 <p>If you use this decorator, <em>all</em> fields must be declared with PEP 526 annotations.
 You can’t mix this system with the original assignment-based one.</p>
@@ -99,7 +100,7 @@ You can’t mix this system with the original assignment-based one.</p>
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -137,7 +138,7 @@ You can’t mix this system with the original assignment-based one.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>
