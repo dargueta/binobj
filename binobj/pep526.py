@@ -56,14 +56,14 @@ TStruct = TypeVar("TStruct", bound=binobj.Struct)
 try:
     from typing import get_args as get_typing_args  # type: ignore[attr-defined]
     from typing import get_origin as get_typing_origin  # type: ignore[attr-defined]
-except ImportError:
+except ImportError:  # pragma: no cover (py38+)
     from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
     from typing_inspect import get_origin as get_typing_origin  # type: ignore[import,no-redef]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Dict
 
 
