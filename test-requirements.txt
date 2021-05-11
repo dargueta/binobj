@@ -1,6 +1,10 @@
-pytest==6.2.4
+pytest==6.2.4  ; python_version>="3.6"
+pytest==6.1.2  ; python_version<"3.6"
 pytest-cov==2.11.1
-pytest-randomly==3.7.0
+pytest-randomly==3.8.0  ; python_version>="3.6"
+pytest-randomly==3.5.0  ; python_version<"3.6"
+coverage-pyver-pragma==0.3.0  ; python_version>="3.6"
+
 
 # Indirect dependencies go below this line. Avoid pinning them any tighter than necessary.
 # You should only add dependencies here that require pinning to ensure certain features or
