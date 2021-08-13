@@ -1,11 +1,11 @@
+
 binobj
 ======
 
 |build-status| |python-versions| |installs-month| |installs-ever|
 
-.. |build-status| image:: https://travis-ci.org/dargueta/binobj.svg?branch=master
+.. |build-status| image:: https://github.com/dargueta/binobj/actions/workflows/ci.yml/badge.svg
    :alt: Build status
-   :target: https://travis-ci.org/dargueta/binobj
 
 .. |python-versions| image:: https://img.shields.io/badge/python-3.5,%203.6,%203.7,%203.8,%203.9-blue.svg
    :alt: Python versions
