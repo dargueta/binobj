@@ -1,11 +1,11 @@
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-black==21.5b0
+black==21.8b0
 flake8==3.9.2
 flake8-black==0.2.3
 flake8-blind-except==0.2.0
 flake8-bugbear==21.4.3
-flake8-comprehensions==3.5.0
+flake8-comprehensions==3.6.1
 flake8-debugger==4.0.0
 flake8-docstrings==1.6.0
 flake8-implicit-str-concat==0.2.0
