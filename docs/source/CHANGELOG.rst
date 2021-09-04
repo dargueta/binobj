@@ -1,8 +1,22 @@
 Changelog
 =========
 
+0.10.4
+------
+
+Released 2021-09-04
+
+Bugfixes
+~~~~~~~~
+
+Removed stray files that were supposed to be in another branch. Otherwise, this
+is identical to 0.10.3.
+
+
 0.10.3
 ------
+
+**YANKED -- Install 0.10.4 instead**
 
 Released 2021-09-04
 
