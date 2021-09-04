@@ -214,7 +214,7 @@ class Field(Generic[T]):
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
         size: Union[int, str, "Field[int]", None] = None,
         validate: Union[FieldValidator, Iterable[FieldValidator]] = (),
-        present: Callable[[StrDict, Any, Optional[BinaryIO]], int] = (lambda *_: True),
+        present: Callable[[StrDict, Any, Optional[BinaryIO]], bool] = (lambda *_: True),
         not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT
     ):
         self.const = const
