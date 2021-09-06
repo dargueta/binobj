@@ -1,6 +1,47 @@
 Changelog
 =========
 
+0.10.4
+------
+
+Released 2021-09-04
+
+Bugfixes
+~~~~~~~~
+
+Removed stray files that were supposed to be in another branch. Otherwise, this
+is identical to 0.10.3.
+
+
+0.10.3
+------
+
+**YANKED -- Install 0.10.4 instead**
+
+Released 2021-09-04
+
+Deprecations
+~~~~~~~~~~~~
+
+* Passing a callable as a default value in dataclass mode is deprecated. It was
+  a bad idea to begin with. I even expressed misgivings in the comments when I
+  wrote it.
+* Using an instance of a ``Field`` as a type annotation is also deprecated, as
+  it breaks in Python 3.10. The next version of ``binobj`` will move away from
+  a Marshmallow style and more towards Python 3.7-esque dataclasses.
+
+Bugfixes
+~~~~~~~~
+
+Fixed incorrect type annotation for the return value of the ``present`` callback
+to ``Field``.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Added deprecation warnings for features to be removed in future versions.
+* Fixed build status badge in README.
+
 0.10.2
 ------
 
