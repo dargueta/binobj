@@ -1,6 +1,33 @@
 Changelog
 =========
 
+0.10.5
+------
+
+Released 2021-11-20
+
+Bugfixes
+~~~~~~~~
+
+Installation breaks on Python 3.5 due to `this bug`_ in more-itertools. I've
+put a new upper bound on that dependency (only on 3.5) to fix this.
+
+Other Changes
+~~~~~~~~~~~~~
+
+Loosened upper bound on the ``typing-inspect`` dependency to allow the latest
+versions.
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+* Bumped test dependencies.
+* Fixed Tox envs for linting and type checking, which were silently broken.
+* Added some more code comments.
+
+
+.. _this bug: https://github.com/more-itertools/more-itertools/issues/578
+
 0.10.4
 ------
 
