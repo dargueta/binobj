@@ -35,10 +35,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    # We need to use pip <21.0 for Python 3.5 support
     - name: Install dependencies
-      run: |
-        python -m pip install -U 'pip<21.0'
-        pip3 install -U tox
+      run: pip3 install -U tox
     - name: Run tests
       run: tox -e ${{ matrix.tox-env }}
