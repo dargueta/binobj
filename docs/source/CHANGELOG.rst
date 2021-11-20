@@ -7,8 +7,9 @@ Changelog
 New Features
 ~~~~~~~~~~~~
 
-Added experimental support for Python 3.10. I say "experimental" because 3.10 is still
-in alpha.
+* Official support for PyPy 3.8.
+* Added experimental support for Python 3.10. I say "experimental" because 3.10
+  is still in alpha.
 
 Deprecations
 ~~~~~~~~~~~~
