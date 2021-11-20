@@ -42,6 +42,74 @@ Other Changes
 * Removed ``attrs`` as a dependency in favor of ``dataclasses`` from the Python standard
   library. A backport will automatically be installed on Python 3.6.
 
+0.10.5
+------
+
+Released 2021-11-20
+
+Bugfixes
+~~~~~~~~
+
+Installation breaks on Python 3.5 due to `this bug`_ in more-itertools. I've
+put a new upper bound on that dependency (only on 3.5) to fix this.
+
+Other Changes
+~~~~~~~~~~~~~
+
+Loosened upper bound on the ``typing-inspect`` dependency to allow the latest
+versions.
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+* Bumped test dependencies.
+* Fixed Tox envs for linting and type checking, which were silently broken.
+* Added some more code comments.
+
+
+.. _this bug: https://github.com/more-itertools/more-itertools/issues/578
+
+0.10.4
+------
+
+Released 2021-09-04
+
+Bugfixes
+~~~~~~~~
+
+Removed stray files that were supposed to be in another branch. Otherwise, this
+is identical to 0.10.3.
+
+
+0.10.3
+------
+
+**YANKED -- Install 0.10.4 instead**
+
+Released 2021-09-04
+
+Deprecations
+~~~~~~~~~~~~
+
+* Passing a callable as a default value in dataclass mode is deprecated. It was
+  a bad idea to begin with. I even expressed misgivings in the comments when I
+  wrote it.
+* Using an instance of a ``Field`` as a type annotation is also deprecated, as
+  it breaks in Python 3.10. The next version of ``binobj`` will move away from
+  a Marshmallow style and more towards Python 3.7-esque dataclasses.
+
+Bugfixes
+~~~~~~~~
+
+Fixed incorrect type annotation for the return value of the ``present`` callback
+to ``Field``.
+
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Added deprecation warnings for features to be removed in future versions.
+* Fixed build status badge in README.
 
 0.10.2
 ------

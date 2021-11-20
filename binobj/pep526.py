@@ -36,6 +36,7 @@ Here are a few examples of how you can declare your fields::
 import dataclasses
 import functools
 import typing
+import warnings
 from typing import Any
 from typing import Optional
 from typing import Type
@@ -104,12 +105,20 @@ class AnnotationInfo:
             type_class = type_args[0]
             type_args = get_typing_args(type_class)
 
+        default_value = getattr(struct_class, field_name, fields.UNDEFINED)
+        if callable(default_value):
+            warnings.warn(
+                "Passing a bare callable as the default value was a misfeature. Please"
+                " refrain from using this, as it may throw an error in the future.",
+                PendingDeprecationWarning,
+            )
+
         return cls(
             name=field_name,
             type_class=type_class,
             type_args=type_args,
             has_default=hasattr(struct_class, field_name),
-            default_value=getattr(struct_class, field_name, fields.UNDEFINED),
+            default_value=default_value,
             nullable=nullable,
         )
 
@@ -142,7 +151,13 @@ def annotation_to_field_instance(
         # Not an instance of Field -- ignore
         return None
 
-    # Else: The annotation is a field instance. Atypical but we'll allow it.
+    # Else: The annotation is a field instance. Python 3.10 doesn't allow this anymore,
+    # so we're going to discourage this use.
+    warnings.warn(
+        "It's inadvisable to pass instances of Field as type annotations. It's not"
+        " guaranteed to work everywhere and'll break for sure starting in Python 3.10.",
+        DeprecationWarning,
+    )
     return annotation.type_class
 
 
