@@ -349,17 +349,26 @@ class Field(Generic[T]):
         # FIXME (dargueta): Don't pass None for the context variable.
         if not self.present(all_values, None, None):
             return NOT_PRESENT
+
         if self.name in all_values:
+            # The value is already set in the struct so we don't need to do anything.
             return typing.cast(Optional[T], all_values[self.name])
+
+        # The value is *not* set in the struct. Either this field must have a default
+        # value, or it must be a computed field.
         if self._default is not UNDEFINED:
             # Theoretically if self._default is a callable that returns UNDEFINED we
             # could run into trouble here. Get the return value.
             to_return = self.default
             if to_return is not UNDEFINED:
                 return to_return
+
+        # If we get here then _default is UNDEFINED or the callable it's set to returned
+        # UNDEFINED.
         if self._compute_fn is not None:
             return self._compute_fn(self, all_values)
 
+        # No default value and this isn't a computed field either.
         raise errors.MissingRequiredValueError(field=self)
 
     def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
@@ -471,7 +480,7 @@ class Field(Generic[T]):
             return typing.cast(int, self._size)
         return None
 
-    def _get_expected_size(self, field_values: StrDict) -> int:
+    def _get_expected_size(self, field_values: StrDict) -> int:  # pragma: no cover
         """Compatibility shim -- this function was made public in 0.9.0."""
         warnings.warn(
             "_get_expected_size was made public in 0.9.0. The private form has been"
