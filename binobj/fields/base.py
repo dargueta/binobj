@@ -75,6 +75,12 @@ class Field(Generic[T]):
 
     :param str name:
         The name of the field.
+
+        .. versionchanged:: 0.11.0
+
+            Passing a value for this will throw a :class:`ConfigurationError` for
+            fields declared in a normal class if it doesn't match the existing name.
+            Only use this argument if you're building a struct programmatically.
     :param const:
         A constant value this field is expected to take. It will always have this value
         when dumped, and will fail validation if the field isn't this value when loaded.
@@ -260,9 +266,20 @@ class Field(Generic[T]):
         else:
             self._default = default
 
+        existing_name = getattr(self, "name", None)
+        if existing_name is None:
+            self.name = name
+        elif name is not None and name != existing_name:
+            # The `name` attribute has already been set by __set_name__ and an explicit
+            # name was passed into the constructor that doesn't match the existing name.
+            raise errors.ConfigurationError(
+                f"A name has already been set for this field ({existing_name!r}) but an"
+                f" explicit name was also passed to the constructor ({name!r}.",
+                field=self,
+            )
+
         # These attributes are typically set by the struct containing the field after
         # the field's instantiated.
-        self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
         self.offset: Optional[int] = None
         self._compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]] = None
@@ -894,6 +911,9 @@ class Field(Generic[T]):
         for validator in self.validators:
             validator(value)
         instance.__values__[self.name] = value
+
+    def __set_name__(self, owner: "Struct", name: str) -> None:
+        self.name = name
 
     def __str__(self) -> str:
         return "%s(name=%r)" % (type(self).__name__, self.name)

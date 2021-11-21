@@ -37,6 +37,8 @@ Dropped support for Python 3.5 as it went EOL at the beginning of this year.
 Other Changes
 ~~~~~~~~~~~~~
 
+* Attempting to set the name of a class that already has its name set will throw a
+  ``ConfigurationError``.
 * Dropping 3.5 support allowed for some changes to the type declarations so they're more
   accurate.
 * Minor code hygiene changes.
