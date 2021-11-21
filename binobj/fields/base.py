@@ -203,6 +203,22 @@ class Field(Generic[T]):
     This is the class object, not a particular instance of the class.
     """
 
+    const: Union[T, _Undefined]
+    """The fixed value of a field, if applicable.
+
+    This is mostly useful for fields that act as `magic numbers`_ or reserved fields
+    in a struct that should be set to nulls.
+
+    .. _magic numbers: https://en.wikipedia.org/wiki/Magic_number_(programming)
+    """
+
+    discard: bool
+    """If True, indicates that a field should be discarded when read.
+
+    This is best used for filler fields that are of no use to the application but are
+    nonetheless important to ensure the proper layout of the struct.
+    """
+
     def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any) -> "Field[Any]":
         """Create a new instance, recording which keyword arguments were passed in.
 
@@ -216,7 +232,7 @@ class Field(Generic[T]):
     def __init__(
         self,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         const: Union[T, _Undefined] = UNDEFINED,
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
         discard: bool = False,
@@ -224,7 +240,7 @@ class Field(Generic[T]):
         size: Union[int, str, "Field[int]", None] = None,
         validate: Union[FieldValidator, Iterable[FieldValidator]] = (),
         present: Callable[[StrDict, Any, Optional[BinaryIO]], bool] = (lambda *_: True),
-        not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT
+        not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT,
     ):
         self.const = const
         self.discard = discard
@@ -302,29 +318,44 @@ class Field(Generic[T]):
         self.index = index
         self.offset = offset
 
+        overrideables: Mapping[str, Any]
         if not isinstance(self.__overrideable_attributes__, Mapping):
-            overrideables = typing.cast(
-                Mapping[str, Any], {n: n for n in self.__overrideable_attributes__}
-            )
+            # Force `overrideables` to be a dictionary.
+            overrideables = {n: n for n in self.__overrideable_attributes__}
         else:
             overrideables = self.__overrideable_attributes__
 
         for argument_name, attribute_name in overrideables.items():
             if argument_name in self.__explicit_init_args__:
+                # This argument was passed in to the constructor directly and any
+                # defaults specified by the struct's metainformation should be ignored.
                 continue
 
+            # If we get here then no explicit value was passed in for the argument, and
+            # we need to see if there's a default specified at the struct level.
+            #
+            # First, we check to see if there's a default value provided using this
+            # field type's class AND argument name. For example, for an Int16 field we
+            # want to check for a default value for the "endian" argument by searching
+            # in the struct-level defaults for "Int16__endian".
+            #
+            # If we don't find a default specific to the type, we'll try to find a
+            # default value not constrained to the type (i.e. will match all arguments
+            # across all fields with the given name).
             typed_default_name = type(self).__name__ + "__" + argument_name
             if typed_default_name in struct_info.argument_defaults:
+                # Found a type-specific default value
                 setattr(
                     self,
                     attribute_name,
                     struct_info.argument_defaults[typed_default_name],
                 )
             elif argument_name in struct_info.argument_defaults:
+                # Found a generic default value
                 setattr(
                     self, attribute_name, struct_info.argument_defaults[argument_name]
                 )
-            # Else: struct doesn't define a default value
+            # Else: struct doesn't define a default value for this argument.
 
     def compute_value_for_dump(
         self, all_values: StrDict
