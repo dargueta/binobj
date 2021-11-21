@@ -7,6 +7,9 @@ Changelog
 New Features
 ~~~~~~~~~~~~
 
+* **New Field!**: ``UUID``: Store a UUID in four different formats: variant 1 (the
+  most common), Microsoft format, the usual string representation, or as a hexadecimal
+  string.
 * Official support for PyPy 3.8.
 * Added experimental support for Python 3.10. I say "experimental" because 3.10
   is still in alpha.
