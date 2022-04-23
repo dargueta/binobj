@@ -1,9 +1,0 @@
-coverage-pyver-pragma==0.3.0
-pytest==6.2.5
-pytest-cov==3.0.0
-pytest-randomly==3.10.2
-
-# Indirect dependencies go below this line. Avoid pinning them any tighter than necessary.
-# You should only add dependencies here that require pinning to ensure certain features or
-# bugfixes are present.
-coverage>=6
