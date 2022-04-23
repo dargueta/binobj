@@ -11,8 +11,6 @@ New Features
   most common), Microsoft format, the usual string representation, or as a hexadecimal
   string.
 * Official support for PyPy 3.8.
-* Added experimental support for Python 3.10. I say "experimental" because 3.10
-  is still in alpha.
 
 Deprecations
 ~~~~~~~~~~~~
@@ -35,7 +33,8 @@ provide a different way to do this in an upcoming release.
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
-Dropped support for Python 3.5 as it went EOL at the beginning of this year.
+Dropped support for Python 3.5 and 3.6 as per the deprecation policy (when Pip drops
+support this will too).
 
 Other Changes
 ~~~~~~~~~~~~~
@@ -46,7 +45,8 @@ Other Changes
   accurate.
 * Minor code hygiene changes.
 * Removed ``attrs`` as a dependency in favor of ``dataclasses`` from the Python standard
-  library. A backport will automatically be installed on Python 3.6.
+  library.
+* Moved to Poetry for handling installation.
 
 0.10.5
 ------
