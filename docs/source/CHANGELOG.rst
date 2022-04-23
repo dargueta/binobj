@@ -10,7 +10,7 @@ New Features
 * **New Field!**: ``UUID``: Store a UUID in four different formats: variant 1 (the
   most common), Microsoft format, the usual string representation, or as a hexadecimal
   string.
-* Official support for PyPy 3.8.
+* Official support for CPython 3.10 and PyPy 3.8.
 
 Deprecations
 ~~~~~~~~~~~~
@@ -33,8 +33,11 @@ provide a different way to do this in an upcoming release.
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
-Dropped support for Python 3.5 and 3.6 as per the deprecation policy (when Pip drops
-support this will too).
+* Dropped support for Python 3.5 and 3.6 as per the deprecation policy (when Pip drops
+  support this will no longer guarantee support).
+* Switching to pyproject.toml breaks support for Pip older than 19.0. I consider this
+  acceptable because Pip 19.0 is over three years old at this point, and predates the
+  sunsetting of 3.5 and 3.6.
 
 Other Changes
 ~~~~~~~~~~~~~
@@ -44,7 +47,8 @@ Other Changes
 * Codec information for variable-length integers now uses dataclasses instead of dicts.
   This gives us the ability to add in stricter typing information and remove a number of
   typecasts.
-* Endianness arguments to functions now have stricter typing.
+* Endianness arguments to functions now have stricter, more accurate typing. If you use
+  MyPy, it may get angry.
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
