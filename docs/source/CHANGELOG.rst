@@ -41,12 +41,20 @@ Other Changes
 
 * Attempting to set the name of a class that already has its name set will throw a
   ``ConfigurationError``.
+* Codec information for variable-length integers now uses dataclasses instead of dicts.
+  This gives us the ability to add in stricter typing information and remove a number of
+  typecasts.
+* Endianness arguments to functions now have stricter typing.
+
+Internal Changes
+~~~~~~~~~~~~~~~~
 * Dropping 3.5 support allowed for some changes to the type declarations so they're more
   accurate.
 * Minor code hygiene changes.
 * Removed ``attrs`` as a dependency in favor of ``dataclasses`` from the Python standard
   library.
 * Moved to Poetry for handling installation.
+
 
 0.10.5
 ------

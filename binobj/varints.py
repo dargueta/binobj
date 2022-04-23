@@ -3,12 +3,15 @@
 .. _variable-length integers: https://en.wikipedia.org/wiki/Variable-length_quantity
 """
 
+import dataclasses
 import enum
 import math
 import typing
 from typing import BinaryIO
+from typing import Callable
 
 from binobj import helpers
+from binobj.typedefs import EndianString
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
@@ -256,30 +259,47 @@ def decode_integer_leb128(stream: BinaryIO) -> int:
     return -((1 << n_bits_read) - value)
 
 
+@dataclasses.dataclass
+class EncodingInfo:
+    """Information describing a variable-length integer encoding."""
+
+    encode: Callable[[int], bytes]
+    """A function used to serialize an integer into bytes."""
+
+    decode: Callable[[BinaryIO], int]
+    """A function used to deserialize a variable-length integer from a stream."""
+
+    endian: EndianString
+    """The endianness the string is stored in."""
+
+    signed: bool
+    """Indicates if this encoding accepts signed integers."""
+
+
 #: A mapping of encoding enums to encode/decode functions.
 INTEGER_ENCODING_MAP = {
-    VarIntEncoding.COMPACT_INDICES: {
-        "encode": encode_integer_compact,
-        "decode": decode_integer_compact,
-        "endian": "big",
-        "signed": True,
-    },
-    VarIntEncoding.LEB128: {
-        "encode": encode_integer_leb128,
-        "decode": decode_integer_leb128,
-        "endian": "little",
-        "signed": True,
-    },
-    VarIntEncoding.ULEB128: {
-        "encode": encode_integer_uleb128,
-        "decode": decode_integer_uleb128,
-        "endian": "little",
-        "signed": False,
-    },
-    VarIntEncoding.VLQ: {
-        "encode": encode_integer_vlq,
-        "decode": decode_integer_vlq,
-        "endian": "big",
-        "signed": False,
-    },
+    VarIntEncoding.COMPACT_INDICES: EncodingInfo(
+        encode=encode_integer_compact,
+        decode=decode_integer_compact,
+        endian="big",
+        signed=True,
+    ),
+    VarIntEncoding.LEB128: EncodingInfo(
+        encode=encode_integer_leb128,
+        decode=decode_integer_leb128,
+        endian="little",
+        signed=True,
+    ),
+    VarIntEncoding.ULEB128: EncodingInfo(
+        encode=encode_integer_uleb128,
+        decode=decode_integer_uleb128,
+        endian="little",
+        signed=False,
+    ),
+    VarIntEncoding.VLQ: EncodingInfo(
+        encode=encode_integer_vlq,
+        decode=decode_integer_vlq,
+        endian="big",
+        signed=False,
+    ),
 }

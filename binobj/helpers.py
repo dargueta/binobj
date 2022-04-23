@@ -6,10 +6,14 @@ from typing import Iterator
 from typing import Optional
 
 from binobj import errors
+from binobj.typedefs import EndianString
 
 
 def read_int(
-    stream: BinaryIO, n_bytes: int, signed: bool = True, endian: Optional[str] = None
+    stream: BinaryIO,
+    n_bytes: int,
+    signed: bool = True,
+    endian: Optional[EndianString] = None,
 ) -> int:
     """Read an integer from the given byte stream.
 
@@ -46,7 +50,7 @@ def write_int(
     value: int,
     n_bytes: int,
     signed: bool = True,
-    endian: Optional[str] = None,
+    endian: Optional[EndianString] = None,
 ) -> None:
     """Write an integer to a stream.
 

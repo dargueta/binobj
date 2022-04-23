@@ -252,7 +252,7 @@ class Field(Generic[T]):
         name: Optional[str] = None,
         const: Union[T, _Undefined] = UNDEFINED,
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
-        factory: Optional[Callable[[], T]] = None,
+        factory: Optional[Callable[[], Optional[T]]] = None,
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
         size: Union[int, str, "Field[int]", None] = None,

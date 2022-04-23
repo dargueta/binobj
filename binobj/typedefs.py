@@ -10,6 +10,8 @@ from typing import Type
 from typing import TypeVar
 from typing import Union
 
+from typing_extensions import Literal
+
 
 if typing.TYPE_CHECKING:  # pragma: no cover
     from binobj.fields.base import Field
@@ -38,3 +40,5 @@ FieldOrName = Union[str, "Field[Any]"]
 
 StructOrName = Union[str, "Struct", Type["Struct"]]
 """A :class:`~binobj.structures.Struct` or its name."""
+
+EndianString = Union[Literal["little"], Literal["big"]]

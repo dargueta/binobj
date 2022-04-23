@@ -3,16 +3,15 @@
 import datetime
 import struct
 import sys
-import typing
 from typing import Any
 from typing import BinaryIO
-from typing import Callable
 from typing import Optional
 
 from binobj import errors
 from binobj import helpers
 from binobj import varints
 from binobj.fields.base import Field
+from binobj.typedefs import EndianString
 from binobj.typedefs import StrDict
 from binobj.varints import VarIntEncoding
 
@@ -57,12 +56,12 @@ class Float(Field[float]):
     """
 
     def __init__(
-        self, *, format_string: str, endian: Optional[str] = None, **kwargs: Any
+        self,
+        *,
+        format_string: str,
+        endian: Optional[EndianString] = None,
+        **kwargs: Any
     ):
-        if format_string == "e" and sys.version_info[:2] < (3, 6):  # pragma: no cover
-            raise errors.ConfigurationError(
-                "binary16 format not supported on this version of Python.", field=self
-            )
         super().__init__(size=struct.calcsize(format_string), **kwargs)
 
         self.endian = endian or sys.byteorder
@@ -155,7 +154,11 @@ class Integer(Field[int]):
     __overrideable_attributes__ = ("endian",)
 
     def __init__(
-        self, *, endian: Optional[str] = None, signed: bool = True, **kwargs: Any
+        self,
+        *,
+        endian: Optional[EndianString] = None,
+        signed: bool = True,
+        **kwargs: Any
     ):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
@@ -209,17 +212,13 @@ class VariableLengthInteger(Integer):
                 field=self,
             )
 
-        format_endianness = typing.cast(str, encoding_info["endian"])
-        format_signedness = typing.cast(bool, encoding_info["signed"])
+        format_endianness = encoding_info.endian
+        format_signedness = encoding_info.signed
 
         self.vli_format = vli_format
         self.max_bytes = max_bytes
-        self._encode_integer_fn = typing.cast(
-            Callable[[int], bytes], encoding_info["encode"]
-        )
-        self._decode_integer_fn = typing.cast(
-            Callable[[BinaryIO], int], encoding_info["decode"]
-        )
+        self._encode_integer_fn = encoding_info.encode
+        self._decode_integer_fn = encoding_info.decode
         super().__init__(endian=format_endianness, signed=format_signedness, **kwargs)
 
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
@@ -371,7 +370,7 @@ class Timestamp(Field[datetime.datetime]):
         size: int,
         resolution: str = "s",
         tz_aware: bool = False,
-        endian: Optional[str] = None,
+        endian: Optional[EndianString] = None,
         signed: bool = True,
         **kwargs: Any
     ):
