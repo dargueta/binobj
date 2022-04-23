@@ -21,6 +21,8 @@ jobs:
             tox-env: pypy37
           - python-version: "pypy-3.8"
             tox-env: pypy38
+          - python-version: "pypy-3.9"
+            tox-env: pypy39
           - python-version: "3.9"
             tox-env: mypy
           - python-version: "3.9"
