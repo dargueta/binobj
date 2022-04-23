@@ -24,7 +24,7 @@ class FAT12BootSector(binobj.Struct):
     drive_number = fields.UInt8()
     _reserved = fields.Bytes(const=b"\0", discard=True)
     _ex_boot_signature = fields.Bytes(const=b"\x29", discard=True)
-    volume_id = fields.UInt32(default=lambda: random.randrange(2 ** 32))
+    volume_id = fields.UInt32(default=lambda: random.randrange(2**32))
     volume_label = fields.String(size=11)
     fs_type = fields.String(size=8, default="FAT12", pad_byte=b" ", encoding="ascii")
     boot_code = fields.Bytes(size=448, default=b"\xcc" * 448)
@@ -36,7 +36,7 @@ class FAT12BootSector(binobj.Struct):
 
     @total_logical_sectors.setter
     def total_logical_sectors(self, total_sectors):
-        if total_sectors < 1 or total_sectors >= 2 ** 32:
+        if total_sectors < 1 or total_sectors >= 2**32:
             raise ValueError(
                 "Total sectors must be in [1, 2^32). Got: %d" % total_sectors
             )

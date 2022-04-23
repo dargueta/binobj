@@ -27,7 +27,7 @@ def test_sentinels_are_singletons():
 
 def test_dump__unserializable():
     field = fields.Int32(name="field")
-    garbage = 2 ** 32
+    garbage = 2**32
 
     with pytest.raises(errors.UnserializableValueError) as errinfo:
         field.to_bytes(garbage)

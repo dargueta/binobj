@@ -61,7 +61,7 @@ class StructMetadata:
     """
 
     components: MutableMapping[str, fields.Field[Any]] = dataclasses.field(
-        default_factory=collections.OrderedDict
+        default_factory=dict
     )
     """A mapping of field names to the actual field object."""
 
@@ -183,14 +183,6 @@ class StructMeta(abc.ABCMeta):
     :class:`~binobj.fields.base.Field` components such as its name and index.
     """
 
-    # MyPy is kinda forcing me to use dunderscore names for arguments just because
-    # typeshed does it this way. The stupidity... >:[
-    @classmethod
-    def __prepare__(
-        mcs, __name: str, __bases: Tuple[type, ...], **_kwargs: Any
-    ) -> MutableStrDict:
-        return collections.OrderedDict()
-
     def __new__(
         mcs: Type["StructMeta"],
         class_name: str,
@@ -292,9 +284,7 @@ def recursive_to_dicts(item):
     if isinstance(item, Struct):
         return item.to_dict()
     if isinstance(item, collections.abc.Mapping):
-        return collections.OrderedDict(
-            (recursive_to_dicts(k), recursive_to_dicts(v)) for k, v in item.items()
-        )
+        return {recursive_to_dicts(k): recursive_to_dicts(v) for k, v in item.items()}
     if isinstance(item, collections.abc.Sequence) and not isinstance(
         item, (str, bytes, bytearray)
     ):
@@ -392,7 +382,7 @@ class Struct(metaclass=StructMeta):
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(self, keep_discardable: bool = False) -> MutableMapping[str, Any]:
+    def to_dict(self, keep_discardable: bool = False) -> Dict[str, Any]:
         """Convert this struct into an ordered dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct` into
@@ -402,7 +392,7 @@ class Struct(metaclass=StructMeta):
         :param bool keep_discardable:
             If True, don't exclude fields marked with ``discard=True`` from the result.
 
-        :rtype: collections.OrderedDict
+        :rtype: Dict[str, Any]
 
         :raise MissingRequiredValueError:
             One or more fields don't have assigned values.
@@ -419,11 +409,11 @@ class Struct(metaclass=StructMeta):
         .. versionchanged:: 0.6.1
             The ``keep_discardable`` argument was added.
         """
-        dct = collections.OrderedDict(
-            (field.name, field.compute_value_for_dump(typing.cast(StrDict, self)))
+        dct = {
+            field.name: field.compute_value_for_dump(typing.cast(StrDict, self))
             for field in self.__binobj_struct__.components.values()
             if keep_discardable or not field.discard
-        )
+        }
         return recursive_to_dicts(dct)
 
     @classmethod
@@ -431,7 +421,7 @@ class Struct(metaclass=StructMeta):
         cls: Type[TStruct],
         stream: BinaryIO,
         context: Any = None,
-        init_kwargs: StrDict = None,
+        init_kwargs: Optional[StrDict] = None,
     ) -> TStruct:
         """Load a struct from the given stream.
 
