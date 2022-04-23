@@ -91,13 +91,17 @@ class Field(Generic[T]):
         :class:`~binobj.fields.numeric.Integer`, and so on.
     :param default:
         The default value to use if a value for this field isn't passed to the struct
-        for serialization, or a callable taking no arguments that will return a default
-        value.
+        for serialization, (deprecated) or a callable taking no arguments that will
+        return a default value.
 
-        This argument (or the return value of the callable) *must* be of the same type
-        as the field, i.e. it must be a string for a
-        :class:`~binobj.fields.stringlike.String`, an integer for an
+        This argument *must* be of the same type as the field, i.e. it must be a string
+        for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on.
+
+        .. deprecated:: 0.11.0
+            Do not pass a factory function to this argument. Use ``factory`` instead.
+    :param callable factory:
+        A callable taking no arguments that returns a default value for this field.
     :param bool discard:
         When deserializing, don't include this field in the returned results. This means
         that you won't be able to use the value for anything later. For example, if you
@@ -195,6 +199,13 @@ class Field(Generic[T]):
         error in the future. This resolves the asymmetric behavior where using
         :data:`DEFAULT` throws an error when dumping but happily loads whatever's next
         in the stream when loading.
+
+    .. versionadded:: 0.11.0
+        The ``factory`` argument.
+
+    .. deprecated:: 0.11.0
+        Passing a factory function to ``default`` is now deprecated. Use ``factory``
+        instead.
     """
 
     __overrideable_attributes__: ClassVar[Collection[str]] = ()
@@ -241,6 +252,7 @@ class Field(Generic[T]):
         name: Optional[str] = None,
         const: Union[T, _Undefined] = UNDEFINED,
         default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
+        factory: Optional[Callable[[], T]] = None,
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
         size: Union[int, str, "Field[int]", None] = None,
@@ -252,17 +264,28 @@ class Field(Generic[T]):
         self.discard = discard
         self.null_value = null_value
         self.present = present
+        self.factory = factory
         self.not_present_value = not_present_value
         self.validators = [
             functools.partial(v, self) for v in m_iter.always_iterable(validate)
         ]
 
+        if factory is not None and default is not UNDEFINED:
+            raise errors.ConfigurationError(
+                "Do not pass values for both ``default`` and ``factory``.", field=self
+            )
+
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
             # ``const``.
-            self._default: Union[
-                Optional[T], Callable[[], Optional[T]], _Undefined
-            ] = const
+            self._default: Union[Optional[T], _Undefined] = const
+        elif callable(default):
+            warnings.warn(
+                "Passing a callable to `default` is deprecated. Use `factory` instead.",
+                DeprecationWarning,
+            )
+            self._default = UNDEFINED
+            self.factory = default
         else:
             self._default = default
 
@@ -490,20 +513,13 @@ class Field(Generic[T]):
     def default(self) -> Union[T, None, _Undefined]:
         """The default value of this field, or :data:`UNDEFINED`.
 
-        If the default value passed to the constructor was a callable, this property
-        will always give its return value. That callable is invoked on each access of
-        this property.
-
         .. versionchanged:: 0.6.1
             If no default is defined but ``const`` is, this property returns the value
             for ``const``.
         """  # noqa: D401
-        default_value = self._default
-        if callable(default_value):
-            return default_value()
-        if default_value is UNDEFINED and self.const is not UNDEFINED:
-            return self.const
-        return default_value
+        if self.factory:
+            return self.factory()
+        return self._default
 
     @property
     def required(self) -> bool:

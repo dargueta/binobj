@@ -254,7 +254,7 @@ class Array(Field[List[Optional[T]]]):
         all_fields: StrDict,
     ) -> None:
         """Dump an unsized iterable into the stream."""
-        n_written = 0
+        n_written = 0  # noqa: SIM113
         for value in data:
             if n_written == n_elems:
                 # We've already written the requisite number of items to the stream, but
@@ -266,7 +266,7 @@ class Array(Field[List[Optional[T]]]):
             self.component.to_stream(
                 stream, value, context=context, all_fields=all_fields
             )
-            n_written += 1  # noqa: SIM113
+            n_written += 1
 
         if n_elems is not None and n_written < n_elems:
             raise errors.ArraySizeError(
