@@ -27,8 +27,8 @@ exclude = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-more-itertools = ">=4.0, <9"
-typing-inspect = {version = ">=0.4.0,<0.8.0", python = "<3.8"}
+more-itertools = ">=4.0"
+typing-inspect = {version = ">=0.4.0", python = "<3.8"}
 
 [tool.poetry.dev-dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
