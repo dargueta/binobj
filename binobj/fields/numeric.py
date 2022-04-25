@@ -3,6 +3,7 @@
 import datetime
 import struct
 import sys
+import warnings
 from typing import Any
 from typing import BinaryIO
 from typing import Optional
@@ -242,9 +243,7 @@ class VariableLengthInteger(Integer):
 
         stream.write(encoded_int)
 
-    def _size_for_value(self, value: Optional[int]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: int) -> int:
         return len(self._encode_integer_fn(value))
 
 
@@ -359,6 +358,11 @@ class Timestamp(Field[datetime.datetime]):
           dumping if the field doesn't have a defined size. Before it used to crash with
           a :class:`TypeError` due to this oversight.
 
+    .. deprecated:: 0.11.0
+        Passing a zone-aware timestamp to this field when tz_aware is false, or a naive
+        timestamp when tz_aware is true is now deprecated, and will trigger an error in
+        the future.
+
     .. _Unix epoch: https://en.wikipedia.org/wiki/Unix_time
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
@@ -409,6 +413,19 @@ class Timestamp(Field[datetime.datetime]):
         context: Any,
         all_fields: StrDict,
     ) -> None:
+        if data.tzinfo is not None and not self.tz_aware:
+            warnings.warn(
+                f"{self} is not zone-aware but the timestamp ({data}) has a time zone."
+                " This will trigger an error in the future.",
+                DeprecationWarning,
+            )
+        elif data.tzinfo is None and self.tz_aware:
+            warnings.warn(
+                f"{self} is zone-aware but the timestamp ({data}) has no time zone."
+                " This will trigger an error in the future.",
+                DeprecationWarning,
+            )
+
         timestamp = int(data.timestamp() * self._units)
         try:
             helpers.write_int(
