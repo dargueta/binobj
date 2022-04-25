@@ -128,7 +128,7 @@ def collect_assigned_fields(
     .. versionadded:: 0.9.0
 
     .. versionchanged:: 0.10.0
-        The function now takes the entire class metadata as the third argument instead
+        The function now takes the entire class metadata as the first argument instead
         of just a mapping of the declared fields.
     """
     field_index = len(class_metadata.components)
@@ -259,12 +259,12 @@ class StructMeta(abc.ABCMeta):
 
 
 @overload
-def recursive_to_dicts(item: "Struct") -> MutableMapping[str, Any]:
+def recursive_to_dicts(item: "Struct") -> Dict[str, Any]:
     ...
 
 
 @overload
-def recursive_to_dicts(item: Mapping[K, V]) -> MutableMapping[K, V]:
+def recursive_to_dicts(item: Mapping[K, V]) -> Dict[K, V]:
     ...
 
 

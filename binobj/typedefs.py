@@ -41,4 +41,4 @@ FieldOrName = Union[str, "Field[Any]"]
 StructOrName = Union[str, "Struct", Type["Struct"]]
 """A :class:`~binobj.structures.Struct` or its name."""
 
-EndianString = Union[Literal["little"], Literal["big"]]
+EndianString = Literal["little", "big"]

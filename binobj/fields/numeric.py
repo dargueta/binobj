@@ -7,6 +7,8 @@ from typing import Any
 from typing import BinaryIO
 from typing import Optional
 
+from typing_extensions import Literal
+
 from binobj import errors
 from binobj import helpers
 from binobj import varints
@@ -38,6 +40,9 @@ __all__ = [
 ]
 
 
+FloatFormat = Literal["e", "f", "d"]
+
+
 class Float(Field[float]):
     """A floating-point number in IEEE-754:2008 interchange format.
 
@@ -45,8 +50,7 @@ class Float(Field[float]):
 
     :param str format_string:
         The `format character`_ used by the :mod:`struct` library to load and dump this
-        floating-point number. Can be "f" (32 bits) or "d" (64 bits); Python 3.6 and up
-        support "e" (16 bits). Any other values will cause an error.
+        floating-point number. Can be "e" (16 bits), "f" (32 bits) or "d" (64 bits).
     :param str endian:
         The endianness to use to load/store the float. Either "big" or "little". If not
         given, defaults to the system's native byte ordering as given by
@@ -58,9 +62,9 @@ class Float(Field[float]):
     def __init__(
         self,
         *,
-        format_string: str,
+        format_string: FloatFormat,
         endian: Optional[EndianString] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         super().__init__(size=struct.calcsize(format_string), **kwargs)
 
@@ -93,10 +97,6 @@ class Float(Field[float]):
 
 class Float16(Float):
     """A half-precision floating-point number in IEEE-754 `binary16`_ format.
-
-    .. warning::
-        This format is only supported on Python 3.6 and newer. Using this field in older
-        versions of Python will crash.
 
     .. _binary16: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     """
@@ -143,6 +143,7 @@ class Integer(Field[int]):
         The size of the integer, in bytes.
 
     .. versionchanged:: 0.8.0
+
         * The ``size`` argument is now required.
         * The class now throws :class:`~.errors.UndefinedSizeError` when loading and
           dumping if the field doesn't have a defined size. Before it used to crash with
@@ -158,7 +159,7 @@ class Integer(Field[int]):
         *,
         endian: Optional[EndianString] = None,
         signed: bool = True,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
@@ -202,7 +203,7 @@ class VariableLengthInteger(Integer):
         *,
         vli_format: VarIntEncoding,
         max_bytes: Optional[int] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
 
@@ -372,7 +373,7 @@ class Timestamp(Field[datetime.datetime]):
         tz_aware: bool = False,
         endian: Optional[EndianString] = None,
         signed: bool = True,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         if resolution not in self._RESOLUTION_UNITS:
             raise errors.ConfigurationError(
