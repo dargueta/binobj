@@ -7,13 +7,16 @@ Changelog
 New Features
 ~~~~~~~~~~~~
 
-* **New Field!**: ``UUID``: Store a UUID in four different formats: variant 1 (the
-  most common), Microsoft format, the usual string representation, or as a hexadecimal
-  string.
+* **New Field!**: ``UUID4``: Store a UUID4 in four different formats: variant 1 (the
+  most common), Microsoft format (variant 2), the canonical string representation, or as
+  a hexadecimal string.
 * Official support for CPython 3.10 and PyPy 3.8 and 3.9.
 
 Deprecations
 ~~~~~~~~~~~~
+
+Callable Defaults
+^^^^^^^^^^^^^^^^^
 
 Specifying a callable as a default argument was a terrible idea in retrospect. Even at
 the time in the release notes I said it "[...] looks confusing and is not recommended.
@@ -25,10 +28,23 @@ Thus, please don't do this:
 
     @binobj.dataclass
     class MyStruct(binobj.Struct):
-        path_separator: StringZ = lambda: os.sep
+        username: StringZ = getpass.getusername
 
-For now it will only issue a DeprecationWarning, but will crash in the future. I'll
-provide a different way to do this in an upcoming release.
+For now it will only issue a DeprecationWarning, but will crash in the future.
+Instead, use the new ``factory`` argument:
+
+.. code-block:: python
+
+    @binobj.dataclass
+    class MyStruct(binobj.Struct):
+        username: StringZ(factory=getpass.getusername)
+
+Naive/Aware Mixing
+^^^^^^^^^^^^^^^^^^
+
+Passing a timezone-aware timestamp to a Timestamp field that was naive, or
+passing a naive timestamp to a timezone-aware Timestamp field is deprecated.
+In the future, doing so will trigger an error.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
