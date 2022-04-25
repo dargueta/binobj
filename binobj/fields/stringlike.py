@@ -14,7 +14,7 @@ from binobj.fields.base import Field
 from binobj.typedefs import StrDict
 
 
-__all__ = ["Bytes", "String", "StringZ", "UUID", "UUIDFormat"]
+__all__ = ["Bytes", "String", "StringZ", "UUID4", "UUIDFormat"]
 
 
 class Bytes(Field[bytes]):
@@ -34,9 +34,7 @@ class Bytes(Field[bytes]):
 
         stream.write(data)
 
-    def _size_for_value(self, value: Optional[bytes]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: bytes) -> int:
         return len(value)
 
 
@@ -146,9 +144,7 @@ class String(Field[str]):
 
         return to_dump
 
-    def _size_for_value(self, value: Optional[str]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: str) -> int:
         return len(value.encode(self.encoding))
 
 
@@ -184,32 +180,30 @@ class StringZ(String):
     ) -> None:
         stream.write(self._encode_and_resize(data + "\0"))
 
-    def _size_for_value(self, value: Optional[str]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: str) -> int:
         return len((value + "\0").encode(self.encoding))
 
 
 class UUIDFormat(enum.Enum):
-    """The storage format of a UUID."""
+    """The storage format of a UUID4."""
 
     BINARY_VARIANT_1 = "binary_var_1"
     """The binary format, RFC-4122 variant 1.
 
-    The UUID is stored as a 16-byte sequence of big-endian integers. This is the most
+    The UUID4 is stored as a 16-byte sequence of big-endian integers. This is the most
     common format used today.
     """
 
     BINARY_VARIANT_2 = "binary_var_2"
     """The binary format, RFC-4122 variant 2.
 
-    The UUID is stored as a 16-byte sequence of integers in mixed-endian format. This is
-    described in the RFC as "Microsoft Corporation backward compatibility format". As
+    The UUID4 is stored as a 16-byte sequence of integers in mixed-endian format. This
+    is described in the RFC as "Microsoft Corporation backward compatibility format". As
     the name suggests, this is pretty much only used by Microsoft software.
     """
 
     CANONICAL_STRING = "canonical_string"
-    """The canonical string representation of a UUID.
+    """The canonical string representation of a UUID4.
 
     An example would be the ASCII string "4fcd056d-f29b-4cb8-8e37-99ab1b56a555".
     """
@@ -218,12 +212,13 @@ class UUIDFormat(enum.Enum):
     """Like :attr:`.CANONICAL_STRING` but without dashes."""
 
 
-class UUID(Field[uuid.UUID]):
-    """A UUID.
+class UUID4(Field[uuid.UUID]):
+    """A UUID, version 4 (the most common nowadays).
 
-    .. versionadded:: 0.10.6
     .. versionadded:: 0.11.0
     """
+
+    size: int
 
     def __init__(
         self, *, stored_as: UUIDFormat = UUIDFormat.BINARY_VARIANT_1, **kwargs: Any
@@ -237,7 +232,7 @@ class UUID(Field[uuid.UUID]):
             size = 32
         else:
             raise NotImplementedError(
-                f"BUG: The UUID storage format {stored_as!r} is not implemented. Please"
+                f"BUG: The UUID4 storage format {stored_as!r} is not implemented. Please"
                 " file a bug report."
             )
         super().__init__(size=size, **kwargs)
@@ -245,29 +240,17 @@ class UUID(Field[uuid.UUID]):
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
     ) -> Optional[uuid.UUID]:
-        if self.stored_as is UUIDFormat.BINARY_VARIANT_1:
-            argument_name = "bytes"
-            read_size = 16
-        elif self.stored_as is UUIDFormat.BINARY_VARIANT_2:
-            argument_name = "bytes_le"
-            read_size = 16
-        elif self.stored_as is UUIDFormat.CANONICAL_STRING:
-            argument_name = "hex"
-            read_size = 36
-        else:
-            # Hex string
-            argument_name = "hex"
-            read_size = 32
-
-        raw_data = stream.read(read_size)
-        if len(raw_data) < read_size:
+        raw_data = stream.read(self.size)
+        if len(raw_data) < self.size:
             raise errors.UnexpectedEOFError(
-                field=self, size=read_size, offset=stream.tell()
+                field=self, size=self.size, offset=stream.tell()
             )
 
-        if self.stored_as in (UUIDFormat.BINARY_VARIANT_1, UUIDFormat.BINARY_VARIANT_2):
-            return uuid.UUID(**{argument_name: raw_data})
-        return uuid.UUID(**{argument_name: raw_data.decode("ascii")})
+        if self.stored_as is UUIDFormat.BINARY_VARIANT_1:
+            return uuid.UUID(bytes=raw_data)
+        if self.stored_as is UUIDFormat.BINARY_VARIANT_2:
+            return uuid.UUID(bytes_le=raw_data)
+        return uuid.UUID(hex=raw_data.decode("ascii"))
 
     def _do_dump(
         self, stream: BinaryIO, data: uuid.UUID, context: Any, all_fields: StrDict
