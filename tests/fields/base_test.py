@@ -396,3 +396,38 @@ def test_binding_defaults_applied__class_name_prefix():
     assert Test.opposite.endian == opposite_endian, "Default value wasn't applied"
     assert Test.same_16.endian == sys.byteorder, "Explicit argument was overridden"
     assert Test.unaffected.endian == sys.byteorder, "Explicit argument was overridden"
+
+
+def test_callable_default_warns():
+    """Passing a callable for `default` triggers a warning."""
+    with pytest.deprecated_call():
+        fields.Int32(name="whatever", default=lambda: 123)
+
+
+def test_default_and_factory_triggers_error():
+    with pytest.raises(
+        errors.ConfigurationError,
+        match="Do not pass values for both `default` and `factory`.",
+    ):
+        fields.Int8(name="asdf", default=123, factory=lambda: 123)
+
+
+def test_explicit_name_mismatch_triggers_error():
+    """Passing a name to a field that already had its name assigned by ``__set_name__``
+    *and* it doesn't match triggers an error.
+    """
+    with pytest.raises(errors.ConfigurationError):
+
+        class Broken(binobj.Struct):
+            asdf = fields.Bytes(name="qwerty", size=10)
+
+
+def test_explicit_name_matches_no_error():
+    """Passing a name to a field that already had its name assigned by ``__set_name__``
+    but the names match will not trigger an error.
+    """
+
+    class ThisIsFine(binobj.Struct):
+        asdf = fields.Bytes(name="asdf", size=10)
+
+    assert ThisIsFine.asdf.name == "asdf"

@@ -12,12 +12,12 @@ from typing import BinaryIO
 from typing import Callable
 from typing import ClassVar
 from typing import Collection
+from typing import FrozenSet
 from typing import Generic
 from typing import Iterable
 from typing import Mapping
 from typing import Optional
 from typing import overload
-from typing import Set
 from typing import Type
 from typing import TypeVar
 from typing import Union
@@ -211,13 +211,23 @@ class Field(Generic[T]):
     __overrideable_attributes__: ClassVar[Collection[str]] = ()
     """The names of attributes that can be overridden using ``Meta`` class options."""
 
-    __explicit_init_args__: Set[str]
+    __explicit_init_args__: FrozenSet[str]
     """The names of arguments that were explicitly passed to the constructor."""
 
     __objclass__: Type["Struct"]
     """The :class:`~binobj.structures.Struct` class that this ``Field`` is bound to.
 
     This is the class object, not a particular instance of the class.
+    """
+
+    name: str
+    """The name of the field.
+
+    **Technical Note:**
+    This attribute can only be ``None`` if the field was created without passing a value
+    for ``name`` to the constructor *and* the field has never been bound to a struct.
+    Since this is highly unlikely in normal usage, this attribute is declared as ``str``
+    rather than ``Optional[str]``.
     """
 
     const: Union[T, _Undefined]
@@ -272,7 +282,7 @@ class Field(Generic[T]):
 
         if factory is not None and default is not UNDEFINED:
             raise errors.ConfigurationError(
-                "Do not pass values for both ``default`` and ``factory``.", field=self
+                "Do not pass values for both `default` and `factory`.", field=self
             )
 
         if default is UNDEFINED and const is not UNDEFINED:
@@ -289,20 +299,9 @@ class Field(Generic[T]):
         else:
             self._default = default
 
-        existing_name = getattr(self, "name", None)
-        if existing_name is None:
-            self.name = name
-        elif name is not None and name != existing_name:
-            # The `name` attribute has already been set by __set_name__ and an explicit
-            # name was passed into the constructor that doesn't match the existing name.
-            raise errors.ConfigurationError(
-                f"A name has already been set for this field ({existing_name!r}) but an"
-                f" explicit name was also passed to the constructor ({name!r}.",
-                field=self,
-            )
-
         # These attributes are typically set by the struct containing the field after
         # the field's instantiated.
+        self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
         self.offset: Optional[int] = None
         self._compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]] = None
@@ -354,7 +353,7 @@ class Field(Generic[T]):
         .. versionchanged:: 0.10.0
             Added the ``struct_info`` parameter.
         """
-        self.name = name
+        maybe_assign_name(self, name)
         self.index = index
         self.offset = offset
 
@@ -529,7 +528,7 @@ class Field(Generic[T]):
         """  # noqa: D400
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value: Optional[T]) -> Optional[int]:
+    def _size_for_value(self, value: T) -> Optional[int]:
         """Get the size of the serialized value, or ``None`` if it can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const`` is
@@ -929,10 +928,24 @@ class Field(Generic[T]):
         instance.__values__[self.name] = value
 
     def __set_name__(self, owner: "Struct", name: str) -> None:
-        self.name = name
+        maybe_assign_name(self, name)
 
     def __str__(self) -> str:
         return "%s(name=%r)" % (type(self).__name__, self.name)
 
     def __repr__(self) -> str:
         return "<%s.%s>" % (self.__module__, self)
+
+
+def maybe_assign_name(field: Field[Any], new_name: str) -> None:
+    existing_name = getattr(field, "name", None)
+    if existing_name is None:
+        field.name = new_name
+    elif new_name != existing_name:
+        # The `name` attribute has already been set by __set_name__ and an explicit
+        # name was passed into the constructor that doesn't match the existing name.
+        raise errors.ConfigurationError(
+            f"A name has already been set for this field ({existing_name!r}) but an"
+            f" explicit name was also passed to the constructor ({new_name!r}.",
+            field=field,
+        )
