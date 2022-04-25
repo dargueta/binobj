@@ -51,7 +51,6 @@ from binobj import fields
 __all__ = ["dataclass"]
 
 
-T = TypeVar("T")
 TStruct = TypeVar("TStruct", bound=binobj.Struct)
 
 
@@ -80,8 +79,8 @@ class AnnotationInfo:
 
     @classmethod
     def from_annotation(
-        cls: Type[T], field_name: Any, annotation: Any, struct_class: Type[TStruct]
-    ) -> T:
+        cls, field_name: Any, annotation: Any, struct_class: Type[TStruct]
+    ) -> "AnnotationInfo":
         type_class = annotation
         type_args = get_typing_args(annotation)
         nullable = type(None) in type_args

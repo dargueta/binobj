@@ -4,6 +4,7 @@ This file MUST be ignored by Python 3.5 tests. If not, importing it will trigger
 errors and you will be sad.
 """
 
+import random
 import typing
 from typing import ClassVar
 from typing import Optional
@@ -111,3 +112,11 @@ class NestedFields(binobj.Struct):
 def test_nested_works():
     assert isinstance(NestedFields.basic, fields.Nested)
     assert NestedFields.basic.struct_class is BasicClass
+
+
+def test_passing_callable_triggers_warning():
+    with pytest.deprecated_call():
+
+        @dataclass
+        class _DeprecatedCallable(binobj.Struct):
+            some_field: fields.Int32 = lambda: random.randrange(1024)

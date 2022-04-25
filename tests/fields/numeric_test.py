@@ -1,7 +1,6 @@
 import datetime
 import math
 import struct
-import sys
 from unittest import mock
 
 import pytest
@@ -10,9 +9,6 @@ from binobj import DEFAULT
 from binobj import errors
 from binobj import varints
 from binobj.fields import numeric
-
-
-_PY_VER = tuple(sys.version_info[:2])
 
 
 def test_integer_overflow():
@@ -168,23 +164,15 @@ def test_float__loads(value, field_object, fmt_string):
     )
 
 
-@pytest.mark.skipif(_PY_VER < (3, 6), reason="binary16 only supported on 3.6+")
 def test_float16__loads():
     field = numeric.Float16(endian="little")
     result = field.from_bytes(struct.pack("<e", math.e))
     assert math.isclose(result, math.e, rel_tol=0.001)
 
 
-@pytest.mark.skipif(_PY_VER < (3, 6), reason="binary16 only supported on 3.6+")
 def test_float16__dumps():
     field = numeric.Float16(endian="big")
     assert field.to_bytes(65504) == struct.pack(">e", 65504)
-
-
-@pytest.mark.skipif(_PY_VER >= (3, 6), reason="binary16 supported on 3.6+")
-def test_float16_crashes_on_35():
-    with pytest.raises(errors.ConfigurationError, match=r"^binary16.*$"):
-        numeric.Float16()
 
 
 @mock.patch("binobj.fields.numeric.struct.unpack")
@@ -270,3 +258,17 @@ def test_timestamp__naive_assumes_local():
     field = numeric.Timestamp64(endian="little", resolution="us", tz_aware=True)
     assert field.to_bytes(utc) == field.to_bytes(local_naive)
     assert field.from_bytes(field.to_bytes(local_naive)) == local_aware
+
+
+def test_timestamp__naive_round_trip_truncated():
+    now = datetime.datetime.now()
+    now_rounded = now.replace(microsecond=0)
+    field = numeric.Timestamp64(endian="little", resolution="s")
+    assert field.from_bytes(field.to_bytes(now)) == now_rounded
+
+
+def test_timestamp__aware_round_trip_truncated():
+    now = datetime.datetime.now(datetime.timezone.utc)
+    now_rounded = now.replace(microsecond=0)
+    field = numeric.Timestamp64(endian="little", resolution="s", tz_aware=True)
+    assert field.from_bytes(field.to_bytes(now)) == now_rounded

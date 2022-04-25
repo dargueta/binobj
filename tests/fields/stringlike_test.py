@@ -1,4 +1,5 @@
 import sys
+import uuid
 
 import pytest
 
@@ -29,6 +30,11 @@ def test_bytes__null():
     assert field.to_bytes(None) == b"\x00" * 7
 
 
+def test_bytes__dump_null_default():
+    field = stringlike.String(null_value=b"trash", default=None)
+    assert field.to_bytes(None) == b"trash"
+
+
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = stringlike.String(size=13, encoding="utf-8")
@@ -46,6 +52,11 @@ def test_string__dump_no_size():
     field = stringlike.String()
     with pytest.raises(errors.UndefinedSizeError):
         field.to_bytes("asdf")
+
+
+def test_string__dump_null_default():
+    field = stringlike.String(null_value="NULL", default=None)
+    assert field.to_bytes(None) == "NULL"
 
 
 @pytest.mark.parametrize("size_field", (fields.UInt8(name="size"), "size"))
@@ -103,8 +114,8 @@ def test_string__dump_too_long_after_encoding__pad():
         field.to_bytes("ab")
 
 
-def test_string__dump_null_default():
-    field = fields.String(size=7, null_value=DEFAULT)
+def test_stringz__dump_null_default():
+    field = fields.StringZ(size=7, null_value=DEFAULT)
     assert field.to_bytes(None) == b"\x00" * 7
 
 
@@ -199,3 +210,29 @@ def test_stringz__dump_default_null_crashes():
     field = stringlike.StringZ(null_value=DEFAULT)
     with pytest.raises(errors.UnserializableValueError):
         field.to_bytes(None)
+
+
+@pytest.mark.parametrize(
+    "storage_format,accessor_name",
+    (
+        (stringlike.UUIDFormat.BINARY_VARIANT_1, "bytes"),
+        (stringlike.UUIDFormat.BINARY_VARIANT_2, "bytes_le"),
+        (stringlike.UUIDFormat.CANONICAL_STRING, ""),
+        (stringlike.UUIDFormat.HEX_STRING, "hex"),
+    ),
+)
+def test_uuid_round_trip(storage_format, accessor_name):
+    field = stringlike.UUID4(stored_as=storage_format)
+    value = uuid.uuid4()
+    serialized = field.to_bytes(value)
+    if accessor_name == "":
+        expected_value = str(value).encode("ascii")
+    elif accessor_name == "hex":
+        expected_value = value.hex.encode("ascii")
+    else:
+        expected_value = getattr(value, accessor_name)
+
+    assert serialized == expected_value, "Serialized value is wrong"
+
+    loaded = field.from_bytes(serialized)
+    assert loaded == value, "Deserialized value is wrong"
