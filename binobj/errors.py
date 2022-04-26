@@ -87,7 +87,7 @@ class ConfigurationError(Error):
         *,
         field: Optional[FieldOrName] = None,
         struct: Optional[StructOrName] = None,
-        obj: Any = None
+        obj: Any = None,
     ):
         if not (field or struct or obj):
             raise ValueError(
@@ -133,7 +133,7 @@ class SerializationError(Error):
         *,
         struct: Optional["Struct"] = None,
         field: Optional[FieldOrName] = None,
-        value: Optional[T] = None
+        value: Optional[T] = None,
     ):
         super().__init__(message)
         self.struct = struct
@@ -160,7 +160,7 @@ class DeserializationError(Error):
         *,
         field: Optional["Field[Any]"] = None,
         data: Optional[bytes] = None,
-        offset: Optional[int] = None
+        offset: Optional[int] = None,
     ):
         super().__init__(message)
         self.field = field
@@ -339,6 +339,20 @@ class CannotDetermineNullError(ConfigurationError):
             "Passing `DEFAULT` for `null_value` of unsized field %r makes it impossible"
             " to determine what None should be and would result in unpredictable"
             " behavior." % self,
+            field=field,
+        )
+
+
+class BuggyFieldImplementationError(ConfigurationError):
+    """There's a bug in an implementation of a field.
+
+    .. versionadded:: 0.11.0
+    """
+
+    def __init__(self, message, *, field: "Field[Any]"):
+        field_type = type(field)
+        super().__init__(
+            f"Field type {field_type!r} has a bug in its implementation: {message}",
             field=field,
         )
 

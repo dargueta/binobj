@@ -528,7 +528,7 @@ class Field(Generic[T]):
         """  # noqa: D400
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value: T) -> Optional[int]:
+    def _size_for_value(self, value: Optional[T]) -> Optional[int]:
         """Get the size of the serialized value, or ``None`` if it can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const`` is
@@ -586,12 +586,20 @@ class Field(Generic[T]):
             # Field has an undefined size. If the caller gave us a value for that field,
             # or if we have a default value defined, we might be able to determine the
             # size of that value.
-            if self.name in field_values:
-                expected_size = self._size_for_value(field_values[self.name])
-            elif self.default is not UNDEFINED:
-                expected_size = self._size_for_value(self.default)
-            else:
-                expected_size = None
+            try:
+                if self.name in field_values:
+                    expected_size = self._size_for_value(field_values[self.name])
+                elif self.default is not UNDEFINED:
+                    expected_size = self._size_for_value(self.default)
+                else:
+                    expected_size = None
+            except RecursionError:
+                raise errors.BuggyFieldImplementationError(
+                    "The implementation of %s.%s_size_for_value() calls one of the"
+                    " `Field.to_*` or `Field.from_*` methods. Doing so causes infinite"
+                    " recursion." % (type(self).__module__, type(self).__name__),
+                    field=self,
+                ) from None
 
             if expected_size is not None:
                 return expected_size
