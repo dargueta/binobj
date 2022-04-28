@@ -416,10 +416,16 @@ def test_explicit_name_mismatch_triggers_error():
     """Passing a name to a field that already had its name assigned by ``__set_name__``
     *and* it doesn't match triggers an error.
     """
-    with pytest.raises(errors.ConfigurationError):
+    with pytest.raises(
+        RuntimeError,
+        match="Error calling __set_name__ on 'Bytes' instance 'asdf' in 'Broken'",
+    ) as errinfo:
 
         class Broken(binobj.Struct):
             asdf = fields.Bytes(name="qwerty", size=10)
+
+    cause = errinfo.value.__cause__
+    assert isinstance(cause, errors.ConfigurationError)
 
 
 def test_explicit_name_matches_no_error():

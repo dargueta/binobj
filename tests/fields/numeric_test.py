@@ -256,7 +256,8 @@ def test_timestamp__naive_assumes_local():
     local_naive = local_aware.replace(tzinfo=None)
 
     field = numeric.Timestamp64(endian="little", resolution="us", tz_aware=True)
-    assert field.to_bytes(utc) == field.to_bytes(local_naive)
+    with pytest.deprecated_call():
+        assert field.to_bytes(utc) == field.to_bytes(local_naive)
     assert field.from_bytes(field.to_bytes(local_naive)) == local_aware
 
 

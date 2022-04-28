@@ -31,8 +31,10 @@ def test_getitem__no_such_field():
 
 def test_eq_undefined():
     """A struct with entirely unassigned fields compares equal to UNDEFINED."""
-    assert BasicStruct() == fields.UNDEFINED
-    assert BasicStruct(int64=123) != fields.UNDEFINED
+    with pytest.deprecated_call():
+        assert BasicStruct() == fields.UNDEFINED
+    with pytest.deprecated_call():
+        assert BasicStruct(int64=123) != fields.UNDEFINED
 
 
 def test_eq_not_struct_or_mapping():
