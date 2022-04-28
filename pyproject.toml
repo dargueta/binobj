@@ -34,11 +34,11 @@ typing-inspect = {version = ">=0.4.0", python = "<3.8"}
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
 black = "22.3.0"
-coverage-pyver-pragma = "0.3.0"
+coverage-pyver-pragma = "0.3.1"
 flake8 = "4.0.1"
 flake8-black = "0.3.2"
 flake8-blind-except = "0.2.1"
-flake8-bugbear = "22.3.23"
+flake8-bugbear = "22.4.25"
 flake8-builtins = "1.5.3"
 flake8-comprehensions = "3.8.0"
 flake8-debugger = "4.0.0"
@@ -51,10 +51,10 @@ flake8-loopy = "1.1.0"
 flake8-simplify = "0.19.2"
 isort = "5.10.1"
 mccabe = "0.6.1"
-mypy = "0.942"
-pytest = "6.2.5"
+mypy = "0.950"
+pytest = "7.1.2"
 pytest-cov = "3.0.0"
-pytest-randomly = "3.10.2"
+pytest-randomly = "3.11.0"
 
 # Indirect dependencies go below this line. Avoid pinning them any tighter than necessary.
 # You should only add dependencies here that require pinning to ensure certain features or
