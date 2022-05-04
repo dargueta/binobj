@@ -11,6 +11,17 @@ New Features
   most common), Microsoft format (variant 2), the canonical string representation, or as
   a hexadecimal string.
 * Official support for CPython 3.10 and PyPy 3.8 and 3.9.
+* New exception ``BuggyFieldImplementationError`` to give better information to people
+  who are implementing custom fields.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+* **Dropped support for Python 3.5 and 3.6** as per the deprecation policy (when Pip
+  drops support for a Python version, I no longer guarantee support).
+* Switching to pyproject.toml breaks support for Pip older than 19.0. I consider this
+  acceptable because Pip 19.0 is over three years old at this point, and predates the
+  sunsetting of 3.5 and 3.6.
 
 Deprecations
 ~~~~~~~~~~~~
@@ -46,19 +57,17 @@ Passing a timezone-aware timestamp to a Timestamp field that was naive, or
 passing a naive timestamp to a timezone-aware Timestamp field is deprecated.
 In the future, doing so will trigger an error.
 
-Breaking Changes
-~~~~~~~~~~~~~~~~
+Bugfixes
+~~~~~~~~
 
-* Dropped support for Python 3.5 and 3.6 as per the deprecation policy (when Pip drops
-  support this will no longer guarantee support).
-* Switching to pyproject.toml breaks support for Pip older than 19.0. I consider this
-  acceptable because Pip 19.0 is over three years old at this point, and predates the
-  sunsetting of 3.5 and 3.6.
+Fixed a bug where ``StringZ`` would trigger a stack overflow when dumping if no value
+was passed in for the field *and* the factory method returned ``None``. Strangely, it
+didn't happen if you gave it an explicit default value of ``None``.
 
 Other Changes
 ~~~~~~~~~~~~~
 
-* Attempting to set the name of a class that already has its name set will throw a
+* Attempting to change the name of an already-bound field will throw a
   ``ConfigurationError``.
 * Codec information for variable-length integers now uses dataclasses instead of dicts.
   This gives us the ability to add in stricter typing information and remove a number of
