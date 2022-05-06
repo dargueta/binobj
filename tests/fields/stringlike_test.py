@@ -35,6 +35,11 @@ def test_bytes__dump_null_default():
     assert field.to_bytes(None) == b"trash"
 
 
+def test_bytes__dump_null_factory():
+    field = stringlike.Bytes(null_value=b"NULL", factory=lambda: None, size=4)
+    assert field.to_bytes(None) == b"NULL"
+
+
 def test_string__load_basic():
     """Basic test of loading a String"""
     field = stringlike.String(size=13, encoding="utf-8")
@@ -55,8 +60,13 @@ def test_string__dump_no_size():
 
 
 def test_string__dump_null_default():
-    field = stringlike.String(null_value="NULL", default=None)
-    assert field.to_bytes(None) == "NULL"
+    field = stringlike.String(null_value="NULL", default=None, size=4)
+    assert field.to_bytes(None) == b"NULL"
+
+
+def test_string__dump_null_factory():
+    field = stringlike.String(null_value="NULL", factory=lambda: None, size=4)
+    assert field.to_bytes(None) == b"NULL"
 
 
 @pytest.mark.parametrize("size_field", (fields.UInt8(name="size"), "size"))
@@ -117,6 +127,11 @@ def test_string__dump_too_long_after_encoding__pad():
 def test_stringz__dump_null_default():
     field = fields.StringZ(size=7, null_value=DEFAULT)
     assert field.to_bytes(None) == b"\x00" * 7
+
+
+def test_stringz__dump_null_factory():
+    field = stringlike.StringZ(null_value="NULL", factory=lambda: None)
+    assert field.to_bytes(None) == b"NULL\x00"
 
 
 def test_string__load_null_default():

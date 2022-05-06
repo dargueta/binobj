@@ -243,7 +243,9 @@ class VariableLengthInteger(Integer):
 
         stream.write(encoded_int)
 
-    def _size_for_value(self, value: int) -> int:
+    def _size_for_value(self, value: Optional[int]) -> int:
+        if value is None:
+            return len(self._get_null_repr())
         return len(self._encode_integer_fn(value))
 
 

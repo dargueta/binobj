@@ -34,7 +34,9 @@ class Bytes(Field[bytes]):
 
         stream.write(data)
 
-    def _size_for_value(self, value: bytes) -> int:
+    def _size_for_value(self, value: Optional[bytes]) -> int:
+        if value is None:
+            return len(self._get_null_repr())
         return len(value)
 
 
@@ -144,7 +146,9 @@ class String(Field[str]):
 
         return to_dump
 
-    def _size_for_value(self, value: str) -> int:
+    def _size_for_value(self, value: Optional[str]) -> int:
+        if value is None:
+            return len(self._get_null_repr())
         return len(value.encode(self.encoding))
 
 
@@ -180,7 +184,9 @@ class StringZ(String):
     ) -> None:
         stream.write(self._encode_and_resize(data + "\0"))
 
-    def _size_for_value(self, value: str) -> int:
+    def _size_for_value(self, value: Optional[str]) -> int:
+        if value is None:
+            return len(self._get_null_repr())
         return len((value + "\0").encode(self.encoding))
 
 

@@ -106,6 +106,26 @@ def test_varint__load_null_value(null_value, serialized):
     assert field.from_bytes(serialized) is None
 
 
+def test_varint__dump_default_null():
+    field = numeric.VariableLengthInteger(
+        vli_format=varints.VarIntEncoding.ULEB128,
+        max_bytes=2,
+        null_value=0x7F,
+        default=None,
+    )
+    assert field.to_bytes(None) == b"\x7f"
+
+
+def test_varint__dump_factory_null():
+    field = numeric.VariableLengthInteger(
+        vli_format=varints.VarIntEncoding.ULEB128,
+        max_bytes=2,
+        null_value=0x7F,
+        factory=lambda: None,
+    )
+    assert field.to_bytes(None) == b"\x7f"
+
+
 def test_varint__load_null_value_default_warns():
     """Passing DEFAULT for `null_value` will break variable length integers since
     we can't guess what the falsy value for the datatype is (if that even exists).
