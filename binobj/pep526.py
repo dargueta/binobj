@@ -23,12 +23,11 @@ Here are a few examples of how you can declare your fields::
         # the field instance!
         baz: Timestamp64(signed=False)
 
-        # You can pass functions for default values just as if you were calling the
-        # constructor, but this looks confusing and is **not recommended**. This may
-        # throw an exception in the future if I decide it's too egregious.
-        bam: StringZ = lambda: os.sep
-
 .. versionadded:: 0.9.0
+
+.. deprecated:: 0.11.0
+    Do not pass a callable as the default value, use the ``factory`` argument to the
+    field instead.
 
 .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
 """
@@ -38,6 +37,7 @@ import functools
 import typing
 import warnings
 from typing import Any
+from typing import Dict
 from typing import Optional
 from typing import Type
 from typing import TypeVar
@@ -62,10 +62,6 @@ except ImportError:  # pragma: no cover (py38+)
     from typing_inspect import get_origin as get_typing_origin  # type: ignore[import,no-redef]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
-
-
-if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import Dict
 
 
 @dataclasses.dataclass
@@ -108,9 +104,9 @@ class AnnotationInfo:
         default_value = getattr(struct_class, field_name, fields.UNDEFINED)
         if callable(default_value):
             warnings.warn(
-                "Passing a bare callable as the default value was a misfeature. Please"
-                " refrain from using this, as it may throw an error in the future.",
-                PendingDeprecationWarning,
+                "Passing a bare callable as the default value was a misfeature. Use"
+                " the `factory` keyword argument instead.",
+                DeprecationWarning,
             )
 
         return cls(
@@ -135,8 +131,9 @@ def annotation_to_field_instance(
         if issubclass(annotation.type_class, fields.Field):
             # This is a Field class. Initialize it with only the arguments we're certain
             # of. This gives us a Field instance.
+            kw: Dict[str, Any]
             if annotation.nullable:
-                kw = {"null_value": fields.DEFAULT}  # type: Dict[str, Any]
+                kw = {"null_value": fields.DEFAULT}
             else:
                 kw = {}
 
@@ -151,13 +148,7 @@ def annotation_to_field_instance(
         # Not an instance of Field -- ignore
         return None
 
-    # Else: The annotation is a field instance. Python 3.10 doesn't allow this anymore,
-    # so we're going to discourage this use.
-    warnings.warn(
-        "It's inadvisable to pass instances of Field as type annotations. It's not"
-        " guaranteed to work everywhere and'll break for sure starting in Python 3.10.",
-        FutureWarning,
-    )
+    # Else: The annotation is a field instance.
     return annotation.type_class
 
 
