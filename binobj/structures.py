@@ -18,7 +18,6 @@ from typing import MutableMapping
 from typing import Optional
 from typing import overload
 from typing import Sequence
-from typing import Tuple
 from typing import Type
 from typing import TypeVar
 
