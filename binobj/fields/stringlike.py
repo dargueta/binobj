@@ -134,7 +134,6 @@ class String(Field[str]):
 
         size_diff = len(to_dump) - write_size
 
-        # TODO (dargueta): Figure out why `field=self` gives MyPy indigestion below
         if size_diff > 0:
             # String is too long.
             raise errors.ValueSizeError(field=self, value=to_dump)

@@ -107,6 +107,7 @@ class AnnotationInfo:
                 "Passing a bare callable as the default value was a misfeature. Use"
                 " the `factory` keyword argument instead.",
                 DeprecationWarning,
+                stacklevel=2
             )
 
         return cls(

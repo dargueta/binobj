@@ -420,12 +420,14 @@ class Timestamp(Field[datetime.datetime]):
                 f"{self} is not zone-aware but the timestamp ({data}) has a time zone."
                 " This will trigger an error in the future.",
                 DeprecationWarning,
+                stacklevel=2
             )
         elif data.tzinfo is None and self.tz_aware:
             warnings.warn(
                 f"{self} is zone-aware but the timestamp ({data}) has no time zone."
                 " This will trigger an error in the future.",
                 DeprecationWarning,
+                stacklevel=2
             )
 
         timestamp = int(data.timestamp() * self._units)

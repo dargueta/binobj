@@ -644,6 +644,7 @@ class Struct:
                 "Comparing a struct to UNDEFINED to see if all its fields are undefined"
                 " is deprecated. Starting version 1.0 this will always return False.",
                 DeprecationWarning,
+                stacklevel=2
             )
             return all(v is fields.UNDEFINED for v in self.__values__.values())
 

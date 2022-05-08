@@ -293,6 +293,7 @@ class Field(Generic[T]):
             warnings.warn(
                 "Passing a callable to `default` is deprecated. Use `factory` instead.",
                 DeprecationWarning,
+                stacklevel=2
             )
             self._default = UNDEFINED
             self.factory = default
@@ -357,7 +358,7 @@ class Field(Generic[T]):
         self.index = index
         self.offset = offset
 
-        overrideables: Mapping[str, Any]
+        overrideables: Mapping[str, str]
         if not isinstance(self.__overrideable_attributes__, Mapping):
             # Force `overrideables` to be a dictionary.
             overrideables = {n: n for n in self.__overrideable_attributes__}
@@ -496,16 +497,17 @@ class Field(Generic[T]):
 
         warnings.warn(
             "This decorator will be moved to the `decorators` module.",
-            PendingDeprecationWarning,
+            DeprecationWarning,
+            stacklevel=2
         )
         self._compute_fn = method
 
     @property
     def allow_null(self) -> bool:
-        """Is ``None`` an acceptable value for this field?
+        """Returns True if ``None`` an acceptable value for this field.
 
         :type: bool
-        """  # noqa: D400
+        """
         return self.null_value is not UNDEFINED
 
     @property
@@ -555,6 +557,7 @@ class Field(Generic[T]):
             "_get_expected_size was made public in 0.9.0. The private form has been"
             " deprecated and will be removed in 1.0.",
             DeprecationWarning,
+            stacklevel=2
         )
         return self.get_expected_size(field_values)
 
@@ -595,7 +598,7 @@ class Field(Generic[T]):
                     expected_size = None
             except RecursionError:
                 raise errors.BuggyFieldImplementationError(
-                    "The implementation of %s.%s_size_for_value() calls one of the"
+                    "The implementation of %s.%s._size_for_value() calls one of the"
                     " `Field.to_*` or `Field.from_*` methods. Doing so causes infinite"
                     " recursion." % (type(self).__module__, type(self).__name__),
                     field=self,
@@ -954,6 +957,6 @@ def maybe_assign_name(field: Field[Any], new_name: str) -> None:
         # name was passed into the constructor that doesn't match the existing name.
         raise errors.ConfigurationError(
             f"A name has already been set for this field ({existing_name!r}) but an"
-            f" explicit name was also passed to the constructor ({new_name!r}.",
+            f" explicit name was also passed to the constructor ({new_name!r}).",
             field=field,
         )
