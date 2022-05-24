@@ -1,5 +1,8 @@
 """A Python library for reading and writing structured binary data."""
 
+from typing import Optional
+from typing import Tuple
+
 import pkg_resources as _pkgr
 
 from .errors import *
@@ -7,7 +10,7 @@ from .fields import *
 from .structures import *
 
 
-def __to_version_info():
+def __to_version_info() -> Tuple[int, int, int, Optional[str]]:
     parts = _pkgr.parse_version(__version__)
     base = parts.base_version
     return (*map(int, base.split(".")), (parts.public[len(base) :].lstrip(".") or None))

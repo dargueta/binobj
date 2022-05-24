@@ -349,7 +349,7 @@ class BuggyFieldImplementationError(ConfigurationError):
     .. versionadded:: 0.11.0
     """
 
-    def __init__(self, message, *, field: "Field[Any]"):
+    def __init__(self, message: str, *, field: "Field[Any]"):
         field_type = type(field)
         super().__init__(
             f"Field type {field_type!r} has a bug in its implementation: {message}",

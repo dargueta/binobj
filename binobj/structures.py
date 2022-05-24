@@ -190,7 +190,7 @@ def recursive_to_dicts(item: Sequence[T]) -> List[T]:
     ...
 
 
-def recursive_to_dicts(item):
+def recursive_to_dicts(item):  # type: ignore[no-untyped-def]
     """Ensure that any nested structures are also converted to dictionaries.
 
     This is used when a :class:`Struct` is converted to a dictionary.
@@ -384,7 +384,7 @@ class Struct:
         data: bytes,
         context: Any = None,
         exact: bool = True,
-        init_kwargs: StrDict = None,
+        init_kwargs: Optional[StrDict] = None,
     ) -> TStruct:
         """Load a struct from the given byte string.
 
@@ -424,7 +424,7 @@ class Struct:
     def partial_load(
         cls: Type[TStruct],
         stream: BinaryIO,
-        last_field: str = None,
+        last_field: Optional[str] = None,
         context: Any = None,
     ) -> TStruct:
         """Partially load this object, either until EOF or the named field.
@@ -644,7 +644,7 @@ class Struct:
                 "Comparing a struct to UNDEFINED to see if all its fields are undefined"
                 " is deprecated. Starting version 1.0 this will always return False.",
                 DeprecationWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return all(v is fields.UNDEFINED for v in self.__values__.values())
 
@@ -667,7 +667,7 @@ class Struct:
             ", ".join("%s=%r" % kv for kv in self.__values__.items()),
         )
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         # Build a list of all of the base classes that appear to be Structs. If anything
         # else uses StructMeta as a metaclass then we're in trouble, since this will
         # detect that as a second base class.
@@ -684,7 +684,7 @@ class Struct:
         if struct_bases:
             # Build a dictionary of all of the fields in the parent struct first, then
             # add in the fields defined in this struct.
-            base = typing.cast(Type["Struct"], struct_bases[0])
+            base = struct_bases[0]
 
             for comp_name, item in base.__binobj_struct__.components.items():
                 if isinstance(item, fields.Field):

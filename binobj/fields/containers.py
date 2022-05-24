@@ -1,5 +1,7 @@
 """Fields used for forming more complex structures with other fields."""
 
+from __future__ import annotations
+
 import collections.abc
 import typing
 from typing import Any
@@ -34,9 +36,11 @@ HaltCheckFn = Callable[["Array[T]", BinaryIO, List, Any, StrDict], bool]
 
 FieldOrTStruct = _Union[Field[Any], TStruct]
 LoadDecider = Callable[
-    [BinaryIO, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct
+    [BinaryIO, Tuple[FieldOrTStruct[T], ...], Any, StrDict], FieldOrTStruct[T]
 ]
-DumpDecider = Callable[[Any, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct]
+DumpDecider = Callable[
+    [Any, Tuple[FieldOrTStruct[T], ...], Any, StrDict], FieldOrTStruct[T]
+]
 
 
 class Array(Field[List[Optional[T]]]):
@@ -77,8 +81,8 @@ class Array(Field[List[Optional[T]]]):
         component: Field[T],
         *,
         count: _Union[int, Field[int], str, None] = None,
-        halt_check: Optional[HaltCheckFn] = None,
-        **kwargs: Any
+        halt_check: Optional[HaltCheckFn[T]] = None,
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         self.component = component
@@ -403,10 +407,10 @@ class Union(Field[T]):
 
     def __init__(
         self,
-        *choices: _Union["Field[Any]", Type["Struct"]],
-        load_decider,
-        dump_decider,
-        **kwargs: Any
+        *choices: FieldOrTStruct[T],
+        load_decider: LoadDecider[T],
+        dump_decider: DumpDecider[T],
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         if any(isinstance(c, type) and issubclass(c, Field) for c in choices):
@@ -418,15 +422,19 @@ class Union(Field[T]):
         self.load_decider = load_decider
         self.dump_decider = dump_decider
 
-    def _do_dump(self, stream, data, context: Any, all_fields: StrDict):
+    def _do_dump(
+        self, stream: BinaryIO, data: T, context: Any, all_fields: StrDict
+    ) -> None:
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
-            return dumper.to_stream(stream, data, context, all_fields)
+            dumper.to_stream(stream, data, context, all_fields)
+        else:
+            # Else: Dumper is not a Field instance, assume this is a Struct.
+            dumper(**data).to_stream(stream, context)
 
-        # Else: Dumper is not a Field instance, assume this is a Struct.
-        return dumper(**data).to_stream(stream, context)
-
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> Any:
+    def _do_load(
+        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+    ) -> Optional[T]:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader.from_stream(stream, context, loaded_fields)

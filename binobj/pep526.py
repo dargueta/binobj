@@ -39,6 +39,7 @@ import warnings
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Sequence
 from typing import Type
 from typing import TypeVar
 from typing import Union
@@ -55,11 +56,11 @@ TStruct = TypeVar("TStruct", bound=binobj.Struct)
 
 
 try:
-    from typing import get_args as get_typing_args  # type: ignore[attr-defined]
-    from typing import get_origin as get_typing_origin  # type: ignore[attr-defined]
+    from typing import get_args as get_typing_args
+    from typing import get_origin as get_typing_origin
 except ImportError:  # pragma: no cover (py38+)
     from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
-    from typing_inspect import get_origin as get_typing_origin  # type: ignore[import,no-redef]
+    from typing_inspect import get_origin as get_typing_origin  # type: ignore[no-redef]
 
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
@@ -67,8 +68,8 @@ except ImportError:  # pragma: no cover (py38+)
 @dataclasses.dataclass
 class AnnotationInfo:
     name: str
-    type_class: type
-    type_args: tuple = ()
+    type_class: Any
+    type_args: Sequence[Any] = ()
     has_default: Optional[bool] = None
     default_value: Any = fields.UNDEFINED
     nullable: bool = False
@@ -107,7 +108,7 @@ class AnnotationInfo:
                 "Passing a bare callable as the default value was a misfeature. Use"
                 " the `factory` keyword argument instead.",
                 DeprecationWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
         return cls(

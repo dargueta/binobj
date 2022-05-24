@@ -246,7 +246,7 @@ class Field(Generic[T]):
     nonetheless important to ensure the proper layout of the struct.
     """
 
-    def __new__(cls: Type["Field[Any]"], *_args, **kwargs: Any) -> "Field[Any]":
+    def __new__(cls: Type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
         """Create a new instance, recording which keyword arguments were passed in.
 
         Recording the explicit arguments is necessary so that a field can use the
@@ -293,7 +293,7 @@ class Field(Generic[T]):
             warnings.warn(
                 "Passing a callable to `default` is deprecated. Use `factory` instead.",
                 DeprecationWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             self._default = UNDEFINED
             self.factory = default
@@ -498,7 +498,7 @@ class Field(Generic[T]):
         warnings.warn(
             "This decorator will be moved to the `decorators` module.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         self._compute_fn = method
 
@@ -557,7 +557,7 @@ class Field(Generic[T]):
             "_get_expected_size was made public in 0.9.0. The private form has been"
             " deprecated and will be removed in 1.0.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.get_expected_size(field_values)
 
@@ -923,7 +923,7 @@ class Field(Generic[T]):
     def __get__(self, instance: "Field[Any]", owner: Type["Field[Any]"]) -> "Field[T]":
         ...
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner):  # type: ignore[no-untyped-def]
         if instance is None:
             return self
         if self.name in instance.__values__:

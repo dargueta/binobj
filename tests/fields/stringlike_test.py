@@ -59,13 +59,15 @@ def test_string__dump_no_size():
         field.to_bytes("asdf")
 
 
-def test_string__dump_null_default():
-    field = stringlike.String(null_value="NULL", default=None, size=4)
+@pytest.mark.parametrize("null_value", ("NULL", b"NULL"))
+def test_string__dump_null_default(null_value):
+    field = stringlike.String(null_value=null_value, default=None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
-def test_string__dump_null_factory():
-    field = stringlike.String(null_value="NULL", factory=lambda: None, size=4)
+@pytest.mark.parametrize("null_value", ("NULL", b"NULL"))
+def test_string__dump_null_factory(null_value):
+    field = stringlike.String(null_value=null_value, factory=lambda: None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
@@ -129,8 +131,9 @@ def test_stringz__dump_null_default():
     assert field.to_bytes(None) == b"\x00" * 7
 
 
-def test_stringz__dump_null_factory():
-    field = stringlike.StringZ(null_value="NULL", factory=lambda: None)
+@pytest.mark.parametrize("null_value", ("NULL", b"NULL\x00"))
+def test_stringz__dump_null_factory(null_value):
+    field = stringlike.StringZ(null_value=null_value, factory=lambda: None)
     assert field.to_bytes(None) == b"NULL\x00"
 
 
@@ -148,7 +151,7 @@ def test_string__null_value(null_value):
 def test_string__pad_byte_wrong_type():
     """Trying to pass a regular string as pad_byte will explode."""
     with pytest.raises(errors.ConfigurationError):
-        stringlike.String(size=4, pad_byte=" ")
+        stringlike.String(size=4, pad_byte=" ")  # type: ignore[arg-type]
 
 
 def test_string__pad_byte_too_long():
