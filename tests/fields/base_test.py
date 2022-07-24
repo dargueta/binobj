@@ -437,3 +437,13 @@ def test_explicit_name_matches_no_error():
         asdf = fields.Bytes(name="asdf", size=10)
 
     assert ThisIsFine.asdf.name == "asdf"
+
+
+def test_simulated_infinite_recursion():
+    class BorkedField(fields.Field[int]):
+        def _size_for_value(self, value):
+            raise RecursionError
+
+    borked = BorkedField(name="asdf", default=1)
+    with pytest.raises(errors.BuggyFieldImplementationError):
+        borked.get_expected_size({})
