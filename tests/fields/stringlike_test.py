@@ -137,6 +137,18 @@ def test_stringz__dump_null_factory(null_value):
     assert field.to_bytes(None) == b"NULL\x00"
 
 
+def test_stringz__dump_too_long():
+    field = stringlike.StringZ(size=5)
+    with pytest.raises(errors.ValueSizeError):
+        field.to_bytes("asdfqwerty")
+
+
+def test_stringz__dump_too_short():
+    field = stringlike.StringZ(size=5)
+    with pytest.raises(errors.ValueSizeError):
+        field.to_bytes("a")
+
+
 def test_string__load_null_default():
     field = fields.String(size=7, null_value=DEFAULT)
     assert field.from_bytes(b"\x00" * 7) is None
