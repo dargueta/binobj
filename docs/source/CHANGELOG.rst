@@ -11,6 +11,7 @@ New Features
   most common), Microsoft format (variant 2), the canonical string representation, or as
   a hexadecimal string.
 * Official support for CPython 3.10 and PyPy 3.8 and 3.9.
+* Provisional support for Python 3.11.
 * New exception ``BuggyFieldImplementationError`` to give better information to people
   who are implementing custom fields.
 
@@ -50,8 +51,8 @@ Instead, use the new ``factory`` argument:
     class MyStruct(binobj.Struct):
         username: StringZ(factory=getpass.getusername)
 
-Naive/Aware Mixing
-^^^^^^^^^^^^^^^^^^
+Mixing Naive/Aware Timestamps
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Passing a timezone-aware timestamp to a Timestamp field that was naive, or
 passing a naive timestamp to a timezone-aware Timestamp field is deprecated.
@@ -69,6 +70,8 @@ Other Changes
 
 * Attempting to change the name of an already-bound field will throw a
   ``ConfigurationError``.
+* If a field depends on another field to give its size, and that other field has a non-
+  integer value, a TypeError is thrown upon loading or dumping.
 * Codec information for variable-length integers now uses dataclasses instead of dicts.
   This gives us the ability to add in stricter typing information and remove a number of
   typecasts.

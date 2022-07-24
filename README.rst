@@ -6,7 +6,7 @@ binobj
 .. |build-status| image:: https://github.com/dargueta/binobj/actions/workflows/ci.yml/badge.svg
    :alt: Build status
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.7,%203.8,%203.9,%203.10-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.7,%203.8,%203.9,%203.10,%203.11-blue.svg
    :alt: Python versions
 
 .. |installs-month| image:: https://pepy.tech/badge/binobj/month

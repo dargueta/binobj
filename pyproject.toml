@@ -13,6 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Typing :: Typed",
@@ -32,12 +33,12 @@ typing-inspect = {version = ">=0.4.0", python = "<3.8"}
 [tool.poetry.dev-dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-black = "22.3.0"
+black = "22.6.0"
 coverage-pyver-pragma = "0.3.1"
 flake8 = "4.0.1"
 flake8-black = "0.3.3"
 flake8-blind-except = "0.2.1"
-flake8-bugbear = "22.4.25"
+flake8-bugbear = "22.7.1"
 flake8-builtins = "1.5.3"
 flake8-comprehensions = "3.10.0"
 flake8-debugger = "4.1.2"
@@ -50,7 +51,7 @@ flake8-loopy = "1.1.0"
 flake8-simplify = "0.19.2"
 isort = "5.10.1"
 mccabe = "0.6.1"
-mypy = "0.950"
+mypy = "0.971"
 pytest = "7.1.2"
 pytest-cov = "3.0.0"
 pytest-randomly = "3.12.0"
