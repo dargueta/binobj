@@ -13,7 +13,9 @@ from .structures import *
 def __to_version_info() -> Tuple[int, int, int, Optional[str]]:
     parts = _pkgr.parse_version(__version__)
     base = parts.base_version
-    return (*map(int, base.split(".")), (parts.public[len(base) :].lstrip(".") or None))
+    version_parts = tuple(map(int, base.split(".")))
+    suffix_part = parts.public[len(base) :].lstrip(".") or None
+    return version_parts[0], version_parts[1], version_parts[2], suffix_part
 
 
 # Do not modify directly; use ``bumpversion`` command instead.
