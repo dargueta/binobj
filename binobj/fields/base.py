@@ -246,6 +246,9 @@ class Field(Generic[T]):
     nonetheless important to ensure the proper layout of the struct.
     """
 
+    _default: Union[T, None, _Undefined]
+    """The default dump value for the field if the user doesn't pass a value in."""
+
     def __new__(cls: Type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
         """Create a new instance, recording which keyword arguments were passed in.
 
@@ -261,7 +264,7 @@ class Field(Generic[T]):
         *,
         name: Optional[str] = None,
         const: Union[T, _Undefined] = UNDEFINED,
-        default: Union[Optional[T], Callable[[], Optional[T]], _Undefined] = UNDEFINED,
+        default: Union[T, None, Callable[[], Optional[T]], _Undefined] = UNDEFINED,
         factory: Optional[Callable[[], Optional[T]]] = None,
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
@@ -288,7 +291,7 @@ class Field(Generic[T]):
         if default is UNDEFINED and const is not UNDEFINED:
             # If no default is given but ``const`` is, set the default value to
             # ``const``.
-            self._default: Union[Optional[T], _Undefined] = const
+            self._default = const
         elif callable(default):
             warnings.warn(
                 "Passing a callable to `default` is deprecated. Use `factory` instead.",
