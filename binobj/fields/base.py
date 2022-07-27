@@ -401,12 +401,15 @@ class Field(Generic[T]):
             # Else: struct doesn't define a default value for this argument.
 
     def compute_value_for_dump(
-        self, all_values: StrDict
-    ) -> Union[Optional[T], _NotPresent]:
+        self, all_values: StrDict, context: Any = None,
+    ) -> Union[T, None, _NotPresent]:
         """Calculate the value for this field upon dumping.
 
         :param dict all_values:
             The dictionary of all the field data that's about to be dumped.
+        :param context:
+            The context object passed to the containing Struct's ``to_bytes()`` or
+            ``to_stream()`` method.
 
         :return:
             The value the dumper will use for this field, or :data:`NOT_PRESENT` if the
@@ -425,31 +428,35 @@ class Field(Generic[T]):
             If ``default`` is given by a callable and that callable returns
             :data:`UNDEFINED`, it will throw :class:`~.errors.MissingRequiredValueError`
             instead of returning :data:`UNDEFINED`.
-        """
-        # FIXME (dargueta): Don't pass None for the context variable.
-        if not self.present(all_values, None, None):
-            return NOT_PRESENT
 
+        .. versionchanged:: 0.11.0
+            * The ``context`` argument was added, and is now passed to the :attr:`present`
+              callable.
+            * ``present()`` is now always called, even if the value of the field is set.
+              Before, if a field had a value explicitly set, it would be included in the
+              output even if present() would've returned False.
+        """
         if self.name in all_values:
             # The value is already set in the struct so we don't need to do anything.
-            return typing.cast(Optional[T], all_values[self.name])
+            value_to_dump = all_values[self.name]
+        elif self._default is not UNDEFINED:
+            # The value is *not* set in the struct. Either this field must have a
+            # default value, or it must be a computed field. Check for default values
+            # here.
+            value_to_dump = self.default
+        elif self._compute_fn is not None:
+            # This is a computed field.
+            value_to_dump = self._compute_fn(self, all_values)
+        else:
+            # We were unable to find a value for this field.
+            value_to_dump = UNDEFINED
 
-        # The value is *not* set in the struct. Either this field must have a default
-        # value, or it must be a computed field.
-        if self._default is not UNDEFINED:
-            # Theoretically if self._default is a callable that returns UNDEFINED we
-            # could run into trouble here. Get the return value.
-            to_return = self.default
-            if to_return is not UNDEFINED:
-                return to_return
-
-        # If we get here then _default is UNDEFINED or the callable it's set to returned
-        # UNDEFINED.
-        if self._compute_fn is not None:
-            return self._compute_fn(self, all_values)
-
-        # No default value and this isn't a computed field either.
-        raise errors.MissingRequiredValueError(field=self)
+        if value_to_dump is NOT_PRESENT or not self.present(all_values, context, None):
+            return NOT_PRESENT
+        if value_to_dump is UNDEFINED:
+            # No default value and this isn't a computed field either.
+            raise errors.MissingRequiredValueError(field=self)
+        return value_to_dump
 
     def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
