@@ -3,6 +3,7 @@ import uuid
 
 import pytest
 
+from binobj import Struct
 from binobj import DEFAULT
 from binobj import errors
 from binobj import fields
@@ -131,9 +132,12 @@ def test_stringz__dump_null_default():
     assert field.to_bytes(None) == b"\x00" * 7
 
 
+@pytest.mark.parametrize(
+    "default_value_kwarg", ({"default": None}, {"factory": lambda: None})
+)
 @pytest.mark.parametrize("null_value", ("NULL", b"NULL\x00"))
-def test_stringz__dump_null_factory(null_value):
-    field = stringlike.StringZ(null_value=null_value, factory=lambda: None)
+def test_stringz__unsized_dump_null_default(null_value, default_value_kwarg):
+    field = stringlike.StringZ(null_value=null_value, **default_value_kwarg)
     assert field.to_bytes(None) == b"NULL\x00"
 
 
@@ -147,6 +151,23 @@ def test_stringz__dump_too_short():
     field = stringlike.StringZ(size=5)
     with pytest.raises(errors.ValueSizeError):
         field.to_bytes("a")
+
+
+class StringZStringStruct(Struct):
+    size_field = fields.Int32()
+    data_field = stringlike.StringZ(size=size_field)
+
+
+def test_stringz__dump_too_long__size_field():
+    instance = StringZStringStruct(size_field=4, data_field="asdfqwerty")
+    with pytest.raises(errors.ValueSizeError):
+        instance.to_bytes()
+
+
+def test_stringz__dump_too_short__size_field():
+    instance = StringZStringStruct(size_field=4, data_field="a")
+    with pytest.raises(errors.ValueSizeError):
+        instance.to_bytes()
 
 
 def test_string__load_null_default():
@@ -176,6 +197,11 @@ def test_string__pad_default():
     """The default value should be padded if necessary."""
     field = stringlike.String(size=4, pad_byte=b" ", default="?")
     assert field.to_bytes() == b"?   "
+
+
+def test_stringz__pad():
+    field = stringlike.String(size=4, pad_byte=b" ")
+    assert field.to_bytes("a") == b"a\x00  "
 
 
 def test_stringz__load_basic():
@@ -240,6 +266,11 @@ def test_stringz__dump_default_null_crashes():
     field = stringlike.StringZ(null_value=DEFAULT)
     with pytest.raises(errors.UnserializableValueError):
         field.to_bytes(None)
+
+
+def test_stringz__load_with_default():
+    field = stringlike.StringZ(default="abc123")
+    assert field.from_bytes(b"qwerty\x00") == "qwerty"
 
 
 @pytest.mark.parametrize(
