@@ -16,7 +16,7 @@ poetry.lock: pyproject.toml
 # Coverage file gets changed on every test run so we can use it to see when the
 # last time tests were run. Don't rerun the tests if the source code, test code,
 # or environment hasn't changed.
-.coverage: poetry.lock $(SOURCEFILES) $(TESTFILES)
+.coverage: poetry.lock tox.ini $(SOURCEFILES) $(TESTFILES)
 	tox -e $(TOX_ENV)
 
 $(DOCSTARGET): $(SOURCEFILES) $(DOCSSOURCE)
