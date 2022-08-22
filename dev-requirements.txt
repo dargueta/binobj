@@ -1,6 +1,4 @@
 Sphinx>=4.0
-tox>=3.0
+tox>=3.0,<4
 tox-poetry
 poetry>=1.1.13
-twine
-wheel
