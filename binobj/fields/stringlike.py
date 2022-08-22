@@ -98,6 +98,8 @@ class String(Field[str]):
         self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
     ) -> None:
         """Dump a fixed-length string into the stream."""
+        if self.get_expected_size(all_fields) is None:
+            raise errors.UndefinedSizeError(field=self)
         stream.write(data.encode(self.encoding))
 
     def _add_padding(self, serialized: bytes, to_size: int) -> bytes:
