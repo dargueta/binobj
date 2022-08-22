@@ -200,7 +200,7 @@ def test_string__pad_default():
 
 
 def test_stringz__pad():
-    field = stringlike.String(size=4, pad_byte=b" ")
+    field = stringlike.StringZ(size=4, pad_byte=b" ")
     assert field.to_bytes("a") == b"a\x00  "
 
 
