@@ -413,6 +413,8 @@ class Field(Generic[T]):
             The context object passed to the containing Struct's ``to_bytes()`` or
             ``to_stream()`` method.
 
+            .. versionadded:: 0.11.0
+
         :return:
             The value the dumper will use for this field, or :data:`NOT_PRESENT` if the
             field shouldn't be serialized. It *will not* return

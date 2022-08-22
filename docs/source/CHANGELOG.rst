@@ -16,6 +16,8 @@ New Features
   who are implementing custom fields.
 * Field implementations now no longer need to handle ``None`` in ``_size_for_value()``.
   The method is now guaranteed to never be called with ``None``.
+* ``Field.compute_value_for_dump()`` gained a ``context`` argument, so you can now pass
+  your context object in and it'll get passed through to the ``present`` check.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
@@ -63,12 +65,15 @@ In the future, doing so will trigger an error.
 Bugfixes
 ~~~~~~~~
 
-Fixed a bug where ``StringZ`` would trigger a stack overflow when dumping if all
-the following conditions were met:
+* ``Field.compute_value_for_dump()`` now returns ``NOT_PRESENT`` in call cases where
+  the field should be omitted. Before, it only checked to see if the field should be
+  omitted if a value wasn't explicitly set for that field.
+* Fixed a bug where ``StringZ`` would trigger a stack overflow when dumping if all
+  the following conditions were met:
 
-* The default value was ``None`` (either from ``default`` or ``factory``)
-* The default was used
-* ``null_value`` was set to a string (not bytes).
+  * The default value was ``None`` (either from ``default`` or ``factory``)
+  * The default was used
+  * ``null_value`` was set to a string (not bytes).
 
 Other Changes
 ~~~~~~~~~~~~~

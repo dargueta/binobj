@@ -43,6 +43,11 @@ The same example rewritten using ``binobj``:
 .. code-block:: python
 
     class BMP(binobj.Struct):
+        class Meta:
+            argument_defaults = {
+                "endian": "little"
+            }
+
         magic: Bytes = b"BM"
         file_size: UInt32
         _reserved: binobj.Bytes(const=b"\0\0\0\0", discard=True)
