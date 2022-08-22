@@ -76,7 +76,7 @@ System Requirements
 
 - This package will *not* work on a `mixed-endian`_ system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on CPython 3.7-3.10, PyPy 3.7-3.9.
+- This has been tested on CPython 3.7-3.11, PyPy 3.7-3.9.
 
 .. _mixed-endian: https://en.wikipedia.org/wiki/Endianness#Mixed
 
