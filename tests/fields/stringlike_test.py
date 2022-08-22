@@ -3,10 +3,10 @@ import uuid
 
 import pytest
 
-from binobj import Struct
 from binobj import DEFAULT
 from binobj import errors
 from binobj import fields
+from binobj import Struct
 from binobj.fields import stringlike
 
 
