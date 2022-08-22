@@ -82,7 +82,7 @@ class Float(Field[float]):
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> float:
         data = self._read_exact_size(stream)
         try:
-            return struct.unpack(self.format_string, data)[0]
+            return struct.unpack(self.format_string, data)[0]  # type: ignore[no-any-return]
         except struct.error as exc:
             raise errors.DeserializationError(message=str(exc), field=self, data=data)
 
@@ -243,9 +243,7 @@ class VariableLengthInteger(Integer):
 
         stream.write(encoded_int)
 
-    def _size_for_value(self, value: Optional[int]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: int) -> int:
         return len(self._encode_integer_fn(value))
 
 

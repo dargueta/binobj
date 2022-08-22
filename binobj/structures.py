@@ -281,7 +281,7 @@ class Struct:
         all_fields = self.to_dict()
 
         for field in self.__binobj_struct__.components.values():
-            value = field.compute_value_for_dump(all_fields)
+            value = field.compute_value_for_dump(all_fields, context)
             if value is not fields.NOT_PRESENT:
                 field.to_stream(stream, value, context=context, all_fields=all_fields)
 

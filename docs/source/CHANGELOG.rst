@@ -14,6 +14,8 @@ New Features
 * Provisional support for Python 3.11.
 * New exception ``BuggyFieldImplementationError`` to give better information to people
   who are implementing custom fields.
+* Field implementations now no longer need to handle ``None`` in ``_size_for_value()``.
+  The method is now guaranteed to never be called with ``None``.
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
@@ -61,9 +63,12 @@ In the future, doing so will trigger an error.
 Bugfixes
 ~~~~~~~~
 
-Fixed a bug where ``StringZ`` would trigger a stack overflow when dumping if no value
-was passed in for the field *and* the factory method returned ``None``. Strangely, it
-didn't happen if you gave it an explicit default value of ``None``.
+Fixed a bug where ``StringZ`` would trigger a stack overflow when dumping if all
+the following conditions were met:
+
+* The default value was ``None`` (either from ``default`` or ``factory``)
+* The default was used
+* ``null_value`` was set to a string (not bytes).
 
 Other Changes
 ~~~~~~~~~~~~~

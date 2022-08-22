@@ -34,9 +34,7 @@ class Bytes(Field[bytes]):
 
         stream.write(data)
 
-    def _size_for_value(self, value: Optional[bytes]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: bytes) -> int:
         return len(value)
 
 
@@ -100,9 +98,6 @@ class String(Field[str]):
         self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
     ) -> None:
         """Dump a fixed-length string into the stream."""
-        if self.size is None:
-            raise errors.UndefinedSizeError(field=self)
-
         stream.write(self._encode_and_resize(data, all_fields))
 
     def _encode_and_resize(
@@ -145,9 +140,12 @@ class String(Field[str]):
 
         return to_dump
 
-    def _size_for_value(self, value: Optional[str]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _add_padding(self, serialized: bytes, to_size: int) -> bytes:
+        if self.pad_byte is None:
+            raise errors.ValueSizeError(field=self, value=serialized)
+        return serialized + self.pad_byte * (to_size - len(serialized))
+
+    def _size_for_value(self, value: str) -> int:
         return len(value.encode(self.encoding))
 
 
@@ -181,11 +179,9 @@ class StringZ(String):
     def _do_dump(
         self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
     ) -> None:
-        stream.write(self._encode_and_resize(data + "\0"))
+        stream.write(self._encode_and_resize(data + "\0", all_fields=all_fields))
 
-    def _size_for_value(self, value: Optional[str]) -> int:
-        if value is None:
-            return len(self._get_null_repr())
+    def _size_for_value(self, value: str) -> int:
         return len((value + "\0").encode(self.encoding))
 
 
@@ -237,7 +233,7 @@ class UUID4(Field[uuid.UUID]):
             size = 32
         else:
             raise NotImplementedError(
-                f"BUG: The UUID4 storage format {stored_as!r} is not implemented. Please"
+                f"BUG: The UUID4 storage format {stored_as!r} isn't implemented. Please"
                 " file a bug report."
             )
         super().__init__(size=size, **kwargs)

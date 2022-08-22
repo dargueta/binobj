@@ -17,6 +17,7 @@ from typing import Union as _Union
 
 from binobj import errors
 from binobj.fields.base import Field
+from binobj.fields.base import maybe_assign_name
 from binobj.fields.base import NOT_PRESENT
 from binobj.typedefs import StrDict
 
@@ -87,6 +88,7 @@ class Array(Field[List[Optional[T]]]):
         super().__init__(**kwargs)
         self.component = component
         self.halt_check = halt_check or self.should_halt
+        maybe_assign_name(self.component, self.name)
 
         if count is None or (
             isinstance(count, (int, str, Field)) and not isinstance(count, bool)

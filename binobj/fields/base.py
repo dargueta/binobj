@@ -514,7 +514,7 @@ class Field(Generic[T]):
 
     @property
     def allow_null(self) -> bool:
-        """Returns True if ``None`` an acceptable value for this field.
+        """Indicate if ``None`` an acceptable value for this field.
 
         :type: bool
         """
@@ -540,7 +540,7 @@ class Field(Generic[T]):
         """  # noqa: D400
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value: Optional[T]) -> Optional[int]:
+    def _size_for_value(self, value: T) -> Optional[int]:
         """Get the size of the serialized value, or ``None`` if it can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const`` is
@@ -592,31 +592,14 @@ class Field(Generic[T]):
             This used to be a private method. ``_get_expected_size()`` is still present
             for compatibility but it will eventually be removed.
         """
-        if self.has_fixed_size:
-            return typing.cast(int, self.size)
+        if isinstance(self.size, int):
+            return self.size
 
         if self.size is None:
             # Field has an undefined size. If the caller gave us a value for that field,
             # or if we have a default value defined, we might be able to determine the
             # size of that value.
-            try:
-                if self.name in field_values:
-                    expected_size = self._size_for_value(field_values[self.name])
-                elif self.default is not UNDEFINED:
-                    expected_size = self._size_for_value(self.default)
-                else:
-                    expected_size = None
-            except RecursionError:
-                raise errors.BuggyFieldImplementationError(
-                    "The implementation of %s.%s._size_for_value() calls one of the"
-                    " `Field.to_*` or `Field.from_*` methods. Doing so causes infinite"
-                    " recursion." % (type(self).__module__, type(self).__name__),
-                    field=self,
-                ) from None
-
-            if expected_size is not None:
-                return expected_size
-            raise errors.UndefinedSizeError(field=self)
+            return self.__get_expected_possibly_undefined_size(field_values)
 
         if isinstance(self.size, Field):
             name = self.size.name
@@ -629,15 +612,64 @@ class Field(Generic[T]):
             )
 
         if name in field_values:
-            return field_values[name]
+            expected_size = field_values[name]
+            if not isinstance(expected_size, int):
+                raise TypeError(
+                    "Field %r relies on field %r to give its size, but %r has a"
+                    " non-integer value: %r" % (self.name, name, name, expected_size)
+                )
+            return expected_size
         raise errors.MissingRequiredValueError(field=name)
+
+    def __get_expected_possibly_undefined_size(self, field_values: StrDict) -> int:
+        """Return the expected size of this field IF this field has no fixed size.
+
+        .. warning::
+
+            Do not call this if ``self.size`` is *not* null.
+        """
+        if self.name in field_values:
+            # The value for the field is already set.
+            value = field_values[self.name]
+        elif self.default is not UNDEFINED:
+            # Else: The value for this field isn't set, fall back to the default.
+            value = self.default
+        # elif self.name is None:
+        #     # The field is either unbound or embedded in another field, such as an Array
+        #     # or Union. We have no way of getting the size from this.
+        #     raise errors.UndefinedSizeError(field=self)
+        # else:
+        #     # The field is bound but not present in the value dictionary. This happens
+        #     # when loading.
+        #     raise errors.MissingRequiredValueError(field=self)
+        else:
+            raise errors.UndefinedSizeError(field=self)
+
+        try:
+            if value is None:
+                return len(self._get_null_repr(field_values))
+
+            # If we get here then we have a value to get the size of. If that size can't
+            # be determined (_size_for_value() returns None), we need to crash.
+            size = self._size_for_value(value)
+            if size is None:
+                raise errors.UndefinedSizeError(field=self)
+            return size
+        except RecursionError:
+            raise errors.BuggyFieldImplementationError(
+                "The implementation of %s.%s is broken: either _size_for_value() (or"
+                " less likely, _get_null_repr()) calls one of the `Field.to_*` or"
+                " `Field.from_*` methods. Doing so causes infinite recursion."
+                " (Value: %r)" % (type(self).__module__, type(self).__name__, value),
+                field=self,
+            ) from None
 
     def from_stream(  # noqa: C901
         self,
         stream: BinaryIO,
         context: Any = None,
         loaded_fields: Optional[StrDict] = None,
-    ) -> Union[Optional[T], _NotPresent]:
+    ) -> Union[T, None, _NotPresent]:
         """Load data from the given stream.
 
         :param BinaryIO stream:
@@ -714,7 +746,7 @@ class Field(Generic[T]):
         context: Any = None,
         exact: bool = True,
         loaded_fields: Optional[StrDict] = None,
-    ) -> Union[Optional[T], _NotPresent]:
+    ) -> Union[T, None, _NotPresent]:
         """Load from the given byte string.
 
         :param bytes data:
@@ -766,7 +798,7 @@ class Field(Generic[T]):
     def to_stream(
         self,
         stream: BinaryIO,
-        data: Union[Optional[T], _Default] = DEFAULT,
+        data: Union[T, None, _Default] = DEFAULT,
         context: Any = None,
         all_fields: Optional[StrDict] = None,
     ) -> None:
@@ -802,10 +834,30 @@ class Field(Generic[T]):
             stream.write(self._get_null_repr(all_fields))
             return
 
-        for validator in self.validators:
-            validator(data)
+        buf = io.BytesIO()
+        self._do_dump(buf, data, context=context, all_fields=all_fields)
 
-        self._do_dump(stream, data, context=context, all_fields=all_fields)
+        serialized_value = buf.getvalue()
+        current_size = len(serialized_value)
+        if self.has_fixed_size:
+            expected_size = self.size
+        elif self.size is None:
+            expected_size = current_size
+        else:
+            expected_size = self.get_expected_size(all_fields)
+
+        size_diff = len(serialized_value) - expected_size
+
+        if size_diff > 0:
+            # Value is too long.
+            raise errors.ValueSizeError(field=self, value=serialized_value)
+        if size_diff < 0:
+            serialized_value = self._add_padding(serialized_value, expected_size)
+
+        stream.write(serialized_value)
+
+    def _add_padding(self, serialized: bytes, to_size: int) -> bytes:
+        raise errors.ValueSizeError(field=self, value=serialized)
 
     def to_bytes(
         self,
@@ -860,6 +912,11 @@ class Field(Generic[T]):
 
         :return: The serialized form of ``None`` for this field.
         :rtype: bytes
+
+        .. fixme::
+            If null_value is given and this function is called inside _size_for_value()
+            for a field, it will result in infinite recursion because of the call to
+            :meth:`Field.to_bytes` here.
         """
         if all_fields is None:
             all_fields = {}
@@ -870,10 +927,16 @@ class Field(Generic[T]):
                 field=self,
                 value=None,
             )
-        if self.null_value is not DEFAULT:
+        if self.null_value not in (DEFAULT, None):
             if isinstance(self.null_value, bytes):
                 return self.null_value
-            return self.to_bytes(self.null_value, all_fields=all_fields)
+
+            # This is a bit of a hack. We can't call to_bytes() directly because that'll
+            # trigger infinite recursion if we do. Thus, we have to call the dumping
+            # function directly in all its ugly glory.
+            buf = io.BytesIO()
+            self._do_dump(buf, self.null_value, context=None, all_fields=all_fields)
+            return buf.getvalue()
 
         # User wants us to use all null bytes for the default null value.
         try:
