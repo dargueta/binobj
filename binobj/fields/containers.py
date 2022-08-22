@@ -35,13 +35,11 @@ TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 HaltCheckFn = Callable[["Array[T]", BinaryIO, List, Any, StrDict], bool]
 
-FieldOrTStruct = _Union[Field[Any], TStruct]
+FieldOrTStruct = _Union[Field[Any], Type[TStruct]]
 LoadDecider = Callable[
-    [BinaryIO, Tuple[FieldOrTStruct[T], ...], Any, StrDict], FieldOrTStruct[T]
+    [BinaryIO, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct
 ]
-DumpDecider = Callable[
-    [Any, Tuple[FieldOrTStruct[T], ...], Any, StrDict], FieldOrTStruct[T]
-]
+DumpDecider = Callable[[Any, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct]
 
 
 class Array(Field[List[Optional[T]]]):
@@ -409,9 +407,9 @@ class Union(Field[T]):
 
     def __init__(
         self,
-        *choices: FieldOrTStruct[T],
-        load_decider: LoadDecider[T],
-        dump_decider: DumpDecider[T],
+        *choices: FieldOrTStruct,
+        load_decider: LoadDecider,
+        dump_decider: DumpDecider,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
