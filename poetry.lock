@@ -594,7 +594,7 @@ docs = ["jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "jaraco.packaging (>=9)
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "c92baac10571e8e3ad4f3af1e880937a65182c1a7f0f86891e74ed728d254193"
+content-hash = "57fadba168d6d1041ad63a89b98e075b736385ca0f257863ed394edb2f11a4a6"
 
 [metadata.files]
 astor = [

@@ -50,7 +50,7 @@ flake8-logging-format = "0.7.5"
 flake8-loopy = "1.1.0"
 flake8-simplify = "0.19.3"
 isort = "5.10.1"
-mypy = "0.971"
+mypy = {version = "0.971", markers = "platform_python_implementation == 'CPython'"}
 pytest = "7.1.2"
 pytest-cov = "3.0.0"
 pytest-randomly = "3.12.0"
