@@ -930,13 +930,7 @@ class Field(Generic[T]):
         if self.null_value not in (DEFAULT, None):
             if isinstance(self.null_value, bytes):
                 return self.null_value
-
-            # This is a bit of a hack. We can't call to_bytes() directly because that'll
-            # trigger infinite recursion if we do. Thus, we have to call the dumping
-            # function directly in all its ugly glory.
-            buf = io.BytesIO()
-            self._do_dump(buf, self.null_value, context=None, all_fields=all_fields)
-            return buf.getvalue()
+            return self.to_bytes(self.null_value, None, all_fields)
 
         # User wants us to use all null bytes for the default null value.
         try:

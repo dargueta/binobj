@@ -98,43 +98,7 @@ class String(Field[str]):
         self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
     ) -> None:
         """Dump a fixed-length string into the stream."""
-        stream.write(self._encode_and_resize(data, all_fields))
-
-    def _encode_and_resize(
-        self, string: str, all_fields: Optional[StrDict] = None
-    ) -> bytes:
-        """Encode a string and size it to this field.
-
-        :param str string:
-            The string to encode.
-        :param dict all_fields:
-            Optional. A dict of all fields that are being dumped. Used for calculating
-            the length of the field if that depends on the value of another field.
-
-        :return: ``string`` encoded as ``size`` bytes.
-        :rtype: bytes
-        """
-        if all_fields is None:
-            all_fields = {}
-
-        to_dump = string.encode(self.encoding)
-
-        try:
-            write_size = self.get_expected_size(all_fields)
-        except errors.UndefinedSizeError:
-            # The field has no defined size, so we don't care what we return. Delimited
-            # strings like StringZ will cause this exception to be thrown, but it's not
-            # an error.
-            return to_dump
-
-        size_diff = len(to_dump) - write_size
-
-        if size_diff > 0:
-            # String is too long.
-            raise errors.ValueSizeError(field=self, value=to_dump)
-        if size_diff < 0:
-            return self._add_padding(to_dump, write_size)
-        return to_dump
+        stream.write(data.encode(self.encoding))
 
     def _add_padding(self, serialized: bytes, to_size: int) -> bytes:
         if self.pad_byte is None:
@@ -175,7 +139,7 @@ class StringZ(String):
     def _do_dump(
         self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
     ) -> None:
-        stream.write(self._encode_and_resize(data + "\0", all_fields=all_fields))
+        stream.write((data + "\0").encode(self.encoding))
 
     def _size_for_value(self, value: str) -> int:
         return len((value + "\0").encode(self.encoding))
