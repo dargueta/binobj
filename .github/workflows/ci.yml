@@ -35,6 +35,8 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Pre-installation requirements
+      run: pip3 install -U pip wheel setuptools
     - name: Install dependencies
       run: pip3 install -Ur dev-requirements.txt
     - name: Run tests
