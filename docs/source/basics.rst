@@ -322,7 +322,7 @@ Let's look at the final version of our file:
     from binobj import fields
 
 
-    class Date(binobj.Field):
+    class Date(binobj.Field[datetime.date]):
         def _do_load(self, stream, context, loaded_fields):
             """Load a date from the stream."""
             date_bytes = stream.read(8)
