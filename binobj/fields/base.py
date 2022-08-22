@@ -401,7 +401,9 @@ class Field(Generic[T]):
             # Else: struct doesn't define a default value for this argument.
 
     def compute_value_for_dump(
-        self, all_values: StrDict, context: Any = None,
+        self,
+        all_values: StrDict,
+        context: Any = None,
     ) -> Union[T, None, _NotPresent]:
         """Calculate the value for this field upon dumping.
 
@@ -456,7 +458,7 @@ class Field(Generic[T]):
         if value_to_dump is UNDEFINED:
             # No default value and this isn't a computed field either.
             raise errors.MissingRequiredValueError(field=self)
-        return value_to_dump
+        return value_to_dump  # type: ignore[no-any-return]
 
     def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
@@ -839,7 +841,7 @@ class Field(Generic[T]):
 
         serialized_value = buf.getvalue()
         current_size = len(serialized_value)
-        if self.has_fixed_size:
+        if isinstance(self.size, int):
             expected_size = self.size
         elif self.size is None:
             expected_size = current_size
