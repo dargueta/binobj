@@ -133,11 +133,7 @@ class String(Field[str]):
             # String is too long.
             raise errors.ValueSizeError(field=self, value=to_dump)
         if size_diff < 0:
-            if self.pad_byte is None:
-                # String is too short and we're not padding it.
-                raise errors.ValueSizeError(field=self, value=to_dump)
-            to_dump += self.pad_byte * -size_diff
-
+            return self._add_padding(to_dump, write_size)
         return to_dump
 
     def _add_padding(self, serialized: bytes, to_size: int) -> bytes:
