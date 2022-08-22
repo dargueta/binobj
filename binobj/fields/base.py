@@ -401,9 +401,7 @@ class Field(Generic[T]):
             # Else: struct doesn't define a default value for this argument.
 
     def compute_value_for_dump(
-        self,
-        all_values: StrDict,
-        context: Any = None,
+        self, all_values: StrDict, context: Any = None,
     ) -> Union[T, None, _NotPresent]:
         """Calculate the value for this field upon dumping.
 
@@ -841,12 +839,14 @@ class Field(Generic[T]):
 
         serialized_value = buf.getvalue()
         current_size = len(serialized_value)
-        try:
-            expected_size = self.get_expected_size(all_fields)
-        except errors.UndefinedSizeError:
+        if self.has_fixed_size:
+            expected_size = self.size
+        elif self.size is None:
             expected_size = current_size
+        else:
+            expected_size = self.get_expected_size(all_fields)
 
-        size_diff = current_size - expected_size
+        size_diff = len(serialized_value) - expected_size
 
         if size_diff > 0:
             # Value is too long.
