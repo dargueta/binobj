@@ -11,17 +11,22 @@ _NOW = functools.partial(datetime.datetime.now, datetime.timezone.utc)
 
 
 class CPIOFileHeader(binobj.Struct):
-    magic = fields.UInt16(const=0o070707, discard=True, endian="little")
-    device_id = fields.UInt16(default=0, endian="little")
-    inumber = fields.UInt16(default=0, endian="little")
-    mode = fields.UInt16(default=0o644, endian="little")
-    owner_uid = fields.UInt16(default=0, endian="little")
-    owner_gid = fields.UInt16(default=0, endian="little")
-    n_links = fields.UInt16(default=0, endian="little")
-    device_version = fields.UInt16(default=0, endian="little")
-    modified_time = fields.Timestamp32(default=_NOW, tz_aware=True, endian="little")
-    name_size = fields.UInt16(endian="little")
-    file_size = fields.UInt32(endian="little")
+    class Meta:
+        argument_defaults = {
+            "endian": "little",
+        }
+
+    magic = fields.UInt16(const=0o070707, discard=True)
+    device_id = fields.UInt16(default=0)
+    inumber = fields.UInt16(default=0)
+    mode = fields.UInt16(default=0o644)
+    owner_uid = fields.UInt16(default=0)
+    owner_gid = fields.UInt16(default=0)
+    n_links = fields.UInt16(default=0)
+    device_version = fields.UInt16(default=0)
+    modified_time = fields.Timestamp32(factory=_NOW, tz_aware=True)
+    name_size = fields.UInt16()
+    file_size = fields.UInt32()
     filename = fields.StringZ(encoding="utf-8")
     _filename_padding = fields.Bytes(
         const=b"\0", discard=True, present=lambda f, *_: f["name_size"] % 2

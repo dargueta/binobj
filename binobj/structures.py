@@ -720,7 +720,7 @@ class Struct:
 
         # Load any construction options the caller may have defined.
         if hasattr(cls, "Meta"):
-            metadata.load_meta_options(cls.Meta)
+            metadata.load_meta_options(cls.Meta)  # type: ignore[attr-defined]
 
         # Enumerate the declared fields and bind them to this struct.
         metadata.num_own_fields = collect_assigned_fields(
