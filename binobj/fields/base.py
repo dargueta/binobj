@@ -637,6 +637,8 @@ class Field(Generic[T]):
             value = field_values[self.name]
         elif self.default is not UNDEFINED:
             # Else: The value for this field isn't set, fall back to the default.
+            value = field_values[self.name]
+        elif self.default is not UNDEFINED:
             value = self.default
         # elif self.name is None:
         #     # The field is either unbound or embedded in another field, such as an Array
@@ -843,7 +845,7 @@ class Field(Generic[T]):
 
         serialized_value = buf.getvalue()
         current_size = len(serialized_value)
-        if isinstance(self.size, int):
+        if self.has_fixed_size:
             expected_size = self.size
         elif self.size is None:
             expected_size = current_size
@@ -934,7 +936,13 @@ class Field(Generic[T]):
         if self.null_value not in (DEFAULT, None):
             if isinstance(self.null_value, bytes):
                 return self.null_value
-            return self.to_bytes(self.null_value, None, all_fields)
+
+            # This is a bit of a hack. We can't call to_bytes() directly because that'll
+            # trigger infinite recursion if we do. Thus, we have to call the dumping
+            # function directly in all its ugly glory.
+            buf = io.BytesIO()
+            self._do_dump(buf, self.null_value, context=None, all_fields=all_fields)
+            return buf.getvalue()
 
         # User wants us to use all null bytes for the default null value.
         try:
