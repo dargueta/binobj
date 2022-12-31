@@ -637,8 +637,6 @@ class Field(Generic[T]):
             value = field_values[self.name]
         elif self.default is not UNDEFINED:
             # Else: The value for this field isn't set, fall back to the default.
-            value = field_values[self.name]
-        elif self.default is not UNDEFINED:
             value = self.default
         # elif self.name is None:
         #     # The field is either unbound or embedded in another field, such as an Array
