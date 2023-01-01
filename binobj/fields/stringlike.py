@@ -118,17 +118,9 @@ class String(Field[str]):
             all_fields = {}
 
         to_dump = string.encode(self.encoding)
-
-        try:
-            write_size = self.get_expected_size(all_fields)
-        except errors.UndefinedSizeError:
-            # The field has no defined size, so we don't care what we return. Delimited
-            # strings like StringZ will cause this exception to be thrown, but it's not
-            # an error.
-            return to_dump
+        write_size = self.get_expected_size(all_fields)
 
         size_diff = len(to_dump) - write_size
-
         if size_diff > 0:
             # String is too long.
             raise errors.ValueSizeError(field=self, value=to_dump)
