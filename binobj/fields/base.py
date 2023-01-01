@@ -844,7 +844,7 @@ class Field(Generic[T]):
         serialized_value = buf.getvalue()
         current_size = len(serialized_value)
         if self.has_fixed_size:
-            expected_size = self.size
+            expected_size = typing.cast(int, self.size)
         elif self.size is None:
             expected_size = current_size
         else:
