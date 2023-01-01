@@ -65,7 +65,7 @@ except ImportError:  # pragma: no cover (py38+)
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass  # pragma: no cover
 class AnnotationInfo:
     name: str
     type_class: Any

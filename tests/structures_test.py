@@ -352,9 +352,6 @@ def test_load__init_kwargs__not_modified():
     assert struct.required is not args["required"], "Value was not deep copied!"
 
 
-@pytest.mark.xfail(
-    reason="It's (currently) impossible to detect an empty regular struct."
-)
 def test_no_fields_boom__really_has_no_fields__assignment():
     with pytest.raises(errors.NoDefinedFieldsError):
 

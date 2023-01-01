@@ -346,7 +346,7 @@ class Nested(Field[TStruct]):
         return self.struct_class.from_stream(stream, context)
 
 
-class Union(Field[T]):
+class Union(Field[FieldOrTStruct]):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:

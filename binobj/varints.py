@@ -259,7 +259,7 @@ def decode_integer_leb128(stream: BinaryIO) -> int:
     return -((1 << n_bits_read) - value)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass  # pragma: no cover
 class EncodingInfo:
     """Information describing a variable-length integer encoding."""
 

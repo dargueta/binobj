@@ -728,6 +728,9 @@ class Struct:
         )
         bind_validators_to_struct(namespace, metadata)
 
+        if len(metadata.components) == 0:
+            raise errors.NoDefinedFieldsError(struct=cls)
+
         cls.__binobj_struct__ = metadata
 
         # Set __objclass__ on all fields to aid type introspection. The `inspect` module
