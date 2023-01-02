@@ -352,6 +352,9 @@ def test_load__init_kwargs__not_modified():
     assert struct.required is not args["required"], "Value was not deep copied!"
 
 
+@pytest.mark.xfail(
+    reason="Can't distinguish between empty assigned class and dataclass"
+)
 def test_no_fields_boom__really_has_no_fields__assignment():
     with pytest.raises(errors.NoDefinedFieldsError):
 
@@ -359,6 +362,9 @@ def test_no_fields_boom__really_has_no_fields__assignment():
             pass
 
 
+@pytest.mark.xfail(
+    reason="Can't distinguish between empty assigned class and dataclass"
+)
 def test_no_fields_boom__really_has_no_fields__dataclass():
     with pytest.raises(errors.NoDefinedFieldsError):
 

@@ -668,9 +668,7 @@ class Struct:
         )
 
     def __init_subclass__(cls) -> None:
-        # Build a list of all of the base classes that appear to be Structs. If anything
-        # else uses StructMeta as a metaclass then we're in trouble, since this will
-        # detect that as a second base class.
+        # Build a list of all the base classes that appear to be Structs.
         struct_bases = [
             b for b in cls.__bases__ if issubclass(b, Struct) and b is not Struct
         ]
@@ -727,9 +725,6 @@ class Struct:
             cls.__name__, namespace, metadata, byte_offset
         )
         bind_validators_to_struct(namespace, metadata)
-
-        if len(metadata.components) == 0:
-            raise errors.NoDefinedFieldsError(struct=cls)
 
         cls.__binobj_struct__ = metadata
 
