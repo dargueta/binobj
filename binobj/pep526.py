@@ -68,11 +68,32 @@ except ImportError:  # pragma: no cover (py38+)
 @dataclasses.dataclass  # pragma: no cover
 class AnnotationInfo:
     name: str
-    type_class: Any
+    """The name of the field."""
+
+    type_class: Type[Any]
+    """The type annotation's core class.
+
+    For the most part this will be
+
+    * A Field class,
+    * A Field instance, or
+    * A Struct class.
+
+    If the field was marked as Optional[X], this will be X and :attr:`nullable` will be
+    True.
+    """
+
     type_args: Sequence[Any] = ()
+    """Arguments passed to the annotation.
+
+    This is here for forward compatibility and should be ignored for now.
+    """
+
     has_default: Optional[bool] = None
     default_value: Any = fields.UNDEFINED
+
     nullable: bool = False
+    """Indicates if this field can be None or not."""
 
     @classmethod
     def from_annotation(

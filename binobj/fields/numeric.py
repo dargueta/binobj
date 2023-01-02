@@ -438,6 +438,7 @@ class Timestamp(Field[datetime.datetime]):
                 self.endian,
             )
         except (ValueError, OverflowError) as err:
+            # https://en.wikipedia.org/wiki/Year_2038_problem
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
             )

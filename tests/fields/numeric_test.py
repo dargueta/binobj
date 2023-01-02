@@ -281,6 +281,17 @@ def test_timestamp__naive_assumes_local():
     assert field.from_bytes(field.to_bytes(local_naive)) == local_aware
 
 
+def test_timestamp__warn_writing_aware_to_naive():
+    """Warn when writing an aware timestamp to a naive field.."""
+    utc = datetime.datetime.now(datetime.timezone.utc)
+    local_naive = utc.astimezone().replace(tzinfo=None)
+
+    field = numeric.Timestamp64(endian="little", resolution="us", tz_aware=False)
+    with pytest.deprecated_call():
+        assert field.to_bytes(utc) == field.to_bytes(local_naive)
+    assert field.from_bytes(field.to_bytes(local_naive)) == local_naive
+
+
 def test_timestamp__naive_round_trip_truncated():
     now = datetime.datetime.now()
     now_rounded = now.replace(microsecond=0)
@@ -293,3 +304,14 @@ def test_timestamp__aware_round_trip_truncated():
     now_rounded = now.replace(microsecond=0)
     field = numeric.Timestamp64(endian="little", resolution="s", tz_aware=True)
     assert field.from_bytes(field.to_bytes(now)) == now_rounded
+
+
+@pytest.mark.parametrize("tz", (None, datetime.timezone.utc))
+def test_2038_problem_caught__dumping(tz):
+    """32-bit signed timestamps crash if we try serializing a date past the Epochalypse.
+
+    https://en.wikipedia.org/wiki/Year_2038_problem
+    """
+    field = numeric.Timestamp32(resolution="s", tz_aware=tz is not None)
+    with pytest.raises(errors.UnserializableValueError):
+        field.to_bytes(datetime.datetime(2038, 1, 20, tzinfo=tz))
