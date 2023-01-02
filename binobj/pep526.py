@@ -65,12 +65,12 @@ except ImportError:  # pragma: no cover (py38+)
     get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
 
-@dataclasses.dataclass  # pragma: no cover
+@dataclasses.dataclass
 class AnnotationInfo:
     name: str
     """The name of the field."""
 
-    type_class: Type[Any]
+    type_class: Any
     """The type annotation's core class.
 
     For the most part this will be
