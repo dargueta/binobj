@@ -17,14 +17,19 @@ class WAVFileHeader(binobj.Struct):
 
 
 class WAVFormatChunk(binobj.Struct):
+    class Meta:
+        argument_defaults = {
+            "endian": "little",
+        }
+
     chunk_id = fields.Bytes(const=b"fmt ")
-    size = fields.UInt32(const=16, endian="little")
-    audio_format = fields.UInt16(endian="little")
-    n_channels = fields.UInt16(endian="little")
-    sample_rate = fields.UInt32(endian="little")
-    byte_rate = fields.UInt32(endian="little")
-    block_alignment = fields.UInt16(endian="little")
-    bits_per_sample = fields.UInt16(endian="little")
+    size = fields.UInt32(const=16)
+    audio_format = fields.UInt16()
+    n_channels = fields.UInt16()
+    sample_rate = fields.UInt32()
+    byte_rate = fields.UInt32()
+    block_alignment = fields.UInt16()
+    bits_per_sample = fields.UInt16()
 
     @byte_rate.computes
     def _byte_rate(self, all_fields):
@@ -43,8 +48,11 @@ class WAVFormatChunk(binobj.Struct):
 class WAVDataChunk(binobj.Struct):
     chunk_id = fields.Bytes(const=b"data")
     size = fields.UInt32(endian="little")
+    audio_data = fields.Bytes(size=size)
 
-    # WAV PCM data bytes follow.
+    @size.computes
+    def _size(self, all_fields):
+        return len(all_fields["audio_data"])
 
 
 def test_wav__basic_read(tmpdir):
@@ -93,6 +101,7 @@ def test_wav__basic_read(tmpdir):
 
         data_chunk_header = WAVDataChunk.from_stream(fd)
         assert data_chunk_header.size == 64000
+        assert len(data_chunk_header.audio_data) == data_chunk_header.size
 
 
 def test_wav__basic_write(tmpdir):
@@ -104,18 +113,14 @@ def test_wav__basic_write(tmpdir):
     )
 
     # 24000 samples/s, 2 bytes/sample, 4s of audio = 192000B
-    data_chunk = WAVDataChunk(size=192000)
-    audio_data = b"\xaa\x55" * 96000
-
-    header = WAVFileHeader(
-        size=len(format_chunk) + len(data_chunk) + len(audio_data) + 4
-    )
+    data_chunk = WAVDataChunk(audio_data=b"\xaa\x55" * 96000)
+    header = WAVFileHeader(size=len(format_chunk) + len(data_chunk))
 
     with open(file_path, "wb") as fd:
         header.to_stream(fd)
         format_chunk.to_stream(fd)
         data_chunk.to_stream(fd)
-        fd.write(audio_data)
+        fd.write(data_chunk.audio_data)
 
     wav = wave.open(file_path, "rb")
     assert wav.getframerate() == 24000
