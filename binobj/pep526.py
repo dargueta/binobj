@@ -55,7 +55,7 @@ __all__ = ["dataclass"]
 TStruct = TypeVar("TStruct", bound=binobj.Struct)
 
 
-try:
+try:  # pragma: no cover (<py38)
     from typing import get_args as get_typing_args
     from typing import get_origin as get_typing_origin
 except ImportError:  # pragma: no cover (py38+)

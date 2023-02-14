@@ -200,7 +200,7 @@ class Array(Field[List[Optional[T]]]):
         """
         if seq.count is not None:
             count = seq.get_final_element_count(loaded_fields)
-            if count is None:
+            if count is None:  # pragma: no cover
                 # Theoretically this should never happen, as get_final_element_count()
                 # should only return None if seq.count is None.
                 raise errors.UndefinedSizeError(field=seq)
@@ -291,7 +291,7 @@ class Array(Field[List[Optional[T]]]):
         :return: The deserialized data.
         :rtype: list
         """
-        result = []  # type: List[Optional[T]]
+        result: List[Optional[T]] = []
         while not self.halt_check(self, stream, result, context, loaded_fields):
             component = self.component.from_stream(stream, context, loaded_fields)
             if component is NOT_PRESENT:

@@ -223,7 +223,7 @@ class UUID4(Field[uuid.UUID]):
             size = 36
         elif stored_as is UUIDFormat.HEX_STRING:
             size = 32
-        else:
+        else:  # pragma: no cover
             raise NotImplementedError(
                 f"BUG: The UUID4 storage format {stored_as!r} isn't implemented. Please"
                 " file a bug report."
