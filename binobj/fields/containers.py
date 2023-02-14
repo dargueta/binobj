@@ -19,23 +19,20 @@ from binobj import errors
 from binobj.fields.base import Field
 from binobj.fields.base import maybe_assign_name
 from binobj.fields.base import NOT_PRESENT
+from binobj.structures import Struct
 from binobj.typedefs import StrDict
-
-
-if typing.TYPE_CHECKING:  # pragma: no cover
-    from binobj.structures import Struct
 
 
 __all__ = ["Array", "Nested", "Union"]
 
 
 T = TypeVar("T")
-TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
+TStruct = TypeVar("TStruct", covariant=True, bound=Struct)
 
 
 HaltCheckFn = Callable[["Array[T]", BinaryIO, List, Any, StrDict], bool]
 
-FieldOrTStruct = _Union[Field[Any], Type["Struct"]]
+FieldOrTStruct = _Union[Field[Any], Type[Struct]]
 LoadDecider = Callable[
     [BinaryIO, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct
 ]
@@ -438,6 +435,9 @@ class Union(Field[FieldOrTStruct]):
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader.from_stream(stream, context, loaded_fields)
-
-        # Else: loader is not a Field instance, assume this is a Struct.
-        return loader.from_stream(stream, context)
+        if isinstance(loader, type) and issubclass(loader, Struct):
+            return loader.from_stream(stream, context)
+        raise TypeError(
+            "Load decider returned a %r, expected a Field instance or subclass"
+            " of Struct." % type(loader)
+        )
