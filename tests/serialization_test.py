@@ -45,9 +45,8 @@ def test_dump__use_default_value():
 
 def test_dump__use_default_callable():
     """Test dumping when the default value is a callable."""
-    with pytest.deprecated_call():
+    with pytest.raises(TypeError):
         field = fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
-    assert field.to_bytes() == b"\x00\x00\x12\x34"
 
 
 def test_loads__extraneous_data_crashes():

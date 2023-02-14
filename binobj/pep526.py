@@ -125,11 +125,9 @@ class AnnotationInfo:
 
         default_value = getattr(struct_class, field_name, fields.UNDEFINED)
         if callable(default_value):
-            warnings.warn(
+            raise TypeError(
                 "Passing a bare callable as the default value was a misfeature. Use"
                 " the `factory` keyword argument instead.",
-                DeprecationWarning,
-                stacklevel=2,
             )
 
         return cls(

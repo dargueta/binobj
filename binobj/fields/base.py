@@ -289,17 +289,12 @@ class Field(Generic[T]):
             )
 
         if default is UNDEFINED and const is not UNDEFINED:
-            # If no default is given but ``const`` is, set the default value to
-            # ``const``.
+            # If no default is given but `const` is, set the default value to `const`.
             self._default = const
         elif callable(default):
-            warnings.warn(
-                "Passing a callable to `default` is deprecated. Use `factory` instead.",
-                DeprecationWarning,
-                stacklevel=2,
+            raise TypeError(
+                "Don't pass a callable to `default`; use `factory` instead."
             )
-            self._default = UNDEFINED
-            self.factory = default
         else:
             self._default = default
 
@@ -465,9 +460,6 @@ class Field(Generic[T]):
     def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
 
-        .. deprecated:: 0.6.0
-            This decorator will be moved to :mod:`binobj.decorators`.
-
         You can use this for automatically assigning values based on other fields. For
         example, suppose we have this struct::
 
@@ -509,11 +501,6 @@ class Field(Generic[T]):
                 "Cannot set compute function for a const field.", field=self
             )
 
-        warnings.warn(
-            "This decorator will be moved to the `decorators` module.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._compute_fn = method
 
     @property
@@ -536,8 +523,6 @@ class Field(Generic[T]):
             If no default is defined but ``const`` is, this property returns the value
             for ``const``.
         """  # noqa: D401
-        if self.factory:
-            return self.factory()
         return self._default
 
     @property
@@ -613,13 +598,8 @@ class Field(Generic[T]):
 
         if isinstance(self.size, Field):
             name = self.size.name
-        elif isinstance(self.size, str):
-            name = self.size
         else:
-            raise TypeError(
-                "Unexpected type for %s.size: %s"
-                % (self.name, type(self.size).__name__)
-            )
+            name = self.size
 
         if name in field_values:
             expected_size = field_values[name]
@@ -630,12 +610,6 @@ class Field(Generic[T]):
                 )
             return expected_size
 
-        if isinstance(self._size, Field):
-            raise errors.FieldReferenceError(
-                f"Can't compute size for {self!r}; size references a field that hasn't"
-                f" been computed yet: {self._size!r}",
-                field=name,
-            )
         raise errors.MissingRequiredValueError(field=name)
 
     def __get_expected_possibly_undefined_size(self, field_values: StrDict) -> int:
@@ -651,14 +625,6 @@ class Field(Generic[T]):
         elif self.default is not UNDEFINED:
             # Else: The value for this field isn't set, fall back to the default.
             value = self.default
-        # elif self.name is None:
-        #     # The field is either unbound or embedded in another field, such as an Array
-        #     # or Union. We have no way of getting the size from this.
-        #     raise errors.UndefinedSizeError(field=self)
-        # else:
-        #     # The field is bound but not present in the value dictionary. This happens
-        #     # when loading.
-        #     raise errors.MissingRequiredValueError(field=self)
         else:
             raise errors.UndefinedSizeError(field=self)
 
@@ -1001,17 +967,17 @@ class Field(Generic[T]):
 
     @overload
     def __get__(self, instance: None, owner: Type["Struct"]) -> "Field[T]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __get__(self, instance: "Struct", owner: Type["Struct"]) -> Optional[T]:
-        ...
+        ...  # pragma: no cover
 
     # This annotation is bogus and only here to make MyPy happy. See bug report here:
     # https://github.com/python/mypy/issues/9416
     @overload
     def __get__(self, instance: "Field[Any]", owner: Type["Field[Any]"]) -> "Field[T]":
-        ...
+        ...  # pragma: no cover
 
     def __get__(self, instance, owner):  # type: ignore[no-untyped-def]
         if instance is None:

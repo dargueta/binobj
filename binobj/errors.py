@@ -51,7 +51,7 @@ class Error(Exception):
 
     def __init__(self, message: Optional[str] = None, *args: Any):
         # If there is no error message, use the first line of the docstring.
-        if message is None and self.__doc__:
+        if message is None and getattr(self, "__doc__", ""):
             message = self.__doc__.splitlines()[0]
         super().__init__(message, *args)
 
@@ -232,10 +232,9 @@ class ImmutableFieldError(IllegalOperationError):
     """
 
     def __init__(self, *, field: Optional["Field[Any]"] = None):
+        message: Optional[str]
         if field is not None:
-            message = (
-                "Cannot assign to immutable field: %r" % field
-            )  # type: Optional[str]
+            message = "Cannot assign to immutable field: %r" % field
         else:
             message = None
 

@@ -114,8 +114,8 @@ def test_nested_works():
     assert NestedFields.basic.struct_class is BasicClass
 
 
-def test_passing_callable_triggers_warning():
-    with pytest.deprecated_call():
+def test_passing_callable_crashes():
+    with pytest.raises(TypeError):
 
         @dataclass
         class _DeprecatedCallable(binobj.Struct):
