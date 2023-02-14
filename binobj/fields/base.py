@@ -517,6 +517,10 @@ class Field(Generic[T]):
         self._compute_fn = method
 
     @property
+    def is_computed_field(self) -> bool:
+        return self._compute_fn is not None
+
+    @property
     def allow_null(self) -> bool:
         """Indicate if ``None`` an acceptable value for this field.
 
@@ -561,7 +565,9 @@ class Field(Generic[T]):
             computed, return ``None``.
         :rtype: int
         """
-        if self.has_fixed_size:
+        # Since this is called in the constructor we need to check to see if _size has
+        # been assigned to yet.
+        if self.has_fixed_size and hasattr(self, "_size"):
             return typing.cast(int, self._size)
         return None
 
@@ -623,6 +629,13 @@ class Field(Generic[T]):
                     " non-integer value: %r" % (self.name, name, name, expected_size)
                 )
             return expected_size
+
+        if isinstance(self._size, Field):
+            raise errors.FieldReferenceError(
+                f"Can't compute size for {self!r}; size references a field that hasn't"
+                f" been computed yet: {self._size!r}",
+                field=name,
+            )
         raise errors.MissingRequiredValueError(field=name)
 
     def __get_expected_possibly_undefined_size(self, field_values: StrDict) -> int:

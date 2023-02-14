@@ -326,12 +326,38 @@ class Struct:
         .. versionchanged:: 0.6.1
             The ``keep_discardable`` argument was added.
         """
-        dct = {
-            field.name: field.compute_value_for_dump(typing.cast(StrDict, self))
-            for field in self.__binobj_struct__.components.values()
-            if keep_discardable or not field.discard
-        }
+        dct = self._to_dict_whatever_possible()
+        dct.update(
+            {
+                field.name: field.compute_value_for_dump(dct)
+                for field in self.__binobj_struct__.components.values()
+                if field.name not in dct
+            }
+        )
+
+        if not keep_discardable:
+            for field in self.__binobj_struct__.components.values():
+                if field.discard:
+                    del dct[field.name]
+
         return recursive_to_dicts(dct)
+
+    def _to_dict_whatever_possible(self) -> MutableMapping[str, Any]:
+        """Convert this struct to a dict, ignoring any errors.
+
+        We use this to get values for all computed fields as well as any fields that
+        have no dependencies and can serialize themselves (e.g. Bytes and sized int
+        fields). This allows us to resolve forward references.
+        """
+        dct = collections.ChainMap({}, self)
+
+        for field in self.__binobj_struct__.components.values():
+            try:
+                dct[field.name] = field.compute_value_for_dump(dct)
+            except errors.Error:
+                continue
+
+        return dct
 
     @classmethod
     def from_stream(
@@ -627,12 +653,17 @@ class Struct:
 
     def __len__(self) -> int:
         size = 0
+        current_fields = self._to_dict_whatever_possible()
+
         for field in self.__binobj_struct__.components.values():
             if field.has_fixed_size:
                 size += typing.cast(int, field.size)
             else:
-                field_value = field.compute_value_for_dump(typing.cast(StrDict, self))
-                size += len(field.to_bytes(field_value))
+                try:
+                    size += field.get_expected_size(current_fields)
+                except errors.Error:
+                    field_value = field.compute_value_for_dump(current_fields)
+                    size += len(field.to_bytes(field_value))
 
         return size
 
