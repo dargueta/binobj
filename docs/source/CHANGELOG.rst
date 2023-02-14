@@ -10,8 +10,7 @@ New Features
 * **New Field!**: ``UUID4``: Store a UUID4 in four different formats: variant 1 (the
   most common), Microsoft format (variant 2), the canonical string representation, or as
   a hexadecimal string.
-* Official support for CPython 3.10 and PyPy 3.8 and 3.9.
-* Provisional support for Python 3.11.
+* Official support for CPython 3.10, 3.11, PyPy 3.8, and PyPy 3.9.
 * New exception ``BuggyFieldImplementationError`` to give better information to people
   who are implementing custom fields.
 * Field implementations now no longer need to handle ``None`` in ``_size_for_value()``.
@@ -68,6 +67,8 @@ Bugfixes
 * ``Field.compute_value_for_dump()`` now returns ``NOT_PRESENT`` in call cases where
   the field should be omitted. Before, it only checked to see if the field should be
   omitted if a value wasn't explicitly set for that field.
+* Circular references involving a computed field are now handled properly and won't
+  crash with a ``MissingRequiredValueError``.
 * Fixed a bug where ``StringZ`` would trigger a stack overflow when dumping if all
   the following conditions were met:
 
