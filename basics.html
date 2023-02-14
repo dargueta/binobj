@@ -1,18 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>A Crash Course &#8212; binobj 0.10.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="CHANGELOG.html" />
@@ -24,9 +23,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="right" >
           <a href="CHANGELOG.html" title="Changelog"
              accesskey="N">next</a> |</li>
@@ -44,14 +40,14 @@
           <div class="body" role="main">
             
   <section id="a-crash-course">
-<h1>A Crash Course<a class="headerlink" href="#a-crash-course" title="Permalink to this headline">¶</a></h1>
+<h1>A Crash Course<a class="headerlink" href="#a-crash-course" title="Permalink to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> allows you to create classes to declare the structure of binary files
 or streams in a convenient object-oriented way. It supports a variety of field
 types, and if you need something a bit more specialized you can always subclass
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or one of its subclasses to create the functionality
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code> or one of its subclasses to create the functionality
 you need.</p>
 <section id="plain-old-strings">
-<h2>Plain Old Strings<a class="headerlink" href="#plain-old-strings" title="Permalink to this headline">¶</a></h2>
+<h2>Plain Old Strings<a class="headerlink" href="#plain-old-strings" title="Permalink to this heading">¶</a></h2>
 <p>Suppose you want to create an address book application in Python, and want to
 store people’s information in a file. Each person has a first name, a last name,
 and a phone number. You could do something like:</p>
@@ -100,7 +96,7 @@ try that.</p>
 <p>Looks like we got our data back correctly.</p>
 </section>
 <section id="text-and-encodings">
-<h2>Text and Encodings<a class="headerlink" href="#text-and-encodings" title="Permalink to this headline">¶</a></h2>
+<h2>Text and Encodings<a class="headerlink" href="#text-and-encodings" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">binobj</span></code> allows you to specify the character encoding of strings individually.
 Suppose you want to internationalize your app and make it handle names with
 accents in them, or even in other writing systems. We can change the strings to
@@ -123,11 +119,11 @@ of the field in <em>bytes</em>, not <em>characters</em>!</p>
 </div>
 </section>
 <section id="variable-length-fields">
-<h2>Variable-Length Fields<a class="headerlink" href="#variable-length-fields" title="Permalink to this headline">¶</a></h2>
+<h2>Variable-Length Fields<a class="headerlink" href="#variable-length-fields" title="Permalink to this heading">¶</a></h2>
 <p>It can get a bit tedious to remember to pad strings with spaces just so we can
 save the file without errors. Also: what happens if you need to store info for
 someone with a long last name like O’Shaughnessy or Ramachandran? We could use a
-variable-length string, like <a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ" title="binobj.fields.stringlike.StringZ"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringZ</span></code></a>. This
+variable-length string, like <code class="xref py py-class docutils literal notranslate"><span class="pre">StringZ</span></code>. This
 stores a string with a null byte to signal the end, like in C.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
     <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
@@ -149,9 +145,9 @@ stores a string with a null byte to signal the end, like in C.</p>
 </div>
 </section>
 <section id="arrays">
-<h2>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h2>
+<h2>Arrays<a class="headerlink" href="#arrays" title="Permalink to this heading">¶</a></h2>
 <p>Let’s add a new feature to allow people to have two phone numbers. You can use
-an <a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><code class="xref py py-class docutils literal notranslate"><span class="pre">Array</span></code></a> for this.</p>
+an <code class="xref py py-class docutils literal notranslate"><span class="pre">Array</span></code> for this.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
     <span class="n">first_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="n">last_name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
@@ -203,10 +199,10 @@ know how to do that for you (yet).</p>
 </div>
 </section>
 <section id="nested-structs">
-<h2>Nested Structs<a class="headerlink" href="#nested-structs" title="Permalink to this headline">¶</a></h2>
+<h2>Nested Structs<a class="headerlink" href="#nested-structs" title="Permalink to this heading">¶</a></h2>
 <p>Let’s kick this up a notch and add support for addresses. You could store an
 address as a single string, which is fine, but what if we want to make it a bit
-more structured than that? Fortunately, we can nest a <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a>
+more structured than that? Fortunately, we can nest a <code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code>
 inside another.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">USAddress</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
     <span class="n">line_1</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>
@@ -256,11 +252,11 @@ inconvenient, you can also pass in an entire dictionary:</p>
 </div>
 </section>
 <section id="arrays-of-structs">
-<h2>Arrays of Structs<a class="headerlink" href="#arrays-of-structs" title="Permalink to this headline">¶</a></h2>
+<h2>Arrays of Structs<a class="headerlink" href="#arrays-of-structs" title="Permalink to this heading">¶</a></h2>
 <p>Can you make arrays of nested structs? Absolutely! We can take advantage of that
 to support multiple addresses for a single person. We’ll indicate the number of
 addresses a person has using an integer field.</p>
-<p>As of version 0.3.0 you can use a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> as the array
+<p>As of version 0.3.0 you can use a <code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code> as the array
 size, so instead of creating a halting function like we did with <code class="docutils literal notranslate"><span class="pre">phone_numbers</span></code>,
 we can pass <code class="docutils literal notranslate"><span class="pre">n_addresses</span></code> as the value for <code class="docutils literal notranslate"><span class="pre">count</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># USAddress stays the same</span>
@@ -286,7 +282,7 @@ we can pass <code class="docutils literal notranslate"><span class="pre">n_addre
 </div>
 </section>
 <section id="creating-custom-fields">
-<h2>Creating Custom Fields<a class="headerlink" href="#creating-custom-fields" title="Permalink to this headline">¶</a></h2>
+<h2>Creating Custom Fields<a class="headerlink" href="#creating-custom-fields" title="Permalink to this heading">¶</a></h2>
 <p>Suppose we want to give users the ability to record someone’s birthday. <code class="docutils literal notranslate"><span class="pre">binobj</span></code>
 doesn’t have a <code class="docutils literal notranslate"><span class="pre">Date</span></code> type, so we’re going to have to roll our own. There’s a
 number of ways we can represent a date but the easiest way seems to be to record
@@ -294,13 +290,13 @@ the date as a string in <code class="docutils literal notranslate"><span class="
 <p>When you’re creating your own field, there are only two methods you must implement
 yourself: <code class="docutils literal notranslate"><span class="pre">_do_load</span></code> and <code class="docutils literal notranslate"><span class="pre">_do_dump</span></code>.</p>
 <p>Always keep in mind: The <code class="docutils literal notranslate"><span class="pre">stream</span></code> argument to these methods is always a binary
-stream that reads and writes <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, so be sure to encode and decode
+stream that reads and writes <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, so be sure to encode and decode
 your strings accordingly.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
 
 <span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Field</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]):</span>  <span class="c1"># Fields are generic containers</span>
     <span class="k">def</span> <span class="nf">_do_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a date from the stream.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a date from the stream.&quot;&quot;&quot;</span>
         <span class="n">date_bytes</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
         <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
@@ -308,7 +304,7 @@ your strings accordingly.</p>
         <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_do_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">all_fields</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dump a date into the stream.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dump a date into the stream.&quot;&quot;&quot;</span>
         <span class="c1"># Let the user pass in a date or datetime</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
@@ -319,7 +315,7 @@ your strings accordingly.</p>
 </div>
 </section>
 <section id="putting-it-all-together">
-<h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h2>
+<h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this heading">¶</a></h2>
 <p>Let’s look at the final version of our file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
 
@@ -327,9 +323,9 @@ your strings accordingly.</p>
 <span class="kn">from</span> <span class="nn">binobj</span> <span class="kn">import</span> <span class="n">fields</span>
 
 
-<span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Field</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Field</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]):</span>
     <span class="k">def</span> <span class="nf">_do_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a date from the stream.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a date from the stream.&quot;&quot;&quot;</span>
         <span class="n">date_bytes</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
         <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
@@ -337,7 +333,7 @@ your strings accordingly.</p>
         <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_do_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">all_fields</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dump a date into the stream.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dump a date into the stream.&quot;&quot;&quot;</span>
         <span class="c1"># Let the user pass in a date or datetime</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
@@ -399,7 +395,7 @@ your strings accordingly.</p>
 </div>
 <p>Pretty cool, huh? There’s loads more you can do. Check out the <code class="docutils literal notranslate"><span class="pre">full_examples</span></code>
 directory in the tests for more real-world examples of what you can do. The
-documentation in <a class="reference internal" href="binobj.fields.html#module-binobj.fields" title="binobj.fields"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code></a> and <a class="reference internal" href="binobj.structures.html#module-binobj.structures" title="binobj.structures"><code class="xref py py-mod docutils literal notranslate"><span class="pre">binobj.structures</span></code></a> might also
+documentation in <code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code> and <code class="xref py py-mod docutils literal notranslate"><span class="pre">binobj.structures</span></code> might also
 be of interest to you.</p>
 </section>
 </section>
@@ -411,8 +407,9 @@ be of interest to you.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">A Crash Course</a><ul>
 <li><a class="reference internal" href="#plain-old-strings">Plain Old Strings</a></li>
 <li><a class="reference internal" href="#text-and-encodings">Text and Encodings</a></li>
@@ -426,12 +423,17 @@ be of interest to you.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to binobj’s documentation!</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="CHANGELOG.html"
-                        title="next chapter">Changelog</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Welcome to binobj’s documentation!</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="CHANGELOG.html"
+                          title="next chapter">Changelog</a></p>
+  </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -441,7 +443,7 @@ be of interest to you.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -452,9 +454,6 @@ be of interest to you.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="right" >
           <a href="CHANGELOG.html" title="Changelog"
              >next</a> |</li>
@@ -467,7 +466,7 @@ be of interest to you.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

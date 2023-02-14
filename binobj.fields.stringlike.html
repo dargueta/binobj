@@ -1,18 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>binobj.fields.stringlike module &#8212; binobj 0.10.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -22,9 +21,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.stringlike module</a></li> 
       </ul>
@@ -35,55 +31,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-binobj.fields.stringlike">
-<span id="binobj-fields-stringlike-module"></span><h1>binobj.fields.stringlike module<a class="headerlink" href="#module-binobj.fields.stringlike" title="Permalink to this headline">¶</a></h1>
-<p>Fields representing strings and byte sequences.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.fields.stringlike.Bytes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.Bytes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>]</p>
-<p>Raw binary data.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.fields.stringlike.String">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">String</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.String" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</p>
-<p>A fixed-length string.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The field’s size in <em>bytes</em>, not <em>characters</em>. For most text encodings these are
-the same, but some encodings use multiple bytes per character.</p></li>
-<li><p><strong>encoding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The encoding to use for converting the string to and from bytes. Defaults to
-<a class="reference external" href="https://en.wikipedia.org/wiki/ISO/IEC_8859-1">ISO 8859-1</a>.</p></li>
-<li><p><strong>pad_byte</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><em>bytes</em></a>) – <p>A single byte to use as padding for strings that are too short to fit into the
-field. If not given, strings that aren’t exactly <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes when encoded
-will trigger a <a class="reference internal" href="binobj.errors.html#binobj.errors.ValueSizeError" title="binobj.errors.ValueSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSizeError</span></code></a>.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.2.0.</span></p>
-</div>
-</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">utf-8-sig</span></code>, <code class="docutils literal notranslate"><span class="pre">utf-16</span></code>, and <code class="docutils literal notranslate"><span class="pre">utf-32</span></code> codecs add a <a class="reference external" href="https://en.wikipedia.org/wiki/Byte_order_mark">byte order mark</a>
-(BOM) at the beginning of the string, so you’ll need to take those extra bytes
-into account when defining this field size. Alternatively, you can use the
-codecs’ variants that don’t add the BOM, such as <code class="docutils literal notranslate"><span class="pre">utf-16-le</span></code> or <code class="docutils literal notranslate"><span class="pre">utf-16-be</span></code>.</p>
-</div>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.fields.stringlike.StringZ">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StringZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.StringZ" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.stringlike.String</span></code></a></p>
-<p>A variable-length null-terminated string.</p>
-<p>The terminating null is guaranteed to be the proper size for multi-byte encodings.</p>
-</dd></dl>
-
+  <section id="binobj-fields-stringlike-module">
+<h1>binobj.fields.stringlike module<a class="headerlink" href="#binobj-fields-stringlike-module" title="Permalink to this heading">¶</a></h1>
 </section>
 
 
@@ -102,7 +51,7 @@ codecs’ variants that don’t add the BOM, such as <code class="docutils liter
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -113,16 +62,13 @@ codecs’ variants that don’t add the BOM, such as <code class="docutils liter
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.stringlike module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

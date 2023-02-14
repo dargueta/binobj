@@ -1,18 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>binobj.fields.containers module &#8212; binobj 0.10.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -22,9 +21,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.containers module</a></li> 
       </ul>
@@ -35,218 +31,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-binobj.fields.containers">
-<span id="binobj-fields-containers-module"></span><h1>binobj.fields.containers module<a class="headerlink" href="#module-binobj.fields.containers" title="Permalink to this headline">¶</a></h1>
-<p>Fields used for forming more complex structures with other fields.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.fields.containers.Array">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Array" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.T</span></code>]]]</p>
-<p>An array of other serializable objects.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>component</strong> (<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><em>Field</em></a>) – The component this array is comprised of. Must be an instance.</p></li>
-<li><p><strong>count</strong> – <p>Optional. Some way of indicating the number of elements in this array. The value
-for this argument can be one of the following:</p>
-<ul>
-<li><p>An integer. The array always contains this many elements.</p></li>
-<li><p>A <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance that must 1) be an integer;
-2) occur before this array in the same struct.</p></li>
-<li><p>A string naming a field fitting the above criteria. You’ll need this if your
-size field’s name is a Python keyword.</p></li>
-</ul>
-</p></li>
-<li><p><strong>halt_check</strong> (<em>callable</em>) – A function taking five arguments. See <a class="reference internal" href="#binobj.fields.containers.Array.should_halt" title="binobj.fields.containers.Array.should_halt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">should_halt()</span></code></a> for the default
-implementation. Subclasses can override this function if desired to avoid having
-to pass in a custom function every time.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.3.0: </span><code class="docutils literal notranslate"><span class="pre">count</span></code> can now be a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> or string.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.6.1: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.to_stream" title="binobj.fields.base.Field.to_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_stream()</span></code></a> and <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.to_bytes" title="binobj.fields.base.Field.to_bytes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_bytes()</span></code></a>
-throw an <a class="reference internal" href="binobj.errors.html#binobj.errors.ArraySizeError" title="binobj.errors.ArraySizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArraySizeError</span></code></a> if <code class="docutils literal notranslate"><span class="pre">count</span></code> is set and the iterable
-passed in is too long. Due to a bug it used to be ignored when dumping.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.7.0: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size" title="binobj.fields.base.Field.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> is set if <code class="docutils literal notranslate"><span class="pre">component.size</span></code> is defined and <code class="docutils literal notranslate"><span class="pre">count</span></code> is an
-integer constant.</p>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.fields.containers.Array.get_final_element_count">
-<span class="sig-name descname"><span class="pre">get_final_element_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#binobj.fields.containers.Array.get_final_element_count" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the number of elements in the array based on other fields’ values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>field_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – A dict mapping field names to their deserialized values. It doesn’t need to
-have every value in the struct; if <code class="xref py py-attr docutils literal notranslate"><span class="pre">count</span></code> references a field, it only
-requires that field to be present here.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The expected number of elements in this array, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the array
-doesn’t have a fixed size.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
-</dd>
-</dl>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.6.1.</span></p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>Throws a <cite>ConfigurationError</cite> if this field’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">count</span></code> is a <cite>Field</cite> but
-doesn’t have an assigned name.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.fields.containers.Array.should_halt">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">should_halt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><span class="pre">binobj.fields.containers.Array</span></a><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.containers.T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">binobj.fields.containers.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#binobj.fields.containers.Array.should_halt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine if the deserializer should stop reading from the input.</p>
-<p>This function should return <code class="docutils literal notranslate"><span class="pre">True</span></code> to indicate loading for this field should
-stop, or <code class="docutils literal notranslate"><span class="pre">False</span></code> to continue adding elements.</p>
-<p>The default implementation does the following:</p>
-<ul class="simple">
-<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is an integer, it compares <code class="docutils literal notranslate"><span class="pre">count</span></code> against the length of
-<code class="docutils literal notranslate"><span class="pre">values</span></code>. If <code class="docutils literal notranslate"><span class="pre">len(values)</span></code> is equal to or more than <code class="docutils literal notranslate"><span class="pre">count</span></code> it’ll return
-<code class="docutils literal notranslate"><span class="pre">True</span></code> (halt), <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is a <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>, that field should
-already have been loaded and in <code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>. The expected array size is
-taken from there, and compared as above.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">count</span></code> is a string, it’s the name of a field already loaded and in
-<code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>. The expected array size is taken from there, and compared
-as above.</p></li>
-<li><p>Otherwise, the function assumes the array ends at EOF and only returns
-<code class="docutils literal notranslate"><span class="pre">True</span></code> if there’s no more data in the stream.</p></li>
-</ul>
-<p>Subclasses’ implementations must handle all four cases.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>seq</strong> (<a class="reference internal" href="#binobj.fields.containers.Array" title="binobj.fields.containers.Array"><em>Array</em></a>) – The sequence being checked.</p></li>
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The data stream to read from. Except in rare circumstances, this is the same
-stream that was passed to <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a>. The
-stream pointer should be returned to its original position when the function
-exits.</p></li>
-<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – A list of the objects that have been deserialized so far. In general this
-function <em>should not</em> modify the list. A possible exception to this rule is
-to remove a sentinel value from the end of the list.</p></li>
-<li><p><strong>context</strong> – The <code class="docutils literal notranslate"><span class="pre">context</span></code> object passed to <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a>.</p></li>
-<li><p><strong>loaded_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – The fields in the struct that have been loaded so far.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the deserializer should stop reading, <code class="docutils literal notranslate"><span class="pre">False</span></code>
-otherwise.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
-</dd>
-</dl>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.8.0: </span>The default implementation now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a>
-if the length of the array couldn’t be determined. Previously this would
-crash with a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a>.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.fields.containers.Nested">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Nested</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Nested" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.TStruct</span></code>]</p>
-<p>Used to nest one struct inside of another.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>struct_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><em>Struct</em></a><em>]</em>) – The struct class to wrap as a field. Not an instance!</p>
-</dd>
-</dl>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Struct</span><span class="p">):</span>
-    <span class="o">...</span>
-
-<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Struct</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">()</span>
-    <span class="n">address</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">Address</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.7.0: </span><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size" title="binobj.fields.base.Field.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> is set if the struct passed in is of fixed size. Prior to 0.7.0,
-<code class="docutils literal notranslate"><span class="pre">Person.get_size()</span></code> would be None even if <code class="docutils literal notranslate"><span class="pre">Address.get_size()</span></code> returned a
-value. Now the sizes are the same.</p>
-</div>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.fields.containers.Union">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Union</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.containers.Union" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">binobj.fields.base.Field</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">binobj.fields.containers.T</span></code>]</p>
-<p>A field that can be one of several different types of structs or fields.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>choices</strong> – One or more <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> classes or
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instances that can be used for loading and
-dumping.</p></li>
-<li><p><strong>load_decider</strong> (<em>callable</em>) – <p>A function that decides which <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> class or
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance to use for loading the input. It
-must take four arguments:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>: The stream being loaded from.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">classes</span></code>: A list of classes that can be used for loading.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context object to pass directly to the loader selected from
-<code class="docutils literal notranslate"><span class="pre">classes</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">loaded_fields</span></code>: A dictionary of the fields that have already been loaded.
-This is guaranteed to not be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-</ul>
-</p></li>
-<li><p><strong>dump_decider</strong> (<em>callable</em>) – <p>A function that decides which <a class="reference internal" href="binobj.structures.html#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> class or
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> instance to use for dumping the given data.
-It must take four arguments:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: The data to dump. This can be any type.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">classes</span></code>: A list of classes that can be used for dumping.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context object to pass directly to the dumper selected from
-<code class="docutils literal notranslate"><span class="pre">classes</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">all_fields</span></code>: A dictionary of the fields about to be dumped. This is
-guaranteed to not be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-</ul>
-</p></li>
-</ul>
-</dd>
-</dl>
-<p>Usage with Structs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">load_decider</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">loaded_fields</span><span class="p">):</span>
-    <span class="n">data_type_id</span> <span class="o">=</span> <span class="n">loaded_fields</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">classes</span><span class="p">[</span><span class="n">data_type_id</span><span class="p">]</span>
-
-<span class="k">def</span> <span class="nf">dump_decider</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">all_fields</span><span class="p">):</span>
-    <span class="n">data_type_id</span> <span class="o">=</span> <span class="n">all_fields</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">classes</span><span class="p">[</span><span class="n">data_type_id</span><span class="p">]</span>
-
-<span class="k">class</span> <span class="nc">MyStruct</span><span class="p">(</span><span class="n">Struct</span><span class="p">):</span>
-    <span class="n">data_type</span> <span class="o">=</span> <span class="n">UInt8</span><span class="p">()</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">Union</span><span class="p">(</span><span class="n">UserInfo</span><span class="p">,</span> <span class="n">FileInfo</span><span class="p">,</span> <span class="n">SystemInfo</span><span class="p">,</span>
-                 <span class="n">load_decider</span><span class="o">=</span><span class="n">load_decider</span><span class="p">,</span> <span class="n">dump_decider</span><span class="o">=</span><span class="n">dump_decider</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Usage with Fields:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FieldsUnionContainer</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
-    <span class="n">data_type</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">UInt8</span><span class="p">()</span>
-    <span class="n">item</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Union</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">StringZ</span><span class="p">(),</span>
-                        <span class="n">fields</span><span class="o">.</span><span class="n">UInt16</span><span class="p">(</span><span class="n">endian</span><span class="o">=</span><span class="s1">&#39;little&#39;</span><span class="p">),</span>
-                        <span class="n">load_decider</span><span class="o">=</span><span class="n">fields_load_decider</span><span class="p">,</span>
-                        <span class="n">dump_decider</span><span class="o">=</span><span class="n">fields_dump_decider</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.3.0.</span></p>
-</div>
-</dd></dl>
-
+  <section id="binobj-fields-containers-module">
+<h1>binobj.fields.containers module<a class="headerlink" href="#binobj-fields-containers-module" title="Permalink to this heading">¶</a></h1>
 </section>
 
 
@@ -265,7 +51,7 @@ guaranteed to not be <code class="docutils literal notranslate"><span class="pre
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -276,16 +62,13 @@ guaranteed to not be <code class="docutils literal notranslate"><span class="pre
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.containers module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

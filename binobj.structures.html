@@ -1,18 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>binobj.structures module &#8212; binobj 0.10.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -22,9 +21,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.structures module</a></li> 
       </ul>
@@ -35,280 +31,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-binobj.structures">
-<span id="binobj-structures-module"></span><h1>binobj.structures module<a class="headerlink" href="#module-binobj.structures" title="Permalink to this headline">¶</a></h1>
-<p>Classes defining structures and unions.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="binobj.structures.Struct">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.structures.Struct" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>An ordered collection of fields and other structures.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="binobj.structures.Struct.__binobj_struct__">
-<span class="sig-name descname"><span class="pre">__binobj_struct__</span></span><a class="headerlink" href="#binobj.structures.Struct.__binobj_struct__" title="Permalink to this definition">¶</a></dt>
-<dd><p>A class attribute defining features of the struct, such as its fields,
-validators, default values, etc. It’s only of use for code that inspects struct
-definitions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>binobj.structures.StructMetadata</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.5.0: </span>A Struct will compare equal to <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.UNDEFINED" title="binobj.fields.base.UNDEFINED"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a> if and only
-if all of its fields are also undefined.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.7.1: </span>Removed the private-ish <code class="docutils literal notranslate"><span class="pre">__components__</span></code> and <code class="docutils literal notranslate"><span class="pre">__validators__</span></code> attributes.
-Field definitions, validators, and other metadata can be found in the new
-<code class="docutils literal notranslate"><span class="pre">__binobj_struct__</span></code> class attribute. However, it should be considered an
-implementation detail and is subject to change.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.10.0: </span>The <code class="docutils literal notranslate"><span class="pre">__objclass__</span></code> attribute is set on all fields.</p>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.from_bytes">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><span class="pre">bytes</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">binobj.structures.TStruct</span></span></span><a class="headerlink" href="#binobj.structures.Struct.from_bytes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a struct from the given byte string.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><em>bytes</em></a>) – A bytes-like object to get the data from.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
-don’t recognize.</p></li>
-<li><p><strong>exact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – <code class="docutils literal notranslate"><span class="pre">data</span></code> must contain exactly the number of bytes required. If not all the
-bytes in <code class="docutils literal notranslate"><span class="pre">data</span></code> were used when reading the struct, throw an exception.</p></li>
-<li><p><strong>init_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Additional keyword arguments to pass to the struct’s constructor, for
-subclasses that take additional arguments beyond the fields that comprise
-the struct. You can also use this to <em>override</em> field values; anything given
-in here takes precedence over loaded values.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The loaded struct.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.ExtraneousDataError" title="binobj.errors.ExtraneousDataError"><strong>ExtraneousDataError</strong></a> – <code class="docutils literal notranslate"><span class="pre">exact</span></code> is True and there’s data left over at the end of the byte string.</p>
-</dd>
-</dl>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.7.0: </span>The <code class="docutils literal notranslate"><span class="pre">init_kwargs</span></code> argument.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.from_stream">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">binobj.structures.TStruct</span></span></span><a class="headerlink" href="#binobj.structures.Struct.from_stream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a struct from the given stream.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to load data from.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to the components’
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> methods. Subclasses must
-ignore anything they don’t recognize.</p></li>
-<li><p><strong>init_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Additional keyword arguments to pass to the struct’s constructor, for
-subclasses that take additional arguments beyond the fields that comprise
-the struct. You can also use this to <em>override</em> field values; anything given
-in here takes precedence over loaded values.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The loaded struct.</p>
-</dd>
-</dl>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.7.0: </span>The <code class="docutils literal notranslate"><span class="pre">init_kwargs</span></code> argument.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.get_field">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#binobj.structures.Struct.get_field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the value of a single field.</p>
-<p>If the field is at a fixed byte offset from the beginning of the struct, it’ll
-be read directly.</p>
-<p>If the field isn’t at a fixed offset from the beginning of the struct (e.g. a
-variable-length field occurs before it) then the entire struct up to and
-including this field must be read. Unfortunately, this means that unrelated
-validation errors can be thrown if other fields have problems.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to read from. It’s assumed that the stream pointer is positioned
-at the start of a struct. The stream pointer is returned to its original
-position even if an exception occurred.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The name of the field to retrieve.</p></li>
-<li><p><strong>context</strong> – Optional. Any object containing extra information to pass to the
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> method of the field. For
-fields located at a variable offset, this will be passed to the
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> method of <em>each</em> field read.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The value of the field in the struct data.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.UnexpectedEOFError" title="binobj.errors.UnexpectedEOFError"><strong>UnexpectedEOFError</strong></a> – The end of the stream was reached before the requested field could be
-completely read.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.get_size">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#binobj.structures.Struct.get_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the size of this struct in bytes, if possible.</p>
-<p>If there are variable-sized fields that can’t be resolved, this function returns
-<code class="docutils literal notranslate"><span class="pre">None</span></code> instead.</p>
-<p>Do <em>not</em> use this on instances; use <code class="docutils literal notranslate"><span class="pre">len(instance)</span></code> instead.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The struct’s size, in bytes.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
-</dd>
-</dl>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.3.0.</span></p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.partial_dump">
-<span class="sig-name descname"><span class="pre">partial_dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#binobj.structures.Struct.partial_dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>Partially dump the object, up to and including the last named field.</p>
-<p>All fields up to and including the field named in <code class="docutils literal notranslate"><span class="pre">last_field</span></code> will be
-serialized.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">last_field</span></code> isn’t given, as many fields will be serialized as possible up
-to the first missing one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to dump into.</p></li>
-<li><p><strong>last_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The name of the last field in the object to dump.</p></li>
-<li><p><strong>context</strong> – Any object containing extra information to pass to the fields’
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> methods.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.partial_load">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">partial_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">binobj.structures.TStruct</span></span></span><a class="headerlink" href="#binobj.structures.Struct.partial_load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Partially load this object, either until EOF or the named field.</p>
-<p>All fields up to and including the field named in <code class="docutils literal notranslate"><span class="pre">last_field</span></code> will be loaded
-from <code class="docutils literal notranslate"><span class="pre">stream</span></code>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">last_field</span></code> isn’t given, as many complete fields as possible will be
-loaded from <code class="docutils literal notranslate"><span class="pre">stream</span></code>. Any partially loaded fields will be discarded and the
-stream pointer will be reset to the end of the last complete field read.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Because the struct is only partially loaded, struct-level validators are
-<em>not</em> executed. Individual fields still are.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to load from.</p></li>
-<li><p><strong>last_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The name of the last field to load in the object. If given, enough bytes for
-this and all previous fields <em>must</em> be present in the stream.</p></li>
-<li><p><strong>context</strong> – Any object containing extra information to pass to the fields’
-<a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream" title="binobj.fields.base.Field.from_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_stream()</span></code></a> method.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The loaded struct.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.to_bytes">
-<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><span class="pre">bytes</span></a></span></span><a class="headerlink" href="#binobj.structures.Struct.to_bytes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the given data into bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
-don’t recognize.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The serialized data.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_discardable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MutableMapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#binobj.structures.Struct.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert this struct into an ordered dictionary.</p>
-<p>The primary use for this method is converting a loaded <a class="reference internal" href="#binobj.structures.Struct" title="binobj.structures.Struct"><code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code></a> into
-native Python types. As such, validation is <em>not</em> performed since that was done
-while loading.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>keep_discardable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If True, don’t exclude fields marked with <code class="docutils literal notranslate"><span class="pre">discard=True</span></code> from the result.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.10)">collections.OrderedDict</a></p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.MissingRequiredValueError" title="binobj.errors.MissingRequiredValueError"><strong>MissingRequiredValueError</strong></a> – One or more fields don’t have assigned values.</p>
-</dd>
-</dl>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.3.0: </span>This now recursively calls <a class="reference internal" href="#binobj.structures.Struct.to_dict" title="binobj.structures.Struct.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a> on all nested structs and arrays
-so that the returned dictionary is completely converted, not just the first
-level.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.6.0: </span>Fields with <code class="docutils literal notranslate"><span class="pre">discard</span></code> set are not included in the returned dict by
-default.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 0.6.1: </span>The <code class="docutils literal notranslate"><span class="pre">keep_discardable</span></code> argument was added.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.to_stream">
-<span class="sig-name descname"><span class="pre">to_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BinaryIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#binobj.structures.Struct.to_stream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the given data into bytes and write it to <code class="docutils literal notranslate"><span class="pre">stream</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<em>BinaryIO</em>) – The stream to write the serialized data into.</p></li>
-<li><p><strong>context</strong> – Additional data to pass to this method. Subclasses must ignore anything they
-don’t recognize.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="binobj.structures.Struct.validate_contents">
-<span class="sig-name descname"><span class="pre">validate_contents</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#binobj.structures.Struct.validate_contents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate the stored values in this struct.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="binobj.errors.html#binobj.errors.ValidationError" title="binobj.errors.ValidationError"><strong>ValidationError</strong></a> – Validation failed.</p>
-</dd>
-</dl>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 0.4.0.</span></p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="binobj-structures-module">
+<h1>binobj.structures module<a class="headerlink" href="#binobj-structures-module" title="Permalink to this heading">¶</a></h1>
 </section>
 
 
@@ -327,7 +51,7 @@ don’t recognize.</p></li>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -338,16 +62,13 @@ don’t recognize.</p></li>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.structures module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017-2021, Diego Argueta.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>
