@@ -349,15 +349,17 @@ class Struct:
         have no dependencies and can serialize themselves (e.g. Bytes and sized int
         fields). This allows us to resolve forward references.
         """
-        dct = collections.ChainMap({}, self)
+        dct = {}
 
         for field in self.__binobj_struct__.components.values():
             try:
-                dct[field.name] = field.compute_value_for_dump(dct)
+                dct[field.name] = field.compute_value_for_dump(
+                    typing.cast(StrDict, self)
+                )
             except errors.Error:
                 continue
 
-        return dct
+        return collections.ChainMap(dct, self)
 
     @classmethod
     def from_stream(
