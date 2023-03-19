@@ -425,9 +425,20 @@ class Union(Field[FieldOrTStruct]):
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
             dumper.to_stream(stream, data, context, all_fields)
+        elif issubclass(dumper, Struct):
+            if isinstance(data, collections.abc.Mapping):
+                dumper(**data).to_stream(stream, context)
+            elif isinstance(data, Struct):
+                dumper(**data.to_dict()).to_stream(stream, context)
+            else:
+                raise TypeError(
+                    f"Cannot dump a non-Mapping-like object as a {dumper!r}: {data!r}",
+                )
         else:
-            # Else: Dumper is not a Field instance, assume this is a Struct.
-            dumper(**data).to_stream(stream, context)
+            raise TypeError(
+                "Dump decider returned a %r, expected a Field instance or subclass of"
+                " Struct." % type(dumper)
+            )
 
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict

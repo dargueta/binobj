@@ -441,7 +441,7 @@ def test_explicit_name_matches_no_error():
 
 def test_simulated_infinite_recursion():
     class BorkedField(fields.Field[int]):
-        def _size_for_value(self, value):
+        def _size_for_value(self, _value):
             raise RecursionError
 
     borked = BorkedField(name="asdf", default=1)

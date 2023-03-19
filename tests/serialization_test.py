@@ -46,7 +46,7 @@ def test_dump__use_default_value():
 def test_dump__use_default_callable():
     """Test dumping when the default value is a callable."""
     with pytest.raises(TypeError):
-        field = fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
+        fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
 
 
 def test_loads__extraneous_data_crashes():

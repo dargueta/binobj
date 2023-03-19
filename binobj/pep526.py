@@ -35,7 +35,6 @@ Here are a few examples of how you can declare your fields::
 import dataclasses
 import functools
 import typing
-import warnings
 from typing import Any
 from typing import Dict
 from typing import Optional

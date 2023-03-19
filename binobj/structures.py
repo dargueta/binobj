@@ -478,7 +478,7 @@ class Struct:
             :meth:`~binobj.fields.base.Field.from_stream` method.
 
         :return: The loaded struct.
-        """  # noqa: D401
+        """
         if (
             last_field is not None
             and last_field not in cls.__binobj_struct__.components
@@ -586,7 +586,7 @@ class Struct:
         :param context:
             Any object containing extra information to pass to the fields'
             :meth:`~binobj.fields.base.Field.from_stream` methods.
-        """  # noqa: D401
+        """
         data = self.__values__
 
         for field in self.__binobj_struct__.components.values():
@@ -751,7 +751,7 @@ class Struct:
 
         # Load any construction options the caller may have defined.
         if hasattr(cls, "Meta"):
-            metadata.load_meta_options(cls.Meta)
+            metadata.load_meta_options(cls.Meta)  # type: ignore[attr-defined]
 
         # Enumerate the declared fields and bind them to this struct.
         metadata.num_own_fields = collect_assigned_fields(
