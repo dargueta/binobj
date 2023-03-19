@@ -1,7 +1,9 @@
 """A Python library for reading and writing structured binary data."""
 
+from __future__ import annotations
+
 from typing import Optional
-from typing import Tuple
+from typing import NamedTuple
 
 import pkg_resources as _pkgr
 
@@ -10,14 +12,36 @@ from .fields import *
 from .structures import *
 
 
-def __to_version_info() -> Tuple[int, int, int, Optional[str]]:
-    parts = _pkgr.parse_version(__version__)
-    base = parts.base_version
-    version_parts = tuple(map(int, base.split(".")))
-    suffix_part = parts.public[len(base) :].lstrip(".") or None
-    return version_parts[0], version_parts[1], version_parts[2], suffix_part
+try:
+    import importlib.metadata as _imp_meta
+except ImportError:  # pragma: no cover (py38+)
+    import importlib_metadata as _imp_meta
 
 
-# Do not modify directly; use ``bumpversion`` command instead.
-__version__ = "0.10.5"
-__version_info__ = __to_version_info()
+class VersionInfo(NamedTuple):
+    """Detailed information about the current version of the software."""
+
+    major: int
+    minor: int
+    patch: int
+    suffix: Optional[str]
+
+    @classmethod
+    def from_string(cls, version: str) -> VersionInfo:
+        parts = _pkgr.parse_version(version)
+        base_version = parts.base_version
+        major, minor, *_possibly_patch = base_version.split(".")
+        if _possibly_patch:
+            patch = _possibly_patch[0]
+        else:
+            patch = "0"
+
+        suffix = parts.public[len(base_version) :].lstrip(".")
+        return cls(int(major), int(minor), int(patch), suffix or None)
+
+    def __str__(self) -> str:
+        return "%d.%d.%d%s" % (self.major, self.minor, self.patch, self.suffix or "")
+
+
+__version__ = _imp_meta.version("binobj")
+__version_info__ = VersionInfo.from_string(__version__)
