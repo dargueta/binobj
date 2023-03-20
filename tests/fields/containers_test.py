@@ -258,6 +258,21 @@ def test_array__computed_size():
     assert bytes(struct) == b"\x03\x06\x01\x01\x02\x03\x05\x08"
 
 
+def test_array__unbound_count_field():
+    """An Array can't be passed an unbound Field for its `count` argument."""
+    array = fields.Array(fields.Int8(), count=fields.Int8())
+    with pytest.raises(errors.ConfigurationError):
+        array.from_bytes(b"")
+
+
+def test_array__count_wrong_type():
+    """An Array can't be passed an unbound Field for its `count` argument."""
+    array = fields.Array(fields.Int8())
+    with pytest.raises(TypeError, match="Unexpected type for `count`: 'object'"):
+        array.count = object()
+        array.from_bytes(b"")
+
+
 class UnionItemA(binobj.Struct):
     _id = fields.UInt8(const=0xFF)
     value = fields.StringZ()
@@ -288,13 +303,18 @@ class UnionContainer(binobj.Struct):
     )
 
 
-def test_union__structs__dump_basic():
+@pytest.mark.parametrize(
+    "data_type, item, expected",
+    (
+        pytest.param(0, {"value": "asdf"}, b"\0\xffasdf\0"),
+        pytest.param(1, {"other": 0xAA55}, b"\x01\x7f\x55\xaa"),
+        pytest.param(0, UnionItemA(value="asdf"), b"\0\xffasdf\0"),
+    ),
+)
+def test_union__structs__dump_basic__dict(data_type, item, expected):
     """Basic test of dumping the Union field type."""
-    struct = UnionContainer(data_type=0, item={"value": "asdf"})
-    assert struct.to_bytes() == b"\0\xffasdf\0"
-
-    struct = UnionContainer(data_type=1, item={"other": 0xAA55})
-    assert struct.to_bytes() == b"\x01\x7f\x55\xaa"
+    struct = UnionContainer(data_type=data_type, item=item)
+    assert struct.to_bytes() == expected
 
 
 def test_union__structs__load_basic():
@@ -351,3 +371,18 @@ def test_union__field_class_crashes():
         fields.Union(fields.StringZ, load_decider=None, dump_decider=None)
 
     assert str(errinfo.value) == "You must pass an instance of a Field, not a class."
+
+
+def test_union__dump_non_mapping_for_struct():
+    """If the dump decider returns a Struct as the serializer,"""
+    field = fields.Union(
+        UnionContainer,
+        fields.StringZ(),
+        load_decider=None,
+        dump_decider=(lambda _s, classes, _ctx, _fields: classes[0]),
+    )
+
+    with pytest.raises(
+        TypeError, match="Cannot dump a non-Mapping-like object as a .+: 'foo'"
+    ):
+        field.to_bytes("foo")

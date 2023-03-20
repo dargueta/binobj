@@ -122,8 +122,8 @@ class Array(Field[List[Optional[T]]]):
         if isinstance(self.count, Field):
             name = self.count.name
             if name is None:
-                # This will only happen if someone creates a field outside of a Struct
-                # and passes it to this field as the count object.
+                # This will only happen if someone creates a field outside a Struct and
+                # passes it to this field as the count object.
                 raise errors.ConfigurationError(
                     "`count` field for %r has no assigned name." % self,
                     field=self.count,
@@ -131,6 +131,8 @@ class Array(Field[List[Optional[T]]]):
         elif isinstance(self.count, str):
             name = self.count
         else:
+            # We check the type of `self.count` in the constructor so this should never
+            # happen.
             raise TypeError(
                 "Unexpected type for `count`: %r" % type(self.count).__name__
             )
@@ -344,7 +346,7 @@ class Nested(Field[TStruct]):
 
 
 class Union(Field[FieldOrTStruct]):
-    """A field that can be one of several different types of structs or fields.
+    """A field that can be one of several types of structs or fields.
 
     :param choices:
         One or more :class:`~binobj.structures.Struct` classes or
@@ -426,14 +428,11 @@ class Union(Field[FieldOrTStruct]):
         if isinstance(dumper, Field):
             dumper.to_stream(stream, data, context, all_fields)
         elif issubclass(dumper, Struct):
-            if isinstance(data, collections.abc.Mapping):
-                dumper(**data).to_stream(stream, context)
-            elif isinstance(data, Struct):
-                dumper(**data.to_dict()).to_stream(stream, context)
-            else:
+            if not isinstance(data, collections.abc.Mapping):
                 raise TypeError(
                     f"Cannot dump a non-Mapping-like object as a {dumper!r}: {data!r}",
                 )
+            dumper(**data).to_stream(stream, context)
         else:
             raise TypeError(
                 "Dump decider returned a %r, expected a Field instance or subclass of"

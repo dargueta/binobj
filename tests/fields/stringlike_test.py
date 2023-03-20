@@ -297,3 +297,9 @@ def test_uuid_round_trip(storage_format, accessor_name):
 
     loaded = field.from_bytes(serialized)
     assert loaded == value, "Deserialized value is wrong"
+
+
+def test_uuid_short_read():
+    field = stringlike.UUID4(stored_as=stringlike.UUIDFormat.CANONICAL_STRING)
+    with pytest.raises(errors.UnexpectedEOFError):
+        field.from_bytes(b"asdf")
