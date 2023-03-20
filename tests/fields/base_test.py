@@ -447,3 +447,30 @@ def test_simulated_infinite_recursion():
     borked = BorkedField(name="asdf", default=1)
     with pytest.raises(errors.BuggyFieldImplementationError):
         borked.get_expected_size({})
+
+
+def test_noninteger_size_field_crashes():
+    """If a Field is given for ``size``, it must be an integer type."""
+    field = fields.String(name="foo", size=fields.String(name="bar", size=4))
+
+    with pytest.raises(
+        TypeError,
+        match="Field 'foo' relies on field 'bar' to give its size, but 'bar' has a"
+        " non-integer value: '8'",
+    ):
+        field.from_bytes(b"sometext", loaded_fields={"bar": "8"})
+
+
+def test_get_expected_size_null_repr():
+    """If a Field is given for ``size``, it must be an integer type."""
+    field = fields.String(name="foo", null_value=b"NULL")
+    assert field.get_expected_size({"foo": None}) == 4
+
+
+def test_unserializable_null():
+    field = fields.StringZ(null_value=fields.DEFAULT)
+    with pytest.raises(errors.CannotDetermineNullError) as errinfo:
+        field.from_bytes(b"string\x00")
+
+    assert errinfo.value.field is field
+    assert errinfo.value.__cause__ is None

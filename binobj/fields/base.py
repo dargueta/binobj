@@ -209,7 +209,9 @@ class Field(Generic[T]):
     """
 
     __overrideable_attributes__: ClassVar[Collection[str]] = ()
-    """The names of attributes that can be overridden using ``Meta`` class options."""
+    """The names of attributes that can be configured using the containing struct's
+    ``Meta`` class options.
+    """
 
     __explicit_init_args__: FrozenSet[str]
     """The names of arguments that were explicitly passed to the constructor."""
@@ -356,14 +358,7 @@ class Field(Generic[T]):
         self.index = index
         self.offset = offset
 
-        overrideables: Mapping[str, str]
-        if not isinstance(self.__overrideable_attributes__, Mapping):
-            # Force `overrideables` to be a dictionary.
-            overrideables = {n: n for n in self.__overrideable_attributes__}
-        else:
-            overrideables = self.__overrideable_attributes__
-
-        for argument_name, attribute_name in overrideables.items():
+        for argument_name in self.__overrideable_attributes__:
             if argument_name in self.__explicit_init_args__:
                 # This argument was passed in to the constructor directly and any
                 # defaults specified by the struct's metainformation should be ignored.
@@ -385,13 +380,13 @@ class Field(Generic[T]):
                 # Found a type-specific default value
                 setattr(
                     self,
-                    attribute_name,
+                    argument_name,
                     struct_info.argument_defaults[typed_default_name],
                 )
             elif argument_name in struct_info.argument_defaults:
                 # Found a generic default value
                 setattr(
-                    self, attribute_name, struct_info.argument_defaults[argument_name]
+                    self, argument_name, struct_info.argument_defaults[argument_name]
                 )
             # Else: struct doesn't define a default value for this argument.
 
@@ -589,7 +584,7 @@ class Field(Generic[T]):
 
         .. versionchanged:: 0.9.0
             This used to be a private method. ``_get_expected_size()`` is still present
-            for compatibility but it will eventually be removed.
+            for compatibility, but it will eventually be removed.
         """
         if isinstance(self.size, int):
             return self.size
@@ -688,7 +683,7 @@ class Field(Generic[T]):
                 # null_value is `DEFAULT`. If null_value is DEFAULT and we can't
                 # determine the size, then we're out of luck.
                 if self.null_value is DEFAULT:
-                    raise errors.CannotDetermineNullError(field=self) from err.__cause__
+                    raise errors.CannotDetermineNullError(field=self) from None
             else:
                 potential_null_bytes = helpers.peek_bytes(stream, len(null_repr))
                 if potential_null_bytes == null_repr:

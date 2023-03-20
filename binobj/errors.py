@@ -337,7 +337,7 @@ class CannotDetermineNullError(ConfigurationError):
         super().__init__(
             "Passing `DEFAULT` for `null_value` of unsized field %r makes it impossible"
             " to determine what None should be and would result in unpredictable"
-            " behavior." % self,
+            " behavior." % field.name,
             field=field,
         )
 
