@@ -3,6 +3,7 @@ name = "binobj"
 version = "0.11.0"
 description = "A Python library for reading and writing structured binary data."
 authors = ["Diego Argueta <620513-dargueta@users.noreply.github.com>"]
+readme = "README.rst"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -59,15 +60,14 @@ pytest-randomly = "3.12.0"
 # Indirect dependencies go below this line. Avoid pinning them any tighter than necessary.
 # You should only add dependencies here that require pinning to ensure certain features or
 # bugfixes are present.
-coverage = ">=6.4"
 pydocstyle = ">=6.1"
 types-setuptools = "*"
 
 
 [tool.poetry.urls]
-homepage = "https://dargueta.github.io/binobj"
-repository = "https://github.com/dargueta/binobj"
-documentation = "https://dargueta.github.io/binobj"
+Homepage = "https://dargueta.github.io/binobj"
+Repository = "https://github.com/dargueta/binobj"
+Documentation = "https://dargueta.github.io/binobj"
 "Bug Tracker" = "https://github.com/dargueta/binobj/issues"
 
 
