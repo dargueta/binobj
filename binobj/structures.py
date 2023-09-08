@@ -351,15 +351,29 @@ class Struct:
         """
         dct = {}
 
+        # Try dumping all the fields we can first.
         for field in self.__binobj_struct__.components.values():
             try:
                 dct[field.name] = field.compute_value_for_dump(
                     typing.cast(StrDict, self)
                 )
-            except errors.Error:
-                continue
+            except (errors.SerializationError, errors.UndefinedSizeError):
+                pass
+            except errors.Error as err:
+                warnings.warn(
+                    "Ignored exception %s.%s while converting a struct to a dict. This"
+                    " type of exception may not be ignored in the future, as the"
+                    " original code was too broad. If you believe this type should"
+                    " still be caught, please file a bug report.\n"
+                    " Original message: %r" % (err.__module__, type(err).__name__, err),
+                    DeprecationWarning,
+                )
 
-        return collections.ChainMap(dct, self)
+        # Using ChainMap on Python 3.7 and 3.8 crashes for some reason when we try to
+        # iterate over it. It appears to be the way that keys are cached.
+        # return collections.ChainMap(dct, self)
+        dct.update({name: getattr(self, name) for name in self if name not in dct})
+        return dct
 
     @classmethod
     def from_stream(
@@ -487,7 +501,7 @@ class Struct:
                 "%s doesn't have a field named %r." % (cls.__name__, last_field)
             )
 
-        result = {}  # type: MutableStrDict
+        result: MutableStrDict = {}
 
         for field in cls.__binobj_struct__.components.values():
             offset = stream.tell()
