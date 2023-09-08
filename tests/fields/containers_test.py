@@ -32,18 +32,19 @@ def test_nested__load_basic():
 
 def test_nested__dump_basic():
     data = MainStruct(before=0x0BAD, after=0x7F)
+    # This differs from assigning the structure in the constructor. That feels like a
+    # bug, but I have no idea why it's happening.
     data.nested = SubStruct(first=0x0FAD, second="HllWrld")
-
     assert bytes(data) == b"\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f"
 
 
-def test_nested__dump_basic_as_dict():
-    """Test dumping where we pass a dictionary for the nested value instead of a
-    Struct instance.
-    """
-    data = MainStruct(
-        before=0x0BAD, after=0x7F, nested={"first": 0x0FAD, "second": "HllWrld"}
-    )
+@pytest.mark.parametrize(
+    "data",
+    ({"first": 0x0FAD, "second": "HllWrld"}, SubStruct(first=0x0FAD, second="HllWrld")),
+)
+def test_nested__dump_basic_dict_or_instance(data):
+    """Test dumping both a dict and an instance"""
+    data = MainStruct(before=0x0BAD, after=0x7F, nested=data)
     assert bytes(data) == b"\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f"
 
 
