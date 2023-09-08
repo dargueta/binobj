@@ -359,7 +359,7 @@ class Struct:
                 )
             except (errors.SerializationError, errors.UndefinedSizeError):
                 pass
-            except errors.Error as err:
+            except errors.Error as err:  # pragma: nocover
                 warnings.warn(
                     "Ignored exception %s.%s while converting a struct to a dict. This"
                     " type of exception may not be ignored in the future, as the"
