@@ -322,7 +322,7 @@ class Field(Generic[T]):
         If the field is of variable size, such as a null-terminated string, this will be
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
-        """  # noqa: D400,D401
+        """
         # TODO (dargueta) This return value is horrific. Rework it if possible.
         return self._size
 

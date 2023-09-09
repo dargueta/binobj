@@ -237,8 +237,8 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             byte_offset = None
 
         meta.components[name] = field_instance
-        field_index += 1  # noqa: SIM113
-        n_fields_found += 1  # noqa: SIM113
+        field_index += 1
+        n_fields_found += 1
 
         # Overwrite the field declaration in the class with the derived field instance
         # object. Otherwise, we'll end up with None or the default value provided:

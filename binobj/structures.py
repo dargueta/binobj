@@ -367,6 +367,7 @@ class Struct:
                     " still be caught, please file a bug report.\n"
                     " Original message: %r" % (err.__module__, type(err).__name__, err),
                     DeprecationWarning,
+                    2,
                 )
 
         # Using ChainMap on Python 3.7 and 3.8 crashes for some reason when we try to
