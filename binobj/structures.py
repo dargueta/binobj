@@ -150,8 +150,8 @@ def collect_assigned_fields(
             byte_offset = None
 
         class_metadata.components[item_name] = item
-        field_index += 1  # noqa: SIM113
-        n_fields_found += 1  # noqa: SIM113
+        field_index += 1
+        n_fields_found += 1
 
     return n_fields_found
 
@@ -367,7 +367,7 @@ class Struct:
                     " still be caught, please file a bug report.\n"
                     " Original message: %r" % (err.__module__, type(err).__name__, err),
                     DeprecationWarning,
-                    2,
+                    stacklevel=2,
                 )
 
         # Using ChainMap on Python 3.7 and 3.8 crashes for some reason when we try to
@@ -493,7 +493,7 @@ class Struct:
             :meth:`~binobj.fields.base.Field.from_stream` method.
 
         :return: The loaded struct.
-        """  # noqa: D401
+        """
         if (
             last_field is not None
             and last_field not in cls.__binobj_struct__.components
@@ -601,7 +601,7 @@ class Struct:
         :param context:
             Any object containing extra information to pass to the fields'
             :meth:`~binobj.fields.base.Field.from_stream` methods.
-        """  # noqa: D401
+        """
         data = self.__values__
 
         for field in self.__binobj_struct__.components.values():

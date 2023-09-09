@@ -331,7 +331,7 @@ class Field(Generic[T]):
         """Does this field have a fixed size?
 
         .. versionadded:: 0.9.0
-        """  # noqa: D400,D401
+        """
         return isinstance(self.size, int)
 
     def bind_to_container(
@@ -499,7 +499,7 @@ class Field(Generic[T]):
           occurring after it.
 
         .. versionadded:: 0.3.0
-        """  # noqa: D401
+        """
         if self._compute_fn:
             raise errors.ConfigurationError(
                 "Can't define two computing functions for field %r." % self, field=self
@@ -518,6 +518,11 @@ class Field(Generic[T]):
 
     @property
     def is_computed_field(self) -> bool:
+        """Indicate if this field is computed from the value of other fields.
+
+        Computed fields cannot have their values set directly. Attempting to do so will
+        throw an :class:`~binobj.errors.ImmutableFieldError`.
+        """
         return self._compute_fn is not None
 
     @property
@@ -535,7 +540,7 @@ class Field(Generic[T]):
         .. versionchanged:: 0.6.1
             If no default is defined but ``const`` is, this property returns the value
             for ``const``.
-        """  # noqa: D401
+        """
         if self.factory:
             return self.factory()
         return self._default
@@ -545,7 +550,7 @@ class Field(Generic[T]):
         """Is this field required for serialization?
 
         :type: bool
-        """  # noqa: D400
+        """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
     def _size_for_value(self, value: T) -> Optional[int]:

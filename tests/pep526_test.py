@@ -62,7 +62,7 @@ def test_typing_union_breaks():
 
 @dataclass
 class NullableFieldsStruct(binobj.Struct):
-    nullable: Optional[fields.Int32]  # noqa:F821
+    nullable: Optional[fields.Int32]
     not_nullable: fields.StringZ
 
 

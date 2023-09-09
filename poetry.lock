@@ -454,20 +454,6 @@ flake8 = ">=3.7"
 importlib-metadata = {version = ">=0.9", markers = "python_version < \"3.8\""}
 
 [[package]]
-name = "flake8-unused-arguments"
-version = "0.0.13"
-description = "flake8 extension to warn on unused function arguments"
-optional = false
-python-versions = "*"
-files = [
-    {file = "flake8-unused-arguments-0.0.13.tar.gz", hash = "sha256:c5894d294424bf7915e44dff0917222c454151016f96edc55b9f847bf307f3f7"},
-    {file = "flake8_unused_arguments-0.0.13-py3-none-any.whl", hash = "sha256:df6a76b73a6ce67720332182a80f2f0a80783cab1ccae8175f39787cd3a74b31"},
-]
-
-[package.dependencies]
-flake8 = ">3.0.0"
-
-[[package]]
 name = "importlib-metadata"
 version = "4.2.0"
 description = "Read metadata from Python packages"
@@ -904,4 +890,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "dba60c56d0480513618a0e22c477a3404b433e762c1637f7b90814a2bdfa852c"
+content-hash = "d027ef822cf95842603758e76abc14b6859c59da80ec57e415904d91908e011b"

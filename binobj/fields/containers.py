@@ -16,6 +16,7 @@ from typing import TypeVar
 from typing import Union as _Union
 
 from binobj import errors
+from binobj.fields.base import _NotPresent
 from binobj.fields.base import Field
 from binobj.fields.base import maybe_assign_name
 from binobj.fields.base import NOT_PRESENT
@@ -434,7 +435,7 @@ class Union(Field[FieldOrTStruct]):
 
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
-    ) -> Optional[T]:
+    ) -> Optional[_Union[T, _NotPresent]]:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader.from_stream(stream, context, loaded_fields)
