@@ -333,11 +333,12 @@ class Nested(Field[TStruct]):
         data: _Union[StrDict, TStruct],
         context: Any,
         all_fields: StrDict,
-    ) -> bytes:
+    ) -> None:
         if isinstance(data, Struct):
-            return data.to_stream(stream, context)
-        instance = self.struct_class(**typing.cast(StrDict, data))
-        return instance.to_stream(stream, context)
+            data.to_stream(stream, context)
+        else:
+            instance = self.struct_class(**typing.cast(StrDict, data))
+            instance.to_stream(stream, context)
 
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
