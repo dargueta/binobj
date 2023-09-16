@@ -165,6 +165,13 @@ def test_array__variable_length_size_in_struct(cls):
     assert loaded.eof == "ABC"
 
 
+def test_array__variable_length_no_count_field_name_crashes():
+    n_numbers = fields.UInt8()
+    numbers_array = fields.Array(fields.UInt8(), count=n_numbers)
+    with pytest.raises(errors.ConfigurationError):
+        numbers_array.to_bytes([5, 6, 7, 8])
+
+
 def test_array__variable_length_forward_reference_crashes():
     """A forward reference to a field must crash."""
 
@@ -289,13 +296,24 @@ class UnionContainer(binobj.Struct):
     )
 
 
-def test_union__structs__dump_basic():
+@pytest.mark.parametrize("item1", ({"other": 0xAA55}, UnionItemB(other=0xAA55)))
+@pytest.mark.parametrize("item0", ({"value": "asdf"}, UnionItemA(value="asdf")))
+def test_union__structs__dump_basic(item0, item1):
     """Basic test of dumping the Union field type."""
-    struct = UnionContainer(data_type=0, item={"value": "asdf"})
+    struct = UnionContainer(data_type=0, item=item0)
     assert struct.to_bytes() == b"\0\xffasdf\0"
 
-    struct = UnionContainer(data_type=1, item={"other": 0xAA55})
+    struct = UnionContainer(data_type=1, item=item1)
     assert struct.to_bytes() == b"\x01\x7f\x55\xaa"
+
+
+@pytest.mark.xfail
+def test_union__structs__bad_data():
+    # Because we convert structs to dicts before serializing, serialization crashes early.
+    # `item` should be UnionItemA, deliberately passing the wrong one
+    struct = UnionContainer(data_type=0, item=UnionItemB(other=0x1234))
+    with pytest.raises(errors.UnserializableValueError):
+        struct.to_bytes()
 
 
 def test_union__structs__load_basic():

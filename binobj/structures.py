@@ -342,8 +342,8 @@ class Struct:
 
         return recursive_to_dicts(dct)
 
-    def _to_dict_whatever_possible(self) -> MutableMapping[str, Any]:
-        """Convert this struct to a dict, ignoring any errors.
+    def _to_dict_whatever_possible(self) -> MutableStrDict:
+        """Convert this struct to a dict, ignoring serialization-related errors.
 
         We use this to get values for all computed fields as well as any fields that
         have no dependencies and can serialize themselves (e.g. Bytes and sized int

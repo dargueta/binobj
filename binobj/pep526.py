@@ -198,11 +198,6 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             # the field instance!
             baz: Timestamp64(signed=False)
 
-            # You can pass functions for default values just as if you were calling the
-            # constructor, but this looks confusing and is **not recommended**. This may
-            # throw an exception in the future if I decide it's too egregious.
-            bam: StringZ = lambda: os.sep
-
     .. versionadded:: 0.9.0
 
     .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
