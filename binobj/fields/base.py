@@ -957,7 +957,16 @@ class Field(Generic[T]):
             # trigger infinite recursion if we do. Thus, we have to call the dumping
             # function directly in all its ugly glory.
             buf = io.BytesIO()
-            self._do_dump(buf, self.null_value, context=None, all_fields=all_fields)
+
+            # Note: We need the typecast here because MyPy doesn't correctly detect that
+            # we're filtering out DEFAULT in the `if` statement above. It thinks that
+            # null_value can still be DEFAULT, so we cast it to this field's type.
+            self._do_dump(
+                buf,
+                typing.cast(T, self.null_value),
+                context=None,
+                all_fields=all_fields,
+            )
             return buf.getvalue()
 
         # User wants us to use all null bytes for the default null value.
