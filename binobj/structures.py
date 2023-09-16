@@ -150,8 +150,8 @@ def collect_assigned_fields(
             byte_offset = None
 
         class_metadata.components[item_name] = item
-        field_index += 1  # noqa: SIM113
-        n_fields_found += 1  # noqa: SIM113
+        field_index += 1
+        n_fields_found += 1
 
     return n_fields_found
 
@@ -342,8 +342,8 @@ class Struct:
 
         return recursive_to_dicts(dct)
 
-    def _to_dict_whatever_possible(self) -> MutableMapping[str, Any]:
-        """Convert this struct to a dict, ignoring any errors.
+    def _to_dict_whatever_possible(self) -> MutableStrDict:
+        """Convert this struct to a dict, ignoring serialization-related errors.
 
         We use this to get values for all computed fields as well as any fields that
         have no dependencies and can serialize themselves (e.g. Bytes and sized int
@@ -351,15 +351,30 @@ class Struct:
         """
         dct = {}
 
+        # Try dumping all the fields we can first.
         for field in self.__binobj_struct__.components.values():
             try:
                 dct[field.name] = field.compute_value_for_dump(
                     typing.cast(StrDict, self)
                 )
-            except errors.Error:
-                continue
+            except (errors.SerializationError, errors.UndefinedSizeError):
+                pass
+            except errors.Error as err:  # pragma: nocover
+                warnings.warn(
+                    "Ignored exception %s.%s while converting a struct to a dict. This"
+                    " type of exception may not be ignored in the future, as the"
+                    " original code was too broad. If you believe this type should"
+                    " still be caught, please file a bug report.\n"
+                    " Original message: %r" % (err.__module__, type(err).__name__, err),
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
 
-        return collections.ChainMap(dct, self)
+        # Using ChainMap on Python 3.7 and 3.8 crashes for some reason when we try to
+        # iterate over it. It appears to be the way that keys are cached.
+        # return collections.ChainMap(dct, self)
+        dct.update({name: getattr(self, name) for name in self if name not in dct})
+        return dct
 
     @classmethod
     def from_stream(
@@ -478,7 +493,7 @@ class Struct:
             :meth:`~binobj.fields.base.Field.from_stream` method.
 
         :return: The loaded struct.
-        """  # noqa: D401
+        """
         if (
             last_field is not None
             and last_field not in cls.__binobj_struct__.components
@@ -487,7 +502,7 @@ class Struct:
                 "%s doesn't have a field named %r." % (cls.__name__, last_field)
             )
 
-        result = {}  # type: MutableStrDict
+        result: MutableStrDict = {}
 
         for field in cls.__binobj_struct__.components.values():
             offset = stream.tell()
@@ -586,7 +601,7 @@ class Struct:
         :param context:
             Any object containing extra information to pass to the fields'
             :meth:`~binobj.fields.base.Field.from_stream` methods.
-        """  # noqa: D401
+        """
         data = self.__values__
 
         for field in self.__binobj_struct__.components.values():

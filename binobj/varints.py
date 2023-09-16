@@ -91,7 +91,7 @@ def decode_integer_compact(stream: BinaryIO) -> int:
     :return: The decoded integer.
     :rtype: int
     """
-    sign = None  # type: Optional[int]
+    sign: Optional[int] = None
     value = 0
 
     while True:

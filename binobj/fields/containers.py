@@ -10,6 +10,7 @@ from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import overload
 from typing import Tuple
 from typing import Type
 from typing import TypeVar
@@ -27,16 +28,23 @@ __all__ = ["Array", "Nested", "Union"]
 
 
 T = TypeVar("T")
-TStruct = TypeVar("TStruct", covariant=True, bound=Struct)
+TStruct = TypeVar("TStruct", bound=Struct)
 
 
 HaltCheckFn = Callable[["Array[T]", BinaryIO, List, Any, StrDict], bool]
 
 FieldOrTStruct = _Union[Field[Any], Type[Struct]]
-LoadDecider = Callable[
-    [BinaryIO, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct
+FieldLoadDecider = Callable[
+    [BinaryIO, Tuple[Field[Any], ...], Any, StrDict], Field[Any]
 ]
-DumpDecider = Callable[[Any, Tuple[FieldOrTStruct, ...], Any, StrDict], FieldOrTStruct]
+FieldDumpDecider = Callable[[Any, Tuple[Field[Any], ...], Any, StrDict], Field[Any]]
+
+StructLoadDecider = Callable[
+    [BinaryIO, Tuple[Type[Struct], ...], Any, StrDict], Type[Struct]
+]
+StructDumpDecider = Callable[
+    [Any, Tuple[Type[Struct], ...], Any, StrDict], Type[Struct]
+]
 
 
 class Array(Field[List[Optional[T]]]):
@@ -334,8 +342,11 @@ class Nested(Field[TStruct]):
         context: Any,
         all_fields: StrDict,
     ) -> None:
-        instance = self.struct_class(**typing.cast(StrDict, data))
-        return instance.to_stream(stream, context)
+        if isinstance(data, Struct):
+            data.to_stream(stream, context)
+        else:
+            instance = self.struct_class(**typing.cast(StrDict, data))
+            instance.to_stream(stream, context)
 
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
@@ -343,7 +354,7 @@ class Nested(Field[TStruct]):
         return self.struct_class.from_stream(stream, context)
 
 
-class Union(Field[FieldOrTStruct]):
+class Union(Field[Any]):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:
@@ -402,11 +413,31 @@ class Union(Field[FieldOrTStruct]):
     .. versionadded:: 0.3.0
     """
 
+    @overload
     def __init__(
         self,
-        *choices: FieldOrTStruct,
-        load_decider: LoadDecider,
-        dump_decider: DumpDecider,
+        *choices: Field[Any],
+        load_decider: FieldLoadDecider,
+        dump_decider: FieldDumpDecider,
+        **kwargs: Any,
+    ):
+        pass
+
+    @overload
+    def __init__(
+        self,
+        *choices: TStruct,
+        load_decider: StructLoadDecider,
+        dump_decider: StructDumpDecider,
+        **kwargs: Any,
+    ):
+        pass
+
+    def __init__(
+        self,
+        *choices: Any,
+        load_decider: Any,
+        dump_decider: Any,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -420,24 +451,28 @@ class Union(Field[FieldOrTStruct]):
         self.dump_decider = dump_decider
 
     def _do_dump(
-        self, stream: BinaryIO, data: T, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: Any, context: Any, all_fields: StrDict
     ) -> None:
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
             dumper.to_stream(stream, data, context, all_fields)
-        else:
-            # Else: Dumper is not a Field instance, assume this is a Struct.
+        elif issubclass(dumper, Struct):
+            # Else: Dumper is not a Field instance, assume this is a Struct class.
+            # TODO (dargueta): Avoid creating a full struct instance if possible.
             dumper(**data).to_stream(stream, context)
+        else:
+            raise TypeError(
+                f"Dump decider returned a {type(dumper)!r}, expected a Field instance"
+                " or subclass of Struct."
+            )
 
-    def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
-    ) -> Optional[T]:
+    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> Any:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
-            return loader.from_stream(stream, context, loaded_fields)
+            return loader._do_load(stream, context, loaded_fields)
         if isinstance(loader, type) and issubclass(loader, Struct):
             return loader.from_stream(stream, context)
         raise TypeError(
-            "Load decider returned a %r, expected a Field instance or subclass"
-            " of Struct." % type(loader)
+            f"Load decider returned a {type(loader)!r}, expected a Field instance or"
+            " subclass of Struct."
         )

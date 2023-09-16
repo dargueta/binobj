@@ -32,18 +32,19 @@ def test_nested__load_basic():
 
 def test_nested__dump_basic():
     data = MainStruct(before=0x0BAD, after=0x7F)
+    # This differs from assigning the structure in the constructor. That feels like a
+    # bug, but I have no idea why it's happening.
     data.nested = SubStruct(first=0x0FAD, second="HllWrld")
-
     assert bytes(data) == b"\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f"
 
 
-def test_nested__dump_basic_as_dict():
-    """Test dumping where we pass a dictionary for the nested value instead of a
-    Struct instance.
-    """
-    data = MainStruct(
-        before=0x0BAD, after=0x7F, nested={"first": 0x0FAD, "second": "HllWrld"}
-    )
+@pytest.mark.parametrize(
+    "data",
+    ({"first": 0x0FAD, "second": "HllWrld"}, SubStruct(first=0x0FAD, second="HllWrld")),
+)
+def test_nested__dump_basic_dict_or_instance(data):
+    """Test dumping both a dict and an instance"""
+    data = MainStruct(before=0x0BAD, after=0x7F, nested=data)
     assert bytes(data) == b"\x0b\xad\x00\x00\x00\x00\x00\x00\x0f\xadHllWrld\x7f"
 
 
@@ -162,6 +163,13 @@ def test_array__variable_length_size_in_struct(cls):
 
     assert loaded.numbers == [1, 2, 0x7F]
     assert loaded.eof == "ABC"
+
+
+def test_array__variable_length_no_count_field_name_crashes():
+    n_numbers = fields.UInt8()
+    numbers_array = fields.Array(fields.UInt8(), count=n_numbers)
+    with pytest.raises(errors.ConfigurationError):
+        numbers_array.to_bytes([5, 6, 7, 8])
 
 
 def test_array__variable_length_forward_reference_crashes():
@@ -288,13 +296,24 @@ class UnionContainer(binobj.Struct):
     )
 
 
-def test_union__structs__dump_basic():
+@pytest.mark.parametrize("item1", ({"other": 0xAA55}, UnionItemB(other=0xAA55)))
+@pytest.mark.parametrize("item0", ({"value": "asdf"}, UnionItemA(value="asdf")))
+def test_union__structs__dump_basic(item0, item1):
     """Basic test of dumping the Union field type."""
-    struct = UnionContainer(data_type=0, item={"value": "asdf"})
+    struct = UnionContainer(data_type=0, item=item0)
     assert struct.to_bytes() == b"\0\xffasdf\0"
 
-    struct = UnionContainer(data_type=1, item={"other": 0xAA55})
+    struct = UnionContainer(data_type=1, item=item1)
     assert struct.to_bytes() == b"\x01\x7f\x55\xaa"
+
+
+@pytest.mark.xfail
+def test_union__structs__bad_data():
+    # Because we convert structs to dicts before serializing, serialization crashes early.
+    # `item` should be UnionItemA, deliberately passing the wrong one
+    struct = UnionContainer(data_type=0, item=UnionItemB(other=0x1234))
+    with pytest.raises(errors.UnserializableValueError):
+        struct.to_bytes()
 
 
 def test_union__structs__load_basic():

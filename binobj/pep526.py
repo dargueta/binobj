@@ -198,11 +198,6 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             # the field instance!
             baz: Timestamp64(signed=False)
 
-            # You can pass functions for default values just as if you were calling the
-            # constructor, but this looks confusing and is **not recommended**. This may
-            # throw an exception in the future if I decide it's too egregious.
-            bam: StringZ = lambda: os.sep
-
     .. versionadded:: 0.9.0
 
     .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
@@ -237,8 +232,8 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
             byte_offset = None
 
         meta.components[name] = field_instance
-        field_index += 1  # noqa: SIM113
-        n_fields_found += 1  # noqa: SIM113
+        field_index += 1
+        n_fields_found += 1
 
         # Overwrite the field declaration in the class with the derived field instance
         # object. Otherwise, we'll end up with None or the default value provided:
