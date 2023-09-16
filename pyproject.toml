@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "binobj"
-version = "0.11.0"
+version = "0.11.1"
 description = "A Python library for reading and writing structured binary data."
 authors = ["Diego Argueta <620513-dargueta@users.noreply.github.com>"]
 readme = "README.rst"
