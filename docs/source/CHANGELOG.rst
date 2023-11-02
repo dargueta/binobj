@@ -1,6 +1,26 @@
 Changelog
 =========
 
+0.11.2
+------
+
+Bugfixes
+~~~~~~~~
+
+* Don't assume ``__doc__`` always exists. (This is removed when Python is run with
+  optimization flags.)
+* Fix wrong name in default error message for ``CannotDetermineNullError``. It
+  was using the repr of the exception instead of the name of the field.
+* Throw exceptions instead of crashing when an invalid decider is passed to a ``Union``
+  field.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Test on PyPy 3.10
+* Un-deprecate the ``Field.computes`` decorator.
+* Remove dead code.
+
 0.11.1
 ------
 
