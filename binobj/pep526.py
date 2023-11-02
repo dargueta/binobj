@@ -36,6 +36,7 @@ import dataclasses
 import functools
 import typing
 import warnings
+from types import NoneType
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -101,14 +102,14 @@ class AnnotationInfo:
     ) -> "AnnotationInfo":
         type_class = annotation
         type_args = get_typing_args(annotation)
-        nullable = type(None) in type_args
+        nullable = NoneType in type_args
 
         # Handle Optional[T] which gets rendered as Union[T, type(None)].
         # We have to compare types directly with `is` because the type annotations don't
         # support isinstance() and issubclass().
         if get_typing_origin(type_class) is Union:
-            # Filter out None from the type arguments. Again, we have to use `is`. :(
-            type_args = tuple(t for t in type_args if t is not type(None))  # noqa: E721
+            # Filter out None from the type arguments.
+            type_args = tuple(t for t in type_args if t is not NoneType)
 
             if len(type_args) != 1:
                 # If we get here then the type annotation for this field is a Union with
