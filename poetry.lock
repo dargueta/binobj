@@ -202,13 +202,13 @@ pyparsing = ">=2.4.7"
 
 [[package]]
 name = "domdf-python-tools"
-version = "3.6.1"
+version = "3.7.0"
 description = "Helpful functions for Python 🐍 🛠️"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "domdf_python_tools-3.6.1-py3-none-any.whl", hash = "sha256:e18158460850957f18e740eb94ede56f580ddb0cb162ab9d9834ed8bbb1b6431"},
-    {file = "domdf_python_tools-3.6.1.tar.gz", hash = "sha256:acc04563d23bce4d437dd08af6b9bea788328c412772a044d8ca428a7ad861be"},
+    {file = "domdf_python_tools-3.7.0-py3-none-any.whl", hash = "sha256:7b4d1c3bdb7402b872d43953824bf921ae2e52f893adbe5c0052a21a6efa2fe4"},
+    {file = "domdf_python_tools-3.7.0.tar.gz", hash = "sha256:df1af9a91649af0fb2a4e7b3a4b0a0936e4f78389dd7280dd6fd2f53a339ca71"},
 ]
 
 [package.dependencies]
@@ -597,13 +597,13 @@ icu = ["PyICU (>=1.0.0)"]
 
 [[package]]
 name = "packaging"
-version = "23.1"
+version = "23.2"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "packaging-23.1-py3-none-any.whl", hash = "sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61"},
-    {file = "packaging-23.1.tar.gz", hash = "sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f"},
+    {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
+    {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
 ]
 
 [[package]]
@@ -619,13 +619,13 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "3.10.0"
+version = "3.11.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.10.0-py3-none-any.whl", hash = "sha256:d7c24979f292f916dc9cbf8648319032f551ea8c49a4c9bf2fb556a02070ec1d"},
-    {file = "platformdirs-3.10.0.tar.gz", hash = "sha256:b45696dab2d7cc691a3226759c0d3b00c47c8b6e293d96f6436f733303f77f6d"},
+    {file = "platformdirs-3.11.0-py3-none-any.whl", hash = "sha256:e9d171d00af68be50e9202731309c4e658fd8bc76f55c11c7dd760d023bda68e"},
+    {file = "platformdirs-3.11.0.tar.gz", hash = "sha256:cf8ee52a3afdb965072dcc652433e0c7e3e40cf5ea1477cd4b3b1d2eb75495b3"},
 ]
 
 [package.dependencies]
