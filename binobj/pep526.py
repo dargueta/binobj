@@ -44,15 +44,15 @@ from typing import Type
 from typing import TypeVar
 from typing import Union
 
-import binobj
 from binobj import errors
 from binobj import fields
+from binobj.structures import Struct
 
 
 __all__ = ["dataclass"]
 
 
-TStruct = TypeVar("TStruct", bound=binobj.Struct)
+TStruct = TypeVar("TStruct", bound=Struct)
 
 
 try:  # pragma: no cover (<py38)
@@ -148,7 +148,7 @@ def annotation_to_field_instance(
     """Convert a type annotation to a Field object if it represents one."""
     if isinstance(annotation.type_class, type):
         # We got a class object. Could be a struct or field, ignore everything else.
-        if issubclass(annotation.type_class, binobj.Struct):
+        if issubclass(annotation.type_class, Struct):
             # A Struct class is shorthand for Nested(Struct).
             return fields.Nested(annotation.type_class)
         if issubclass(annotation.type_class, fields.Field):
