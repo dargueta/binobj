@@ -10,10 +10,11 @@ from .fields import *
 from .pep526 import dataclass
 from .structures import *
 
-try:
+
+try:  # pragma: no cover (py<38)
     import importlib.metadata as _imp_meta
 except ImportError:  # pragma: no cover (py38+)
-    import importlib_metadata as _imp_meta
+    import importlib_metadata as _imp_meta  # type: ignore[no-redef]
 
 
 class VersionInfo(NamedTuple):
