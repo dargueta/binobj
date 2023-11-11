@@ -250,6 +250,8 @@ class Field(Generic[T]):
     _default: Union[T, None, _Undefined]
     """The default dump value for the field if the user doesn't pass a value in."""
 
+    _compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]]  # noqa: TAE002
+
     def __new__(cls: Type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
         """Create a new instance, recording which keyword arguments were passed in.
 
@@ -308,7 +310,7 @@ class Field(Generic[T]):
         self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
         self.offset: Optional[int] = None
-        self._compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]] = None
+        self._compute_fn = None
 
         if size is not None or const is UNDEFINED:
             self._size = size
@@ -763,7 +765,7 @@ class Field(Generic[T]):
             raise errors.ExtraneousDataError(
                 "Expected to read %d bytes, read %d." % (stream.tell(), len(data))
             )
-        return loaded_data
+        return loaded_data  # noqa: R504
 
     @abc.abstractmethod
     def _do_load(

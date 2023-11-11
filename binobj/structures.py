@@ -461,7 +461,7 @@ class Struct:
                 % (stream.tell() + 1, len(data)),
                 offset=stream.tell(),
             )
-        return loaded_data
+        return loaded_data  # noqa: R504
 
     @classmethod
     def partial_load(

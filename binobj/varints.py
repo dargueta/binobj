@@ -101,7 +101,10 @@ def decode_integer_compact(stream: BinaryIO) -> int:
             # Sign hasn't been determined yet so this must be the first byte of the
             # number.
             value = int8 & 0x3F
-            sign = -1 if int8 & 0x40 else 1
+            if int8 & 0x40:
+                sign = -1
+            else:
+                sign = 1
         else:
             value = (value << 7) | (int8 & 0x7F)
 
@@ -171,7 +174,10 @@ def encode_integer_uleb128(value: int) -> bytes:
     output = bytearray()
 
     while value > 0:
-        continue_bit = 0x80 if value > 127 else 0
+        if value > 127:
+            continue_bit = 0x80
+        else:
+            continue_bit = 0
         output.append(continue_bit | (value & 0x7F))
         value >>= 7
 
