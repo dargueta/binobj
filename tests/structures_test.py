@@ -184,7 +184,7 @@ def test_dump__basic():
     assert output == b"AbCdEfG\xff\xff\xff\xff\xff\xff\xff\x9c\xff\xff\0"
 
 
-@pytest.mark.parametrize("extra_fields", ({"one"}, {"one", "two"}))
+@pytest.mark.parametrize("extra_fields", [{"one"}, {"one", "two"}])
 def test_dump__extra_fields(extra_fields):
     """Giving unrecognized fields will crash by default."""
     with pytest.raises(errors.UnexpectedValueError) as errinfo:

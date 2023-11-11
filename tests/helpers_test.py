@@ -18,7 +18,7 @@ def test_iter_bytes__zero():
     assert stream.tell() == 0
 
 
-@pytest.mark.parametrize("endian", ("big", "little"))
+@pytest.mark.parametrize("endian", ["big", "little"])
 def test_write_int__endianness_default(monkeypatch, endian):
     """write_int should fall back to the system's endianness if it's not given.
 
@@ -31,7 +31,7 @@ def test_write_int__endianness_default(monkeypatch, endian):
     assert stream.getvalue() == int.to_bytes(65432, 2, byteorder=endian, signed=False)
 
 
-@pytest.mark.parametrize("start,expected", ((0, b"qwertyu"), (9, b"p{}")))
+@pytest.mark.parametrize(("start", "expected"), [(0, b"qwertyu"), (9, b"p{}")])
 def test_peek_bytes__basic(start, expected):
     stream = io.BytesIO(b"qwertyuiop{}|")
 
@@ -40,7 +40,7 @@ def test_peek_bytes__basic(start, expected):
     assert stream.tell() == start, "Stream position has moved."
 
 
-@pytest.mark.parametrize("offset,expected", ((0, b""), (-3, b"{}|")))
+@pytest.mark.parametrize(("offset", "expected"), [(0, b""), (-3, b"{}|")])
 def test_peek_bytes__short_read_okay_is_default(offset, expected):
     stream = io.BytesIO(b"qwertyuiop{}|")
 
@@ -49,7 +49,7 @@ def test_peek_bytes__short_read_okay_is_default(offset, expected):
     assert stream.tell() == 13 + offset, "Stream position has moved."
 
 
-@pytest.mark.parametrize("offset,expected", ((0, b"qwertyu"), (-3, b"[]|")))
+@pytest.mark.parametrize(("offset", "expected"), [(0, b"qwertyu"), (-3, b"[]|")])
 def test_peek_bytes__short_read_crashes(offset, expected):
     """Throw EOFError if told to do so, and ensure that the stream pointer DOESN'T move
     on an error.

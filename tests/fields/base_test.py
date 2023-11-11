@@ -120,7 +120,7 @@ def test_dump__null_with_default_and_varlen():
         field.to_bytes(None)
 
 
-@pytest.mark.parametrize("size_field", (fields.Int32(name="size"), "size"))
+@pytest.mark.parametrize("size_field", [fields.Int32(name="size"), "size"])
 def test_dump__null_with_default_and_field_ref(size_field):
     """Successfully dump the expected number of nulls if the field is of variable length
     but has a defined size."""
@@ -359,7 +359,7 @@ def test_present__dump__not_present_not_given():
     assert struct.to_bytes() == b"\x01\x00\x37\x13"
 
 
-@pytest.mark.parametrize("thing", (fields.UNDEFINED, fields.NOT_PRESENT))
+@pytest.mark.parametrize("thing", [fields.UNDEFINED, fields.NOT_PRESENT])
 def test_present__dump_not_present_given_something(thing):
     """If a field whose presence is controlled by something else is ``UNDEFINED`` or
     ``NOT_PRESENT`` it shouldn't be dumped.

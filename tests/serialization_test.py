@@ -146,11 +146,11 @@ def test_accessor__delitem__no_such_field():
 
 @pytest.mark.parametrize(
     "instance",
-    (
+    [
         StructWithFieldOverrides(),
         StructWithFieldOverrides(one=1),
         StructWithFieldOverrides(one=1, two=2),
-    ),
+    ],
 )
 def test_len__basic(instance):
     """Get the size of an instance with only fixed-length fields."""

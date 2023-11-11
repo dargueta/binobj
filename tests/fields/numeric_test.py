@@ -57,7 +57,7 @@ def test_varint__underflow():
 
 
 @pytest.mark.parametrize(
-    "value,expected", ((127, b"\x7f"), (0x1234567890, b"\x82\xa3\xa2\xd9\xf1\x10"))
+    ("value", "expected"), [(127, b"\x7f"), (0x1234567890, b"\x82\xa3\xa2\xd9\xf1\x10")]
 )
 def test_varint__basic_dump(value, expected):
     """Test VLQ dump.
@@ -163,21 +163,21 @@ def test_float_bad_endian_crashes():
         (numeric.Float64(endian="big"), ">d"),
     ),
 )
-@pytest.mark.parametrize("value", (math.pi, math.inf, -math.inf, math.nan))
+@pytest.mark.parametrize("value", [math.pi, math.inf, -math.inf, math.nan])
 def test_float__dumps(value, field_object, fmt_string):
     assert field_object.to_bytes(value) == struct.pack(fmt_string, value)
 
 
 @pytest.mark.parametrize(
-    "field_object, fmt_string",
-    (
+    ("field_object", "fmt_string"),
+    [
         (numeric.Float32(endian="little"), "<f"),
         (numeric.Float64(endian="little"), "<d"),
         (numeric.Float32(endian="big"), ">f"),
         (numeric.Float64(endian="big"), ">d"),
-    ),
+    ],
 )
-@pytest.mark.parametrize("value", (math.pi, math.inf, -math.inf))
+@pytest.mark.parametrize("value", [math.pi, math.inf, -math.inf])
 def test_float__loads(value, field_object, fmt_string):
     assert field_object.from_bytes(struct.pack(fmt_string, value)) == pytest.approx(
         value
@@ -219,8 +219,8 @@ def test_timestamp__invalid_resolution():
 
 
 @pytest.mark.parametrize(
-    "data,expected",
-    (
+    ("data", "expected"),
+    [
         (
             b"\0\0\0\x80",
             datetime.datetime(1901, 12, 13, 20, 45, 52, tzinfo=datetime.timezone.utc),
@@ -229,7 +229,7 @@ def test_timestamp__invalid_resolution():
             b"\xff\xff\xff\x7f",
             datetime.datetime(2038, 1, 19, 3, 14, 7, tzinfo=datetime.timezone.utc),
         ),
-    ),
+    ],
 )
 def test_timestamp__loads__naive(data, expected):
     field = numeric.Timestamp32(endian="little", tz_aware=True)
@@ -306,7 +306,7 @@ def test_timestamp__aware_round_trip_truncated():
     assert field.from_bytes(field.to_bytes(now)) == now_rounded
 
 
-@pytest.mark.parametrize("tz", (None, datetime.timezone.utc))
+@pytest.mark.parametrize("tz", [None, datetime.timezone.utc])
 def test_2038_problem_caught__dumping(tz):
     """32-bit signed timestamps crash if we try serializing a date past the Epochalypse.
 

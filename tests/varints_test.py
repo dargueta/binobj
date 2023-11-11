@@ -8,8 +8,8 @@ from binobj import varints
 
 
 @pytest.mark.parametrize(
-    "value,expected",
-    ((0, b"\0"), (127, b"\x7f"), (128, b"\x81\x00"), (65535, b"\x83\xff\x7f")),
+    ("value", "expected"),
+    [(0, b"\0"), (127, b"\x7f"), (128, b"\x81\x00"), (65535, b"\x83\xff\x7f")],
 )
 def test_encode_vlq_basic(value, expected):
     assert varints.encode_integer_vlq(value) == expected
@@ -22,8 +22,8 @@ def test_encode_vlq_negative_crashes():
 
 
 @pytest.mark.parametrize(
-    "serialized,expected",
-    ((b"\0", 0), (b"\x7f", 127), (b"\x81\x00", 128), (b"\x83\xff\x7f", 65535)),
+    ("serialized", "expected"),
+    [(b"\0", 0), (b"\x7f", 127), (b"\x81\x00", 128), (b"\x83\xff\x7f", 65535)],
 )
 def test_decode_vlq_basic(serialized, expected):
     buf = io.BytesIO(serialized)
@@ -32,8 +32,8 @@ def test_decode_vlq_basic(serialized, expected):
 
 
 @pytest.mark.parametrize(
-    "value,expected",
-    ((0, b"\0"), (1, b"\x01"), (-32767, b"\xc1\xff\x7f"), (895484, b"\xb6\xd3\x7c")),
+    ("value", "expected"),
+    [(0, b"\0"), (1, b"\x01"), (-32767, b"\xc1\xff\x7f"), (895484, b"\xb6\xd3\x7c")],
 )
 def test_encode_compact(value, expected):
     assert varints.encode_integer_compact(value) == expected

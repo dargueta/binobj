@@ -15,7 +15,6 @@ from typing import Collection
 from typing import FrozenSet
 from typing import Generic
 from typing import Iterable
-from typing import Mapping
 from typing import Optional
 from typing import overload
 from typing import Type
@@ -680,7 +679,7 @@ class Field(Generic[T]):
         if self.allow_null:
             try:
                 null_repr = self._get_null_repr(loaded_fields)
-            except errors.UnserializableValueError as err:
+            except errors.UnserializableValueError:
                 # Null can't be represented in this current state, so we can't check to
                 # see if the *raw binary* form is null. This isn't an error UNLESS
                 # null_value is `DEFAULT`. If null_value is DEFAULT and we can't

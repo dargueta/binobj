@@ -42,7 +42,7 @@ def test_field_extraction__field_properties_assigned():
     assert BasicClass.string.encoding == "ibm500"
 
 
-@pytest.mark.parametrize("field_type", (fields.StringZ, fields.UInt16))
+@pytest.mark.parametrize("field_type", [fields.StringZ, fields.UInt16])
 def test_field_redefine_detected_crashes(field_type):
     with pytest.raises(errors.FieldRedefinedError):
 

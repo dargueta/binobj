@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Optional
 from typing import NamedTuple
-
-import pkg_resources as _pkgr
+from typing import Optional
 
 from .errors import *
 from .fields import *
@@ -28,19 +26,18 @@ class VersionInfo(NamedTuple):
 
     @classmethod
     def from_string(cls, version: str) -> VersionInfo:
-        parts = _pkgr.parse_version(version)
-        base_version = parts.base_version
+        base_version, _, suffix = version.partition("-")
         major, minor, *_possibly_patch = base_version.split(".")
         if _possibly_patch:
             patch = _possibly_patch[0]
         else:
             patch = "0"
-
-        suffix = parts.public[len(base_version) :].lstrip(".")
         return cls(int(major), int(minor), int(patch), suffix or None)
 
     def __str__(self) -> str:
-        return "%d.%d.%d%s" % (self.major, self.minor, self.patch, self.suffix or "")
+        if self.suffix:
+            return "%d.%d.%d-%s" % (self.major, self.minor, self.patch, self.suffix)
+        return "%d.%d.%d" % (self.major, self.minor, self.patch)
 
 
 __version__ = _imp_meta.version("binobj")
