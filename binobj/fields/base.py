@@ -508,7 +508,7 @@ class Field(Generic[T]):
         """Indicate if this field is computed from the value of other fields.
 
         Computed fields cannot have their values set directly. Attempting to do so will
-        throw an :class:`~binobj.errors.ImmutableFieldError`.\
+        throw an :class:`~binobj.errors.ImmutableFieldError`.
         """
         return self._compute_fn is not None
 
