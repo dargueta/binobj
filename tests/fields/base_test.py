@@ -398,6 +398,13 @@ def test_binding_defaults_applied__class_name_prefix():
     assert Test.unaffected.endian == sys.byteorder, "Explicit argument was overridden"
 
 
+def test_callable_default_warns():
+    """Passing a callable for `default` triggers a warning."""
+    with pytest.deprecated_call():
+        fields.Int32(name="whatever", default=lambda: 123)
+
+
+@pytest.mark.xfail()
 def test_callable_default_crashes():
     """Passing a callable for `default` triggers a TypeError."""
     with pytest.raises(TypeError):

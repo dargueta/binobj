@@ -69,7 +69,7 @@ def test_varint__basic_dump(value, expected):
     assert field.to_bytes(value) == expected
 
 
-@pytest.mark.parametrize("data, expected", ((b"\x3f", 0x3F),))
+@pytest.mark.parametrize(("data", "expected"), [(b"\x3f", 0x3F)])
 def test_varint__basic_load(data, expected):
     """Test VLQ load."""
     field = numeric.VariableLengthInteger(vli_format=varints.VarIntEncoding.VLQ)
@@ -87,7 +87,7 @@ def test_varint__max_bytes():
 
 
 @pytest.mark.parametrize(
-    "null_value,serialized", ((-1, b"\x7f"), (b"\x7f\xff", b"\x7f\xff"))
+    ("null_value", "serialized"), [(-1, b"\x7f"), (b"\x7f\xff", b"\x7f\xff")]
 )
 def test_varint__dump_null_value(null_value, serialized):
     field = numeric.VariableLengthInteger(
@@ -97,7 +97,7 @@ def test_varint__dump_null_value(null_value, serialized):
 
 
 @pytest.mark.parametrize(
-    "null_value,serialized", ((-1, b"\x7f"), (b"\x7f\xff", b"\x7f\xff"))
+    ("null_value", "serialized"), [(-1, b"\x7f"), (b"\x7f\xff", b"\x7f\xff")]
 )
 def test_varint__load_null_value(null_value, serialized):
     field = numeric.VariableLengthInteger(
@@ -155,13 +155,13 @@ def test_float_bad_endian_crashes():
 
 
 @pytest.mark.parametrize(
-    "field_object, fmt_string",
-    (
+    ("field_object", "fmt_string"),
+    [
         (numeric.Float32(endian="little"), "<f"),
         (numeric.Float64(endian="little"), "<d"),
         (numeric.Float32(endian="big"), ">f"),
         (numeric.Float64(endian="big"), ">d"),
-    ),
+    ],
 )
 @pytest.mark.parametrize("value", [math.pi, math.inf, -math.inf, math.nan])
 def test_float__dumps(value, field_object, fmt_string):

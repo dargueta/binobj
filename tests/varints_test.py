@@ -17,7 +17,9 @@ def test_encode_vlq_basic(value, expected):
 
 def test_encode_vlq_negative_crashes():
     """Passing a negative value to the VLQ encoder must always fail."""
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match="The VLQ integer encoding doesn't support negative numbers."
+    ):
         varints.encode_integer_vlq(-1)
 
 
@@ -40,14 +42,14 @@ def test_encode_compact(value, expected):
 
 
 @pytest.mark.parametrize(
-    "serialized,expected",
-    (
+    ("serialized", "expected"),
+    [
         (b"\0", 0),
         (b"\x01", 1),
         (b"\x41", -1),
         (b"\xc1\xff\x7f", -32767),
         (b"\xb6\xd3\x7c", 895484),
-    ),
+    ],
 )
 def test_decode_compact(serialized, expected):
     buf = io.BytesIO(serialized)
@@ -56,32 +58,35 @@ def test_decode_compact(serialized, expected):
 
 
 @pytest.mark.parametrize(
-    "value,expected",
-    (
+    ("value", "expected"),
+    [
         (0, b"\0"),
         (127, b"\x7f"),
         (128, b"\x80\x01"),
         (7345004, b"\xec\xa6\xc0\x03"),
         (0xB1ACC0FFEE2BAD, b"\xad\xd7\xb8\xff\x8f\x98\xeb\x58"),
-    ),
+    ],
 )
 def test_encode_uleb128(value, expected):
     assert varints.encode_integer_uleb128(value) == expected
 
 
 def test_encode_uleb128__negative_crashes():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="The ULEB128 integer encoding doesn't support negative numbers.",
+    ):
         assert varints.encode_integer_uleb128(-1)
 
 
 @pytest.mark.parametrize(
-    "serialized, expected",
-    (
+    ("serialized", "expected"),
+    [
         (b"\0", 0),
         (b"\x7f", 127),
         (b"\xd2\x85\xd8\xcc\x04", 1234567890),
         (b"\xad\xd7\xb8\xff\x8f\x98\xeb\x58", 0xB1ACC0FFEE2BAD),
-    ),
+    ],
 )
 def test_decode_uleb128(serialized, expected):
     buf = io.BytesIO(serialized)
@@ -104,12 +109,12 @@ SIGNED_LEB_VALUES = [
 ]
 
 
-@pytest.mark.parametrize("value,expected", SIGNED_LEB_VALUES)
+@pytest.mark.parametrize(("value", "expected"), SIGNED_LEB_VALUES)
 def test_encode_signed_leb128(value, expected):
     assert varints.encode_integer_leb128(value) == expected
 
 
-@pytest.mark.parametrize("value,serialized", SIGNED_LEB_VALUES)
+@pytest.mark.parametrize(("value", "serialized"), SIGNED_LEB_VALUES)
 def test_decode_signed_leb128(value, serialized):
     buf = io.BytesIO(serialized)
     assert varints.decode_integer_leb128(buf) == value

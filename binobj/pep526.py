@@ -35,6 +35,7 @@ Here are a few examples of how you can declare your fields::
 import dataclasses
 import functools
 import typing
+import warnings
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -124,9 +125,11 @@ class AnnotationInfo:
 
         default_value = getattr(struct_class, field_name, fields.UNDEFINED)
         if callable(default_value):
-            raise TypeError(
+            raise warnings.warn(
                 "Passing a bare callable as the default value was a misfeature. Use"
                 " the `factory` keyword argument instead.",
+                DeprecationWarning,
+                stacklevel=2,
             )
 
         return cls(
@@ -236,7 +239,7 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
         # object. Otherwise, we'll end up with None or the default value provided:
         #
         #  class MyStruct:
-        #      foo: UInt8 = 123
+        #      foo: UInt8 = 123  # noqa: E800
         #
         # If we don't do this `MyStruct.foo` will be `123`, not a Field object.
         setattr(class_object, name, field_instance)

@@ -60,19 +60,19 @@ def test_string__dump_no_size():
         field.to_bytes("asdf")
 
 
-@pytest.mark.parametrize("null_value", ("NULL", b"NULL"))
+@pytest.mark.parametrize("null_value", ["NULL", b"NULL"])
 def test_string__dump_null_default(null_value):
     field = stringlike.String(null_value=null_value, default=None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
-@pytest.mark.parametrize("null_value", ("NULL", b"NULL"))
+@pytest.mark.parametrize("null_value", ["NULL", b"NULL"])
 def test_string__dump_null_factory(null_value):
     field = stringlike.String(null_value=null_value, factory=lambda: None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
-@pytest.mark.parametrize("size_field", (fields.UInt8(name="size"), "size"))
+@pytest.mark.parametrize("size_field", [fields.UInt8(name="size"), "size"])
 def test_string__dump_variable_size(size_field):
     """Dumping a field with variable size should work."""
     field = stringlike.String(size=size_field)
@@ -133,9 +133,9 @@ def test_stringz__dump_null_default():
 
 
 @pytest.mark.parametrize(
-    "default_value_kwarg", ({"default": None}, {"factory": lambda: None})
+    "default_value_kwarg", [{"default": None}, {"factory": lambda: None}]
 )
-@pytest.mark.parametrize("null_value", ("NULL", b"NULL\x00"))
+@pytest.mark.parametrize("null_value", ["NULL", b"NULL\x00"])
 def test_stringz__unsized_dump_null_default(null_value, default_value_kwarg):
     field = stringlike.StringZ(null_value=null_value, **default_value_kwarg)
     assert field.to_bytes(None) == b"NULL\x00"
@@ -175,7 +175,7 @@ def test_string__load_null_default():
     assert field.from_bytes(b"\x00" * 7) is None
 
 
-@pytest.mark.parametrize("null_value", (b"N\x00U\x00L\x00L\x00", "NULL"))
+@pytest.mark.parametrize("null_value", [b"N\x00U\x00L\x00L\x00", "NULL"])
 def test_string__null_value(null_value):
     field = fields.String(size=8, null_value=null_value, encoding="utf-16-le")
     assert field.from_bytes(b"N\x00U\x00L\x00L\x00") is None
@@ -250,7 +250,7 @@ def test_stringz_load_multibyte():
     assert field.from_bytes(b"\xfe\xff\x00A\x00b\x00C\x00d\x00\x00") == "AbCd"
 
 
-@pytest.mark.parametrize("null_value", (b"NULL\x00", "NULL"))
+@pytest.mark.parametrize("null_value", [b"NULL\x00", "NULL"])
 def test_stringz__load_null_value(null_value):
     field = stringlike.StringZ(null_value=null_value)
     assert field.from_bytes(b"NULL\x00") is None
@@ -274,13 +274,13 @@ def test_stringz__load_with_default():
 
 
 @pytest.mark.parametrize(
-    "storage_format,accessor_name",
-    (
+    ("storage_format", "accessor_name"),
+    [
         (stringlike.UUIDFormat.BINARY_VARIANT_1, "bytes"),
         (stringlike.UUIDFormat.BINARY_VARIANT_2, "bytes_le"),
         (stringlike.UUIDFormat.CANONICAL_STRING, ""),
         (stringlike.UUIDFormat.HEX_STRING, "hex"),
-    ),
+    ],
 )
 def test_uuid_round_trip(storage_format, accessor_name):
     field = stringlike.UUID4(stored_as=storage_format)

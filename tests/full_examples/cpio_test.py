@@ -42,7 +42,7 @@ class CPIOFileHeader(binobj.Struct):
         return len(all_fields["data"])
 
 
-@pytest.mark.parametrize("filename", ("evenlength.txt", "oddlength.txt"))
+@pytest.mark.parametrize("filename", ["evenlength.txt", "oddlength.txt"])
 def test_dump__padding_null_behaves(filename):
     filename_bytes = (filename + "\0").encode("utf-8")
     file_data = b"0123456789"
@@ -69,7 +69,7 @@ def test_dump__padding_null_behaves(filename):
     )
 
 
-@pytest.mark.parametrize("filename", ("evenlength.txt", "oddlength.txt"))
+@pytest.mark.parametrize("filename", ["evenlength.txt", "oddlength.txt"])
 def test_load__padding_null_behaves(filename):
     filename_bytes = (filename + "\0").encode("utf-8")
     file_data = b"0123456789"

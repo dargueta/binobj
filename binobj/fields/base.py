@@ -293,9 +293,13 @@ class Field(Generic[T]):
             # If no default is given but `const` is, set the default value to `const`.
             self._default = const
         elif callable(default):
-            raise TypeError(
-                "Don't pass a callable to `default`; use `factory` instead."
+            warnings.warn(
+                "Passing a callable to `default` is deprecated. Use `factory` instead.",
+                DeprecationWarning,
+                stacklevel=2,
             )
+            self._default = UNDEFINED
+            self.factory = default
         else:
             self._default = default
 

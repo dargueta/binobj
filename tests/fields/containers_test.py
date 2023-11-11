@@ -39,7 +39,7 @@ def test_nested__dump_basic():
 
 
 @pytest.mark.parametrize(
-    ("data",),
+    "data",
     [{"first": 0x0FAD, "second": "HllWrld"}, SubStruct(first=0x0FAD, second="HllWrld")],
 )
 def test_nested__dump_basic_dict_or_instance(data):
@@ -280,8 +280,8 @@ def test_array__unbound_count_field():
 def test_array__count_wrong_type():
     """An Array can't be passed an unbound Field for its `count` argument."""
     array = fields.Array(fields.Int8())
+    array.count = object()
     with pytest.raises(TypeError, match="Unexpected type for `count`: 'object'"):
-        array.count = object()
         array.from_bytes(b"")
 
 
