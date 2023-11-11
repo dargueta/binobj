@@ -319,7 +319,7 @@ class Field(Generic[T]):
         If the field is of variable size, such as a null-terminated string, this will be
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
-        """  # noqa: D400
+        """
         # TODO (dargueta) This return value is horrific. Rework it if possible.
         return self._size
 
@@ -328,7 +328,7 @@ class Field(Generic[T]):
         """Does this field have a fixed size?
 
         .. versionadded:: 0.9.0
-        """  # noqa: D400
+        """
         return isinstance(self.size, int)
 
     def bind_to_container(
@@ -500,9 +500,10 @@ class Field(Generic[T]):
 
     @property
     def is_computed_field(self) -> bool:
-        """Indicates if this field has a defined compute function and can't be assigned.
+        """Indicate if this field is computed from the value of other fields.
 
-        :type: bool
+        Computed fields cannot have their values set directly. Attempting to do so will
+        throw an :class:`~binobj.errors.ImmutableFieldError`.\
         """
         return self._compute_fn is not None
 
@@ -522,6 +523,8 @@ class Field(Generic[T]):
             If no default is defined but ``const`` is, this property returns the value
             for ``const``.
         """
+        if self.factory:
+            return self.factory()
         return self._default
 
     @property
@@ -917,7 +920,16 @@ class Field(Generic[T]):
             # trigger infinite recursion if we do. Thus, we have to call the dumping
             # function directly in all its ugly glory.
             buf = io.BytesIO()
-            self._do_dump(buf, self.null_value, context=None, all_fields=all_fields)
+
+            # Note: We need the typecast here because MyPy doesn't correctly detect that
+            # we're filtering out DEFAULT in the `if` statement above. It thinks that
+            # null_value can still be DEFAULT, so we cast it to this field's type.
+            self._do_dump(
+                buf,
+                typing.cast(T, self.null_value),
+                context=None,
+                all_fields=all_fields,
+            )
             return buf.getvalue()
 
         # User wants us to use all null bytes for the default null value.

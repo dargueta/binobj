@@ -1,3 +1,8 @@
 Sphinx>=4.0
-tox
+tox>=4.0
 poetry>=1.1.13
+
+# This is an indirect dependency for `poetry` on PyPy3 <7.3.10 . PyPy dropped
+# releasting 3.7 at version 7.3.9, meaning this will never work. We can remove
+# this constraint once we drop support for Python 3.7.
+cryptography<40.0.0 ; platform.python_implementation=="PyPy" and python_version<"3.8"

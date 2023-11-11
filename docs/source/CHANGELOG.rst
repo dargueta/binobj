@@ -1,6 +1,68 @@
 Changelog
 =========
 
+0.11.3
+------
+
+Bugfixes
+~~~~~~~~
+
+``types.NoneType`` existed then was added back in 3.10.
+
+0.11.2
+------
+
+Bugfixes
+~~~~~~~~
+
+* Don't assume ``__doc__`` always exists. (This is removed when Python is run with
+  optimization flags.)
+* Fix wrong name in default error message for ``CannotDetermineNullError``. It
+  was using the repr of the exception instead of the name of the field.
+* Throw exceptions instead of crashing when an invalid decider is passed to a ``Union``
+  field.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Test on PyPy 3.10
+* Un-deprecate the ``Field.computes`` decorator.
+* Remove dead code.
+
+0.11.1
+------
+
+Bugfixes
+~~~~~~~~
+
+* Fixed `issue 38`_. Computing the length of a struct when it has a nested
+  variable-length struct no longer crashes. Thank you
+  `@kirill-varchenko <https://github.com/kirill-varchenko>`_ for the bug report.
+* Fixed a bunch of wrong typing in the ``Union`` field as well as in the prototype
+  of ``Field._do_dump()``. ``Nested`` was also fixed.
+* ``to_dict()`` crashed in certain cases on Python 3.7 and 3.8 due to
+  implementation details of ChainMap in those versions. This has been fixed.
+
+Deprecations
+~~~~~~~~~~~~
+
+``to_dict()`` currently swallows all binobj exceptions. Because this can hide
+bugs in a field implementation or other some other problem, this behavior is
+deprecated for all exceptions not directly related to serialization. A future
+release will only catch serialization-related errors; until then, a warning is
+issued but the exception is still swallowed.
+
+Other Changes
+~~~~~~~~~~~~~
+
+``Nested`` is now annotated as type-invariant, meaning ``Nested(X)`` will only
+load and dump instances of ``X``. Before, it was erroneously annotated such that
+``X`` and any subclass of it were valid. This is now in line with its intended
+usage. Static type checking for users' code may break but the class still
+behaves the same.
+
+.. _issue 38: https://github.com/dargueta/binobj/issues/38
+
 0.11.0
 ------
 
