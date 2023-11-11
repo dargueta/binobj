@@ -7,8 +7,8 @@ from typing import Optional
 
 from .errors import *
 from .fields import *
+from .pep526 import dataclass
 from .structures import *
-
 
 try:
     import importlib.metadata as _imp_meta
@@ -26,6 +26,7 @@ class VersionInfo(NamedTuple):
 
     @classmethod
     def from_string(cls, version: str) -> VersionInfo:
+        """Parse the version number string into a VersionInfo."""
         base_version, _, suffix = version.partition("-")
         major, minor, *_possibly_patch = base_version.split(".")
         if _possibly_patch:
