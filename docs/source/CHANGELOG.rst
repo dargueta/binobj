@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.11.3
+------
+
+Bugfixes
+~~~~~~~~
+
+``types.NoneType`` existed then was added back in 3.10.
+
 0.11.2
 ------
 
