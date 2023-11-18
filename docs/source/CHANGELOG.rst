@@ -1,6 +1,28 @@
 Changelog
 =========
 
+0.11.4
+------
+
+Bugfixes
+~~~~~~~~
+
+Add all bugfixes from 0.11.2. (They were accidentally removed in 0.11.3 due to a
+borked merge.)
+
+New Features
+~~~~~~~~~~~~
+
+Added support for Python 3.12.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Stricter linting, remove dead code and make tests prettier.
+* Upgrade test dependencies.
+* Add ``typing-extensions`` and ``importlib-metadata`` as explicit dependencies.
+  We were relying on other libraries to install them before.
+
 0.11.3
 ------
 
