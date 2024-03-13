@@ -44,18 +44,18 @@ from typing import Type
 from typing import TypeVar
 from typing import Union
 
-import binobj
 from binobj import errors
 from binobj import fields
+from binobj.structures import Struct
 
 
 __all__ = ["dataclass"]
 
 
-TStruct = TypeVar("TStruct", bound=binobj.Struct)
+TStruct = TypeVar("TStruct", bound=Struct)
 
 
-try:
+try:  # pragma: no cover (<py38)
     from typing import get_args as get_typing_args
     from typing import get_origin as get_typing_origin
 except ImportError:  # pragma: no cover (py38+)
@@ -148,7 +148,7 @@ def annotation_to_field_instance(
     """Convert a type annotation to a Field object if it represents one."""
     if isinstance(annotation.type_class, type):
         # We got a class object. Could be a struct or field, ignore everything else.
-        if issubclass(annotation.type_class, binobj.Struct):
+        if issubclass(annotation.type_class, Struct):
             # A Struct class is shorthand for Nested(Struct).
             return fields.Nested(annotation.type_class)
         if issubclass(annotation.type_class, fields.Field):
@@ -239,7 +239,7 @@ def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
         # object. Otherwise, we'll end up with None or the default value provided:
         #
         #  class MyStruct:
-        #      foo: UInt8 = 123
+        #      foo: UInt8 = 123  # noqa: E800
         #
         # If we don't do this `MyStruct.foo` will be `123`, not a Field object.
         setattr(class_object, name, field_instance)

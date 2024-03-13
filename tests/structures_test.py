@@ -1,6 +1,7 @@
 """Tests for the structure objects."""
 
 import io
+import re
 
 import pytest
 
@@ -116,10 +117,10 @@ def test_partial_load__bad_column():
     """Crash if an invalid column name is given."""
     stream = io.BytesIO(b"zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01")
 
-    with pytest.raises(ValueError) as errinfo:
+    with pytest.raises(
+        ValueError, match="BasicStruct doesn't have a field named 'lol'."
+    ):
         BasicStruct.partial_load(stream, "lol")
-
-    assert str(errinfo.value) == "BasicStruct doesn't have a field named 'lol'."
 
 
 def test_partial_load__short_read():
@@ -171,10 +172,10 @@ def test_get_field__basic():
 
 
 def test_get_field__bad_name():
-    with pytest.raises(ValueError) as errinfo:
+    with pytest.raises(
+        ValueError, match=re.escape("BasicStruct doesn't have a field named ':)'.")
+    ):
         BasicStruct.get_field(None, ":)")
-
-    assert str(errinfo.value) == "BasicStruct doesn't have a field named ':)'."
 
 
 def test_dump__basic():
@@ -184,7 +185,7 @@ def test_dump__basic():
     assert output == b"AbCdEfG\xff\xff\xff\xff\xff\xff\xff\x9c\xff\xff\0"
 
 
-@pytest.mark.parametrize("extra_fields", ({"one"}, {"one", "two"}))
+@pytest.mark.parametrize("extra_fields", [{"one"}, {"one", "two"}])
 def test_dump__extra_fields(extra_fields):
     """Giving unrecognized fields will crash by default."""
     with pytest.raises(errors.UnexpectedValueError) as errinfo:

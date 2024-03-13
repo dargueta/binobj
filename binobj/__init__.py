@@ -3,7 +3,7 @@
 from typing import Optional
 from typing import Tuple
 
-import pkg_resources as _pkgr
+import pkg_resources as _pkgr  # noqa: I900
 
 from .errors import *
 from .fields import *
@@ -19,5 +19,5 @@ def __to_version_info() -> Tuple[int, int, int, Optional[str]]:
 
 
 # Do not modify directly; use ``bumpversion`` command instead.
-__version__ = "0.10.5"
+__version__ = "0.11.4"
 __version_info__ = __to_version_info()

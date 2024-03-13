@@ -42,7 +42,7 @@ def test_field_extraction__field_properties_assigned():
     assert BasicClass.string.encoding == "ibm500"
 
 
-@pytest.mark.parametrize("field_type", (fields.StringZ, fields.UInt16))
+@pytest.mark.parametrize("field_type", [fields.StringZ, fields.UInt16])
 def test_field_redefine_detected_crashes(field_type):
     with pytest.raises(errors.FieldRedefinedError):
 
@@ -116,6 +116,15 @@ def test_nested_works():
 
 def test_passing_callable_triggers_warning():
     with pytest.deprecated_call():
+
+        @dataclass
+        class _DeprecatedCallable(binobj.Struct):
+            some_field: fields.Int32 = lambda: random.randrange(1024)
+
+
+@pytest.mark.xfail()
+def test_passing_callable_crashes():
+    with pytest.raises(TypeError):
 
         @dataclass
         class _DeprecatedCallable(binobj.Struct):

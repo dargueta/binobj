@@ -24,7 +24,7 @@ class FAT12BootSector(binobj.Struct):
     drive_number = fields.UInt8()
     _reserved = fields.Bytes(const=b"\0", discard=True)
     _ex_boot_signature = fields.Bytes(const=b"\x29", discard=True)
-    volume_id = fields.UInt32(default=lambda: random.randrange(2**32))
+    volume_id = fields.UInt32(factory=lambda: random.randrange(2**32))
     volume_label = fields.String(size=11)
     fs_type = fields.String(size=8, default="FAT12", pad_byte=b" ", encoding="ascii")
     boot_code = fields.Bytes(size=448, default=b"\xcc" * 448)

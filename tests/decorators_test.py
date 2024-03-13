@@ -49,7 +49,7 @@ def test_computes__const_field_fails():
             blah = fields.UInt16(const=1234)
 
             @blah.computes
-            def _blah(self, all_fields):
+            def _blah(self, _all_fields):
                 return 5678
 
 

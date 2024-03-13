@@ -11,13 +11,13 @@ def test_configuration_error__no_args_crashes():
 
 
 @pytest.mark.parametrize(
-    "field, struct, obj, message",
-    (
+    ("field", "struct", "obj", "message"),
+    [
         ("foo", None, None, "The field 'foo' was misconfigured."),
         (None, "bar", None, "The struct 'bar' was misconfigured."),
         (None, None, "baz", "The object 'baz' was misconfigured."),
         ("foo", "bar", None, "Field 'foo' in struct 'bar' was misconfigured."),
-    ),
+    ],
 )
 def test_configurationerror__default_messages(field, struct, obj, message):
     err = errors.ConfigurationError(field=field, struct=struct, obj=obj)
@@ -25,8 +25,8 @@ def test_configurationerror__default_messages(field, struct, obj, message):
 
 
 @pytest.mark.parametrize(
-    "fields, message",
-    (
+    ("fields", "message"),
+    [
         ("blah", "1 unrecognized field(s) given to NoneType for serialization: 'blah'"),
         (
             ("asdf", "ghjkl"),
@@ -36,7 +36,7 @@ def test_configurationerror__default_messages(field, struct, obj, message):
             ("abc", "def", "abc"),
             "2 unrecognized field(s) given to NoneType for serialization: 'abc', 'def'",
         ),
-    ),
+    ],
 )
 def test_unexpectedvalueerror__field_list(fields, message):
     err = errors.UnexpectedValueError(name=fields, struct=None)

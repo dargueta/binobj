@@ -42,7 +42,7 @@ class CPIOFileHeader(binobj.Struct):
         return len(all_fields["data"])
 
 
-@pytest.mark.parametrize("filename", ("evenlength.txt", "oddlength.txt"))
+@pytest.mark.parametrize("filename", ["evenlength.txt", "oddlength.txt"])
 def test_dump__padding_null_behaves(filename):
     filename_bytes = (filename + "\0").encode("utf-8")
     file_data = b"0123456789"
@@ -51,7 +51,7 @@ def test_dump__padding_null_behaves(filename):
     struct = CPIOFileHeader(filename=filename, data=file_data, modified_time=when)
     serialized = struct.to_bytes()
 
-    assert serialized == (
+    assert serialized == (  # noqa: ECE001
         b"\xc7\x71"  # Magic
         b"\x00\x00"  # Device ID
         b"\x00\x00"  # inumber
@@ -69,13 +69,13 @@ def test_dump__padding_null_behaves(filename):
     )
 
 
-@pytest.mark.parametrize("filename", ("evenlength.txt", "oddlength.txt"))
+@pytest.mark.parametrize("filename", ["evenlength.txt", "oddlength.txt"])
 def test_load__padding_null_behaves(filename):
     filename_bytes = (filename + "\0").encode("utf-8")
     file_data = b"0123456789"
     when = datetime.datetime.fromtimestamp(0xBADF00D, datetime.timezone.utc)
 
-    serialized = (
+    serialized = (  # noqa: ECE001
         b"\xc7\x71"  # Magic
         b"\x80\x00"  # Device ID
         b"\xff\x7f"  # inumber

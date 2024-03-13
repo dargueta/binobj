@@ -43,11 +43,17 @@ def test_dump__use_default_value():
     assert field.to_bytes() == b"\xde\xad\xbe\xef"
 
 
-def test_dump__use_default_callable():
+def test_dump__use_default_callable_warns():
     """Test dumping when the default value is a callable."""
     with pytest.deprecated_call():
-        field = fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
-    assert field.to_bytes() == b"\x00\x00\x12\x34"
+        fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
+
+
+@pytest.mark.xfail()
+def test_dump__use_default_callable_crashes():
+    """Test dumping when the default value is a callable."""
+    with pytest.raises(TypeError):
+        fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
 
 
 def test_loads__extraneous_data_crashes():
@@ -147,11 +153,11 @@ def test_accessor__delitem__no_such_field():
 
 @pytest.mark.parametrize(
     "instance",
-    (
+    [
         StructWithFieldOverrides(),
         StructWithFieldOverrides(one=1),
         StructWithFieldOverrides(one=1, two=2),
-    ),
+    ],
 )
 def test_len__basic(instance):
     """Get the size of an instance with only fixed-length fields."""

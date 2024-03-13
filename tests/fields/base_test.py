@@ -120,7 +120,7 @@ def test_dump__null_with_default_and_varlen():
         field.to_bytes(None)
 
 
-@pytest.mark.parametrize("size_field", (fields.Int32(name="size"), "size"))
+@pytest.mark.parametrize("size_field", [fields.Int32(name="size"), "size"])
 def test_dump__null_with_default_and_field_ref(size_field):
     """Successfully dump the expected number of nulls if the field is of variable length
     but has a defined size."""
@@ -359,7 +359,7 @@ def test_present__dump__not_present_not_given():
     assert struct.to_bytes() == b"\x01\x00\x37\x13"
 
 
-@pytest.mark.parametrize("thing", (fields.UNDEFINED, fields.NOT_PRESENT))
+@pytest.mark.parametrize("thing", [fields.UNDEFINED, fields.NOT_PRESENT])
 def test_present__dump_not_present_given_something(thing):
     """If a field whose presence is controlled by something else is ``UNDEFINED`` or
     ``NOT_PRESENT`` it shouldn't be dumped.
@@ -404,6 +404,13 @@ def test_callable_default_warns():
         fields.Int32(name="whatever", default=lambda: 123)
 
 
+@pytest.mark.xfail()
+def test_callable_default_crashes():
+    """Passing a callable for `default` triggers a TypeError."""
+    with pytest.raises(TypeError):
+        fields.Int32(name="whatever", default=lambda: 123)
+
+
 def test_default_and_factory_triggers_error():
     with pytest.raises(
         errors.ConfigurationError,
@@ -412,7 +419,8 @@ def test_default_and_factory_triggers_error():
         fields.Int8(name="asdf", default=123, factory=lambda: 123)
 
 
-def test_explicit_name_mismatch_triggers_error():
+@pytest.mark.skipif(sys.version_info >= (3, 12), reason="Test requires 3.11 or lower")
+def test_explicit_name_mismatch_triggers_error__py311_and_under():
     """Passing a name to a field that already had its name assigned by ``__set_name__``
     *and* it doesn't match triggers an error.
     """
@@ -428,6 +436,21 @@ def test_explicit_name_mismatch_triggers_error():
     assert isinstance(cause, errors.ConfigurationError)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 12), reason="Test requires 3.12 or higher")
+def test_explicit_name_mismatch_triggers_error():
+    """Passing a name to a field that already had its name assigned by ``__set_name__``
+    *and* it doesn't match triggers an error.
+    """
+    with pytest.raises(
+        errors.ConfigurationError,
+        match=r"A name has already been set for this field \('qwerty'\) but an explicit"
+        r" name was also passed to the constructor \('asdf'\)\.",
+    ):
+
+        class Broken(binobj.Struct):
+            asdf = fields.Bytes(name="qwerty", size=10)
+
+
 def test_explicit_name_matches_no_error():
     """Passing a name to a field that already had its name assigned by ``__set_name__``
     but the names match will not trigger an error.
@@ -441,9 +464,36 @@ def test_explicit_name_matches_no_error():
 
 def test_simulated_infinite_recursion():
     class BorkedField(fields.Field[int]):
-        def _size_for_value(self, value):
+        def _size_for_value(self, _value):
             raise RecursionError
 
     borked = BorkedField(name="asdf", default=1)
     with pytest.raises(errors.BuggyFieldImplementationError):
         borked.get_expected_size({})
+
+
+def test_noninteger_size_field_crashes():
+    """If a Field is given for ``size``, it must be an integer type."""
+    field = fields.String(name="foo", size=fields.String(name="bar", size=4))
+
+    with pytest.raises(
+        TypeError,
+        match="Field 'foo' relies on field 'bar' to give its size, but 'bar' has a"
+        " non-integer value: '8'",
+    ):
+        field.from_bytes(b"sometext", loaded_fields={"bar": "8"})
+
+
+def test_get_expected_size_null_repr():
+    """If a Field is given for ``size``, it must be an integer type."""
+    field = fields.String(name="foo", null_value=b"NULL")
+    assert field.get_expected_size({"foo": None}) == 4
+
+
+def test_unserializable_null():
+    field = fields.StringZ(null_value=fields.DEFAULT)
+    with pytest.raises(errors.CannotDetermineNullError) as errinfo:
+        field.from_bytes(b"string\x00")
+
+    assert errinfo.value.field is field
+    assert errinfo.value.__cause__ is None

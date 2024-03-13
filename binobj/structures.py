@@ -372,7 +372,7 @@ class Struct:
 
         # Using ChainMap on Python 3.7 and 3.8 crashes for some reason when we try to
         # iterate over it. It appears to be the way that keys are cached.
-        # return collections.ChainMap(dct, self)
+        # Normally it'd just be: `return collections.ChainMap(dct, self)`
         dct.update({name: getattr(self, name) for name in self if name not in dct})
         return dct
 
@@ -461,7 +461,7 @@ class Struct:
                 % (stream.tell() + 1, len(data)),
                 offset=stream.tell(),
             )
-        return loaded_data
+        return loaded_data  # noqa: R504
 
     @classmethod
     def partial_load(

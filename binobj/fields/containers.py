@@ -130,8 +130,8 @@ class Array(Field[List[Optional[T]]]):
         if isinstance(self.count, Field):
             name = self.count.name
             if name is None:
-                # This will only happen if someone creates a field outside of a Struct
-                # and passes it to this field as the count object.
+                # This will only happen if someone creates a field outside a Struct and
+                # passes it to this field as the count object.
                 raise errors.ConfigurationError(
                     "`count` field for %r has no assigned name." % self,
                     field=self.count,
@@ -139,6 +139,8 @@ class Array(Field[List[Optional[T]]]):
         elif isinstance(self.count, str):
             name = self.count
         else:
+            # We check the type of `self.count` in the constructor so this should never
+            # happen.
             raise TypeError(
                 "Unexpected type for `count`: %r" % type(self.count).__name__
             )
@@ -208,7 +210,7 @@ class Array(Field[List[Optional[T]]]):
         """
         if seq.count is not None:
             count = seq.get_final_element_count(loaded_fields)
-            if count is None:
+            if count is None:  # pragma: no cover
                 # Theoretically this should never happen, as get_final_element_count()
                 # should only return None if seq.count is None.
                 raise errors.UndefinedSizeError(field=seq)
@@ -299,7 +301,7 @@ class Array(Field[List[Optional[T]]]):
         :return: The deserialized data.
         :rtype: list
         """
-        result = []  # type: List[Optional[T]]
+        result: List[Optional[T]] = []
         while not self.halt_check(self, stream, result, context, loaded_fields):
             component = self.component.from_stream(stream, context, loaded_fields)
             if component is NOT_PRESENT:
@@ -457,13 +459,15 @@ class Union(Field[Any]):
         if isinstance(dumper, Field):
             dumper.to_stream(stream, data, context, all_fields)
         elif issubclass(dumper, Struct):
-            # Else: Dumper is not a Field instance, assume this is a Struct class.
-            # TODO (dargueta): Avoid creating a full struct instance if possible.
+            if not isinstance(data, collections.abc.Mapping):
+                raise TypeError(
+                    f"Cannot dump a non-Mapping-like object as a {dumper!r}: {data!r}",
+                )
             dumper(**data).to_stream(stream, context)
         else:
             raise TypeError(
-                f"Dump decider returned a {type(dumper)!r}, expected a Field instance"
-                " or subclass of Struct."
+                "Dump decider returned a %r, expected a Field instance or subclass of"
+                " Struct." % type(dumper)
             )
 
     def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> Any:

@@ -15,7 +15,6 @@ from typing import Collection
 from typing import FrozenSet
 from typing import Generic
 from typing import Iterable
-from typing import Mapping
 from typing import Optional
 from typing import overload
 from typing import Type
@@ -209,7 +208,9 @@ class Field(Generic[T]):
     """
 
     __overrideable_attributes__: ClassVar[Collection[str]] = ()
-    """The names of attributes that can be overridden using ``Meta`` class options."""
+    """The names of attributes that can be configured using the containing struct's
+    ``Meta`` class options.
+    """
 
     __explicit_init_args__: FrozenSet[str]
     """The names of arguments that were explicitly passed to the constructor."""
@@ -248,6 +249,8 @@ class Field(Generic[T]):
 
     _default: Union[T, None, _Undefined]
     """The default dump value for the field if the user doesn't pass a value in."""
+
+    _compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]]  # noqa: TAE002
 
     def __new__(cls: Type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
         """Create a new instance, recording which keyword arguments were passed in.
@@ -289,8 +292,7 @@ class Field(Generic[T]):
             )
 
         if default is UNDEFINED and const is not UNDEFINED:
-            # If no default is given but ``const`` is, set the default value to
-            # ``const``.
+            # If no default is given but `const` is, set the default value to `const`.
             self._default = const
         elif callable(default):
             warnings.warn(
@@ -308,7 +310,7 @@ class Field(Generic[T]):
         self.name = typing.cast(str, name)
         self.index = typing.cast(int, None)
         self.offset: Optional[int] = None
-        self._compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]] = None
+        self._compute_fn = None
 
         if size is not None or const is UNDEFINED:
             self._size = size
@@ -361,14 +363,7 @@ class Field(Generic[T]):
         self.index = index
         self.offset = offset
 
-        overrideables: Mapping[str, str]
-        if not isinstance(self.__overrideable_attributes__, Mapping):
-            # Force `overrideables` to be a dictionary.
-            overrideables = {n: n for n in self.__overrideable_attributes__}
-        else:
-            overrideables = self.__overrideable_attributes__
-
-        for argument_name, attribute_name in overrideables.items():
+        for argument_name in self.__overrideable_attributes__:
             if argument_name in self.__explicit_init_args__:
                 # This argument was passed in to the constructor directly and any
                 # defaults specified by the struct's metainformation should be ignored.
@@ -390,13 +385,13 @@ class Field(Generic[T]):
                 # Found a type-specific default value
                 setattr(
                     self,
-                    attribute_name,
+                    argument_name,
                     struct_info.argument_defaults[typed_default_name],
                 )
             elif argument_name in struct_info.argument_defaults:
                 # Found a generic default value
                 setattr(
-                    self, attribute_name, struct_info.argument_defaults[argument_name]
+                    self, argument_name, struct_info.argument_defaults[argument_name]
                 )
             # Else: struct doesn't define a default value for this argument.
 
@@ -465,9 +460,6 @@ class Field(Generic[T]):
     def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
 
-        .. deprecated:: 0.6.0
-            This decorator will be moved to :mod:`binobj.decorators`.
-
         You can use this for automatically assigning values based on other fields. For
         example, suppose we have this struct::
 
@@ -509,11 +501,6 @@ class Field(Generic[T]):
                 "Cannot set compute function for a const field.", field=self
             )
 
-        warnings.warn(
-            "This decorator will be moved to the `decorators` module.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._compute_fn = method
 
     @property
@@ -547,7 +534,7 @@ class Field(Generic[T]):
 
     @property
     def required(self) -> bool:
-        """Is this field required for serialization?
+        """Indicates if this field is required for serialization.
 
         :type: bool
         """
@@ -605,7 +592,7 @@ class Field(Generic[T]):
 
         .. versionchanged:: 0.9.0
             This used to be a private method. ``_get_expected_size()`` is still present
-            for compatibility but it will eventually be removed.
+            for compatibility, but it will eventually be removed.
         """
         if isinstance(self.size, int):
             return self.size
@@ -618,13 +605,8 @@ class Field(Generic[T]):
 
         if isinstance(self.size, Field):
             name = self.size.name
-        elif isinstance(self.size, str):
-            name = self.size
         else:
-            raise TypeError(
-                "Unexpected type for %s.size: %s"
-                % (self.name, type(self.size).__name__)
-            )
+            name = self.size
 
         if name in field_values:
             expected_size = field_values[name]
@@ -635,12 +617,6 @@ class Field(Generic[T]):
                 )
             return expected_size
 
-        if isinstance(self._size, Field):
-            raise errors.FieldReferenceError(
-                f"Can't compute size for {self!r}; size references a field that hasn't"
-                f" been computed yet: {self._size!r}",
-                field=name,
-            )
         raise errors.MissingRequiredValueError(field=name)
 
     def __get_expected_possibly_undefined_size(self, field_values: StrDict) -> int:
@@ -656,14 +632,6 @@ class Field(Generic[T]):
         elif self.default is not UNDEFINED:
             # Else: The value for this field isn't set, fall back to the default.
             value = self.default
-        # elif self.name is None:
-        #     # The field is either unbound or embedded in another field, such as an Array
-        #     # or Union. We have no way of getting the size from this.
-        #     raise errors.UndefinedSizeError(field=self)
-        # else:
-        #     # The field is bound but not present in the value dictionary. This happens
-        #     # when loading.
-        #     raise errors.MissingRequiredValueError(field=self)
         else:
             raise errors.UndefinedSizeError(field=self)
 
@@ -717,13 +685,13 @@ class Field(Generic[T]):
         if self.allow_null:
             try:
                 null_repr = self._get_null_repr(loaded_fields)
-            except errors.UnserializableValueError as err:
+            except errors.UnserializableValueError:
                 # Null can't be represented in this current state, so we can't check to
                 # see if the *raw binary* form is null. This isn't an error UNLESS
                 # null_value is `DEFAULT`. If null_value is DEFAULT and we can't
                 # determine the size, then we're out of luck.
                 if self.null_value is DEFAULT:
-                    raise errors.CannotDetermineNullError(field=self) from err.__cause__
+                    raise errors.CannotDetermineNullError(field=self) from None
             else:
                 potential_null_bytes = helpers.peek_bytes(stream, len(null_repr))
                 if potential_null_bytes == null_repr:
@@ -797,7 +765,7 @@ class Field(Generic[T]):
             raise errors.ExtraneousDataError(
                 "Expected to read %d bytes, read %d." % (stream.tell(), len(data))
             )
-        return loaded_data
+        return loaded_data  # noqa: R504
 
     @abc.abstractmethod
     def _do_load(
@@ -1015,17 +983,17 @@ class Field(Generic[T]):
 
     @overload
     def __get__(self, instance: None, owner: Type["Struct"]) -> "Field[T]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __get__(self, instance: "Struct", owner: Type["Struct"]) -> Optional[T]:
-        ...
+        ...  # pragma: no cover
 
     # This annotation is bogus and only here to make MyPy happy. See bug report here:
     # https://github.com/python/mypy/issues/9416
     @overload
     def __get__(self, instance: "Field[Any]", owner: Type["Field[Any]"]) -> "Field[T]":
-        ...
+        ...  # pragma: no cover
 
     def __get__(self, instance, owner):  # type: ignore[no-untyped-def]
         if instance is None:
