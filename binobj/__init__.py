@@ -19,5 +19,5 @@ def __to_version_info() -> Tuple[int, int, int, Optional[str]]:
 
 
 # Do not modify directly; use ``bumpversion`` command instead.
-__version__ = "0.10.5"
+__version__ = "0.11.4"
 __version_info__ = __to_version_info()
