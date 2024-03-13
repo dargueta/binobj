@@ -52,4 +52,4 @@ docs: $(DOCSTARGET)
 deploy: clean
 	poetry check
 	poetry build
-	poetry upload
+	poetry publish
