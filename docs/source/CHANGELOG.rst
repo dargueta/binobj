@@ -13,7 +13,9 @@ borked merge.)
 New Features
 ~~~~~~~~~~~~
 
-Added support for Python 3.12.
+* Added support for Python 3.12.
+* The ``binobj`` package now exports the ``binobj.pep526.dataclass`` decorator
+  directly.
 
 Other Changes
 ~~~~~~~~~~~~~
@@ -29,7 +31,8 @@ Other Changes
 Bugfixes
 ~~~~~~~~
 
-``types.NoneType`` existed then was added back in 3.10.
+``types.NoneType`` was removed in some versions of Python before being added back
+in 3.10. We now handle that case in the annotation detection.
 
 0.11.2
 ------
