@@ -419,6 +419,7 @@ def test_default_and_factory_triggers_error():
         fields.Int8(name="asdf", default=123, factory=lambda: 123)
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 12), reason="Test requires 3.11 or lower")
 def test_explicit_name_mismatch_triggers_error():
     """Passing a name to a field that already had its name assigned by ``__set_name__``
     *and* it doesn't match triggers an error.
@@ -433,6 +434,21 @@ def test_explicit_name_mismatch_triggers_error():
 
     cause = errinfo.value.__cause__
     assert isinstance(cause, errors.ConfigurationError)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 12), reason="Test requires 3.12 or higher")
+def test_explicit_name_mismatch_triggers_error():
+    """Passing a name to a field that already had its name assigned by ``__set_name__``
+    *and* it doesn't match triggers an error.
+    """
+    with pytest.raises(
+        errors.ConfigurationError,
+        match=r"A name has already been set for this field \('qwerty'\) but an explicit"
+        r" name was also passed to the constructor \('asdf'\)\.",
+    ):
+
+        class Broken(binobj.Struct):
+            asdf = fields.Bytes(name="qwerty", size=10)
 
 
 def test_explicit_name_matches_no_error():
