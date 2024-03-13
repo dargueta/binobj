@@ -20,6 +20,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.numeric module</a></li> 
       </ul>
@@ -30,8 +33,826 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="binobj-fields-numeric-module">
-<h1>binobj.fields.numeric module<a class="headerlink" href="#binobj-fields-numeric-module" title="Permalink to this heading">¶</a></h1>
+  <section id="module-binobj.fields.numeric">
+<span id="binobj-fields-numeric-module"></span><h1>binobj.fields.numeric module<a class="headerlink" href="#module-binobj.fields.numeric" title="Permalink to this heading">¶</a></h1>
+<p>Fields representing numeric values, such as integers and floats.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
+<p>A floating-point number in IEEE-754:2008 interchange format.</p>
+<p>This is a base class and should not be used directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>format_string</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The <a class="reference external" href="https://docs.python.org/3/library/struct.html#format-characters">format character</a> used by the <a class="reference external" href="https://docs.python.org/3/library/struct.html#module-struct" title="(in Python v3.12)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">struct</span></code></a> library to load and dump this
+floating-point number. Can be “e” (16 bits), “f” (32 bits) or “d” (64 bits).</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The endianness to use to load/store the float. Either “big” or “little”. If not
+given, defaults to the system’s native byte ordering as given by
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Float.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float16">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Float16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Float" title="binobj.fields.numeric.Float"><code class="xref py py-class docutils literal notranslate"><span class="pre">Float</span></code></a></p>
+<p>A half-precision floating-point number in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Half-precision_floating-point_format">binary16</a> format.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float16.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Float16.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float16.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float16.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float16.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float16.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float16.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float16.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float32">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Float" title="binobj.fields.numeric.Float"><code class="xref py py-class docutils literal notranslate"><span class="pre">Float</span></code></a></p>
+<p>A single-precision floating-point number in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">binary32</a> format.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float32.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Float32.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float32.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float32.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float32.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float32.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float32.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float32.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float64">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Float64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Float" title="binobj.fields.numeric.Float"><code class="xref py py-class docutils literal notranslate"><span class="pre">Float</span></code></a></p>
+<p>A floating-point number stored in IEEE-754 <a class="reference external" href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">binary64</a> format.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float64.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Float64.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float64.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float64.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float64.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float64.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Float64.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Float64.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int16">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Int16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+<p>A 16-bit signed integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int16.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Int16.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int16.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int16.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int16.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int16.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int16.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int16.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int32">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Int32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+<p>A 32-bit signed integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int32.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Int32.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int32.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int32.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int32.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int32.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int32.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int32.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int64">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Int64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+<p>A 64-bit signed integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int64.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Int64.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int64.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int64.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int64.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int64.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int64.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int64.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int8">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Int8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Int8" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+<p>An 8-bit signed integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int8.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Int8.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int8.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int8.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int8.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int8.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Int8.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Int8.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Integer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Integer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+<p>A two’s-complement integer of some fixed size.</p>
+<p>This class is typically not used directly, except for integers with sizes that
+aren’t powers of two, e.g. for a 24-bit number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The endianness to use to load/store the integer. Either ‘big’ or ‘little’. If
+not given, defaults to the system’s native byte ordering as given by
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+<li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Indicates if this number is a two’s-complement signed or unsigned integer.
+Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> (signed). <a class="reference external" href="https://en.wikipedia.org/wiki/Signed_number_representations">Signed formats</a> other than two’s-complement
+such as sign-magnitude are not supported.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The size of the integer, in bytes.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span></p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">size</span></code> argument is now required.</p></li>
+<li><p>The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
+dumping if the field doesn’t have a defined size. Before it used to crash with
+a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a> due to this oversight.</p></li>
+</ul>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Integer.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Integer.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Integer.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Integer.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Integer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Integer.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Integer.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Integer.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>]</p>
+<p>A timestamp stored as an integer offset from the <a class="reference external" href="https://en.wikipedia.org/wiki/Unix_time">Unix epoch</a>.</p>
+<p>Timestamps are stored in UTC. When dumping, naive datetimes are assumed to be in the
+local timezone; when loading and <code class="docutils literal notranslate"><span class="pre">tz_aware</span></code> is False, loaded datetimes are in the
+local timezone.</p>
+<p>This class is typically not used directly, except for timestamps with sizes that
+aren’t powers of two, e.g. the 96-bit timestamps used by Amazon Redshift.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The resolution timestamps will be stored with. Accepted values are “s”, “ms”,
+“us” (microseconds), and “ns”. Note that Python’s <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>
+objects don’t support nanosecond resolution.</p></li>
+<li><p><strong>tz_aware</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – <p>Controls whether loads return timezone-aware or naive
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>s. Loaded timestamps are naive by default, and in
+the platform’s local timezone.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="n">Timestamp32</span><span class="p">(</span><span class="n">tz_aware</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">field</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xa3\xc3\x55\x5c</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="go">datetime.datetime(2019, 2, 2, 16, 21, 55, tzinfo=datetime.timezone.utc)</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The byte order to store the timestamp in. Defaults to the host machine’s byte
+order as given by <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.byteorder" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.byteorder</span></code></a>.</p></li>
+<li><p><strong>signed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether the timestamp should be stored as a signed integer or not. It’s highly
+recommended this be left at the default (True) for compatibility with other
+Unix systems.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.6.0.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.8.0: </span></p>
+<ul class="simple">
+<li><p>This class no longer inherits from <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">size</span></code> is now a required argument.</p></li>
+<li><p>The class now throws <a class="reference internal" href="binobj.errors.html#binobj.errors.UndefinedSizeError" title="binobj.errors.UndefinedSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UndefinedSizeError</span></code></a> when loading and
+dumping if the field doesn’t have a defined size. Before it used to crash with
+a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a> due to this oversight.</p></li>
+</ul>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.11.0: </span>Passing a zone-aware timestamp to this field when tz_aware is false, or a naive
+timestamp when tz_aware is true is now deprecated, and will trigger an error in
+the future.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#binobj.fields.numeric.Timestamp32" title="binobj.fields.numeric.Timestamp32"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp32</span></code></a>, <a class="reference internal" href="#binobj.fields.numeric.Timestamp64" title="binobj.fields.numeric.Timestamp64"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp64</span></code></a></p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp32">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Timestamp32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Timestamp" title="binobj.fields.numeric.Timestamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp</span></code></a></p>
+<p>A timestamp saved as a 32-bit integer.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.6.0.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#binobj.fields.numeric.Timestamp" title="binobj.fields.numeric.Timestamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp</span></code></a></p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp32.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp32.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp32.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp32.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp32.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp32.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp32.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp32.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp64">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Timestamp64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.Timestamp64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Timestamp" title="binobj.fields.numeric.Timestamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp</span></code></a></p>
+<p>A timestamp saved as a 64-bit integer.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.6.0.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#binobj.fields.numeric.Timestamp" title="binobj.fields.numeric.Timestamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp</span></code></a></p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp64.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp64.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp64.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp64.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp64.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp64.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.Timestamp64.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.Timestamp64.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt16">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UInt16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Int16" title="binobj.fields.numeric.Int16"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int16</span></code></a></p>
+<p>A 16-bit unsigned integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt16.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.UInt16.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt16.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt16.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt16.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt16.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt16.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt16.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt32">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UInt32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Int32" title="binobj.fields.numeric.Int32"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int32</span></code></a></p>
+<p>A 32-bit unsigned integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt32.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.UInt32.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt32.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt32.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt32.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt32.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt32.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt32.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt64">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UInt64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Int64" title="binobj.fields.numeric.Int64"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int64</span></code></a></p>
+<p>A 64-bit unsigned integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt64.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.UInt64.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt64.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt64.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt64.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt64.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt64.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt64.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt8">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UInt8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UInt8" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Int8" title="binobj.fields.numeric.Int8"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int8</span></code></a></p>
+<p>An 8-bit unsigned integer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt8.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.UInt8.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt8.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt8.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt8.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt8.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UInt8.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UInt8.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UnsignedInteger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UnsignedInteger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+<p>An unsigned two’s-complement integer of some fixed size.</p>
+<p>This class is typically not used directly, except for integers with sizes that
+aren’t powers of two, e.g. for a 24-bit number.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UnsignedInteger.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UnsignedInteger.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UnsignedInteger.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.UnsignedInteger.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.UnsignedInteger.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.numeric.VariableLengthInteger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VariableLengthInteger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.numeric.Integer" title="binobj.fields.numeric.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a></p>
+<p>An integer of varying size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vli_format</strong> (<a class="reference internal" href="binobj.varints.html#binobj.varints.VarIntEncoding" title="binobj.varints.VarIntEncoding"><em>VarIntEncoding</em></a>) – Required. The encoding to use for the variable-length integer.</p></li>
+<li><p><strong>max_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The maximum number of bytes to use for encoding this integer. If not given,
+there’s no restriction on the size.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.VariableLengthInteger.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.VariableLengthInteger.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.VariableLengthInteger.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.numeric.VariableLengthInteger.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.numeric.VariableLengthInteger.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -41,6 +862,141 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">binobj.fields.numeric module</a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float"><code class="docutils literal notranslate"><span class="pre">Float</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float.const"><code class="docutils literal notranslate"><span class="pre">Float.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float.discard"><code class="docutils literal notranslate"><span class="pre">Float.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float.name"><code class="docutils literal notranslate"><span class="pre">Float.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float.offset"><code class="docutils literal notranslate"><span class="pre">Float.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float16"><code class="docutils literal notranslate"><span class="pre">Float16</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float16.const"><code class="docutils literal notranslate"><span class="pre">Float16.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float16.discard"><code class="docutils literal notranslate"><span class="pre">Float16.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float16.name"><code class="docutils literal notranslate"><span class="pre">Float16.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float16.offset"><code class="docutils literal notranslate"><span class="pre">Float16.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float32"><code class="docutils literal notranslate"><span class="pre">Float32</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float32.const"><code class="docutils literal notranslate"><span class="pre">Float32.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float32.discard"><code class="docutils literal notranslate"><span class="pre">Float32.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float32.name"><code class="docutils literal notranslate"><span class="pre">Float32.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float32.offset"><code class="docutils literal notranslate"><span class="pre">Float32.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float64"><code class="docutils literal notranslate"><span class="pre">Float64</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float64.const"><code class="docutils literal notranslate"><span class="pre">Float64.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float64.discard"><code class="docutils literal notranslate"><span class="pre">Float64.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float64.name"><code class="docutils literal notranslate"><span class="pre">Float64.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Float64.offset"><code class="docutils literal notranslate"><span class="pre">Float64.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int16"><code class="docutils literal notranslate"><span class="pre">Int16</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int16.const"><code class="docutils literal notranslate"><span class="pre">Int16.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int16.discard"><code class="docutils literal notranslate"><span class="pre">Int16.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int16.name"><code class="docutils literal notranslate"><span class="pre">Int16.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int16.offset"><code class="docutils literal notranslate"><span class="pre">Int16.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int32"><code class="docutils literal notranslate"><span class="pre">Int32</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int32.const"><code class="docutils literal notranslate"><span class="pre">Int32.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int32.discard"><code class="docutils literal notranslate"><span class="pre">Int32.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int32.name"><code class="docutils literal notranslate"><span class="pre">Int32.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int32.offset"><code class="docutils literal notranslate"><span class="pre">Int32.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int64"><code class="docutils literal notranslate"><span class="pre">Int64</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int64.const"><code class="docutils literal notranslate"><span class="pre">Int64.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int64.discard"><code class="docutils literal notranslate"><span class="pre">Int64.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int64.name"><code class="docutils literal notranslate"><span class="pre">Int64.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int64.offset"><code class="docutils literal notranslate"><span class="pre">Int64.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int8"><code class="docutils literal notranslate"><span class="pre">Int8</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int8.const"><code class="docutils literal notranslate"><span class="pre">Int8.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int8.discard"><code class="docutils literal notranslate"><span class="pre">Int8.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int8.name"><code class="docutils literal notranslate"><span class="pre">Int8.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Int8.offset"><code class="docutils literal notranslate"><span class="pre">Int8.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Integer"><code class="docutils literal notranslate"><span class="pre">Integer</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Integer.const"><code class="docutils literal notranslate"><span class="pre">Integer.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Integer.discard"><code class="docutils literal notranslate"><span class="pre">Integer.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Integer.name"><code class="docutils literal notranslate"><span class="pre">Integer.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Integer.offset"><code class="docutils literal notranslate"><span class="pre">Integer.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp"><code class="docutils literal notranslate"><span class="pre">Timestamp</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp.const"><code class="docutils literal notranslate"><span class="pre">Timestamp.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp.discard"><code class="docutils literal notranslate"><span class="pre">Timestamp.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp.name"><code class="docutils literal notranslate"><span class="pre">Timestamp.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp.offset"><code class="docutils literal notranslate"><span class="pre">Timestamp.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp32"><code class="docutils literal notranslate"><span class="pre">Timestamp32</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp32.const"><code class="docutils literal notranslate"><span class="pre">Timestamp32.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp32.discard"><code class="docutils literal notranslate"><span class="pre">Timestamp32.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp32.name"><code class="docutils literal notranslate"><span class="pre">Timestamp32.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp32.offset"><code class="docutils literal notranslate"><span class="pre">Timestamp32.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp64"><code class="docutils literal notranslate"><span class="pre">Timestamp64</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp64.const"><code class="docutils literal notranslate"><span class="pre">Timestamp64.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp64.discard"><code class="docutils literal notranslate"><span class="pre">Timestamp64.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp64.name"><code class="docutils literal notranslate"><span class="pre">Timestamp64.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.Timestamp64.offset"><code class="docutils literal notranslate"><span class="pre">Timestamp64.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt16"><code class="docutils literal notranslate"><span class="pre">UInt16</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt16.const"><code class="docutils literal notranslate"><span class="pre">UInt16.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt16.discard"><code class="docutils literal notranslate"><span class="pre">UInt16.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt16.name"><code class="docutils literal notranslate"><span class="pre">UInt16.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt16.offset"><code class="docutils literal notranslate"><span class="pre">UInt16.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt32"><code class="docutils literal notranslate"><span class="pre">UInt32</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt32.const"><code class="docutils literal notranslate"><span class="pre">UInt32.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt32.discard"><code class="docutils literal notranslate"><span class="pre">UInt32.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt32.name"><code class="docutils literal notranslate"><span class="pre">UInt32.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt32.offset"><code class="docutils literal notranslate"><span class="pre">UInt32.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt64"><code class="docutils literal notranslate"><span class="pre">UInt64</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt64.const"><code class="docutils literal notranslate"><span class="pre">UInt64.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt64.discard"><code class="docutils literal notranslate"><span class="pre">UInt64.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt64.name"><code class="docutils literal notranslate"><span class="pre">UInt64.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt64.offset"><code class="docutils literal notranslate"><span class="pre">UInt64.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt8"><code class="docutils literal notranslate"><span class="pre">UInt8</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt8.const"><code class="docutils literal notranslate"><span class="pre">UInt8.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt8.discard"><code class="docutils literal notranslate"><span class="pre">UInt8.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt8.name"><code class="docutils literal notranslate"><span class="pre">UInt8.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UInt8.offset"><code class="docutils literal notranslate"><span class="pre">UInt8.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UnsignedInteger"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.UnsignedInteger.const"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UnsignedInteger.discard"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UnsignedInteger.name"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.UnsignedInteger.offset"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.numeric.VariableLengthInteger"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.numeric.VariableLengthInteger.const"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.VariableLengthInteger.discard"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.VariableLengthInteger.name"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.numeric.VariableLengthInteger.offset"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.offset</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -61,6 +1017,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.numeric module</a></li> 
       </ul>

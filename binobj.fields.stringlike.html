@@ -20,6 +20,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.stringlike module</a></li> 
       </ul>
@@ -30,8 +33,198 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="binobj-fields-stringlike-module">
-<h1>binobj.fields.stringlike module<a class="headerlink" href="#binobj-fields-stringlike-module" title="Permalink to this heading">¶</a></h1>
+  <section id="module-binobj.fields.stringlike">
+<span id="binobj-fields-stringlike-module"></span><h1>binobj.fields.stringlike module<a class="headerlink" href="#module-binobj.fields.stringlike" title="Permalink to this heading">¶</a></h1>
+<p>Fields representing strings and byte sequences.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.Bytes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.Bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>]</p>
+<p>Raw binary data.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.Bytes.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.stringlike.Bytes.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.Bytes.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.Bytes.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.Bytes.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.Bytes.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.Bytes.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.Bytes.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.String">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">String</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.String" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</p>
+<p>A fixed-length string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The field’s size in <em>bytes</em>, not <em>characters</em>. For most text encodings these are
+the same, but some encodings use multiple bytes per character.</p></li>
+<li><p><strong>encoding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The encoding to use for converting the string to and from bytes. Defaults to
+<a class="reference external" href="https://en.wikipedia.org/wiki/ISO/IEC_8859-1">ISO 8859-1</a>.</p></li>
+<li><p><strong>pad_byte</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><em>bytes</em></a>) – <p>A single byte to use as padding for strings that are too short to fit into the
+field. If not given, strings that aren’t exactly <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes when encoded
+will trigger a <a class="reference internal" href="binobj.errors.html#binobj.errors.ValueSizeError" title="binobj.errors.ValueSizeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSizeError</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.2.0.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">utf-8-sig</span></code>, <code class="docutils literal notranslate"><span class="pre">utf-16</span></code>, and <code class="docutils literal notranslate"><span class="pre">utf-32</span></code> codecs add a <a class="reference external" href="https://en.wikipedia.org/wiki/Byte_order_mark">byte order mark</a>
+(BOM) at the beginning of the string, so you’ll need to take those extra bytes
+into account when defining this field size. Alternatively, you can use the
+codecs’ variants that don’t add the BOM, such as <code class="docutils literal notranslate"><span class="pre">utf-16-le</span></code> or <code class="docutils literal notranslate"><span class="pre">utf-16-be</span></code>.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.String.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.stringlike.String.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.String.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.String.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.String.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.String.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.String.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.String.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.StringZ">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StringZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.StringZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#binobj.fields.stringlike.String" title="binobj.fields.stringlike.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a></p>
+<p>A variable-length null-terminated string.</p>
+<p>The terminating null is guaranteed to be the proper size for multi-byte encodings.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.StringZ.const">
+<span class="sig-name descname"><span class="pre">const</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_Undefined</span></em><a class="headerlink" href="#binobj.fields.stringlike.StringZ.const" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fixed value of a field, if applicable.</p>
+<p>This is mostly useful for fields that act as <a class="reference external" href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> or reserved fields
+in a struct that should be set to nulls.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.StringZ.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.StringZ.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, indicates that a field should be discarded when read.</p>
+<p>This is best used for filler fields that are of no use to the application but are
+nonetheless important to ensure the proper layout of the struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.StringZ.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.StringZ.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field.</p>
+<p><strong>Technical Note:</strong>
+This attribute can only be <code class="docutils literal notranslate"><span class="pre">None</span></code> if the field was created without passing a value
+for <code class="docutils literal notranslate"><span class="pre">name</span></code> to the constructor <em>and</em> the field has never been bound to a struct.
+Since this is highly unlikely in normal usage, this attribute is declared as <code class="docutils literal notranslate"><span class="pre">str</span></code>
+rather than <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.StringZ.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#binobj.fields.stringlike.StringZ.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.UUID4">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UUID4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.UUID4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field" title="binobj.fields.base.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UUID</span></code></a>]</p>
+<p>A UUID, version 4 (the most common nowadays).</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.11.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.UUIDFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UUIDFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#binobj.fields.stringlike.UUIDFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>The storage format of a UUID4.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_1">
+<span class="sig-name descname"><span class="pre">BINARY_VARIANT_1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary_var_1'</span></em><a class="headerlink" href="#binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>The binary format, RFC-4122 variant 1.</p>
+<p>The UUID4 is stored as a 16-byte sequence of big-endian integers. This is the most
+common format used today.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_2">
+<span class="sig-name descname"><span class="pre">BINARY_VARIANT_2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary_var_2'</span></em><a class="headerlink" href="#binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>The binary format, RFC-4122 variant 2.</p>
+<p>The UUID4 is stored as a 16-byte sequence of integers in mixed-endian format. This
+is described in the RFC as “Microsoft Corporation backward compatibility format”. As
+the name suggests, this is pretty much only used by Microsoft software.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.UUIDFormat.CANONICAL_STRING">
+<span class="sig-name descname"><span class="pre">CANONICAL_STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'canonical_string'</span></em><a class="headerlink" href="#binobj.fields.stringlike.UUIDFormat.CANONICAL_STRING" title="Permalink to this definition">¶</a></dt>
+<dd><p>The canonical string representation of a UUID4.</p>
+<p>An example would be the ASCII string “4fcd056d-f29b-4cb8-8e37-99ab1b56a555”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="binobj.fields.stringlike.UUIDFormat.HEX_STRING">
+<span class="sig-name descname"><span class="pre">HEX_STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hex_string'</span></em><a class="headerlink" href="#binobj.fields.stringlike.UUIDFormat.HEX_STRING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <a class="reference internal" href="#binobj.fields.stringlike.UUIDFormat.CANONICAL_STRING" title="binobj.fields.stringlike.UUIDFormat.CANONICAL_STRING"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CANONICAL_STRING</span></code></a> but without dashes.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -41,6 +234,44 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">binobj.fields.stringlike module</a><ul>
+<li><a class="reference internal" href="#binobj.fields.stringlike.Bytes"><code class="docutils literal notranslate"><span class="pre">Bytes</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.stringlike.Bytes.const"><code class="docutils literal notranslate"><span class="pre">Bytes.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.Bytes.discard"><code class="docutils literal notranslate"><span class="pre">Bytes.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.Bytes.name"><code class="docutils literal notranslate"><span class="pre">Bytes.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.Bytes.offset"><code class="docutils literal notranslate"><span class="pre">Bytes.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.String"><code class="docutils literal notranslate"><span class="pre">String</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.stringlike.String.const"><code class="docutils literal notranslate"><span class="pre">String.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.String.discard"><code class="docutils literal notranslate"><span class="pre">String.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.String.name"><code class="docutils literal notranslate"><span class="pre">String.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.String.offset"><code class="docutils literal notranslate"><span class="pre">String.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.StringZ"><code class="docutils literal notranslate"><span class="pre">StringZ</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.stringlike.StringZ.const"><code class="docutils literal notranslate"><span class="pre">StringZ.const</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.StringZ.discard"><code class="docutils literal notranslate"><span class="pre">StringZ.discard</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.StringZ.name"><code class="docutils literal notranslate"><span class="pre">StringZ.name</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.StringZ.offset"><code class="docutils literal notranslate"><span class="pre">StringZ.offset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.UUID4"><code class="docutils literal notranslate"><span class="pre">UUID4</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.UUIDFormat"><code class="docutils literal notranslate"><span class="pre">UUIDFormat</span></code></a><ul>
+<li><a class="reference internal" href="#binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_1"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.BINARY_VARIANT_1</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_2"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.BINARY_VARIANT_2</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.UUIDFormat.CANONICAL_STRING"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.CANONICAL_STRING</span></code></a></li>
+<li><a class="reference internal" href="#binobj.fields.stringlike.UUIDFormat.HEX_STRING"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.HEX_STRING</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -61,6 +292,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields.stringlike module</a></li> 
       </ul>

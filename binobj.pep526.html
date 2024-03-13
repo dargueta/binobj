@@ -20,6 +20,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.pep526 module</a></li> 
       </ul>
@@ -30,8 +33,65 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="binobj-pep526-module">
-<h1>binobj.pep526 module<a class="headerlink" href="#binobj-pep526-module" title="Permalink to this heading">¶</a></h1>
+  <section id="module-binobj.pep526">
+<span id="binobj-pep526-module"></span><h1>binobj.pep526 module<a class="headerlink" href="#module-binobj.pep526" title="Permalink to this heading">¶</a></h1>
+<p>Support for declaring fields in structs using <a class="reference external" href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a> variable annotations.</p>
+<p>You can use the <a class="reference internal" href="#binobj.pep526.dataclass" title="binobj.pep526.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> decorator on your <code class="xref py py-class docutils literal notranslate"><span class="pre">Struct</span></code>.</p>
+<p>If you use this decorator, <em>all</em> fields must be declared with PEP 526 annotations. You
+can’t mix this system with the original assignment-based one.</p>
+<p>Here are a few examples of how you can declare your fields:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@binobj</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">MyStruct</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="c1"># Preferred: use a class object</span>
+    <span class="n">foo</span><span class="p">:</span> <span class="n">UInt16</span>
+
+    <span class="c1"># You can define default values like this</span>
+    <span class="n">bar</span><span class="p">:</span> <span class="n">StringZ</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># You can pass struct classes -- no need for a `Nested` wrapper. Forward</span>
+    <span class="c1"># references using strings are *not* supported.</span>
+    <span class="n">sub_struct</span><span class="p">:</span> <span class="n">MyOtherStruct</span>
+
+    <span class="c1"># Instances are allowed but are less readable. Be careful not to *assign*</span>
+    <span class="c1"># the field instance!</span>
+    <span class="n">baz</span><span class="p">:</span> <span class="n">Timestamp64</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.11.0: </span>Do not pass a callable as the default value, use the <code class="docutils literal notranslate"><span class="pre">factory</span></code> argument to the
+field instead.</p>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="binobj.pep526.dataclass">
+<span class="sig-name descname"><span class="pre">dataclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_object</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">TStruct</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">TStruct</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#binobj.pep526.dataclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark a Struct as using <a class="reference external" href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a> declarations for its fields.</p>
+<p>If you use this decorator, <em>all</em> fields must be declared with PEP 526 annotations.
+You can’t mix this system with the original assignment-based one.</p>
+<p>Here are a few examples of how you can declare your fields:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyStruct</span><span class="p">(</span><span class="n">binobj</span><span class="o">.</span><span class="n">Struct</span><span class="p">):</span>
+    <span class="c1"># Preferred: use a class object</span>
+    <span class="n">foo</span><span class="p">:</span> <span class="n">UInt16</span>
+
+    <span class="c1"># You can define default values like this</span>
+    <span class="n">bar</span><span class="p">:</span> <span class="n">StringZ</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># You can pass struct classes -- no need for a `Nested` wrapper. Forward</span>
+    <span class="c1"># references using strings are *not* supported.</span>
+    <span class="n">sub_struct</span><span class="p">:</span> <span class="n">MyOtherStruct</span>
+
+    <span class="c1"># Instances are allowed but are less readable. Be careful not to *assign*</span>
+    <span class="c1"># the field instance!</span>
+    <span class="n">baz</span><span class="p">:</span> <span class="n">Timestamp64</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+</dd></dl>
+
 </section>
 
 
@@ -41,6 +101,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">binobj.pep526 module</a><ul>
+<li><a class="reference internal" href="#binobj.pep526.dataclass"><code class="docutils literal notranslate"><span class="pre">dataclass()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -61,6 +131,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.pep526 module</a></li> 
       </ul>

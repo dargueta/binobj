@@ -20,6 +20,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields package</a></li> 
       </ul>
@@ -30,16 +33,228 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="binobj-fields-package">
-<h1>binobj.fields package<a class="headerlink" href="#binobj-fields-package" title="Permalink to this heading">¶</a></h1>
+  <section id="module-binobj.fields">
+<span id="binobj-fields-package"></span><h1>binobj.fields package<a class="headerlink" href="#module-binobj.fields" title="Permalink to this heading">¶</a></h1>
+<p>Definitions of all field types that can be used in structures.</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="binobj.fields.base.html">binobj.fields.base module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="binobj.fields.containers.html">binobj.fields.containers module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="binobj.fields.numeric.html">binobj.fields.numeric module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="binobj.fields.stringlike.html">binobj.fields.stringlike module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binobj.fields.base.html">binobj.fields.base module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.DEFAULT"><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field"><code class="docutils literal notranslate"><span class="pre">Field</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.index"><code class="docutils literal notranslate"><span class="pre">Field.index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.offset"><code class="docutils literal notranslate"><span class="pre">Field.offset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.allow_null"><code class="docutils literal notranslate"><span class="pre">Field.allow_null</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.bind_to_container"><code class="docutils literal notranslate"><span class="pre">Field.bind_to_container()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.compute_value_for_dump"><code class="docutils literal notranslate"><span class="pre">Field.compute_value_for_dump()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.computes"><code class="docutils literal notranslate"><span class="pre">Field.computes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.const"><code class="docutils literal notranslate"><span class="pre">Field.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.default"><code class="docutils literal notranslate"><span class="pre">Field.default</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.discard"><code class="docutils literal notranslate"><span class="pre">Field.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_bytes"><code class="docutils literal notranslate"><span class="pre">Field.from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.from_stream"><code class="docutils literal notranslate"><span class="pre">Field.from_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.get_expected_size"><code class="docutils literal notranslate"><span class="pre">Field.get_expected_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.has_fixed_size"><code class="docutils literal notranslate"><span class="pre">Field.has_fixed_size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.is_computed_field"><code class="docutils literal notranslate"><span class="pre">Field.is_computed_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.name"><code class="docutils literal notranslate"><span class="pre">Field.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.required"><code class="docutils literal notranslate"><span class="pre">Field.required</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.size"><code class="docutils literal notranslate"><span class="pre">Field.size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.to_bytes"><code class="docutils literal notranslate"><span class="pre">Field.to_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.Field.to_stream"><code class="docutils literal notranslate"><span class="pre">Field.to_stream()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.NOT_PRESENT"><code class="docutils literal notranslate"><span class="pre">NOT_PRESENT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.base.html#binobj.fields.base.UNDEFINED"><code class="docutils literal notranslate"><span class="pre">UNDEFINED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="binobj.fields.containers.html">binobj.fields.containers module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array"><code class="docutils literal notranslate"><span class="pre">Array</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array.const"><code class="docutils literal notranslate"><span class="pre">Array.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array.discard"><code class="docutils literal notranslate"><span class="pre">Array.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array.get_final_element_count"><code class="docutils literal notranslate"><span class="pre">Array.get_final_element_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array.name"><code class="docutils literal notranslate"><span class="pre">Array.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array.offset"><code class="docutils literal notranslate"><span class="pre">Array.offset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Array.should_halt"><code class="docutils literal notranslate"><span class="pre">Array.should_halt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Nested"><code class="docutils literal notranslate"><span class="pre">Nested</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Nested.const"><code class="docutils literal notranslate"><span class="pre">Nested.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Nested.discard"><code class="docutils literal notranslate"><span class="pre">Nested.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Nested.name"><code class="docutils literal notranslate"><span class="pre">Nested.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Nested.offset"><code class="docutils literal notranslate"><span class="pre">Nested.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Union"><code class="docutils literal notranslate"><span class="pre">Union</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Union.const"><code class="docutils literal notranslate"><span class="pre">Union.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Union.discard"><code class="docutils literal notranslate"><span class="pre">Union.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Union.name"><code class="docutils literal notranslate"><span class="pre">Union.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.containers.html#binobj.fields.containers.Union.offset"><code class="docutils literal notranslate"><span class="pre">Union.offset</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="binobj.fields.numeric.html">binobj.fields.numeric module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float"><code class="docutils literal notranslate"><span class="pre">Float</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float.const"><code class="docutils literal notranslate"><span class="pre">Float.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float.discard"><code class="docutils literal notranslate"><span class="pre">Float.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float.name"><code class="docutils literal notranslate"><span class="pre">Float.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float.offset"><code class="docutils literal notranslate"><span class="pre">Float.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float16"><code class="docutils literal notranslate"><span class="pre">Float16</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float16.const"><code class="docutils literal notranslate"><span class="pre">Float16.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float16.discard"><code class="docutils literal notranslate"><span class="pre">Float16.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float16.name"><code class="docutils literal notranslate"><span class="pre">Float16.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float16.offset"><code class="docutils literal notranslate"><span class="pre">Float16.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float32"><code class="docutils literal notranslate"><span class="pre">Float32</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float32.const"><code class="docutils literal notranslate"><span class="pre">Float32.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float32.discard"><code class="docutils literal notranslate"><span class="pre">Float32.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float32.name"><code class="docutils literal notranslate"><span class="pre">Float32.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float32.offset"><code class="docutils literal notranslate"><span class="pre">Float32.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float64"><code class="docutils literal notranslate"><span class="pre">Float64</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float64.const"><code class="docutils literal notranslate"><span class="pre">Float64.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float64.discard"><code class="docutils literal notranslate"><span class="pre">Float64.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float64.name"><code class="docutils literal notranslate"><span class="pre">Float64.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Float64.offset"><code class="docutils literal notranslate"><span class="pre">Float64.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int16"><code class="docutils literal notranslate"><span class="pre">Int16</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int16.const"><code class="docutils literal notranslate"><span class="pre">Int16.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int16.discard"><code class="docutils literal notranslate"><span class="pre">Int16.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int16.name"><code class="docutils literal notranslate"><span class="pre">Int16.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int16.offset"><code class="docutils literal notranslate"><span class="pre">Int16.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int32"><code class="docutils literal notranslate"><span class="pre">Int32</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int32.const"><code class="docutils literal notranslate"><span class="pre">Int32.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int32.discard"><code class="docutils literal notranslate"><span class="pre">Int32.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int32.name"><code class="docutils literal notranslate"><span class="pre">Int32.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int32.offset"><code class="docutils literal notranslate"><span class="pre">Int32.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int64"><code class="docutils literal notranslate"><span class="pre">Int64</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int64.const"><code class="docutils literal notranslate"><span class="pre">Int64.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int64.discard"><code class="docutils literal notranslate"><span class="pre">Int64.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int64.name"><code class="docutils literal notranslate"><span class="pre">Int64.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int64.offset"><code class="docutils literal notranslate"><span class="pre">Int64.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int8"><code class="docutils literal notranslate"><span class="pre">Int8</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int8.const"><code class="docutils literal notranslate"><span class="pre">Int8.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int8.discard"><code class="docutils literal notranslate"><span class="pre">Int8.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int8.name"><code class="docutils literal notranslate"><span class="pre">Int8.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Int8.offset"><code class="docutils literal notranslate"><span class="pre">Int8.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer"><code class="docutils literal notranslate"><span class="pre">Integer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer.const"><code class="docutils literal notranslate"><span class="pre">Integer.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer.discard"><code class="docutils literal notranslate"><span class="pre">Integer.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer.name"><code class="docutils literal notranslate"><span class="pre">Integer.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Integer.offset"><code class="docutils literal notranslate"><span class="pre">Integer.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp"><code class="docutils literal notranslate"><span class="pre">Timestamp</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp.const"><code class="docutils literal notranslate"><span class="pre">Timestamp.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp.discard"><code class="docutils literal notranslate"><span class="pre">Timestamp.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp.name"><code class="docutils literal notranslate"><span class="pre">Timestamp.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp.offset"><code class="docutils literal notranslate"><span class="pre">Timestamp.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp32"><code class="docutils literal notranslate"><span class="pre">Timestamp32</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp32.const"><code class="docutils literal notranslate"><span class="pre">Timestamp32.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp32.discard"><code class="docutils literal notranslate"><span class="pre">Timestamp32.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp32.name"><code class="docutils literal notranslate"><span class="pre">Timestamp32.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp32.offset"><code class="docutils literal notranslate"><span class="pre">Timestamp32.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp64"><code class="docutils literal notranslate"><span class="pre">Timestamp64</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp64.const"><code class="docutils literal notranslate"><span class="pre">Timestamp64.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp64.discard"><code class="docutils literal notranslate"><span class="pre">Timestamp64.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp64.name"><code class="docutils literal notranslate"><span class="pre">Timestamp64.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.Timestamp64.offset"><code class="docutils literal notranslate"><span class="pre">Timestamp64.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt16"><code class="docutils literal notranslate"><span class="pre">UInt16</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt16.const"><code class="docutils literal notranslate"><span class="pre">UInt16.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt16.discard"><code class="docutils literal notranslate"><span class="pre">UInt16.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt16.name"><code class="docutils literal notranslate"><span class="pre">UInt16.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt16.offset"><code class="docutils literal notranslate"><span class="pre">UInt16.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt32"><code class="docutils literal notranslate"><span class="pre">UInt32</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt32.const"><code class="docutils literal notranslate"><span class="pre">UInt32.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt32.discard"><code class="docutils literal notranslate"><span class="pre">UInt32.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt32.name"><code class="docutils literal notranslate"><span class="pre">UInt32.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt32.offset"><code class="docutils literal notranslate"><span class="pre">UInt32.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt64"><code class="docutils literal notranslate"><span class="pre">UInt64</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt64.const"><code class="docutils literal notranslate"><span class="pre">UInt64.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt64.discard"><code class="docutils literal notranslate"><span class="pre">UInt64.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt64.name"><code class="docutils literal notranslate"><span class="pre">UInt64.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt64.offset"><code class="docutils literal notranslate"><span class="pre">UInt64.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt8"><code class="docutils literal notranslate"><span class="pre">UInt8</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt8.const"><code class="docutils literal notranslate"><span class="pre">UInt8.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt8.discard"><code class="docutils literal notranslate"><span class="pre">UInt8.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt8.name"><code class="docutils literal notranslate"><span class="pre">UInt8.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UInt8.offset"><code class="docutils literal notranslate"><span class="pre">UInt8.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UnsignedInteger"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UnsignedInteger.const"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UnsignedInteger.discard"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UnsignedInteger.name"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.UnsignedInteger.offset"><code class="docutils literal notranslate"><span class="pre">UnsignedInteger.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.VariableLengthInteger"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.VariableLengthInteger.const"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.VariableLengthInteger.discard"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.VariableLengthInteger.name"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.numeric.html#binobj.fields.numeric.VariableLengthInteger.offset"><code class="docutils literal notranslate"><span class="pre">VariableLengthInteger.offset</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="binobj.fields.stringlike.html">binobj.fields.stringlike module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.Bytes"><code class="docutils literal notranslate"><span class="pre">Bytes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.Bytes.const"><code class="docutils literal notranslate"><span class="pre">Bytes.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.Bytes.discard"><code class="docutils literal notranslate"><span class="pre">Bytes.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.Bytes.name"><code class="docutils literal notranslate"><span class="pre">Bytes.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.Bytes.offset"><code class="docutils literal notranslate"><span class="pre">Bytes.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String"><code class="docutils literal notranslate"><span class="pre">String</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String.const"><code class="docutils literal notranslate"><span class="pre">String.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String.discard"><code class="docutils literal notranslate"><span class="pre">String.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String.name"><code class="docutils literal notranslate"><span class="pre">String.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.String.offset"><code class="docutils literal notranslate"><span class="pre">String.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ"><code class="docutils literal notranslate"><span class="pre">StringZ</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ.const"><code class="docutils literal notranslate"><span class="pre">StringZ.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ.discard"><code class="docutils literal notranslate"><span class="pre">StringZ.discard</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ.name"><code class="docutils literal notranslate"><span class="pre">StringZ.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.StringZ.offset"><code class="docutils literal notranslate"><span class="pre">StringZ.offset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.UUID4"><code class="docutils literal notranslate"><span class="pre">UUID4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.UUIDFormat"><code class="docutils literal notranslate"><span class="pre">UUIDFormat</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_1"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.BINARY_VARIANT_1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.UUIDFormat.BINARY_VARIANT_2"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.BINARY_VARIANT_2</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.UUIDFormat.CANONICAL_STRING"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.CANONICAL_STRING</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="binobj.fields.stringlike.html#binobj.fields.stringlike.UUIDFormat.HEX_STRING"><code class="docutils literal notranslate"><span class="pre">UUIDFormat.HEX_STRING</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -82,6 +297,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">binobj 0.10.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">binobj.fields package</a></li> 
       </ul>
