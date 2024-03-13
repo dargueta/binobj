@@ -3,7 +3,7 @@
 from typing import Optional
 from typing import Tuple
 
-import pkg_resources as _pkgr
+import pkg_resources as _pkgr  # noqa: I900
 
 from .errors import *
 from .fields import *

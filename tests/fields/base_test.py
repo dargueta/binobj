@@ -420,7 +420,7 @@ def test_default_and_factory_triggers_error():
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 12), reason="Test requires 3.11 or lower")
-def test_explicit_name_mismatch_triggers_error():
+def test_explicit_name_mismatch_triggers_error__py311_and_under():
     """Passing a name to a field that already had its name assigned by ``__set_name__``
     *and* it doesn't match triggers an error.
     """
