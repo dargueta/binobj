@@ -54,7 +54,7 @@ flake8-implicit-str-concat = "0.4.0"
 flake8-isort = "6.0.0"
 flake8-logging-format = "0.9.0"
 flake8-loopy = "1.1.0"
-flake8-simplify = "0.20.0"
+flake8-simplify = "0.21.0"
 # Plugin broke and gave a bunch of false alarms
 # flake8-unused-arguments = "0.0.13"
 isort = "5.11.5"
