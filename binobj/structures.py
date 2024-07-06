@@ -360,7 +360,7 @@ class Struct:
                     stacklevel=2,
                 )
 
-        return dict(collections.ChainMap(dct, self))
+        return dict(collections.ChainMap(dct, MutableStructMappingProxy(self)))
 
     @classmethod
     def from_stream(
@@ -642,7 +642,7 @@ class Struct:
             )
         setattr(self, field_name, value)
 
-    def __delitem__(self, field_name: str) -> Any:
+    def __delitem__(self, field_name: str) -> None:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 "Struct %r has no field named %r." % (type(self).__name__, field_name)
@@ -768,3 +768,37 @@ class Struct:
             field.__objclass__ = cls
 
         super().__init_subclass__()
+
+
+@dc.dataclass
+class StructMappingProxy(Mapping[str, Any]):
+    """An immutable wrapper that makes a :class:`Struct` work like a :class:`dict`.
+
+    .. versionadded:: 0.12.0
+    """
+
+    struct: Struct
+    """The underlying :class:`Struct` that all accesses are forwarded to."""
+
+    def __getitem__(self, field: str) -> Any:
+        return self.struct[field]
+
+    def __iter__(self) -> Iterator[str]:
+        yield from iter(self.struct)
+
+    def __len__(self) -> int:
+        return len(self.struct)
+
+
+@dc.dataclass
+class MutableStructMappingProxy(StructMappingProxy, MutableMapping[str, Any]):
+    """A mutable wrapper that makes a :class:`Struct` work like a :class:`dict`.
+
+    .. versionadded:: 0.12.0
+    """
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.struct[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.struct[key]

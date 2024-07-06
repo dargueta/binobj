@@ -19,7 +19,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.8"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
@@ -30,7 +30,7 @@ jobs:
         run: make docs
 
       - name: Deploy docs
-        uses: JamesIves/github-pages-deploy-action@4.1.1
+        uses: JamesIves/github-pages-deploy-action@4.6.3
         with:
           branch: gh-pages
           folder: docs/build

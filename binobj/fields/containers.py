@@ -30,7 +30,9 @@ T = TypeVar("T")
 TStruct = TypeVar("TStruct", bound=Struct)
 
 
-HaltCheckFn = Callable[["Array[T]", BinaryIO, Sequence[T], Any, StrDict], bool]
+HaltCheckFn = Callable[
+    ["Array[T]", BinaryIO, Sequence[Optional[T]], Any, StrDict], bool
+]
 
 FieldOrTStruct = _Union[Field[Any], type[Struct]]
 FieldLoadDecider = Callable[
