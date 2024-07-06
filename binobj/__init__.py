@@ -1,23 +1,40 @@
 """A Python library for reading and writing structured binary data."""
 
-from typing import Optional
-from typing import Tuple
+from __future__ import annotations
 
-import pkg_resources as _pkgr  # noqa: I900
+import importlib.metadata
+from typing import NamedTuple
+from typing import Optional
 
 from .errors import *
 from .fields import *
 from .structures import *
 
 
-def __to_version_info() -> Tuple[int, int, int, Optional[str]]:
-    parts = _pkgr.parse_version(__version__)
-    base = parts.base_version
-    version_parts = tuple(map(int, base.split(".")))
-    suffix_part = parts.public[len(base) :].lstrip(".") or None
-    return version_parts[0], version_parts[1], version_parts[2], suffix_part
+class VersionInfo(NamedTuple):
+    """Detailed information about the current version of the software."""
+
+    major: int
+    minor: int
+    patch: int
+    suffix: Optional[str]
+
+    @classmethod
+    def from_string(cls, version: str) -> VersionInfo:
+        """Parse the version number string into a VersionInfo."""
+        base_version, _, suffix = version.partition("-")
+        major, minor, *_possibly_patch = base_version.split(".")
+        if _possibly_patch:
+            patch = _possibly_patch[0]
+        else:
+            patch = "0"
+        return cls(int(major), int(minor), int(patch), suffix or None)
+
+    def __str__(self) -> str:
+        if self.suffix:
+            return "%d.%d.%d-%s" % (self.major, self.minor, self.patch, self.suffix)
+        return "%d.%d.%d" % (self.major, self.minor, self.patch)
 
 
-# Do not modify directly; use ``bumpversion`` command instead.
-__version__ = "0.11.4"
-__version_info__ = __to_version_info()
+__version__ = importlib.metadata.version("binobj")
+__version_info__ = VersionInfo.from_string(__version__)
