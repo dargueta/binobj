@@ -6,9 +6,8 @@ import sys
 import warnings
 from typing import Any
 from typing import BinaryIO
+from typing import Literal
 from typing import Optional
-
-from typing_extensions import Literal
 
 from binobj import errors
 from binobj import helpers

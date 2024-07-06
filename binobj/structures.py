@@ -1,24 +1,21 @@
 """Classes defining structures and unions."""
 
 import collections
-import collections.abc
 import copy
-import dataclasses
+import dataclasses as dc
 import io
 import typing
 import warnings
+from collections.abc import Iterator
+from collections.abc import Mapping
+from collections.abc import MutableMapping
+from collections.abc import MutableSequence
+from collections.abc import Sequence
 from typing import Any
 from typing import BinaryIO
 from typing import ClassVar
-from typing import Dict
-from typing import Iterator
-from typing import List
-from typing import Mapping
-from typing import MutableMapping
 from typing import Optional
 from typing import overload
-from typing import Sequence
-from typing import Type
 from typing import TypeVar
 
 from binobj import decorators
@@ -39,7 +36,7 @@ V = TypeVar("V")
 TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
-@dataclasses.dataclass
+@dc.dataclass
 class StructMetadata:
     """Info about the :class:`.Struct` it belongs to, like its fields and validators.
 
@@ -59,17 +56,15 @@ class StructMetadata:
     .. versionadded:: 0.10.0
     """
 
-    components: MutableMapping[str, fields.Field[Any]] = dataclasses.field(
-        default_factory=dict
-    )
+    components: MutableMapping[str, fields.Field[Any]] = dc.field(default_factory=dict)
     """A mapping of field names to the actual field object."""
 
-    struct_validators: List[StructValidator] = dataclasses.field(default_factory=list)
+    struct_validators: MutableSequence[StructValidator] = dc.field(default_factory=list)
     """A list of validators for this struct."""
 
-    field_validators: MutableMapping[
-        str, List[MethodFieldValidator]
-    ] = dataclasses.field(default_factory=dict)
+    field_validators: MutableMapping[str, MutableSequence[MethodFieldValidator]] = (
+        dc.field(default_factory=dict)
+    )
     """A mapping of field names to validators to execute for that field."""
 
     num_own_fields: int = 0
@@ -87,7 +82,7 @@ class StructMetadata:
     .. versionadded:: 0.9.0
     """
 
-    argument_defaults: MutableStrDict = dataclasses.field(default_factory=dict)
+    argument_defaults: MutableStrDict = dc.field(default_factory=dict)
     """A mapping of argument names or derived keys to their default values.
 
     Keys can take several forms:
@@ -176,18 +171,15 @@ def bind_validators_to_struct(namespace: StrDict, metadata: StructMetadata) -> N
 
 
 @overload
-def recursive_to_dicts(item: "Struct") -> Dict[str, Any]:
-    ...
+def recursive_to_dicts(item: "Struct") -> dict[str, Any]: ...
 
 
 @overload
-def recursive_to_dicts(item: Mapping[K, V]) -> Dict[K, V]:
-    ...
+def recursive_to_dicts(item: Mapping[K, V]) -> dict[K, V]: ...
 
 
 @overload
-def recursive_to_dicts(item: Sequence[T]) -> List[T]:
-    ...
+def recursive_to_dicts(item: Sequence[T]) -> list[T]: ...
 
 
 def recursive_to_dicts(item):  # type: ignore[no-untyped-def]
@@ -200,11 +192,9 @@ def recursive_to_dicts(item):  # type: ignore[no-untyped-def]
     """
     if isinstance(item, Struct):
         return item.to_dict()
-    if isinstance(item, collections.abc.Mapping):
+    if isinstance(item, Mapping):
         return {recursive_to_dicts(k): recursive_to_dicts(v) for k, v in item.items()}
-    if isinstance(item, collections.abc.Sequence) and not isinstance(
-        item, (str, bytes, bytearray)
-    ):
+    if isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
         return [recursive_to_dicts(v) for v in item]
     return item
 
@@ -299,7 +289,7 @@ class Struct:
         self.to_stream(stream, context)
         return stream.getvalue()
 
-    def to_dict(self, keep_discardable: bool = False) -> Dict[str, Any]:
+    def to_dict(self, keep_discardable: bool = False) -> dict[str, Any]:
         """Convert this struct into an ordered dictionary.
 
         The primary use for this method is converting a loaded :class:`Struct` into
@@ -342,7 +332,7 @@ class Struct:
 
         return recursive_to_dicts(dct)
 
-    def _to_dict_whatever_possible(self) -> MutableStrDict:
+    def _to_dict_whatever_possible(self) -> dict[str, Any]:
         """Convert this struct to a dict, ignoring serialization-related errors.
 
         We use this to get values for all computed fields as well as any fields that
@@ -370,15 +360,11 @@ class Struct:
                     stacklevel=2,
                 )
 
-        # Using ChainMap on Python 3.7 and 3.8 crashes for some reason when we try to
-        # iterate over it. It appears to be the way that keys are cached.
-        # Normally it'd just be: `return collections.ChainMap(dct, self)`
-        dct.update({name: getattr(self, name) for name in self if name not in dct})
-        return dct
+        return dict(collections.ChainMap(dct, self))
 
     @classmethod
     def from_stream(
-        cls: Type[TStruct],
+        cls: type[TStruct],
         stream: BinaryIO,
         context: Any = None,
         init_kwargs: Optional[StrDict] = None,
@@ -423,7 +409,7 @@ class Struct:
 
     @classmethod
     def from_bytes(
-        cls: Type[TStruct],
+        cls: type[TStruct],
         data: bytes,
         context: Any = None,
         exact: bool = True,
@@ -465,7 +451,7 @@ class Struct:
 
     @classmethod
     def partial_load(
-        cls: Type[TStruct],
+        cls: type[TStruct],
         stream: BinaryIO,
         last_field: Optional[str] = None,
         context: Any = None,
@@ -700,7 +686,7 @@ class Struct:
         # defined.
         self_values = recursive_to_dicts({n: self[n] for n in list(self)})
 
-        if not isinstance(other, (Struct, collections.abc.Mapping)):
+        if not isinstance(other, (Struct, Mapping)):
             return False
 
         other_values = recursive_to_dicts({n: other[n] for n in list(other)})

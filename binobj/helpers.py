@@ -1,8 +1,8 @@
 """Various helper functions for stream I/O."""
 
 import sys
+from collections.abc import Iterator
 from typing import BinaryIO
-from typing import Iterator
 from typing import Optional
 
 from binobj import errors

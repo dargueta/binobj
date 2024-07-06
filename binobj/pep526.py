@@ -33,14 +33,11 @@ Here are a few examples of how you can declare your fields::
 """
 
 import dataclasses
-import functools
 import typing
 import warnings
+from collections.abc import Sequence
 from typing import Any
-from typing import Dict
 from typing import Optional
-from typing import Sequence
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -53,16 +50,6 @@ __all__ = ["dataclass"]
 
 
 TStruct = TypeVar("TStruct", bound=Struct)
-
-
-try:  # pragma: no cover (<py38)
-    from typing import get_args as get_typing_args
-    from typing import get_origin as get_typing_origin
-except ImportError:  # pragma: no cover (py38+)
-    from typing_inspect import get_args as _get_typing_args  # type: ignore[import]
-    from typing_inspect import get_origin as get_typing_origin  # type: ignore[no-redef]
-
-    get_typing_args = functools.partial(_get_typing_args, evaluate=True)
 
 
 @dataclasses.dataclass
@@ -97,16 +84,16 @@ class AnnotationInfo:
 
     @classmethod
     def from_annotation(
-        cls, field_name: Any, annotation: Any, struct_class: Type[TStruct]
+        cls, field_name: Any, annotation: Any, struct_class: type[TStruct]
     ) -> "AnnotationInfo":
         type_class = annotation
-        type_args = get_typing_args(annotation)
+        type_args = typing.get_args(annotation)
         nullable = type(None) in type_args
 
         # Handle Optional[T] which gets rendered as Union[T, type(None)].
         # We have to compare types directly with `is` because the type annotations don't
         # support isinstance() and issubclass().
-        if get_typing_origin(type_class) is Union:
+        if typing.get_origin(type_class) is Union:
             # Filter out None from the type arguments.
             type_args = tuple(t for t in type_args if t is not type(None))  # noqa: E721
 
@@ -121,7 +108,7 @@ class AnnotationInfo:
             # The type annotation was Optional[T]. Pretend the annotation was T, and
             # resolve *its* arguments just in case T is of the form X[Y, ...].
             type_class = type_args[0]
-            type_args = get_typing_args(type_class)
+            type_args = typing.get_args(type_class)
 
         default_value = getattr(struct_class, field_name, fields.UNDEFINED)
         if callable(default_value):
@@ -154,7 +141,7 @@ def annotation_to_field_instance(
         if issubclass(annotation.type_class, fields.Field):
             # This is a Field class. Initialize it with only the arguments we're certain
             # of. This gives us a Field instance.
-            kw: Dict[str, Any]
+            kw: dict[str, Any]
             if annotation.nullable:
                 kw = {"null_value": fields.DEFAULT}
             else:
@@ -175,7 +162,7 @@ def annotation_to_field_instance(
     return annotation.type_class
 
 
-def dataclass(class_object: Type[TStruct]) -> Type[TStruct]:
+def dataclass(class_object: type[TStruct]) -> type[TStruct]:
     """Mark a Struct as using `PEP 526`_ declarations for its fields.
 
     If you use this decorator, *all* fields must be declared with PEP 526 annotations.

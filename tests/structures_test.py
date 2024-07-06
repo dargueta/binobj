@@ -190,7 +190,7 @@ def test_dump__extra_fields(extra_fields):
     """Giving unrecognized fields will crash by default."""
     with pytest.raises(errors.UnexpectedValueError) as errinfo:
         BasicStruct(
-            string="AbCdEfG", int64=-100, uint24=65535, **{k: 0 for k in extra_fields}
+            string="AbCdEfG", int64=-100, uint24=65535, **dict.fromkeys(extra_fields, 0)
         )
 
     assert errinfo.value.names == extra_fields

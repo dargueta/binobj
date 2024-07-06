@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-import collections.abc
 import typing
+from collections.abc import Iterable
+from collections.abc import Mapping
+from collections.abc import Sequence
+from collections.abc import Sized
 from typing import Any
 from typing import BinaryIO
 from typing import Callable
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import overload
-from typing import Tuple
-from typing import Type
 from typing import TypeVar
 from typing import Union as _Union
 
@@ -31,23 +30,23 @@ T = TypeVar("T")
 TStruct = TypeVar("TStruct", bound=Struct)
 
 
-HaltCheckFn = Callable[["Array[T]", BinaryIO, List, Any, StrDict], bool]
+HaltCheckFn = Callable[["Array[T]", BinaryIO, Sequence[T], Any, StrDict], bool]
 
-FieldOrTStruct = _Union[Field[Any], Type[Struct]]
+FieldOrTStruct = _Union[Field[Any], type[Struct]]
 FieldLoadDecider = Callable[
-    [BinaryIO, Tuple[Field[Any], ...], Any, StrDict], Field[Any]
+    [BinaryIO, tuple[Field[Any], ...], Any, StrDict], Field[Any]
 ]
-FieldDumpDecider = Callable[[Any, Tuple[Field[Any], ...], Any, StrDict], Field[Any]]
+FieldDumpDecider = Callable[[Any, tuple[Field[Any], ...], Any, StrDict], Field[Any]]
 
 StructLoadDecider = Callable[
-    [BinaryIO, Tuple[Type[Struct], ...], Any, StrDict], Type[Struct]
+    [BinaryIO, tuple[type[Struct], ...], Any, StrDict], type[Struct]
 ]
 StructDumpDecider = Callable[
-    [Any, Tuple[Type[Struct], ...], Any, StrDict], Type[Struct]
+    [Any, tuple[type[Struct], ...], Any, StrDict], type[Struct]
 ]
 
 
-class Array(Field[List[Optional[T]]]):
+class Array(Field[list[Optional[T]]]):
     """An array of other serializable objects.
 
     :param Field component:
@@ -158,7 +157,7 @@ class Array(Field[List[Optional[T]]]):
     def should_halt(
         seq: "Array[T]",
         stream: BinaryIO,
-        values: List[Optional[T]],
+        values: list[Optional[T]],
         context: Any,
         loaded_fields: StrDict,
     ) -> bool:
@@ -244,7 +243,7 @@ class Array(Field[List[Optional[T]]]):
             ``None``.
         """
         n_elems = self.get_final_element_count(all_fields)
-        if not isinstance(data, collections.abc.Sized):
+        if not isinstance(data, Sized):
             self._dump_unsized(stream, data, n_elems, context, all_fields)
             return
 
@@ -286,7 +285,7 @@ class Array(Field[List[Optional[T]]]):
 
     def _do_load(
         self, stream: BinaryIO, context: Any, loaded_fields: StrDict
-    ) -> List[Optional[T]]:
+    ) -> list[Optional[T]]:
         """Load a structure list from the given stream.
 
         :param BinaryIO stream:
@@ -301,7 +300,7 @@ class Array(Field[List[Optional[T]]]):
         :return: The deserialized data.
         :rtype: list
         """
-        result: List[Optional[T]] = []
+        result: list[Optional[T]] = []
         while not self.halt_check(self, stream, result, context, loaded_fields):
             component = self.component.from_stream(stream, context, loaded_fields)
             if component is NOT_PRESENT:
@@ -314,7 +313,7 @@ class Array(Field[List[Optional[T]]]):
 class Nested(Field[TStruct]):
     """Used to nest one struct inside of another.
 
-    :param Type[~binobj.structures.Struct] struct_class:
+    :param type[~binobj.structures.Struct] struct_class:
         The struct class to wrap as a field. Not an instance!
 
     .. code-block:: python
@@ -332,7 +331,7 @@ class Nested(Field[TStruct]):
         value. Now the sizes are the same.
     """
 
-    def __init__(self, struct_class: Type[TStruct], *args: Any, **kwargs: Any):
+    def __init__(self, struct_class: type[TStruct], *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
         self._size = struct_class.get_size()
@@ -459,7 +458,7 @@ class Union(Field[Any]):
         if isinstance(dumper, Field):
             dumper.to_stream(stream, data, context, all_fields)
         elif issubclass(dumper, Struct):
-            if not isinstance(data, collections.abc.Mapping):
+            if not isinstance(data, Mapping):
                 raise TypeError(
                     f"Cannot dump a non-Mapping-like object as a {dumper!r}: {data!r}",
                 )

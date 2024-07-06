@@ -7,17 +7,15 @@ import io
 import os
 import typing
 import warnings
+from collections.abc import Collection
+from collections.abc import Iterable
 from typing import Any
 from typing import BinaryIO
 from typing import Callable
 from typing import ClassVar
-from typing import Collection
-from typing import FrozenSet
 from typing import Generic
-from typing import Iterable
 from typing import Optional
 from typing import overload
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -212,10 +210,10 @@ class Field(Generic[T]):
     ``Meta`` class options.
     """
 
-    __explicit_init_args__: FrozenSet[str]
+    __explicit_init_args__: frozenset[str]
     """The names of arguments that were explicitly passed to the constructor."""
 
-    __objclass__: Type["Struct"]
+    __objclass__: type["Struct"]
     """The :class:`~binobj.structures.Struct` class that this ``Field`` is bound to.
 
     This is the class object, not a particular instance of the class.
@@ -252,7 +250,7 @@ class Field(Generic[T]):
 
     _compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]]  # noqa: TAE002
 
-    def __new__(cls: Type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
+    def __new__(cls: type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
         """Create a new instance, recording which keyword arguments were passed in.
 
         Recording the explicit arguments is necessary so that a field can use the
@@ -982,18 +980,21 @@ class Field(Generic[T]):
         return data_read
 
     @overload
-    def __get__(self, instance: None, owner: Type["Struct"]) -> "Field[T]":
-        ...  # pragma: no cover
+    def __get__(
+        self, instance: None, owner: type["Struct"]
+    ) -> "Field[T]": ...  # pragma: no cover
 
     @overload
-    def __get__(self, instance: "Struct", owner: Type["Struct"]) -> Optional[T]:
-        ...  # pragma: no cover
+    def __get__(
+        self, instance: "Struct", owner: type["Struct"]
+    ) -> Optional[T]: ...  # pragma: no cover
 
     # This annotation is bogus and only here to make MyPy happy. See bug report here:
     # https://github.com/python/mypy/issues/9416
     @overload
-    def __get__(self, instance: "Field[Any]", owner: Type["Field[Any]"]) -> "Field[T]":
-        ...  # pragma: no cover
+    def __get__(
+        self, instance: "Field[Any]", owner: type["Field[Any]"]
+    ) -> "Field[T]": ...  # pragma: no cover
 
     def __get__(self, instance, owner):  # type: ignore[no-untyped-def]
         if instance is None:

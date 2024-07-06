@@ -340,7 +340,7 @@ def test_union__structs__dump_basic(item0, item1):
     assert struct.to_bytes() == b"\x01\x7f\x55\xaa"
 
 
-@pytest.mark.xfail()
+@pytest.mark.xfail
 def test_union__structs__bad_data():
     # Because we convert structs to dicts before serializing, serialization crashes early.
     # `item` should be UnionItemA, deliberately passing the wrong one

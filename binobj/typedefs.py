@@ -1,16 +1,14 @@
 """Definitions of aliases for common type annotations."""
 
 import typing
+from collections.abc import Mapping
+from collections.abc import MutableMapping
 from typing import Any
 from typing import Callable
-from typing import Mapping
-from typing import MutableMapping
+from typing import Literal
 from typing import Optional
-from typing import Type
 from typing import TypeVar
 from typing import Union
-
-from typing_extensions import Literal
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
@@ -38,7 +36,7 @@ StructValidator = Callable[["Struct", StrDict], Optional[bool]]
 FieldOrName = Union[str, "Field[Any]"]
 """A :class:`~binobj.fields.base.Field` object or its name."""
 
-StructOrName = Union[str, "Struct", Type["Struct"]]
+StructOrName = Union[str, "Struct", type["Struct"]]
 """A :class:`~binobj.structures.Struct` or its name."""
 
 EndianString = Literal["little", "big"]
