@@ -16,8 +16,8 @@ from typing import BinaryIO
 from typing import ClassVar
 from typing import Final
 from typing import Optional
-from typing import Protocol
 from typing import overload
+from typing import Protocol
 from typing import TypeVar
 from typing import Union
 
@@ -38,7 +38,6 @@ __all__ = ["Struct"]
 T = TypeVar("T")
 K = TypeVar("K")
 V = TypeVar("V")
-TClass = TypeVar("TClass", bound=type, covariant=True)
 TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
@@ -216,7 +215,8 @@ class StructProtocol(Protocol):
     It's only of use for code that inspects struct definitions.
     """
 
-    def get_size(self) -> Optional[int]: ...
+    @classmethod
+    def get_size(cls) -> Optional[int]: ...
 
 
 class Struct(StructProtocol):
@@ -719,7 +719,7 @@ class Struct(StructProtocol):
         super().__init_subclass__()
 
 
-def initialize_struct_class(cls: TClass) -> None:
+def initialize_struct_class(cls: type) -> None:
     # Build a list of all the base classes that appear to be Structs.
     struct_bases = [
         typing.cast(type[StructProtocol], b)
@@ -782,6 +782,12 @@ def initialize_struct_class(cls: TClass) -> None:
     # uses this as an aid.
     for field in metadata.components.values():
         field.__objclass__ = cls
+
+
+def is_struct_class_or_instance(
+    thing: object,
+) -> TypeGuard[Union[StructProtocol, type[StructProtocol]]]:  # noqa: TAE002
+    return hasattr(thing, STRUCT_META_NAME)
 
 
 @dc.dataclass
