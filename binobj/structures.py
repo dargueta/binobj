@@ -14,9 +14,14 @@ from collections.abc import Sequence
 from typing import Any
 from typing import BinaryIO
 from typing import ClassVar
+from typing import Final
 from typing import Optional
+from typing import Protocol
 from typing import overload
 from typing import TypeVar
+from typing import Union
+
+from typing_extensions import TypeGuard
 
 from binobj import decorators
 from binobj import errors
@@ -33,7 +38,11 @@ __all__ = ["Struct"]
 T = TypeVar("T")
 K = TypeVar("K")
 V = TypeVar("V")
+TClass = TypeVar("TClass", bound=type, covariant=True)
 TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
+
+
+STRUCT_META_NAME: Final = "__binobj_struct__"
 
 
 @dc.dataclass
@@ -199,7 +208,18 @@ def recursive_to_dicts(item):  # type: ignore[no-untyped-def]
     return item
 
 
-class Struct:
+class StructProtocol(Protocol):
+    __binobj_struct__: ClassVar[StructMetadata]
+    """A class attribute defining features of the struct, such as its fields,
+    validators, default values, etc.
+
+    It's only of use for code that inspects struct definitions.
+    """
+
+    def get_size(self) -> Optional[int]: ...
+
+
+class Struct(StructProtocol):
     """An ordered collection of fields and other structures.
 
     .. versionchanged:: 0.5.0
@@ -214,13 +234,6 @@ class Struct:
 
     .. versionchanged:: 0.10.0
         The ``__objclass__`` attribute is set on all fields.
-    """
-
-    __binobj_struct__: ClassVar[StructMetadata]
-    """A class attribute defining features of the struct, such as its fields,
-    validators, default values, etc.
-
-    It's only of use for code that inspects struct definitions.
     """
 
     def __init__(self, **values: Any):
@@ -702,72 +715,73 @@ class Struct:
         )
 
     def __init_subclass__(cls) -> None:
-        # Build a list of all the base classes that appear to be Structs.
-        struct_bases = [
-            b for b in cls.__bases__ if issubclass(b, Struct) and b is not Struct
-        ]
-
-        if len(struct_bases) > 1:
-            raise errors.MultipleInheritanceError(struct=cls.__name__)
-
-        metadata = StructMetadata(name=cls.__name__)
-        namespace = vars(cls)
-
-        if struct_bases:
-            # Build a dictionary of all of the fields in the parent struct first, then
-            # add in the fields defined in this struct.
-            base = struct_bases[0]
-
-            for comp_name, item in base.__binobj_struct__.components.items():
-                if isinstance(item, fields.Field):
-                    metadata.components[comp_name] = item
-
-            # Copy the dict of field validators for the parent struct, making a separate
-            # copy of the validator list for this class. This is so that child classes
-            # can add validators for fields defined in the parent class without
-            # affecting the parent class.
-            metadata.field_validators = {
-                f_name: list(v_list)
-                for f_name, v_list in base.__binobj_struct__.field_validators.items()
-            }
-
-            # Similarly, make a copy of the struct validators of the parent class.
-            metadata.struct_validators = list(base.__binobj_struct__.struct_validators)
-
-            # Start the byte offset at the end of the base class. We won't be able to do
-            # this if the base class has variable-length fields.
-            byte_offset = base.get_size()
-        else:
-            # Else: This struct doesn't inherit from another struct, so we're starting
-            # at offset 0. There are no field or struct validators to copy.
-            byte_offset = 0
-
-        metadata.field_validators.update(
-            {
-                name: []
-                for name, obj in namespace.items()
-                if isinstance(obj, fields.Field)
-            }
-        )
-
-        # Load any construction options the caller may have defined.
-        if hasattr(cls, "Meta"):
-            metadata.load_meta_options(cls.Meta)
-
-        # Enumerate the declared fields and bind them to this struct.
-        metadata.num_own_fields = collect_assigned_fields(
-            cls.__name__, namespace, metadata, byte_offset
-        )
-        bind_validators_to_struct(namespace, metadata)
-
-        cls.__binobj_struct__ = metadata
-
-        # Set __objclass__ on all fields to aid type introspection. The `inspect` module
-        # uses this as an aid.
-        for field in metadata.components.values():
-            field.__objclass__ = cls
-
+        initialize_struct_class(cls)
         super().__init_subclass__()
+
+
+def initialize_struct_class(cls: TClass) -> None:
+    # Build a list of all the base classes that appear to be Structs.
+    struct_bases = [
+        typing.cast(type[StructProtocol], b)
+        for b in cls.__bases__
+        if hasattr(b, STRUCT_META_NAME) and b is not Struct
+    ]
+
+    if len(struct_bases) > 1:
+        raise errors.MultipleInheritanceError(struct=cls.__name__)
+
+    metadata = StructMetadata(name=cls.__name__)
+    namespace = vars(cls)
+
+    if struct_bases:
+        # Build a dictionary of all of the fields in the parent struct first, then
+        # add in the fields defined in this struct.
+        base = struct_bases[0]
+
+        for comp_name, item in base.__binobj_struct__.components.items():
+            if isinstance(item, fields.Field):
+                metadata.components[comp_name] = item
+
+        # Copy the dict of field validators for the parent struct, making a separate
+        # copy of the validator list for this class. This is so that child classes
+        # can add validators for fields defined in the parent class without
+        # affecting the parent class.
+        metadata.field_validators = {
+            f_name: list(v_list)
+            for f_name, v_list in base.__binobj_struct__.field_validators.items()
+        }
+
+        # Similarly, make a copy of the struct validators of the parent class.
+        metadata.struct_validators = list(base.__binobj_struct__.struct_validators)
+
+        # Start the byte offset at the end of the base class. We won't be able to do
+        # this if the base class has variable-length fields.
+        byte_offset = base.get_size()
+    else:
+        # Else: This struct doesn't inherit from another struct, so we're starting
+        # at offset 0. There are no field or struct validators to copy.
+        byte_offset = 0
+
+    metadata.field_validators.update(
+        {name: [] for name, obj in namespace.items() if isinstance(obj, fields.Field)}
+    )
+
+    # Load any construction options the caller may have defined.
+    if hasattr(cls, "Meta"):
+        metadata.load_meta_options(cls.Meta)
+
+    # Enumerate the declared fields and bind them to this struct.
+    metadata.num_own_fields = collect_assigned_fields(
+        cls.__name__, namespace, metadata, byte_offset
+    )
+    bind_validators_to_struct(namespace, metadata)
+
+    setattr(cls, STRUCT_META_NAME, metadata)
+
+    # Set __objclass__ on all fields to aid type introspection. The `inspect` module
+    # uses this as an aid.
+    for field in metadata.components.values():
+        field.__objclass__ = cls
 
 
 @dc.dataclass
