@@ -1,4 +1,5 @@
 """An example using WAV audio."""
+from __future__ import annotations
 
 import io
 import math

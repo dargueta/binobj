@@ -1,5 +1,7 @@
 """Classes defining structures and unions."""
 
+from __future__ import annotations
+
 import collections
 import copy
 import dataclasses as dc
@@ -683,7 +685,7 @@ class Struct(StructProtocol):
 
         return size
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         # Allow comparison to UNDEFINED. The result is True if all fields in this
         # struct are undefined, False otherwise.
         if other is fields.UNDEFINED:
@@ -786,7 +788,7 @@ def initialize_struct_class(cls: type) -> None:
 
 def is_struct_class_or_instance(
     thing: object,
-) -> TypeGuard[Union[StructProtocol, type[StructProtocol]]]:  # noqa: TAE002
+) -> TypeGuard[Union[StructProtocol, type[StructProtocol]]]:
     return hasattr(thing, STRUCT_META_NAME)
 
 

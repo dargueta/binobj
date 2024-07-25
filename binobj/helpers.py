@@ -1,4 +1,5 @@
 """Various helper functions for stream I/O."""
+from __future__ import annotations
 
 import sys
 from collections.abc import Iterator

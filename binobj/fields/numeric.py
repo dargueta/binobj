@@ -1,5 +1,7 @@
 """Fields representing numeric values, such as integers and floats."""
 
+from __future__ import annotations
+
 import datetime
 import struct
 import sys

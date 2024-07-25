@@ -1,4 +1,5 @@
 """Tests for the variable-length integers."""
+from __future__ import annotations
 
 import io
 

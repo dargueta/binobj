@@ -1,5 +1,7 @@
 """Base classes and definitions common to all Fields."""
 
+from __future__ import annotations
+
 import abc
 import enum
 import functools

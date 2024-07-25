@@ -31,6 +31,7 @@ Here are a few examples of how you can declare your fields::
 
 .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
 """
+from __future__ import annotations
 
 import dataclasses
 import typing

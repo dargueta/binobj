@@ -3,6 +3,7 @@
 This file MUST be ignored by Python 3.5 tests. If not, importing it will trigger syntax
 errors and you will be sad.
 """
+from __future__ import annotations
 
 import random
 import typing
@@ -20,7 +21,7 @@ from binobj.pep526 import dataclass
 @dataclass
 class BasicClass(binobj.Struct):
     some_value: fields.UInt16
-    string: fields.String(size=16, encoding="ibm500")  # noqa:F821
+    string: fields.String(size=16, encoding="ibm500")
     other_string: fields.StringZ = "Default Value"
 
 

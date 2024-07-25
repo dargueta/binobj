@@ -1,4 +1,5 @@
 """Function and method decorators."""
+from __future__ import annotations
 
 import functools
 from collections.abc import Iterable

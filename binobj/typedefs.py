@@ -1,4 +1,5 @@
 """Definitions of aliases for common type annotations."""
+from __future__ import annotations
 
 import typing
 from collections.abc import Mapping

@@ -2,6 +2,7 @@
 
 .. _variable-length integers: https://en.wikipedia.org/wiki/Variable-length_quantity
 """
+from __future__ import annotations
 
 import dataclasses
 import enum

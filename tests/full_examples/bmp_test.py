@@ -1,4 +1,5 @@
 """An example using a Windows BMP file."""
+from __future__ import annotations
 
 import io
 import os

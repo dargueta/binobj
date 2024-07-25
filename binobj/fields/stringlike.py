@@ -1,5 +1,7 @@
 """Fields representing strings and byte sequences."""
 
+from __future__ import annotations
+
 import codecs
 import enum
 import io
