@@ -22,6 +22,7 @@ from typing import TypeVar
 from typing import Union
 
 import more_itertools as m_iter
+from typing_extensions import Self
 
 from binobj import errors
 from binobj import helpers
@@ -252,7 +253,7 @@ class Field(Generic[T]):
 
     _compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]]  # noqa: TAE002
 
-    def __new__(cls: type["Field[T]"], *_args: Any, **kwargs: Any) -> "Field[T]":
+    def __new__(cls, *_args: Any, **kwargs: Any) -> Self:
         """Create a new instance, recording which keyword arguments were passed in.
 
         Recording the explicit arguments is necessary so that a field can use the

@@ -23,6 +23,7 @@ from typing import Protocol
 from typing import TypeVar
 from typing import Union
 
+from typing_extensions import Self
 from typing_extensions import TypeGuard
 
 from binobj import decorators
@@ -379,11 +380,11 @@ class Struct(StructProtocol):
 
     @classmethod
     def from_stream(
-        cls: type[TStruct],
+        cls,
         stream: BinaryIO,
         context: Any = None,
         init_kwargs: Optional[StrDict] = None,
-    ) -> TStruct:
+    ) -> Self:
         """Load a struct from the given stream.
 
         :param BinaryIO stream:
@@ -424,12 +425,12 @@ class Struct(StructProtocol):
 
     @classmethod
     def from_bytes(
-        cls: type[TStruct],
+        cls,
         data: bytes,
         context: Any = None,
         exact: bool = True,
         init_kwargs: Optional[StrDict] = None,
-    ) -> TStruct:
+    ) -> Self:
         """Load a struct from the given byte string.
 
         :param bytes data:
@@ -466,11 +467,11 @@ class Struct(StructProtocol):
 
     @classmethod
     def partial_load(
-        cls: type[TStruct],
+        cls,
         stream: BinaryIO,
         last_field: Optional[str] = None,
         context: Any = None,
-    ) -> TStruct:
+    ) -> Self:
         """Partially load this object, either until EOF or the named field.
 
         All fields up to and including the field named in ``last_field`` will be loaded
