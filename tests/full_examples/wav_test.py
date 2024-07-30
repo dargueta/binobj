@@ -1,8 +1,10 @@
 """An example using WAV audio."""
+
 from __future__ import annotations
 
 import io
 import math
+import pathlib
 import wave
 
 import binobj
@@ -56,37 +58,36 @@ class WAVDataChunk(binobj.Struct):
         return len(all_fields["audio_data"])
 
 
-def test_wav__basic_read(tmpdir):
+def test_wav__basic_read(tmp_path: pathlib.Path) -> None:
     """Create 16-bit mono audio sampled at 8kHz and hope the header data we read
     back matches.
     """
-    file_path = str(tmpdir.join("test.wav"))
+    file_path = tmp_path / "test.wav"
 
-    wav = wave.open(file_path, "wb")
-    wav.setnchannels(1)
-    wav.setframerate(8000)
-    wav.setsampwidth(2)
+    with file_path.open("wb") as fd, wave.open(fd, "wb") as wav:
+        wav.setnchannels(1)
+        wav.setframerate(8000)
+        wav.setsampwidth(2)
 
-    # Write 4 seconds of audio, each second with a different tone. One frame is
-    # 16 bits, 8000 frames per second -> 16000 bytes per second. Total: 64000
-    this_frame = io.BytesIO()
+        # Write 4 seconds of audio, each second with a different tone. One frame is
+        # 16 bits, 8000 frames per second -> 16000 bytes per second. Total: 64000
+        this_frame = io.BytesIO()
 
-    for herz in (440, 540, 640, 740):
-        for frame_i in range(8000):
-            theta = (frame_i / 8000) * (2 * math.pi) * herz
-            sample = int(16384 * math.sin(theta)) + 16384
-            this_frame.write(sample.to_bytes(2, "little", signed=False))
+        for herz in (440, 540, 640, 740):
+            for frame_i in range(8000):
+                theta = (frame_i / 8000) * (2 * math.pi) * herz
+                sample = int(16384 * math.sin(theta)) + 16384
+                this_frame.write(sample.to_bytes(2, "little", signed=False))
 
-        wav.writeframes(this_frame.getvalue())
+            wav.writeframes(this_frame.getvalue())
 
-        this_frame.seek(0)
-        this_frame.truncate()
-    wav.close()
+            this_frame.seek(0)
+            this_frame.truncate()
 
     # Audio file has been written to test.wav. Now we need to read it back and
     # verify that we get sane values in the header. We're only checking the
     # header!
-    with open(file_path, "rb") as fd:
+    with file_path.open("rb") as fd:
         file_header = WAVFileHeader.from_stream(fd)
         assert file_header.riff_header == b"RIFF"
         assert file_header.file_format == b"WAVE"
@@ -105,9 +106,9 @@ def test_wav__basic_read(tmpdir):
         assert len(data_chunk_header.audio_data) == data_chunk_header.size
 
 
-def test_wav__basic_write(tmpdir):
+def test_wav__basic_write(tmp_path: pathlib.Path):
     """Write a 16-bit mono audio file sampled at 24kHz and try to read it back."""
-    file_path = str(tmpdir.join("test.wav"))
+    file_path = tmp_path / "test.wav"
 
     format_chunk = WAVFormatChunk(
         audio_format=1, n_channels=1, sample_rate=24000, bits_per_sample=16
@@ -117,15 +118,14 @@ def test_wav__basic_write(tmpdir):
     data_chunk = WAVDataChunk(audio_data=b"\xaa\x55" * 96000)
     header = WAVFileHeader(size=len(format_chunk) + len(data_chunk))
 
-    with open(file_path, "wb") as fd:
+    with file_path.open("wb") as fd:
         header.to_stream(fd)
         format_chunk.to_stream(fd)
         data_chunk.to_stream(fd)
         fd.write(data_chunk.audio_data)
 
-    wav = wave.open(file_path, "rb")
-    assert wav.getframerate() == 24000
-    assert wav.getnchannels() == 1
-    assert wav.getnframes() == 96000
-    assert wav.getsampwidth() == 2
-    wav.close()
+    with file_path.open("rb") as fd, wave.open(fd, "rb") as wav:
+        assert wav.getframerate() == 24000
+        assert wav.getnchannels() == 1
+        assert wav.getnframes() == 96000
+        assert wav.getsampwidth() == 2

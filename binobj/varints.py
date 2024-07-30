@@ -2,6 +2,7 @@
 
 .. _variable-length integers: https://en.wikipedia.org/wiki/Variable-length_quantity
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -175,10 +176,7 @@ def encode_integer_uleb128(value: int) -> bytes:
     output = bytearray()
 
     while value > 0:
-        if value > 127:
-            continue_bit = 0x80
-        else:
-            continue_bit = 0
+        continue_bit = 128 if value > 127 else 0
         output.append(continue_bit | (value & 0x7F))
         value >>= 7
 

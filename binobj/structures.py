@@ -41,7 +41,6 @@ __all__ = ["Struct"]
 T = TypeVar("T")
 K = TypeVar("K")
 V = TypeVar("V")
-TStruct = TypeVar("TStruct", covariant=True, bound="Struct")
 
 
 STRUCT_META_NAME: Final = "__binobj_struct__"
@@ -193,7 +192,7 @@ def recursive_to_dicts(item: Mapping[K, V]) -> dict[K, V]: ...
 def recursive_to_dicts(item: Sequence[T]) -> list[T]: ...
 
 
-def recursive_to_dicts(item):  # type: ignore[no-untyped-def]
+def recursive_to_dicts(item: object) -> Any:
     """Ensure that any nested structures are also converted to dictionaries.
 
     This is used when a :class:`Struct` is converted to a dictionary.
@@ -239,7 +238,7 @@ class Struct(StructProtocol):
         The ``__objclass__`` attribute is set on all fields.
     """
 
-    def __init__(self, **values: Any):
+    def __init__(self, **values: object):
         extra_keys = set(values.keys() - self.__binobj_struct__.components.keys())
         if extra_keys:
             raise errors.UnexpectedValueError(struct=self, name=extra_keys)
@@ -270,7 +269,7 @@ class Struct(StructProtocol):
         for struct_validator in self.__binobj_struct__.struct_validators:
             struct_validator(self, typing.cast(StrDict, self))
 
-    def to_stream(self, stream: BinaryIO, context: Any = None) -> None:
+    def to_stream(self, stream: BinaryIO, context: object = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
         :param BinaryIO stream:
@@ -291,7 +290,7 @@ class Struct(StructProtocol):
             if value is not fields.NOT_PRESENT:
                 field.to_stream(stream, value, context=context, all_fields=all_fields)
 
-    def to_bytes(self, context: Any = None) -> bytes:
+    def to_bytes(self, context: object = None) -> bytes:
         """Convert the given data into bytes.
 
         :param context:
@@ -382,7 +381,7 @@ class Struct(StructProtocol):
     def from_stream(
         cls,
         stream: BinaryIO,
-        context: Any = None,
+        context: object = None,
         init_kwargs: Optional[StrDict] = None,
     ) -> Self:
         """Load a struct from the given stream.
@@ -427,7 +426,7 @@ class Struct(StructProtocol):
     def from_bytes(
         cls,
         data: bytes,
-        context: Any = None,
+        context: object = None,
         exact: bool = True,
         init_kwargs: Optional[StrDict] = None,
     ) -> Self:
@@ -457,20 +456,20 @@ class Struct(StructProtocol):
         stream = io.BytesIO(data)
         loaded_data = cls.from_stream(stream, context, init_kwargs)
 
-        if exact and (stream.tell() < len(data) - 1):
+        here = stream.tell()
+        if exact and (here < len(data) - 1):
             raise errors.ExtraneousDataError(
-                "Read %d bytes, but there are %d in the input data."
-                % (stream.tell() + 1, len(data)),
+                f"Read {here + 1} bytes, but there are {len(data)} in the input data.",
                 offset=stream.tell(),
             )
-        return loaded_data  # noqa: R504
+        return loaded_data
 
     @classmethod
     def partial_load(
         cls,
         stream: BinaryIO,
         last_field: Optional[str] = None,
-        context: Any = None,
+        context: object = None,
     ) -> Self:
         """Partially load this object, either until EOF or the named field.
 
@@ -501,7 +500,7 @@ class Struct(StructProtocol):
             and last_field not in cls.__binobj_struct__.components
         ):
             raise ValueError(
-                "%s doesn't have a field named %r." % (cls.__name__, last_field)
+                f"{cls.__name__} doesn't have a field named {last_field!r}."
             )
 
         result: MutableStrDict = {}
@@ -531,7 +530,7 @@ class Struct(StructProtocol):
         return cls(**result)
 
     @classmethod
-    def get_field(cls, stream: BinaryIO, name: str, context: Any = None) -> Any:
+    def get_field(cls, stream: BinaryIO, name: str, context: object = None) -> Any:
         """Return the value of a single field.
 
         If the field is at a fixed byte offset from the beginning of the struct, it'll
@@ -561,7 +560,7 @@ class Struct(StructProtocol):
             completely read.
         """
         if name not in cls.__binobj_struct__.components:
-            raise ValueError("%s doesn't have a field named %r." % (cls.__name__, name))
+            raise ValueError(f"{cls.__name__} doesn't have a field named {name!r}.")
 
         field = cls.__binobj_struct__.components[name]
         original_offset = stream.tell()
@@ -586,7 +585,7 @@ class Struct(StructProtocol):
         return loaded_data[name]
 
     def partial_dump(
-        self, stream: BinaryIO, last_field: Optional[str] = None, context: Any = None
+        self, stream: BinaryIO, last_field: Optional[str] = None, context: object = None
     ) -> None:
         """Partially dump the object, up to and including the last named field.
 
@@ -647,21 +646,21 @@ class Struct(StructProtocol):
     def __getitem__(self, field_name: str) -> Any:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
-                "Struct %r has no field named %r." % (type(self).__name__, field_name)
+                f"Struct {type(self).__name__!r} has no field named {field_name!r}."
             )
         return getattr(self, field_name)
 
-    def __setitem__(self, field_name: str, value: Any) -> None:
+    def __setitem__(self, field_name: str, value: object) -> None:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
-                "Struct %r has no field named %r." % (type(self).__name__, field_name)
+                f"Struct {type(self).__name__!r} has no field named {field_name!r}."
             )
         setattr(self, field_name, value)
 
     def __delitem__(self, field_name: str) -> None:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
-                "Struct %r has no field named %r." % (type(self).__name__, field_name)
+                f"Struct {type(self).__name__!r} has no field named {field_name!r}."
             )
         self.__values__.pop(field_name, None)
 
@@ -820,7 +819,7 @@ class MutableStructMappingProxy(StructMappingProxy, MutableMapping[str, Any]):
     .. versionadded:: 0.12.0
     """
 
-    def __setitem__(self, key: str, value: Any) -> None:
+    def __setitem__(self, key: str, value: object) -> None:
         self.struct[key] = value
 
     def __delitem__(self, key: str) -> None:

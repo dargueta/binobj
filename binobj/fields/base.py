@@ -251,9 +251,9 @@ class Field(Generic[T]):
     _default: Union[T, None, _Undefined]
     """The default dump value for the field if the user doesn't pass a value in."""
 
-    _compute_fn: Optional[Callable[["Field[T]", StrDict], Optional[T]]]  # noqa: TAE002
+    _compute_fn: Optional[Callable[[Field[T], StrDict], Optional[T]]]  # noqa: TAE002
 
-    def __new__(cls, *_args: Any, **kwargs: Any) -> Self:
+    def __new__(cls, *_args: object, **kwargs: object) -> Self:
         """Create a new instance, recording which keyword arguments were passed in.
 
         Recording the explicit arguments is necessary so that a field can use the
@@ -272,7 +272,7 @@ class Field(Generic[T]):
         factory: Optional[Callable[[], Optional[T]]] = None,
         discard: bool = False,
         null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
-        size: Union[int, str, "Field[int]", None] = None,
+        size: Union[int, str, Field[int], None] = None,
         validate: Union[FieldValidator, Iterable[FieldValidator]] = (),
         present: Callable[[StrDict, Any, Optional[BinaryIO]], bool] = (lambda *_: True),
         not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT,
@@ -319,7 +319,7 @@ class Field(Generic[T]):
             self._size = self._size_for_value(const)
 
     @property
-    def size(self) -> Union[int, str, "Field[int]", None]:
+    def size(self) -> Union[int, str, Field[int], None]:
         """The size of this field, in bytes.
 
         If the field is of variable size, such as a null-terminated string, this will be
@@ -339,7 +339,7 @@ class Field(Generic[T]):
 
     def bind_to_container(
         self,
-        struct_info: "StructMetadata",
+        struct_info: StructMetadata,
         name: str,
         index: int,
         offset: Optional[int] = None,
@@ -399,7 +399,7 @@ class Field(Generic[T]):
     def compute_value_for_dump(
         self,
         all_values: StrDict,
-        context: Any = None,
+        context: object = None,
     ) -> Union[T, None, _NotPresent]:
         """Calculate the value for this field upon dumping.
 
@@ -430,8 +430,8 @@ class Field(Generic[T]):
             instead of returning :data:`UNDEFINED`.
 
         .. versionchanged:: 0.11.0
-            * The ``context`` argument was added, and is now passed to the :attr:`present`
-              callable.
+            * The ``context`` argument was added, and is now passed to the
+              :attr:`present` callable.
             * ``present()`` is now always called, even if the value of the field is set.
               Before, if a field had a value explicitly set, it would be included in the
               output even if present() would've returned False.
@@ -458,7 +458,7 @@ class Field(Generic[T]):
             raise errors.MissingRequiredValueError(field=self)
         return value_to_dump  # type: ignore[no-any-return]
 
-    def computes(self, method: Callable[["Field[T]", StrDict], Optional[T]]) -> None:
+    def computes(self, method: Callable[[Field[T], StrDict], Optional[T]]) -> None:
         """Decorator that marks a function as computing the value for a field.
 
         You can use this for automatically assigning values based on other fields. For
@@ -541,7 +541,7 @@ class Field(Generic[T]):
         """
         return self.const is UNDEFINED and self.default is UNDEFINED
 
-    def _size_for_value(self, value: T) -> Optional[int]:
+    def _size_for_value(self, value: T) -> Optional[int]:  # noqa: ARG002
         """Get the size of the serialized value, or ``None`` if it can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const`` is
@@ -658,7 +658,7 @@ class Field(Generic[T]):
     def from_stream(  # noqa: C901
         self,
         stream: BinaryIO,
-        context: Any = None,
+        context: object = None,
         loaded_fields: Optional[StrDict] = None,
     ) -> Union[T, None, _NotPresent]:
         """Load data from the given stream.
@@ -734,7 +734,7 @@ class Field(Generic[T]):
     def from_bytes(
         self,
         data: bytes,
-        context: Any = None,
+        context: object = None,
         exact: bool = True,
         loaded_fields: Optional[StrDict] = None,
     ) -> Union[T, None, _NotPresent]:
@@ -761,16 +761,17 @@ class Field(Generic[T]):
         stream = io.BytesIO(data)
         loaded_data = self.from_stream(stream, context, loaded_fields)
 
-        if exact and (stream.tell() < len(data)):
+        here = stream.tell()
+        if exact and (here < len(data)):
             # TODO (dargueta): Better error message.
             raise errors.ExtraneousDataError(
-                "Expected to read %d bytes, read %d." % (stream.tell(), len(data))
+                f"Expected to read {here + 1} bytes, read {len(data)}."
             )
-        return loaded_data  # noqa: R504
+        return loaded_data
 
     @abc.abstractmethod
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> Optional[T]:
         """Load an object from the stream.
 
@@ -790,7 +791,7 @@ class Field(Generic[T]):
         self,
         stream: BinaryIO,
         data: Union[T, None, _Default] = DEFAULT,
-        context: Any = None,
+        context: object = None,
         all_fields: Optional[StrDict] = None,
     ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
@@ -853,7 +854,7 @@ class Field(Generic[T]):
     def to_bytes(
         self,
         data: Union[Optional[T], _Default] = DEFAULT,
-        context: Any = None,
+        context: object = None,
         all_fields: Optional[StrDict] = None,
     ) -> bytes:
         """Convert the given data into bytes.
@@ -877,7 +878,7 @@ class Field(Generic[T]):
 
     @abc.abstractmethod
     def _do_dump(
-        self, stream: BinaryIO, data: T, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: T, context: object, all_fields: StrDict
     ) -> None:
         """Write the given data to the byte stream.
 
@@ -1006,7 +1007,7 @@ class Field(Generic[T]):
             return instance.__values__[self.name]
         return self.compute_value_for_dump(instance)
 
-    def __set__(self, instance: "Struct", value: Optional[T]) -> None:
+    def __set__(self, instance: Struct, value: Optional[T]) -> None:
         if self._compute_fn or self.const is not UNDEFINED:
             raise errors.ImmutableFieldError(field=self)
 
@@ -1014,7 +1015,7 @@ class Field(Generic[T]):
             validator(value)
         instance.__values__[self.name] = value
 
-    def __set_name__(self, owner: "Struct", name: str) -> None:
+    def __set_name__(self, owner: Struct, name: str) -> None:
         maybe_assign_name(self, name)
 
     def __str__(self) -> str:

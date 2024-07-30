@@ -1,4 +1,5 @@
 """Errors for the binobj package."""
+
 from __future__ import annotations
 
 import typing

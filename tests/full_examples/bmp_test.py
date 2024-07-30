@@ -1,8 +1,9 @@
 """An example using a Windows BMP file."""
+
 from __future__ import annotations
 
 import io
-import os
+import pathlib
 
 import pytest
 
@@ -10,7 +11,7 @@ import binobj
 from binobj import fields
 
 
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+TEST_DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 
 
 class SimpleBMPFileHeader(binobj.Struct):
@@ -45,8 +46,7 @@ class SimpleBMPFileHeader(binobj.Struct):
 @pytest.fixture(scope="session")
 def bmp_file():
     """Return the test bitmap file as :class:`bytes`."""
-    with open(os.path.join(TEST_DATA_DIR, "test_image.bmp"), "rb") as fdesc:
-        return fdesc.read()
+    return (TEST_DATA_DIR / "test_image.bmp").read_text()
 
 
 def test_basic_bmp__loads(bmp_file):

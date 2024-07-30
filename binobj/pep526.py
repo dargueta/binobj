@@ -31,6 +31,7 @@ Here are a few examples of how you can declare your fields::
 
 .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -85,8 +86,8 @@ class AnnotationInfo:
 
     @classmethod
     def from_annotation(
-        cls, field_name: Any, annotation: Any, struct_class: type[TStruct]
-    ) -> "AnnotationInfo":
+        cls, field_name: str, annotation: object, struct_class: type[TStruct]
+    ) -> AnnotationInfo:
         type_class = annotation
         type_args = typing.get_args(annotation)
         nullable = type(None) in type_args
@@ -96,7 +97,7 @@ class AnnotationInfo:
         # support isinstance() and issubclass().
         if typing.get_origin(type_class) is Union:
             # Filter out None from the type arguments.
-            type_args = tuple(t for t in type_args if t is not type(None))  # noqa: E721
+            type_args = tuple(t for t in type_args if t is not type(None))
 
             if len(type_args) != 1:
                 # If we get here then the type annotation for this field is a Union with
@@ -227,7 +228,7 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
         # object. Otherwise, we'll end up with None or the default value provided:
         #
         #  class MyStruct:
-        #      foo: UInt8 = 123  # noqa: E800
+        #      foo: UInt8 = 123
         #
         # If we don't do this `MyStruct.foo` will be `123`, not a Field object.
         setattr(class_object, name, field_instance)

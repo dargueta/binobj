@@ -6,10 +6,11 @@ import datetime
 import struct
 import sys
 import warnings
-from typing import Any
 from typing import BinaryIO
 from typing import Literal
 from typing import Optional
+
+from typing_extensions import override
 
 from binobj import errors
 from binobj import helpers
@@ -66,7 +67,7 @@ class Float(Field[float]):
         *,
         format_string: FloatFormat,
         endian: Optional[EndianString] = None,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         super().__init__(size=struct.calcsize(format_string), **kwargs)
 
@@ -80,15 +81,23 @@ class Float(Field[float]):
                 "`endian` must be 'big' or 'little', got %r." % endian, field=self
             )
 
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> float:
+    @override
+    def _do_load(
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
+    ) -> float:
         data = self._read_exact_size(stream)
         try:
             return struct.unpack(self.format_string, data)[0]  # type: ignore[no-any-return]
         except struct.error as exc:
             raise errors.DeserializationError(message=str(exc), field=self, data=data)
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: Optional[float], context: Any, all_fields: StrDict
+        self,
+        stream: BinaryIO,
+        data: Optional[float],
+        context: object,
+        all_fields: StrDict,
     ) -> None:
         try:
             serialized = struct.pack(self.format_string, data)
@@ -103,7 +112,7 @@ class Float16(Float):
     .. _binary16: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(format_string="e", **kwargs)
 
 
@@ -113,7 +122,7 @@ class Float32(Float):
     .. _binary32: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(format_string="f", **kwargs)
 
 
@@ -123,7 +132,7 @@ class Float64(Float):
     .. _binary64: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(format_string="d", **kwargs)
 
 
@@ -161,13 +170,16 @@ class Integer(Field[int]):
         *,
         endian: Optional[EndianString] = None,
         signed: bool = True,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
         self.signed = signed
 
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
+    @override
+    def _do_load(
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
+    ) -> int:
         """Load an integer from the given stream."""
         if not self.has_fixed_size:
             raise errors.UndefinedSizeError(field=self)
@@ -175,8 +187,9 @@ class Integer(Field[int]):
             stream, self.get_expected_size(loaded_fields), self.signed, self.endian
         )
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: int, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: int, context: object, all_fields: StrDict
     ) -> None:
         """Dump an integer to the given stream."""
         dump_size = self._size_for_value(data)
@@ -187,7 +200,7 @@ class Integer(Field[int]):
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
-            )
+            ) from None
 
 
 class VariableLengthInteger(Integer):
@@ -205,7 +218,7 @@ class VariableLengthInteger(Integer):
         *,
         vli_format: VarIntEncoding,
         max_bytes: Optional[int] = None,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
 
@@ -224,12 +237,16 @@ class VariableLengthInteger(Integer):
         self._decode_integer_fn = encoding_info.decode
         super().__init__(endian=format_endianness, signed=format_signedness, **kwargs)
 
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> int:
+    @override
+    def _do_load(
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
+    ) -> int:
         """Load a variable-length integer from the given stream."""
         return self._decode_integer_fn(stream)
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: int, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: int, context: object, all_fields: StrDict
     ) -> None:
         """Dump an integer to the given stream."""
         try:
@@ -237,7 +254,7 @@ class VariableLengthInteger(Integer):
         except (ValueError, OverflowError) as err:
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
-            )
+            ) from None
 
         if self.max_bytes is not None and len(encoded_int) > self.max_bytes:
             raise errors.ValueSizeError(field=self, value=data)
@@ -257,63 +274,63 @@ class UnsignedInteger(Integer):
     .. seealso:: :class:`.Integer`
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(signed=False, **kwargs)
 
 
 class Int8(Integer):
     """An 8-bit signed integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(size=1, **kwargs)
 
 
 class Int16(Integer):
     """A 16-bit signed integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(size=2, **kwargs)
 
 
 class Int32(Integer):
     """A 32-bit signed integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(size=4, **kwargs)
 
 
 class Int64(Integer):
     """A 64-bit signed integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(size=8, **kwargs)
 
 
 class UInt8(Int8):
     """An 8-bit unsigned integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt16(Int16):
     """A 16-bit unsigned integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt32(Int32):
     """A 32-bit unsigned integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt64(Int64):
     """A 64-bit unsigned integer."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(signed=False, **kwargs)
 
 
@@ -368,7 +385,7 @@ class Timestamp(Field[datetime.datetime]):
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
 
-    _RESOLUTION_UNITS = {"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9}
+    _RESOLUTION_UNITS = frozenset({"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9})
 
     def __init__(
         self,
@@ -378,7 +395,7 @@ class Timestamp(Field[datetime.datetime]):
         tz_aware: bool = False,
         endian: Optional[EndianString] = None,
         signed: bool = True,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         if resolution not in self._RESOLUTION_UNITS:
             raise errors.ConfigurationError(
@@ -395,8 +412,9 @@ class Timestamp(Field[datetime.datetime]):
         self.tz_aware = tz_aware
         self._units = self._RESOLUTION_UNITS[resolution]
 
+    @override
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> datetime.datetime:
         value = helpers.read_int(
             stream, self.get_expected_size(loaded_fields), self.signed, self.endian
@@ -407,11 +425,12 @@ class Timestamp(Field[datetime.datetime]):
             value / self._units, datetime.timezone.utc
         )
 
+    @override
     def _do_dump(
         self,
         stream: BinaryIO,
         data: datetime.datetime,
-        context: Any,
+        context: object,
         all_fields: StrDict,
     ) -> None:
         if data.tzinfo is not None and not self.tz_aware:
@@ -442,7 +461,7 @@ class Timestamp(Field[datetime.datetime]):
             # https://en.wikipedia.org/wiki/Year_2038_problem
             raise errors.UnserializableValueError(
                 field=self, value=data, reason=str(err)
-            )
+            ) from None
 
 
 class Timestamp32(Timestamp):
@@ -452,7 +471,7 @@ class Timestamp32(Timestamp):
     .. seealso:: :class:`.Timestamp`
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(size=4, **kwargs)
 
 
@@ -463,5 +482,5 @@ class Timestamp64(Timestamp):
     .. seealso:: :class:`.Timestamp`
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: object):
         super().__init__(size=8, **kwargs)

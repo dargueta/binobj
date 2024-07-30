@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import io
 import sys
 
@@ -341,10 +342,10 @@ def test_union__structs__dump_basic(item0, item1):
     assert struct.to_bytes() == b"\x01\x7f\x55\xaa"
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_union__structs__bad_data():
-    # Because we convert structs to dicts before serializing, serialization crashes early.
-    # `item` should be UnionItemA, deliberately passing the wrong one
+    # Because we convert structs to dicts before serializing, serialization crashes
+    # early. `item` should be UnionItemA, deliberately passing the wrong one.
     struct = UnionContainer(data_type=0, item=UnionItemB(other=0x1234))
     with pytest.raises(errors.UnserializableValueError):
         struct.to_bytes()

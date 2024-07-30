@@ -5,6 +5,7 @@ from __future__ import annotations
 import typing
 from collections.abc import Iterable
 from collections.abc import Mapping
+from collections.abc import MutableSequence
 from collections.abc import Sequence
 from collections.abc import Sized
 from typing import Any
@@ -31,21 +32,17 @@ TStruct = TypeVar("TStruct", bound=Struct)
 
 
 HaltCheckFn = Callable[
-    ["Array[T]", BinaryIO, Sequence[Optional[T]], Any, StrDict], bool
+    ["Array[T]", BinaryIO, MutableSequence[Optional[T]], Any, StrDict], bool
 ]
 
 FieldOrTStruct = _Union[Field[Any], type[Struct]]
-FieldLoadDecider = Callable[
-    [BinaryIO, tuple[Field[Any], ...], Any, StrDict], Field[Any]
-]
-FieldDumpDecider = Callable[[Any, tuple[Field[Any], ...], Any, StrDict], Field[Any]]
+FieldLoadDecider = Callable[[BinaryIO, Sequence[Field[Any]], Any, StrDict], Field[Any]]
+FieldDumpDecider = Callable[[Any, Sequence[Field[Any]], Any, StrDict], Field[Any]]
 
 StructLoadDecider = Callable[
-    [BinaryIO, tuple[type[Struct], ...], Any, StrDict], type[Struct]
+    [BinaryIO, Sequence[type[Struct]], Any, StrDict], type[Struct]
 ]
-StructDumpDecider = Callable[
-    [Any, tuple[type[Struct], ...], Any, StrDict], type[Struct]
-]
+StructDumpDecider = Callable[[Any, Sequence[type[Struct]], Any, StrDict], type[Struct]]
 
 
 class Array(Field[list[Optional[T]]]):
@@ -87,7 +84,7 @@ class Array(Field[list[Optional[T]]]):
         *,
         count: _Union[int, Field[int], str, None] = None,
         halt_check: Optional[HaltCheckFn[T]] = None,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         super().__init__(**kwargs)
         self.component = component
@@ -157,10 +154,10 @@ class Array(Field[list[Optional[T]]]):
 
     @staticmethod
     def should_halt(
-        seq: "Array[T]",
+        seq: Array[T],
         stream: BinaryIO,
         values: list[Optional[T]],
-        context: Any,
+        context: object,
         loaded_fields: StrDict,
     ) -> bool:
         """Determine if the deserializer should stop reading from the input.
@@ -228,7 +225,7 @@ class Array(Field[list[Optional[T]]]):
         self,
         stream: BinaryIO,
         data: Iterable[Optional[T]],
-        context: Any,
+        context: object,
         all_fields: StrDict,
     ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
@@ -262,7 +259,7 @@ class Array(Field[list[Optional[T]]]):
         stream: BinaryIO,
         data: Iterable[Optional[T]],
         n_elems: Optional[int],
-        context: Any,
+        context: object,
         all_fields: StrDict,
     ) -> None:
         """Dump an unsized iterable into the stream."""
@@ -286,7 +283,7 @@ class Array(Field[list[Optional[T]]]):
             )
 
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> list[Optional[T]]:
         """Load a structure list from the given stream.
 
@@ -333,7 +330,7 @@ class Nested(Field[TStruct]):
         value. Now the sizes are the same.
     """
 
-    def __init__(self, struct_class: type[TStruct], *args: Any, **kwargs: Any):
+    def __init__(self, struct_class: type[TStruct], *args: Any, **kwargs: object):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
         self._size = struct_class.get_size()
@@ -342,7 +339,7 @@ class Nested(Field[TStruct]):
         self,
         stream: BinaryIO,
         data: _Union[StrDict, TStruct],
-        context: Any,
+        context: object,
         all_fields: StrDict,
     ) -> None:
         if isinstance(data, Struct):
@@ -352,7 +349,7 @@ class Nested(Field[TStruct]):
             instance.to_stream(stream, context)
 
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> TStruct:
         return self.struct_class.from_stream(stream, context)
 
@@ -422,7 +419,7 @@ class Union(Field[Any]):
         *choices: Field[Any],
         load_decider: FieldLoadDecider,
         dump_decider: FieldDumpDecider,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         pass
 
@@ -432,7 +429,7 @@ class Union(Field[Any]):
         *choices: TStruct,
         load_decider: StructLoadDecider,
         dump_decider: StructDumpDecider,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         pass
 
@@ -441,7 +438,7 @@ class Union(Field[Any]):
         *choices: Any,
         load_decider: Any,
         dump_decider: Any,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         super().__init__(**kwargs)
         if any(isinstance(c, type) and issubclass(c, Field) for c in choices):
@@ -454,7 +451,7 @@ class Union(Field[Any]):
         self.dump_decider = dump_decider
 
     def _do_dump(
-        self, stream: BinaryIO, data: Any, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: Any, context: object, all_fields: StrDict
     ) -> None:
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
@@ -471,7 +468,9 @@ class Union(Field[Any]):
                 " Struct." % type(dumper)
             )
 
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> Any:
+    def _do_load(
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
+    ) -> Any:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader._do_load(stream, context, loaded_fields)

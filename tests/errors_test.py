@@ -31,7 +31,8 @@ def test_configurationerror__default_messages(field, struct, obj, message):
         ("blah", "1 unrecognized field(s) given to NoneType for serialization: 'blah'"),
         (
             ("asdf", "ghjkl"),
-            "2 unrecognized field(s) given to NoneType for serialization: 'asdf', 'ghjkl'",
+            "2 unrecognized field(s) given to NoneType for serialization: 'asdf',"
+            " 'ghjkl'",
         ),
         (
             ("abc", "def", "abc"),

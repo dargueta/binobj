@@ -6,9 +6,10 @@ import codecs
 import enum
 import io
 import uuid
-from typing import Any
 from typing import BinaryIO
 from typing import Optional
+
+from typing_extensions import override
 
 from binobj import errors
 from binobj import helpers
@@ -22,13 +23,15 @@ __all__ = ["Bytes", "String", "StringZ", "UUID4", "UUIDFormat"]
 class Bytes(Field[bytes]):
     """Raw binary data."""
 
+    @override
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> Optional[bytes]:
         return self._read_exact_size(stream, loaded_fields)
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: bytes, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: bytes, context: object, all_fields: StrDict
     ) -> None:
         write_size = self.get_expected_size(all_fields)
         if len(data) != write_size:
@@ -73,7 +76,7 @@ class String(Field[str]):
         *,
         encoding: str = "iso-8859-1",
         pad_byte: Optional[bytes] = None,
-        **kwargs: Any,
+        **kwargs: object,
     ):
         if pad_byte is not None:
             if not isinstance(pad_byte, (bytes, bytearray)):
@@ -89,15 +92,17 @@ class String(Field[str]):
         self.pad_byte = pad_byte
         super().__init__(**kwargs)
 
+    @override
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> Optional[str]:
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream, loaded_fields)
         return to_load.decode(self.encoding)
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: str, context: object, all_fields: StrDict
     ) -> None:
         """Dump a fixed-length string into the stream."""
         stream.write(self._encode_and_resize(data, all_fields))
@@ -146,10 +151,13 @@ class String(Field[str]):
 class StringZ(String):
     """A variable-length null-terminated string.
 
-    The terminating null is guaranteed to be the proper size for multi-byte encodings.
+    The terminating null is guaranteed to be the proper size for multibyte encodings.
     """
 
-    def _do_load(self, stream: BinaryIO, context: Any, loaded_fields: StrDict) -> str:
+    @override
+    def _do_load(
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
+    ) -> str:
         max_bytes: Optional[int]
         try:
             max_bytes = self.get_expected_size(loaded_fields)
@@ -170,8 +178,9 @@ class StringZ(String):
             "Hit EOF before finding the trailing null.", field=self
         )
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: str, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: str, context: object, all_fields: StrDict
     ) -> None:
         stream.write((data + "\0").encode(self.encoding))
 
@@ -216,7 +225,7 @@ class UUID4(Field[uuid.UUID]):
     size: int
 
     def __init__(
-        self, *, stored_as: UUIDFormat = UUIDFormat.BINARY_VARIANT_1, **kwargs: Any
+        self, *, stored_as: UUIDFormat = UUIDFormat.BINARY_VARIANT_1, **kwargs: object
     ):
         self.stored_as = stored_as
         if stored_as in (UUIDFormat.BINARY_VARIANT_1, UUIDFormat.BINARY_VARIANT_2):
@@ -232,8 +241,9 @@ class UUID4(Field[uuid.UUID]):
             )
         super().__init__(size=size, **kwargs)
 
+    @override
     def _do_load(
-        self, stream: BinaryIO, context: Any, loaded_fields: StrDict
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> Optional[uuid.UUID]:
         raw_data = stream.read(self.size)
         if len(raw_data) < self.size:
@@ -247,8 +257,9 @@ class UUID4(Field[uuid.UUID]):
             return uuid.UUID(bytes_le=raw_data)
         return uuid.UUID(hex=raw_data.decode("ascii"))
 
+    @override
     def _do_dump(
-        self, stream: BinaryIO, data: uuid.UUID, context: Any, all_fields: StrDict
+        self, stream: BinaryIO, data: uuid.UUID, context: object, all_fields: StrDict
     ) -> None:
         if self.stored_as is UUIDFormat.BINARY_VARIANT_1:
             to_write = data.bytes

@@ -50,7 +50,7 @@ def test_dump__use_default_callable_warns():
         fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_dump__use_default_callable_crashes():
     """Test dumping when the default value is a callable."""
     with pytest.raises(TypeError):

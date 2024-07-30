@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import datetime
 import functools
 
@@ -52,21 +53,24 @@ def test_dump__padding_null_behaves(filename):
     struct = CPIOFileHeader(filename=filename, data=file_data, modified_time=when)
     serialized = struct.to_bytes()
 
-    assert serialized == (  # noqa: ECE001
-        b"\xc7\x71"  # Magic
-        b"\x00\x00"  # Device ID
-        b"\x00\x00"  # inumber
-        b"\xa4\x01"  # Mode
-        b"\x00\x00"  # Owner UID
-        b"\x00\x00"  # Owner GID
-        b"\x00\x00"  # number of links
-        b"\x00\x00"  # Device version
-        + int(when.timestamp()).to_bytes(4, "little")  # Modified time
-        + len(filename_bytes).to_bytes(2, "little")  # Filename size
-        + len(file_data).to_bytes(4, "little")  # File size
-        + filename_bytes
-        + (b"\0" * (len(filename_bytes) % 2))
-        + file_data  # File contents
+    assert (
+        serialized
+        == (
+            b"\xc7\x71"  # Magic
+            b"\x00\x00"  # Device ID
+            b"\x00\x00"  # inumber
+            b"\xa4\x01"  # Mode
+            b"\x00\x00"  # Owner UID
+            b"\x00\x00"  # Owner GID
+            b"\x00\x00"  # number of links
+            b"\x00\x00"  # Device version
+            + int(when.timestamp()).to_bytes(4, "little")  # Modified time
+            + len(filename_bytes).to_bytes(2, "little")  # Filename size
+            + len(file_data).to_bytes(4, "little")  # File size
+            + filename_bytes
+            + (b"\0" * (len(filename_bytes) % 2))
+            + file_data  # File contents
+        )
     )
 
 
@@ -76,7 +80,7 @@ def test_load__padding_null_behaves(filename):
     file_data = b"0123456789"
     when = datetime.datetime.fromtimestamp(0xBADF00D, datetime.timezone.utc)
 
-    serialized = (  # noqa: ECE001
+    serialized = (
         b"\xc7\x71"  # Magic
         b"\x80\x00"  # Device ID
         b"\xff\x7f"  # inumber
