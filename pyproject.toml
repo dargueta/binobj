@@ -83,7 +83,7 @@ target-version = "py39"
 
 [tool.ruff.lint.isort]
 force-single-line = true
-known-first-party = ["retroasm"]
+known-first-party = ["binobj"]
 lines-after-imports = 2
 order-by-type = false
 required-imports = ["from __future__ import annotations"]
