@@ -1,4 +1,5 @@
 """Basic tests for serialization code."""
+
 from __future__ import annotations
 
 import collections
@@ -60,10 +61,10 @@ def test_dump__use_default_callable_crashes():
 def test_loads__extraneous_data_crashes():
     field = fields.Bytes(name="field", size=3)
 
-    with pytest.raises(errors.ExtraneousDataError) as errinfo:
+    with pytest.raises(
+        errors.ExtraneousDataError, match="Expected to read 3 bytes, read 4."
+    ):
         field.from_bytes(b"\xc0\xff\xee!")
-
-    assert str(errinfo.value) == "Expected to read 3 bytes, read 4."
 
 
 def test_loads__no_size_crashes():

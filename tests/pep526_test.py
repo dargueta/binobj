@@ -3,6 +3,7 @@
 This file MUST be ignored by Python 3.5 tests. If not, importing it will trigger syntax
 errors and you will be sad.
 """
+
 from __future__ import annotations
 
 import random

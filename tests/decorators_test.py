@@ -1,4 +1,5 @@
 """Unit tests for decorators."""
+
 from __future__ import annotations
 
 import pytest

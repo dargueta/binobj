@@ -1,4 +1,5 @@
 """Unit tests for some of the more complicated exception classes."""
+
 from __future__ import annotations
 
 import pytest
