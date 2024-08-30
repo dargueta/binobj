@@ -43,8 +43,8 @@ typing-extensions = ">=4.4"
 # down to the patch version.
 coverage = "7.6.1"
 coverage-pyver-pragma = "0.3.3"
-mypy = {version = "1.11.1", markers = "platform_python_implementation == 'CPython'"}
-ruff = "0.6.1"
+mypy = {version = "1.11.2", markers = "platform_python_implementation == 'CPython'"}
+ruff = "0.6.3"
 pytest = "8.3.2"
 pytest-cov = "5.0.0"
 pytest-randomly = "3.15.0"
