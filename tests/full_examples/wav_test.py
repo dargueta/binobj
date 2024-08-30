@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import io
 import math
-import pathlib
 import wave
+from typing import TYPE_CHECKING
 
 import binobj
 from binobj import fields
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    import pathlib
 
 
 class WAVFileHeader(binobj.Struct):

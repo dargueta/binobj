@@ -46,7 +46,7 @@ class SimpleBMPFileHeader(binobj.Struct):
 @pytest.fixture(scope="session")
 def bmp_file():
     """Return the test bitmap file as :class:`bytes`."""
-    return (TEST_DATA_DIR / "test_image.bmp").read_text()
+    return (TEST_DATA_DIR / "test_image.bmp").read_bytes()
 
 
 def test_basic_bmp__loads(bmp_file):

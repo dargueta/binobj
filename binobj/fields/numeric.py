@@ -7,8 +7,10 @@ import struct
 import sys
 import warnings
 from typing import BinaryIO
+from typing import Final
 from typing import Literal
 from typing import Optional
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -16,9 +18,12 @@ from binobj import errors
 from binobj import helpers
 from binobj import varints
 from binobj.fields.base import Field
-from binobj.typedefs import EndianString
-from binobj.typedefs import StrDict
-from binobj.varints import VarIntEncoding
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    from binobj.typedefs import EndianString
+    from binobj.typedefs import StrDict
+    from binobj.varints import VarIntEncoding
 
 
 __all__ = [
@@ -385,7 +390,7 @@ class Timestamp(Field[datetime.datetime]):
     .. seealso:: :class:`.Timestamp32`, :class:`.Timestamp64`
     """
 
-    _RESOLUTION_UNITS = frozenset({"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9})
+    _RESOLUTION_UNITS: Final = {"s": 1, "ms": 1e3, "us": 1e6, "ns": 1e9}
 
     def __init__(
         self,

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import typing
-from collections.abc import Iterable
 from typing import Any
 from typing import Optional
 from typing import TypeVar
@@ -11,13 +10,14 @@ from typing import Union
 
 import more_itertools as m_iter
 
-from binobj.typedefs import FieldOrName
-from binobj.typedefs import StructOrName
-
 
 if typing.TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable
+
     from binobj.fields import Field
     from binobj.structures import Struct
+    from binobj.typedefs import FieldOrName
+    from binobj.typedefs import StructOrName
 
 
 T = TypeVar("T")
@@ -133,7 +133,7 @@ class SerializationError(Error):
         self,
         message: Optional[str] = None,
         *,
-        struct: Optional["Struct"] = None,
+        struct: Optional[Struct] = None,
         field: Optional[FieldOrName] = None,
         value: Optional[T] = None,
     ):
@@ -160,7 +160,7 @@ class DeserializationError(Error):
         self,
         message: Optional[str] = None,
         *,
-        field: Optional["Field[Any]"] = None,
+        field: Optional[Field[Any]] = None,
         data: Optional[bytes] = None,
         offset: Optional[int] = None,
     ):
@@ -182,7 +182,7 @@ class ValidationError(Error):
     """
 
     def __init__(
-        self, message: Optional[str] = None, *, field: "Field[T]", value: Optional[T]
+        self, message: Optional[str] = None, *, field: Field[T], value: Optional[T]
     ):
         if not message:
             message = "Invalid value for %s: %r" % (field, value)
@@ -233,7 +233,7 @@ class ImmutableFieldError(IllegalOperationError):
         The ``field`` argument.
     """
 
-    def __init__(self, *, field: Optional["Field[Any]"] = None):
+    def __init__(self, *, field: Optional[Field[Any]] = None):
         message: Optional[str]
         if field is not None:
             message = "Cannot assign to immutable field: %r" % field
@@ -335,7 +335,7 @@ class CannotDetermineNullError(ConfigurationError):
     .. versionadded:: 0.9.0
     """
 
-    def __init__(self, *, field: "Field[Any]"):
+    def __init__(self, *, field: Field[Any]):
         super().__init__(
             "Passing `DEFAULT` for `null_value` of unsized field %r makes it impossible"
             " to determine what None should be and would result in unpredictable"
@@ -350,7 +350,7 @@ class BuggyFieldImplementationError(ConfigurationError):
     .. versionadded:: 0.11.0
     """
 
-    def __init__(self, message: str, *, field: "Field[Any]"):
+    def __init__(self, message: str, *, field: Field[Any]):
         field_type = type(field)
         super().__init__(
             f"Field type {field_type!r} has a bug in its implementation: {message}",
@@ -370,7 +370,7 @@ class UnserializableValueError(SerializationError):
     """
 
     def __init__(
-        self, *, field: "Field[T]", value: Optional[T], reason: Optional[str] = None
+        self, *, field: Field[T], value: Optional[T], reason: Optional[str] = None
     ):
         if reason is not None:
             message = "%s can't serialize value: %s" % (field, reason)
@@ -403,7 +403,7 @@ class UnexpectedValueError(SerializationError):
         was unexpected. Don't pass :class:`~binobj.fields.base.Field` instances.
     """
 
-    def __init__(self, *, struct: "Struct", name: Union[str, Iterable[str]]):
+    def __init__(self, *, struct: Struct, name: Union[str, Iterable[str]]):
         self.names = set(m_iter.always_iterable(name))
 
         msg = "%d unrecognized field(s) given to %s for serialization: %s" % (
@@ -424,7 +424,7 @@ class ValueSizeError(UnserializableValueError):
         The value that's the wrong size.
     """
 
-    def __init__(self, *, field: "Field[Any]", value: Any):
+    def __init__(self, *, field: Field[Any], value: Any):
         super().__init__(
             reason="Value doesn't fit into %r bytes." % field.size,
             field=field,
@@ -442,7 +442,7 @@ class ArraySizeError(SerializationError):
     """
 
     def __init__(
-        self, *, field: "Field[Any]", n_expected: int, n_given: Optional[int] = None
+        self, *, field: Field[Any], n_expected: int, n_given: Optional[int] = None
     ):
         if n_given is not None:
             if n_given > n_expected:
@@ -469,7 +469,7 @@ class UnexpectedEOFError(DeserializationError):
         bytes.
     """
 
-    def __init__(self, *, field: Optional["Field[Any]"], size: int, offset: int):
+    def __init__(self, *, field: Optional[Field[Any]], size: int, offset: int):
         super().__init__(
             "Unexpected EOF while trying to read %d bytes at offset %d."
             % (size, offset),

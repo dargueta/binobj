@@ -8,13 +8,17 @@ import io
 import uuid
 from typing import BinaryIO
 from typing import Optional
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
 from binobj import errors
 from binobj import helpers
 from binobj.fields.base import Field
-from binobj.typedefs import StrDict
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    from binobj.typedefs import StrDict
 
 
 __all__ = ["Bytes", "String", "StringZ", "UUID4", "UUIDFormat"]

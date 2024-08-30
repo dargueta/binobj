@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterator
 from typing import BinaryIO
 from typing import Optional
+from typing import TYPE_CHECKING
 
 from binobj import errors
-from binobj.typedefs import EndianString
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterator
+
+    from binobj.typedefs import EndianString
 
 
 def read_int(

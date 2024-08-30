@@ -181,7 +181,7 @@ def bind_validators_to_struct(namespace: StrDict, metadata: StructMetadata) -> N
 
 
 @overload
-def recursive_to_dicts(item: "Struct") -> dict[str, Any]: ...
+def recursive_to_dicts(item: Struct) -> dict[str, Any]: ...
 
 
 @overload

@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Iterable
 from typing import Any
 from typing import Callable
 from typing import Optional
+from typing import TYPE_CHECKING
 from typing import Union
 
-from binobj.typedefs import FieldValidator
-from binobj.typedefs import StructValidator
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable
+
+    from binobj.typedefs import FieldValidator
+    from binobj.typedefs import StructValidator
 
 
 class ValidatorMethodWrapper:

@@ -60,6 +60,7 @@ Documentation = "https://dargueta.github.io/binobj"
 # Ruff
 
 [tool.ruff.lint]
+exclude = ["docs/*"]
 select = ["ALL"]
 extend-ignore = [
     "COM812",

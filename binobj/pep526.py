@@ -37,7 +37,6 @@ from __future__ import annotations
 import dataclasses
 import typing
 import warnings
-from collections.abc import Sequence
 from typing import Any
 from typing import Optional
 from typing import TypeVar
@@ -46,6 +45,10 @@ from typing import Union
 from binobj import errors
 from binobj import fields
 from binobj.structures import Struct
+
+
+if typing.TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Sequence
 
 
 __all__ = ["dataclass"]

@@ -9,8 +9,6 @@ import io
 import os
 import typing
 import warnings
-from collections.abc import Collection
-from collections.abc import Iterable
 from typing import Any
 from typing import BinaryIO
 from typing import Callable
@@ -26,13 +24,16 @@ from typing_extensions import Self
 
 from binobj import errors
 from binobj import helpers
-from binobj.typedefs import FieldValidator
-from binobj.typedefs import StrDict
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Collection
+    from collections.abc import Iterable
+
     from binobj.structures import Struct
     from binobj.structures import StructMetadata
+    from binobj.typedefs import FieldValidator
+    from binobj.typedefs import StrDict
 
 
 __all__ = ["DEFAULT", "NOT_PRESENT", "UNDEFINED", "Field"]
@@ -216,7 +217,7 @@ class Field(Generic[T]):
     __explicit_init_args__: frozenset[str]
     """The names of arguments that were explicitly passed to the constructor."""
 
-    __objclass__: type["Struct"]
+    __objclass__: type[Struct]
     """The :class:`~binobj.structures.Struct` class that this ``Field`` is bound to.
 
     This is the class object, not a particular instance of the class.
@@ -985,20 +986,20 @@ class Field(Generic[T]):
 
     @overload
     def __get__(
-        self, instance: None, owner: type["Struct"]
-    ) -> "Field[T]": ...  # pragma: no cover
+        self, instance: None, owner: type[Struct]
+    ) -> Field[T]: ...  # pragma: no cover
 
     @overload
     def __get__(
-        self, instance: "Struct", owner: type["Struct"]
+        self, instance: Struct, owner: type[Struct]
     ) -> Optional[T]: ...  # pragma: no cover
 
     # This annotation is bogus and only here to make MyPy happy. See bug report here:
     # https://github.com/python/mypy/issues/9416
     @overload
     def __get__(
-        self, instance: "Field[Any]", owner: type["Field[Any]"]
-    ) -> "Field[T]": ...  # pragma: no cover
+        self, instance: Field[Any], owner: type[Field[Any]]
+    ) -> Field[T]: ...  # pragma: no cover
 
     def __get__(self, instance, owner):  # type: ignore[no-untyped-def]
         if instance is None:

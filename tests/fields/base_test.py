@@ -406,7 +406,7 @@ def test_callable_default_warns():
         fields.Int32(name="whatever", default=lambda: 123)
 
 
-@pytest.mark.xfail()
+@pytest.mark.xfail
 def test_callable_default_crashes():
     """Passing a callable for `default` triggers a TypeError."""
     with pytest.raises(TypeError):

@@ -13,11 +13,12 @@ from typing import BinaryIO
 from typing import Callable
 
 from binobj import helpers
-from binobj.typedefs import EndianString
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Optional
+
+    from binobj.typedefs import EndianString
 
 
 class VarIntEncoding(enum.Enum):
