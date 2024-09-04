@@ -252,7 +252,7 @@ class Field(Generic[T]):
     _default: Union[T, None, _Undefined]
     """The default dump value for the field if the user doesn't pass a value in."""
 
-    _compute_fn: Optional[Callable[[Field[T], StrDict], Optional[T]]]  # noqa: TAE002
+    _compute_fn: Optional[Callable[[Field[T], StrDict], Optional[T]]]
 
     def __new__(cls, *_args: object, **kwargs: object) -> Self:
         """Create a new instance, recording which keyword arguments were passed in.

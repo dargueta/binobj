@@ -107,7 +107,7 @@ class Float(Field[float]):
         try:
             serialized = struct.pack(self.format_string, data)
         except struct.error as exc:
-            raise errors.SerializationError(message=str(exc), field=self)
+            raise errors.SerializationError(message=str(exc), field=self) from exc
         stream.write(serialized)
 
 

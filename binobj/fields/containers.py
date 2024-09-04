@@ -16,6 +16,8 @@ from typing import overload
 from typing import TypeVar
 from typing import Union as _Union
 
+from typing_extensions import override
+
 from binobj import errors
 from binobj.fields.base import Field
 from binobj.fields.base import maybe_assign_name
@@ -153,6 +155,7 @@ class Array(Field[list[Optional[T]]]):
         return typing.cast(int, field_values[name])
 
     @staticmethod
+    @override
     def should_halt(
         seq: Array[T],
         stream: BinaryIO,
@@ -263,7 +266,7 @@ class Array(Field[list[Optional[T]]]):
         all_fields: StrDict,
     ) -> None:
         """Dump an unsized iterable into the stream."""
-        n_written = 0  # noqa: SIM113
+        n_written = 0
         for value in data:
             if n_written == n_elems:
                 # We've already written the requisite number of items to the stream, but
@@ -335,6 +338,7 @@ class Nested(Field[TStruct]):
         self.struct_class = struct_class
         self._size = struct_class.get_size()
 
+    @override
     def _do_dump(
         self,
         stream: BinaryIO,
@@ -348,13 +352,14 @@ class Nested(Field[TStruct]):
             instance = self.struct_class(**typing.cast(StrDict, data))
             instance.to_stream(stream, context)
 
+    @override
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> TStruct:
         return self.struct_class.from_stream(stream, context)
 
 
-class Union(Field[Any]):
+class Union(Field[T]):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:
@@ -435,7 +440,7 @@ class Union(Field[Any]):
 
     def __init__(
         self,
-        *choices: Any,
+        *choices: T,
         load_decider: Any,
         dump_decider: Any,
         **kwargs: object,
@@ -451,7 +456,7 @@ class Union(Field[Any]):
         self.dump_decider = dump_decider
 
     def _do_dump(
-        self, stream: BinaryIO, data: Any, context: object, all_fields: StrDict
+        self, stream: BinaryIO, data: T, context: object, all_fields: StrDict
     ) -> None:
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
@@ -470,7 +475,7 @@ class Union(Field[Any]):
 
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> Any:
+    ) -> T:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader._do_load(stream, context, loaded_fields)

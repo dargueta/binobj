@@ -126,7 +126,7 @@ def collect_assigned_fields(
             another one. Will be ``None`` if the struct this class inherits from is of
             variable size.
 
-    Returns
+    Returns:
         int: The number of fields found.
 
     .. versionadded:: 0.9.0
@@ -358,7 +358,7 @@ class Struct(StructProtocol):
 
         # Try dumping all the fields we can first.
         for field in self.__binobj_struct__.components.values():
-            try:
+            try:  # noqa: PERF203
                 dct[field.name] = field.compute_value_for_dump(
                     typing.cast(StrDict, self)
                 )

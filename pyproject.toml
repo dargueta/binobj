@@ -78,6 +78,9 @@ extend-ignore = [
 [tool.ruff]
 target-version = "py39"
 
+[tool.ruff.pyupgrade]
+keep-runtime-typing = true
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/*" = ["ANN", "D", "S101", "S311"]
