@@ -62,7 +62,7 @@ def test_loads__extraneous_data_crashes():
     field = fields.Bytes(name="field", size=3)
 
     with pytest.raises(
-        errors.ExtraneousDataError, match="Expected to read 3 bytes, read 4."
+        errors.ExtraneousDataError, match=r"The input has 1 extra byte\(s\)\."
     ):
         field.from_bytes(b"\xc0\xff\xee!")
 

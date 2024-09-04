@@ -763,10 +763,11 @@ class Field(Generic[T]):
         loaded_data = self.from_stream(stream, context, loaded_fields)
 
         here = stream.tell()
-        if exact and (here < len(data)):
-            # TODO (dargueta): Better error message.
+        stream.seek(0, os.SEEK_END)
+        bytes_remaining = stream.tell() - here
+        if exact and bytes_remaining > 0:
             raise errors.ExtraneousDataError(
-                f"Expected to read {here + 1} bytes, read {len(data)}."
+                f"The input has {bytes_remaining} extra byte(s)."
             )
         return loaded_data
 
