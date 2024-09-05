@@ -358,11 +358,11 @@ class Struct(StructProtocol):
 
         # Try dumping all the fields we can first.
         for field in self.__binobj_struct__.components.values():
-            try:  # noqa: PERF203
+            try:
                 dct[field.name] = field.compute_value_for_dump(
                     typing.cast(StrDict, self)
                 )
-            except (errors.SerializationError, errors.UndefinedSizeError):
+            except (errors.SerializationError, errors.UndefinedSizeError):  # noqa: PERF203
                 pass
             except errors.Error as err:  # pragma: nocover
                 warnings.warn(

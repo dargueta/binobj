@@ -264,7 +264,7 @@ class Field(Generic[T]):
         instance.__explicit_init_args__ = frozenset(kwargs.keys())
         return instance
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *,
         name: Optional[str] = None,
@@ -327,7 +327,7 @@ class Field(Generic[T]):
         ``None``. Builtin fields set this automatically if ``const`` is given but you'll
         need to implement :meth:`_size_for_value` in custom fields.
         """
-        # TODO (dargueta) This return value is horrific. Rework it if possible.
+        # TODO (dargueta): This return value is horrific. Rework it if possible.
         return self._size
 
     @property
@@ -496,7 +496,7 @@ class Field(Generic[T]):
         """
         if self._compute_fn:
             raise errors.ConfigurationError(
-                "Can't define two computing functions for field %r." % self, field=self
+                f"Can't define two computing functions for field {self!r}.", field=self
             )
         if self.const is not UNDEFINED:
             raise errors.ConfigurationError(
@@ -605,17 +605,14 @@ class Field(Generic[T]):
             # size of that value.
             return self.__get_expected_possibly_undefined_size(field_values)
 
-        if isinstance(self.size, Field):
-            name = self.size.name
-        else:
-            name = self.size
+        name = self.size.name if isinstance(self.size, Field) else self.size
 
         if name in field_values:
             expected_size = field_values[name]
             if not isinstance(expected_size, int):
                 raise TypeError(
-                    "Field %r relies on field %r to give its size, but %r has a"
-                    " non-integer value: %r" % (self.name, name, name, expected_size)
+                    f"Field {self.name!r} relies on field {name!r} to give its size,"
+                    f" but {name!r} has a non-integer value: {expected_size!r}"
                 )
             return expected_size
 
@@ -644,9 +641,6 @@ class Field(Generic[T]):
             # If we get here then we have a value to get the size of. If that size can't
             # be determined (_size_for_value() returns None), we need to crash.
             size = self._size_for_value(value)
-            if size is None:
-                raise errors.UndefinedSizeError(field=self)
-            return size
         except RecursionError:
             raise errors.BuggyFieldImplementationError(
                 "The implementation of %s.%s is broken: either _size_for_value() (or"
@@ -655,6 +649,10 @@ class Field(Generic[T]):
                 " (Value: %r)" % (type(self).__module__, type(self).__name__, value),
                 field=self,
             ) from None
+
+        if size is None:
+            raise errors.UndefinedSizeError(field=self)
+        return size
 
     def from_stream(  # noqa: C901
         self,
@@ -789,7 +787,7 @@ class Field(Generic[T]):
         """
         raise NotImplementedError
 
-    def to_stream(
+    def to_stream(  # noqa: C901
         self,
         stream: BinaryIO,
         data: Union[T, None, _Default] = DEFAULT,
@@ -917,7 +915,7 @@ class Field(Generic[T]):
 
         if self.null_value is UNDEFINED:
             raise errors.UnserializableValueError(
-                reason="`None` is not an acceptable value for %s." % self,
+                reason=f"`None` is not an acceptable value for {self}.",
                 field=self,
                 value=None,
             )
@@ -946,11 +944,11 @@ class Field(Generic[T]):
             return b"\0" * self.get_expected_size(all_fields)
         except errors.UndefinedSizeError:
             raise errors.UnserializableValueError(
-                reason="Can't guess appropriate serialization of `None` for %s "
-                "because it has no fixed size." % self,
+                reason=f"Can't guess appropriate serialization of `None` for {self}"
+                " because it has no fixed size.",
                 field=self,
                 value=None,
-            )
+            ) from None
 
     def _read_exact_size(
         self, stream: BinaryIO, loaded_fields: Optional[StrDict] = None
@@ -1021,10 +1019,10 @@ class Field(Generic[T]):
         maybe_assign_name(self, name)
 
     def __str__(self) -> str:
-        return "%s(name=%r)" % (type(self).__name__, self.name)
+        return f"{type(self).__qualname__}(name={self.name!r})"
 
     def __repr__(self) -> str:
-        return "<%s.%s>" % (self.__module__, self)
+        return f"<{self.__module__}.{self}>"
 
 
 def maybe_assign_name(field: Field[Any], new_name: str) -> None:

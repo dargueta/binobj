@@ -104,10 +104,7 @@ def decode_integer_compact(stream: BinaryIO) -> int:
             # Sign hasn't been determined yet so this must be the first byte of the
             # number.
             value = int8 & 0x3F
-            if int8 & 0x40:
-                sign = -1
-            else:
-                sign = 1
+            sign = -1 if int8 & 64 else 1
         else:
             value = (value << 7) | (int8 & 0x7F)
 

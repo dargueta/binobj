@@ -24,10 +24,7 @@ class VersionInfo(NamedTuple):
         """Parse the version number string into a VersionInfo."""
         base_version, _, suffix = version.partition("-")
         major, minor, *_possibly_patch = base_version.split(".")
-        if _possibly_patch:
-            patch = _possibly_patch[0]
-        else:
-            patch = "0"
+        patch = _possibly_patch[0] if _possibly_patch else "0"
         return cls(int(major), int(minor), int(patch), suffix or None)
 
     def __str__(self) -> str:

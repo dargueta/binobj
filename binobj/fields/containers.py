@@ -133,7 +133,7 @@ class Array(Field[list[Optional[T]]]):
                 # This will only happen if someone creates a field outside a Struct and
                 # passes it to this field as the count object.
                 raise errors.ConfigurationError(
-                    "`count` field for %r has no assigned name." % self,
+                    f"`count` field for {self!r} has no assigned name.",
                     field=self.count,
                 )
         elif isinstance(self.count, str):
@@ -142,14 +142,14 @@ class Array(Field[list[Optional[T]]]):
             # We check the type of `self.count` in the constructor so this should never
             # happen.
             raise TypeError(
-                "Unexpected type for `count`: %r" % type(self.count).__name__
+                f"Unexpected type for `count`: {type(self.count).__qualname__!r}"
             )
 
         # The number of fields in this array is a field that should already have been
         # loaded.
         if name not in field_values:
             raise errors.FieldReferenceError(
-                "Array size depends on field %r but it wasn't found." % name,
+                f"Array size depends on field {name!r} but it wasn't found.",
                 field=name,
             )
         return typing.cast(int, field_values[name])
@@ -321,7 +321,7 @@ class Nested(Field[TStruct]):
     .. code-block:: python
 
         class Address(Struct):
-            ...
+            ...Any
 
         class Person(Struct):
             name = fields.StringZ()
@@ -333,7 +333,7 @@ class Nested(Field[TStruct]):
         value. Now the sizes are the same.
     """
 
-    def __init__(self, struct_class: type[TStruct], *args: Any, **kwargs: object):
+    def __init__(self, struct_class: type[TStruct], *args: object, **kwargs: object):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
         self._size = struct_class.get_size()
@@ -455,6 +455,7 @@ class Union(Field[T]):
         self.load_decider = load_decider
         self.dump_decider = dump_decider
 
+    @override
     def _do_dump(
         self, stream: BinaryIO, data: T, context: object, all_fields: StrDict
     ) -> None:
@@ -469,13 +470,12 @@ class Union(Field[T]):
             dumper(**data).to_stream(stream, context)
         else:
             raise TypeError(
-                "Dump decider returned a %r, expected a Field instance or subclass of"
-                " Struct." % type(dumper)
+                f"Dump decider returned a {type(dumper)}, expected a Field instance or"
+                " subclass of Struct."
             )
 
-    def _do_load(
-        self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> T:
+    @override
+    def _do_load(self, stream: BinaryIO, context: object, loaded_fields: StrDict) -> T:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader._do_load(stream, context, loaded_fields)

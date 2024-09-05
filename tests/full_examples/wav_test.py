@@ -13,6 +13,7 @@ from binobj import fields
 
 if TYPE_CHECKING:  # pragma: no cover
     import pathlib
+    from typing import ClassVar
 
 
 class WAVFileHeader(binobj.Struct):
@@ -25,7 +26,7 @@ class WAVFileHeader(binobj.Struct):
 
 class WAVFormatChunk(binobj.Struct):
     class Meta:
-        argument_defaults = {
+        argument_defaults: ClassVar = {
             "endian": "little",
         }
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import functools
+from typing import ClassVar
 
 import pytest
 
@@ -14,7 +15,7 @@ _NOW = functools.partial(datetime.datetime.now, datetime.timezone.utc)
 
 class CPIOFileHeader(binobj.Struct):
     class Meta:
-        argument_defaults = {
+        argument_defaults: ClassVar = {
             "endian": "little",
         }
 

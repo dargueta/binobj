@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import functools
-from typing import Any
 from typing import Callable
 from typing import Optional
 from typing import TYPE_CHECKING
@@ -35,7 +34,7 @@ class ValidatorMethodWrapper:
         self.field_names = tuple(field_names or ())
         functools.wraps(func)(self)
 
-    def __call__(self, *args: Any) -> Optional[bool]:
+    def __call__(self, *args: object) -> Optional[bool]:
         """Execute the wrapped function."""
         return self.func(*args)
 

@@ -147,10 +147,7 @@ def annotation_to_field_instance(
             # This is a Field class. Initialize it with only the arguments we're certain
             # of. This gives us a Field instance.
             kw: dict[str, Any]
-            if annotation.nullable:
-                kw = {"null_value": fields.DEFAULT}
-            else:
-                kw = {}
+            kw = {"null_value": fields.DEFAULT} if annotation.nullable else {}
 
             return annotation.type_class(
                 name=annotation.name, default=annotation.default_value, **kw

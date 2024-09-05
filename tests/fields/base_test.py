@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import re
 import sys
+from typing import ClassVar
 
 import pytest
 
@@ -375,7 +376,7 @@ def test_binding_defaults_applied__basic():
 
     class Test(binobj.Struct):
         class Meta:
-            argument_defaults = {"endian": opposite_endian}
+            argument_defaults: ClassVar = {"endian": opposite_endian}
 
         opposite = fields.Int32()
         unaffected = fields.Int32(endian=sys.byteorder)
@@ -389,7 +390,7 @@ def test_binding_defaults_applied__class_name_prefix():
 
     class Test(binobj.Struct):
         class Meta:
-            argument_defaults = {"Int16__endian": opposite_endian}
+            argument_defaults: ClassVar = {"Int16__endian": opposite_endian}
 
         opposite = fields.Int16()
         same_16 = fields.Int16(endian=sys.byteorder)

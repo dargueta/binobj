@@ -51,7 +51,7 @@ class Error(Exception):
     Do not throw this exception directly.
     """
 
-    def __init__(self, message: Optional[str] = None, *args: Any):
+    def __init__(self, message: Optional[str] = None, *args: object):
         # If there is no error message, use the first line of the docstring.
         if message is None and hasattr(self, "__doc__") and self.__doc__:
             message = self.__doc__.splitlines()[0]
@@ -83,13 +83,17 @@ class ConfigurationError(Error):
         The ``struct`` and ``obj`` arguments.
     """
 
+    field: Optional[FieldOrName]
+    struct: Optional[StructOrName]
+    obj: Any
+
     def __init__(
         self,
         message: Optional[str] = None,
         *,
         field: Optional[FieldOrName] = None,
         struct: Optional[StructOrName] = None,
-        obj: Any = None,
+        obj: object = None,
     ):
         if not (field or struct or obj):
             raise ValueError(
@@ -185,7 +189,7 @@ class ValidationError(Error):
         self, message: Optional[str] = None, *, field: Field[T], value: Optional[T]
     ):
         if not message:
-            message = "Invalid value for %s: %r" % (field, value)
+            message = f"Invalid value for {field}: {value!r}"
 
         super().__init__(message)
         self.field = field
@@ -203,9 +207,7 @@ class FieldReferenceError(Error):
 
     def __init__(self, message: Optional[str] = None, *, field: str):
         if not message:
-            message = "Attempted to reference a missing or undefined field: " + repr(
-                field
-            )
+            message = f"Attempted to reference a missing or undefined field: {field!r}"
 
         super().__init__(message)
         self.field = field
@@ -236,7 +238,7 @@ class ImmutableFieldError(IllegalOperationError):
     def __init__(self, *, field: Optional[Field[Any]] = None):
         message: Optional[str]
         if field is not None:
-            message = "Cannot assign to immutable field: %r" % field
+            message = f"Cannot assign to immutable field: {field!r}"
         else:
             message = None
 
@@ -267,8 +269,8 @@ class FieldRedefinedError(ConfigurationError):
 
     def __init__(self, *, struct: str, field: FieldOrName):
         super().__init__(
-            "Struct %s defines field %r already defined in its parent class."
-            % (struct, field),
+            f"Struct {struct} defines field {field!r}, which is already defined in its"
+            " parent class.",
             struct=struct,
             field=field,
         )
@@ -286,8 +288,8 @@ class UndefinedSizeError(ConfigurationError):
 
     def __init__(self, *, field: FieldOrName):
         super().__init__(
-            "Size of field %s couldn't be determined. The field might not have had its"
-            " `size` set, or a variable-sized field has a bug." % field,
+            f"Size of field {field} couldn't be determined. The field might not have"
+            " had its `size` set, or a variable-sized field has a bug.",
             field=field,
         )
 
@@ -299,7 +301,7 @@ class NoDefinedFieldsError(ConfigurationError):
     """
 
     def __init__(self, *, struct: StructOrName):
-        super().__init__("The struct %r has no defined fields." % struct, struct=struct)
+        super().__init__(f"The struct {struct!r} has no defined fields.", struct=struct)
 
 
 class MixedDeclarationsError(ConfigurationError):
@@ -319,12 +321,15 @@ class InvalidTypeAnnotationError(ConfigurationError):
     .. versionadded:: 0.9.0
     """
 
-    def __init__(self, *, field: FieldOrName, annotation: Any):
-        message = (
-            "The type annotation for field %r is invalid. For example, you can't use"
-            " typing.Union[X, Y] to emulate binobj.fields.Union. The annotation is: %r"
-        ) % (field, annotation)
+    annotation: Any
+    """The offending type annotation."""
 
+    def __init__(self, *, field: FieldOrName, annotation: object):
+        message = (
+            f"The type annotation for field {field!r} is invalid. For example, you"
+            " can't use typing.Union[X, Y] to emulate binobj.fields.Union. The"
+            f" annotation is: {annotation!r}"
+        )
         super().__init__(message, field=field)
         self.annotation = annotation
 
@@ -337,9 +342,9 @@ class CannotDetermineNullError(ConfigurationError):
 
     def __init__(self, *, field: Field[Any]):
         super().__init__(
-            "Passing `DEFAULT` for `null_value` of unsized field %r makes it impossible"
-            " to determine what None should be and would result in unpredictable"
-            " behavior." % field.name,
+            f"Passing `DEFAULT` for `null_value` of unsized field {field.name!r} makes"
+            " it impossible to determine what None should be and would result in"
+            " unpredictable behavior.",
             field=field,
         )
 
@@ -373,11 +378,10 @@ class UnserializableValueError(SerializationError):
         self, *, field: Field[T], value: Optional[T], reason: Optional[str] = None
     ):
         if reason is not None:
-            message = "%s can't serialize value: %s" % (field, reason)
+            message = f"{field} can't serialize value: {reason}"
         else:
-            message = "%s can't serialize value of type %r." % (
-                field,
-                type(value).__name__,
+            message = (
+                f"{field} can't serialize value of type {type(value).__qualname__}."
             )
         super().__init__(message, field=field, value=value)
 
@@ -390,7 +394,7 @@ class MissingRequiredValueError(SerializationError):
     """
 
     def __init__(self, *, field: FieldOrName):
-        super().__init__("Missing required value for field: %s" % field, field=field)
+        super().__init__(f"Missing required value for field: {field}", field=field)
 
 
 class UnexpectedValueError(SerializationError):
@@ -406,10 +410,10 @@ class UnexpectedValueError(SerializationError):
     def __init__(self, *, struct: Struct, name: Union[str, Iterable[str]]):
         self.names = set(m_iter.always_iterable(name))
 
-        msg = "%d unrecognized field(s) given to %s for serialization: %s" % (
-            len(self.names),
-            type(struct).__name__,
-            ", ".join(repr(f) for f in sorted(self.names)),
+        msg = (
+            f"{len(self.names)} unrecognized field(s) given to"
+            f" {type(struct).__qualname__} for serialization: "
+            + ", ".join(repr(f) for f in sorted(self.names))
         )
 
         super().__init__(msg, struct=struct)
@@ -424,9 +428,9 @@ class ValueSizeError(UnserializableValueError):
         The value that's the wrong size.
     """
 
-    def __init__(self, *, field: Field[Any], value: Any):
+    def __init__(self, *, field: Field[Any], value: object):
         super().__init__(
-            reason="Value doesn't fit into %r bytes." % field.size,
+            reason=f"Value doesn't fit into {field.size!r} bytes.",
             field=field,
             value=value,
         )
@@ -446,13 +450,13 @@ class ArraySizeError(SerializationError):
     ):
         if n_given is not None:
             if n_given > n_expected:
-                message = "Expected {e} values, got at least {g}."
+                message = f"Expected {n_expected} values, got at least {n_given}."
             else:
-                message = "Expected {e} values, got {g}."
+                message = f"Expected {n_expected} values, got {n_given}."
         else:
-            message = "Expected {e} values."
+            message = f"Expected {n_expected} values."
 
-        super().__init__(message.format(e=n_expected, g=n_given), field=field)
+        super().__init__(message, field=field)
         self.n_expected = n_expected
         self.n_given = n_given
 
@@ -471,8 +475,7 @@ class UnexpectedEOFError(DeserializationError):
 
     def __init__(self, *, field: Optional[Field[Any]], size: int, offset: int):
         super().__init__(
-            "Unexpected EOF while trying to read %d bytes at offset %d."
-            % (size, offset),
+            f"Unexpected EOF while trying to read {size} bytes at offset {offset}.",
             field=field,
             offset=offset,
         )

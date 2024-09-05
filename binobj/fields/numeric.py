@@ -83,7 +83,7 @@ class Float(Field[float]):
             self.format_string = "<" + format_string
         else:
             raise errors.ConfigurationError(
-                "`endian` must be 'big' or 'little', got %r." % endian, field=self
+                f"`endian` must be 'big' or 'little', got {endian!r}.", field=self
             )
 
     @override
@@ -94,7 +94,9 @@ class Float(Field[float]):
         try:
             return struct.unpack(self.format_string, data)[0]  # type: ignore[no-any-return]
         except struct.error as exc:
-            raise errors.DeserializationError(message=str(exc), field=self, data=data)
+            raise errors.DeserializationError(
+                message=str(exc), field=self, data=data
+            ) from exc
 
     @override
     def _do_dump(
@@ -229,7 +231,7 @@ class VariableLengthInteger(Integer):
 
         if encoding_info is None:
             raise errors.ConfigurationError(
-                "Invalid or unsupported integer encoding scheme: %r" % vli_format,
+                f"Invalid or unsupported integer encoding scheme: {vli_format!r}",
                 field=self,
             )
 
@@ -403,9 +405,9 @@ class Timestamp(Field[datetime.datetime]):
         **kwargs: object,
     ):
         if resolution not in self._RESOLUTION_UNITS:
+            expected = ", ".join(repr(k) for k in self._RESOLUTION_UNITS)
             raise errors.ConfigurationError(
-                "Invalid resolution. Expected one of %s but got %r"
-                % (", ".join(repr(k) for k in self._RESOLUTION_UNITS), resolution),
+                f"Invalid resolution. Expected one of {expected}; got {resolution!r}",
                 field=self,
             )
 

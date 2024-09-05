@@ -7,7 +7,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "binobj"
-version = "0.11.4"
+version = "0.12.0"
 description = "A Python library for reading and writing structured binary data."
 authors = ["Diego Argueta <620513-dargueta@users.noreply.github.com>"]
 readme = "README.rst"
@@ -78,11 +78,11 @@ extend-ignore = [
 [tool.ruff]
 target-version = "py39"
 
-[tool.ruff.pyupgrade]
+[tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"__init__.py" = ["F403"]
 "tests/*" = ["ANN", "D", "S101", "S311"]
 
 [tool.ruff.lint.isort]
