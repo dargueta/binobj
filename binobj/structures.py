@@ -366,11 +366,11 @@ class Struct(StructProtocol):
                 pass
             except errors.Error as err:  # pragma: nocover
                 warnings.warn(
-                    "Ignored exception %s.%s while converting a struct to a dict. This"
-                    " type of exception may not be ignored in the future, as the"
-                    " original code was too broad. If you believe this type should"
-                    " still be caught, please file a bug report.\n"
-                    " Original message: %r" % (err.__module__, type(err).__name__, err),
+                    f"Ignored exception {err.__module__}.{type(err).__qualname__} while"
+                    " converting a struct to a dict. This type of exception may not be"
+                    " ignored in the future, as the original code was too broad. If you"
+                    " believe this type should still be caught, please file a bug"
+                    f" report.\n Original message: {err!r}",
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -530,7 +530,7 @@ class Struct(StructProtocol):
         return cls(**result)
 
     @classmethod
-    def get_field(cls, stream: BinaryIO, name: str, context: object = None) -> Any:
+    def get_field(cls, stream: BinaryIO, name: str, context: object = None) -> Any:  # noqa: ANN401
         """Return the value of a single field.
 
         If the field is at a fixed byte offset from the beginning of the struct, it'll
@@ -643,7 +643,7 @@ class Struct(StructProtocol):
 
     # Container methods
 
-    def __getitem__(self, field_name: str) -> Any:
+    def __getitem__(self, field_name: str) -> Any:  # noqa: ANN401
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 f"Struct {type(self).__name__!r} has no field named {field_name!r}."
@@ -711,10 +711,8 @@ class Struct(StructProtocol):
         return self.to_bytes()
 
     def __repr__(self) -> str:
-        return "%s(%s)" % (
-            type(self).__qualname__,
-            ", ".join("%s=%r" % kv for kv in self.__values__.items()),
-        )
+        value_pairs = ", ".join(f"{k}={v!r}" for k, v in self.__values__.items())
+        return f"{type(self).__qualname__}({value_pairs})"
 
     def __init_subclass__(cls) -> None:
         initialize_struct_class(cls)
@@ -802,7 +800,7 @@ class StructMappingProxy(Mapping[str, Any]):
     struct: Struct
     """The underlying :class:`Struct` that all accesses are forwarded to."""
 
-    def __getitem__(self, field: str) -> Any:
+    def __getitem__(self, field: str) -> Any:  # noqa: ANN401
         return self.struct[field]
 
     def __iter__(self) -> Iterator[str]:

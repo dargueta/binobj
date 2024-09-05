@@ -643,10 +643,11 @@ class Field(Generic[T]):
             size = self._size_for_value(value)
         except RecursionError:
             raise errors.BuggyFieldImplementationError(
-                "The implementation of %s.%s is broken: either _size_for_value() (or"
+                f"The implementation of {type(self).__module__}."
+                f"{type(self).__qualname__} is broken: either _size_for_value() (or"
                 " less likely, _get_null_repr()) calls one of the `Field.to_*` or"
-                " `Field.from_*` methods. Doing so causes infinite recursion."
-                " (Value: %r)" % (type(self).__module__, type(self).__name__, value),
+                " `Field.from_*` methods. Doing so causes infinite recursion. (Value:"
+                " {value!r})",
                 field=self,
             ) from None
 
@@ -848,7 +849,18 @@ class Field(Generic[T]):
 
         stream.write(serialized_value)
 
-    def _add_padding(self, serialized: bytes, to_size: int) -> bytes:
+    def _add_padding(self, serialized: bytes, to_size: int) -> bytes:  # noqa: ARG002
+        """Given a serialized value, pad it out with bytes to the exact given length.
+
+        :param bytes serialized: The serialized value.
+        :param int to_size: The number of bytes to pad the serialized value out to.
+        :return:
+            The padded equivalent of `serialized`. Its length must be exactly `to_size`.
+
+        .. note::
+
+            This method is intended to be overridden. The default behavior is to crash.
+        """
         raise errors.ValueSizeError(field=self, value=serialized)
 
     def to_bytes(

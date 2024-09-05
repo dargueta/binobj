@@ -478,7 +478,7 @@ class Union(Field[T]):
     def _do_load(self, stream: BinaryIO, context: object, loaded_fields: StrDict) -> T:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
-            return loader._do_load(stream, context, loaded_fields)
+            return loader._do_load(stream, context, loaded_fields)  # noqa: SLF001
         if isinstance(loader, type) and issubclass(loader, Struct):
             return loader.from_stream(stream, context)
         raise TypeError(
