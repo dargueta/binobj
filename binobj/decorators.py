@@ -11,6 +11,7 @@ from typing import Union
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterable
+    from typing import Any
 
     from binobj.typedefs import FieldValidator
     from binobj.typedefs import StructValidator
@@ -34,7 +35,7 @@ class ValidatorMethodWrapper:
         self.field_names = tuple(field_names or ())
         functools.wraps(func)(self)
 
-    def __call__(self, *args: object) -> Optional[bool]:
+    def __call__(self, *args: Any) -> Optional[bool]:
         """Execute the wrapped function."""
         return self.func(*args)
 

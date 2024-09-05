@@ -6,8 +6,6 @@ import codecs
 import enum
 import io
 import uuid
-from typing import BinaryIO
-from typing import Optional
 from typing import TYPE_CHECKING
 
 from typing_extensions import override
@@ -18,6 +16,10 @@ from binobj.fields.base import Field
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    from typing import Any
+    from typing import BinaryIO
+    from typing import Optional
+
     from binobj.typedefs import StrDict
 
 
@@ -80,7 +82,7 @@ class String(Field[str]):
         *,
         encoding: str = "iso-8859-1",
         pad_byte: Optional[bytes] = None,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         if pad_byte is not None:
             if not isinstance(pad_byte, (bytes, bytearray)):
@@ -229,7 +231,7 @@ class UUID4(Field[uuid.UUID]):
     size: int
 
     def __init__(
-        self, *, stored_as: UUIDFormat = UUIDFormat.BINARY_VARIANT_1, **kwargs: object
+        self, *, stored_as: UUIDFormat = UUIDFormat.BINARY_VARIANT_1, **kwargs: Any
     ):
         self.stored_as = stored_as
         if stored_as in (UUIDFormat.BINARY_VARIANT_1, UUIDFormat.BINARY_VARIANT_2):

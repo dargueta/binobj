@@ -6,10 +6,7 @@ import datetime
 import struct
 import sys
 import warnings
-from typing import BinaryIO
-from typing import Final
 from typing import Literal
-from typing import Optional
 from typing import TYPE_CHECKING
 
 from typing_extensions import override
@@ -21,6 +18,11 @@ from binobj.fields.base import Field
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    from typing import Any
+    from typing import BinaryIO
+    from typing import Final
+    from typing import Optional
+
     from binobj.typedefs import EndianString
     from binobj.typedefs import StrDict
     from binobj.varints import VarIntEncoding
@@ -72,7 +74,7 @@ class Float(Field[float]):
         *,
         format_string: FloatFormat,
         endian: Optional[EndianString] = None,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         super().__init__(size=struct.calcsize(format_string), **kwargs)
 
@@ -119,7 +121,7 @@ class Float16(Float):
     .. _binary16: https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(format_string="e", **kwargs)
 
 
@@ -129,7 +131,7 @@ class Float32(Float):
     .. _binary32: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(format_string="f", **kwargs)
 
 
@@ -139,7 +141,7 @@ class Float64(Float):
     .. _binary64: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     """
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(format_string="d", **kwargs)
 
 
@@ -177,7 +179,7 @@ class Integer(Field[int]):
         *,
         endian: Optional[EndianString] = None,
         signed: bool = True,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         self.endian = endian or sys.byteorder
@@ -225,7 +227,7 @@ class VariableLengthInteger(Integer):
         *,
         vli_format: VarIntEncoding,
         max_bytes: Optional[int] = None,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
 
@@ -281,63 +283,63 @@ class UnsignedInteger(Integer):
     .. seealso:: :class:`.Integer`
     """
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class Int8(Integer):
     """An 8-bit signed integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=1, **kwargs)
 
 
 class Int16(Integer):
     """A 16-bit signed integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=2, **kwargs)
 
 
 class Int32(Integer):
     """A 32-bit signed integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=4, **kwargs)
 
 
 class Int64(Integer):
     """A 64-bit signed integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=8, **kwargs)
 
 
 class UInt8(Int8):
     """An 8-bit unsigned integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt16(Int16):
     """A 16-bit unsigned integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt32(Int32):
     """A 32-bit unsigned integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
 class UInt64(Int64):
     """A 64-bit unsigned integer."""
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(signed=False, **kwargs)
 
 
@@ -402,7 +404,7 @@ class Timestamp(Field[datetime.datetime]):
         tz_aware: bool = False,
         endian: Optional[EndianString] = None,
         signed: bool = True,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         if resolution not in self._RESOLUTION_UNITS:
             expected = ", ".join(repr(k) for k in self._RESOLUTION_UNITS)
@@ -478,7 +480,7 @@ class Timestamp32(Timestamp):
     .. seealso:: :class:`.Timestamp`
     """
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=4, **kwargs)
 
 
@@ -489,5 +491,5 @@ class Timestamp64(Timestamp):
     .. seealso:: :class:`.Timestamp`
     """
 
-    def __init__(self, **kwargs: object):
+    def __init__(self, **kwargs: Any):
         super().__init__(size=8, **kwargs)

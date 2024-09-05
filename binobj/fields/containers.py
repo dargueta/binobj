@@ -86,7 +86,7 @@ class Array(Field[list[Optional[T]]]):
         *,
         count: _Union[int, Field[int], str, None] = None,
         halt_check: Optional[HaltCheckFn[T]] = None,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         self.component = component
@@ -155,12 +155,11 @@ class Array(Field[list[Optional[T]]]):
         return typing.cast(int, field_values[name])
 
     @staticmethod
-    @override
     def should_halt(
         seq: Array[T],
         stream: BinaryIO,
         values: list[Optional[T]],
-        context: object,
+        context: object,  # noqa: ARG004
         loaded_fields: StrDict,
     ) -> bool:
         """Determine if the deserializer should stop reading from the input.
@@ -333,7 +332,7 @@ class Nested(Field[TStruct]):
         value. Now the sizes are the same.
     """
 
-    def __init__(self, struct_class: type[TStruct], *args: object, **kwargs: object):
+    def __init__(self, struct_class: type[TStruct], *args: object, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.struct_class = struct_class
         self._size = struct_class.get_size()
@@ -424,7 +423,7 @@ class Union(Field[T]):
         *choices: Field[Any],
         load_decider: FieldLoadDecider,
         dump_decider: FieldDumpDecider,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         pass
 
@@ -434,7 +433,7 @@ class Union(Field[T]):
         *choices: TStruct,
         load_decider: StructLoadDecider,
         dump_decider: StructDumpDecider,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         pass
 
@@ -443,7 +442,7 @@ class Union(Field[T]):
         *choices: T,
         load_decider: Any,
         dump_decider: Any,
-        **kwargs: object,
+        **kwargs: Any,
     ):
         super().__init__(**kwargs)
         if any(isinstance(c, type) and issubclass(c, Field) for c in choices):

@@ -63,6 +63,7 @@ Documentation = "https://dargueta.github.io/binobj"
 exclude = ["docs/*"]
 select = ["ALL"]
 extend-ignore = [
+    "ANN401",
     "COM812",
     "D105",
     "D107",

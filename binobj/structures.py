@@ -530,7 +530,7 @@ class Struct(StructProtocol):
         return cls(**result)
 
     @classmethod
-    def get_field(cls, stream: BinaryIO, name: str, context: object = None) -> Any:  # noqa: ANN401
+    def get_field(cls, stream: BinaryIO, name: str, context: object = None) -> Any:
         """Return the value of a single field.
 
         If the field is at a fixed byte offset from the beginning of the struct, it'll
@@ -643,7 +643,7 @@ class Struct(StructProtocol):
 
     # Container methods
 
-    def __getitem__(self, field_name: str) -> Any:  # noqa: ANN401
+    def __getitem__(self, field_name: str) -> Any:
         if field_name not in self.__binobj_struct__.components:
             raise KeyError(
                 f"Struct {type(self).__name__!r} has no field named {field_name!r}."
@@ -800,7 +800,7 @@ class StructMappingProxy(Mapping[str, Any]):
     struct: Struct
     """The underlying :class:`Struct` that all accesses are forwarded to."""
 
-    def __getitem__(self, field: str) -> Any:  # noqa: ANN401
+    def __getitem__(self, field: str) -> Any:
         return self.struct[field]
 
     def __iter__(self) -> Iterator[str]:
