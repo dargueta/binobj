@@ -153,7 +153,7 @@ def test_pep593_annotated__basic():
 
     @dataclass
     class PEP593Class(binobj.Struct):
-        foo: Annotated[int, fields.UInt32]
+        foo: Annotated[int, fields.UInt32] = 123
         bar: Annotated[int, fields.String(size=16)]
 
     assert PEP593Class.__binobj_struct__.num_own_fields == 2
@@ -168,7 +168,7 @@ def test_pep593_annotated__with_union():
 
     @dataclass
     class PEP593Class(binobj.Struct):
-        foo: Annotated[Union[int, float], fields.UInt32]
+        foo: Annotated[Union[int, float], fields.UInt32] = 123
         bar: Annotated[Union[int, str, None], fields.String(size=16)]
 
     assert PEP593Class.__binobj_struct__.num_own_fields == 2
@@ -184,7 +184,7 @@ def test_pep593_annotated__not_as_first():
 
     @dataclass
     class PEP593Class(binobj.Struct):
-        foo: Annotated[int, float, fields.UInt32, bool]
+        foo: Annotated[int, float, fields.UInt32, bool] = 123
         bar: Annotated[Union[int, str], bool, fields.String(size=16)]
 
     assert PEP593Class.__binobj_struct__.num_own_fields == 2
@@ -214,6 +214,7 @@ def validate_pep593_foo_bar_fields(struct_class: type[StructProtocol]) -> None:
     assert first_field.index == 0
     assert first_field.offset == 0
     assert first_field.size == 4
+    assert first_field.default == 123
 
     assert "bar" in struct_class.__binobj_struct__.components
     second_field = struct_class.__binobj_struct__.components["bar"]
