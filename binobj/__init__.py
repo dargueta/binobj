@@ -28,7 +28,9 @@ class VersionInfo(NamedTuple):
         return cls(int(major), int(minor), int(patch), suffix or None)
 
     def __str__(self) -> str:
-        if self.suffix:
+        # Having a version suffix is rare for this library, so we'll tell pycoverage to
+        # ignore this branch.
+        if self.suffix:  # pragma: no cover
             return "%d.%d.%d-%s" % (self.major, self.minor, self.patch, self.suffix)
         return "%d.%d.%d" % (self.major, self.minor, self.patch)
 

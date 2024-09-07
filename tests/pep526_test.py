@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import random
 import typing
+import sys
 from typing import Annotated
 from typing import ClassVar
 from typing import Optional
@@ -22,35 +23,61 @@ from binobj import fields
 from binobj.pep526 import dataclass
 
 if TYPE_CHECKING:  # pragma: no cover
-    from binobj.structures import StructProtocol
+    from typing import Any
 
 
-@dataclass
-class BasicClass(binobj.Struct):
-    some_value: fields.UInt16
-    string: fields.String(size=16, encoding="ibm500")
-    other_string: fields.StringZ = "Default Value"
+@pytest.fixture(
+    params=[
+        pytest.param(
+            fields.String(size=16, encoding="ibm500"),
+            id="instance_annotation",
+            marks=pytest.mark.skipif(
+                sys.version_info[:2] < (3, 11),
+                reason="Deferred annotations can't be instances on Python <3.11",
+            ),
+        ),
+        pytest.param(
+            Annotated[str, fields.String(size=16, encoding="ibm500")],
+            id="pep_593_annotation",
+        ),
+    ]
+)
+def BasicClass(request: Any) -> type[binobj.Struct]:
+    basic_class = type(
+        "BasicClass",
+        (binobj.Struct,),
+        {
+            "__annotations__": {
+                "some_value": fields.UInt16,
+                "other_string": fields.StringZ,
+                "string": request.param,
+            },
+            "other_string": "Default Value",
+        },
+    )
+
+    return dataclass(basic_class)
 
 
-def test_field_extraction__basic():
+def test_field_extraction__basic(BasicClass: type[binobj.Struct]):
     assert hasattr(BasicClass, "__annotations__")
     assert hasattr(BasicClass, "__binobj_struct__"), "Metadata not found on class"
 
     meta = BasicClass.__binobj_struct__
-    assert meta.num_own_fields == 3, "Wrong number of fields detected"
+    assert meta.num_own_fields == 3, f"{meta.num_own_fields=}, wanted 3"
     assert meta.components, "No components found."
     assert set(meta.components.keys()) == {"some_value", "string", "other_string"}
 
 
-def test_field_extraction__default_values():
+def test_field_extraction__default_values(BasicClass: type[binobj.Struct]):
     assert BasicClass.other_string.default == "Default Value"
 
 
-def test_field_extraction__field_properties_assigned():
+def test_field_extraction__field_properties_assigned(BasicClass: type[binobj.Struct]):
     assert BasicClass.string.encoding == "ibm500"
 
 
-def test_field_redefine_detected_crashes__same_type():
+def test_field_redefine_detected_crashes__same_type(BasicClass: type[binobj.Struct]):
     """Redefining a field crashes, even if the field type is the same."""
     with pytest.raises(errors.FieldRedefinedError):
 
@@ -59,7 +86,9 @@ def test_field_redefine_detected_crashes__same_type():
             other_string: fields.StringZ
 
 
-def test_field_redefine_detected_crashes__different_type():
+def test_field_redefine_detected_crashes__different_type(
+    BasicClass: type[binobj.Struct],
+):
     """Redefining a field crashes (field type is different here)."""
     with pytest.raises(errors.FieldRedefinedError):
 
@@ -120,15 +149,28 @@ def test_decorator_with_only_assigned_fields_crashes():
             field = fields.Bytes(size=10)
 
 
-@dataclass
-class NestedFields(binobj.Struct):
-    basic: BasicClass
-    other: fields.Float32
+@pytest.fixture()
+def NestedFields(BasicClass: type[binobj.Struct]) -> type[binobj.Struct]:
+    basic_class = type(
+        "NestedFields",
+        (binobj.Struct,),
+        {
+            "__annotations__": {
+                "basic": BasicClass,
+                "other": fields.Float32,
+            }
+        },
+    )
+    return dataclass(basic_class)
 
 
-def test_nested_works():
+def test_nested_works(
+    NestedFields: type[binobj.Struct], BasicClass: type[binobj.Struct]
+):
     assert isinstance(NestedFields.basic, fields.Nested)
-    assert NestedFields.basic.struct_class is BasicClass
+    assert (
+        NestedFields.basic.struct_class is BasicClass
+    ), f"{NestedFields.basic.struct_class=}, wanted {BasicClass!r}"
 
 
 def test_passing_callable_triggers_warning():
@@ -155,6 +197,8 @@ def test_pep593_annotated__basic():
     class PEP593Class(binobj.Struct):
         foo: Annotated[int, fields.UInt32] = 123
         bar: Annotated[int, fields.String(size=16)]
+        ignore_me: int
+        ignore_as_well: Annotated[int, bool]
 
     assert PEP593Class.__binobj_struct__.num_own_fields == 2
     validate_pep593_foo_bar_fields(PEP593Class)
@@ -170,6 +214,8 @@ def test_pep593_annotated__with_union():
     class PEP593Class(binobj.Struct):
         foo: Annotated[Union[int, float], fields.UInt32] = 123
         bar: Annotated[Union[int, str, None], fields.String(size=16)]
+        ignore_me: int
+        ignore_as_well: Annotated[int, bool]
 
     assert PEP593Class.__binobj_struct__.num_own_fields == 2
     validate_pep593_foo_bar_fields(PEP593Class)
@@ -186,6 +232,8 @@ def test_pep593_annotated__not_as_first():
     class PEP593Class(binobj.Struct):
         foo: Annotated[int, float, fields.UInt32, bool] = 123
         bar: Annotated[Union[int, str], bool, fields.String(size=16)]
+        ignore_me: int
+        ignore_as_well: Annotated[int, bool]
 
     assert PEP593Class.__binobj_struct__.num_own_fields == 2
     validate_pep593_foo_bar_fields(PEP593Class)
@@ -204,9 +252,11 @@ def test_pep593_annotated__multiple_fields_crash__same_type():
         class BrokenPEP593(binobj.Struct):
             okay: Annotated[int, float, fields.UInt32, bool]
             broken: Annotated[str, fields.String(size=16), fields.String(size=16)]
+            ignore_me: int
+            ignore_as_well: Annotated[int, bool]
 
 
-def validate_pep593_foo_bar_fields(struct_class: type[StructProtocol]) -> None:
+def validate_pep593_foo_bar_fields(struct_class: type[binobj.Struct]) -> None:
     assert "foo" in struct_class.__binobj_struct__.components
     first_field = struct_class.__binobj_struct__.components["foo"]
     assert isinstance(first_field, fields.Field)

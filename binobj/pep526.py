@@ -51,8 +51,6 @@ if typing.TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Sequence
 
     from typing_extensions import Self
-    from typing_extensions import TypeAlias
-    from typing_extensions import TypeGuard
 
     from binobj.fields.base import Field
 
@@ -61,15 +59,18 @@ __all__ = ["dataclass"]
 
 
 TStruct = TypeVar("TStruct", bound=Struct)
-BinObjAnnotation: TypeAlias = Union[
-    fields.Field[Any], type[fields.Field[Any]], type[TStruct]
-]
 
 
-def is_binobj_annotation(thing: Any) -> TypeGuard[BinObjAnnotation]:
-    return (
-        isinstance(thing, type) and issubclass(thing, Struct | fields.Field)
-    ) or isinstance(thing, fields.Field)
+def flatten_pep593_if_present(annotation: Any) -> list[Any]:
+    """Convert an annotation that *might* be a :class:`typing.Annotated` into a list.
+
+    This is very similar to :func:`more_itertools.always_iterable`, except for type
+    annotations. Single annotations are converted to a one-element list; PEP-593
+    annotations are flattened into a list and returned.
+    """
+    if not hasattr(annotation, "__metadata__"):
+        return [annotation]
+    return list(annotation.__metadata__)
 
 
 @dataclasses.dataclass
@@ -104,29 +105,8 @@ class AnnotationInfo:
 
     @classmethod
     def from_annotation(
-        cls, field_name: str, annotation: BinObjAnnotation, struct_class: type[TStruct]
+        cls, field_name: str, annotation: Any, struct_class: type[TStruct]
     ) -> Self:
-        if hasattr(annotation, "__metadata__"):
-            # This is a PEP 596 `Annotated[native_type, ...stuff]`. At most one of the
-            # arguments must be a BinObj field or struct.
-            binobj_annotations = [
-                cls.from_annotation(field_name, subannotation, struct_class)
-                for subannotation in annotation.__metadata__
-                if is_binobj_annotation(subannotation)
-            ]
-
-            if len(binobj_annotations) > 1:
-                raise errors.ConfigurationError(
-                    f"Field {field_name!r} of struct {struct_class} has"
-                    f" {len(binobj_annotations)} valid BinObj annotations. There must"
-                    " be at most one.",
-                    field=field_name,
-                    struct=struct_class,
-                )
-            if not binobj_annotations:
-                return None
-            return binobj_annotations[0]
-
         type_class = annotation
         type_args = typing.get_args(annotation)
         nullable = type(None) in type_args
@@ -232,14 +212,30 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
     all_annotations = typing.get_type_hints(class_object, include_extras=True)
 
     for name, raw_annotation in all_annotations.items():
-        annotation = AnnotationInfo.from_annotation(
-            field_name=name, annotation=raw_annotation, struct_class=class_object
-        )
-        field_instance = annotation.make_field_instance()
+        flattened_annotations = flatten_pep593_if_present(raw_annotation)
 
-        if field_instance is None:
-            # Not a field or struct, so we'll ignore it.
+        info_list = [
+            AnnotationInfo.from_annotation(name, ann, class_object)
+            for ann in flattened_annotations
+        ]
+        derived_field_instances = [
+            field
+            for info in info_list
+            if (field := info.make_field_instance()) is not None
+        ]
+
+        if len(derived_field_instances) > 1:
+            raise errors.ConfigurationError(
+                f"Field {name!r} of struct {class_object} has"
+                f" {len(derived_field_instances)} valid BinObj annotations. There must"
+                " be at most one.",
+                field=name,
+                struct=class_object,
+            )
+        if not derived_field_instances:
             continue
+
+        field_instance = derived_field_instances[0]
 
         if name in meta.components:
             # Puke -- the field was already defined in the superclass.
