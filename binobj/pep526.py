@@ -50,11 +50,26 @@ from binobj.structures import Struct
 if typing.TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+    from typing_extensions import TypeAlias
+    from typing_extensions import TypeGuard
+
+    from binobj.fields.base import Field
+
 
 __all__ = ["dataclass"]
 
 
 TStruct = TypeVar("TStruct", bound=Struct)
+BinObjAnnotation: TypeAlias = Union[
+    fields.Field[Any], type[fields.Field[Any]], type[TStruct]
+]
+
+
+def is_binobj_annotation(thing: Any) -> TypeGuard[BinObjAnnotation]:
+    return (
+        isinstance(thing, type) and issubclass(thing, Struct | fields.Field)
+    ) or isinstance(thing, fields.Field)
 
 
 @dataclasses.dataclass
@@ -89,8 +104,29 @@ class AnnotationInfo:
 
     @classmethod
     def from_annotation(
-        cls, field_name: str, annotation: object, struct_class: type[TStruct]
-    ) -> AnnotationInfo:
+        cls, field_name: str, annotation: BinObjAnnotation, struct_class: type[TStruct]
+    ) -> Self:
+        if hasattr(annotation, "__metadata__"):
+            # This is a PEP 596 `Annotated[native_type, ...stuff]`. At most one of the
+            # arguments must be a BinObj field or struct.
+            binobj_annotations = [
+                cls.from_annotation(field_name, subannotation, struct_class)
+                for subannotation in annotation.__metadata__
+                if is_binobj_annotation(subannotation)
+            ]
+
+            if len(binobj_annotations) > 1:
+                raise errors.ConfigurationError(
+                    f"Field {field_name!r} of struct {struct_class} has"
+                    f" {len(binobj_annotations)} valid BinObj annotations. There must"
+                    " be at most one.",
+                    field=field_name,
+                    struct=struct_class,
+                )
+            if not binobj_annotations:
+                return None
+            return binobj_annotations[0]
+
         type_class = annotation
         type_args = typing.get_args(annotation)
         nullable = type(None) in type_args
@@ -133,35 +169,30 @@ class AnnotationInfo:
             nullable=nullable,
         )
 
+    def make_field_instance(self) -> Optional[Field[Any]]:
+        """Convert a type annotation to a Field object if it represents one."""
+        if isinstance(self.type_class, type):
+            # We got a class object. Could be a struct or field, ignore everything else.
+            if issubclass(self.type_class, Struct):
+                # A Struct class is shorthand for Nested(Struct).
+                return fields.Nested(self.type_class)
+            if issubclass(self.type_class, fields.Field):
+                # This is a Field class. Initialize it with only the arguments we're certain
+                # of. This gives us a Field instance.
+                kw: dict[str, Any]
+                kw = {"null_value": fields.DEFAULT} if self.nullable else {}
 
-def annotation_to_field_instance(
-    annotation: AnnotationInfo,
-) -> Optional[fields.Field[Any]]:
-    """Convert a type annotation to a Field object if it represents one."""
-    if isinstance(annotation.type_class, type):
-        # We got a class object. Could be a struct or field, ignore everything else.
-        if issubclass(annotation.type_class, Struct):
-            # A Struct class is shorthand for Nested(Struct).
-            return fields.Nested(annotation.type_class)
-        if issubclass(annotation.type_class, fields.Field):
-            # This is a Field class. Initialize it with only the arguments we're certain
-            # of. This gives us a Field instance.
-            kw: dict[str, Any]
-            kw = {"null_value": fields.DEFAULT} if annotation.nullable else {}
+                return self.type_class(name=self.name, default=self.default_value, **kw)
 
-            return annotation.type_class(
-                name=annotation.name, default=annotation.default_value, **kw
-            )
+            # Else: Not a struct or field class -- ignore
+            return None
 
-        # Else: Not a struct or field class -- ignore
-        return None
+        if not isinstance(self.type_class, fields.Field):
+            # Not an instance of Field -- ignore
+            return None
 
-    if not isinstance(annotation.type_class, fields.Field):
-        # Not an instance of Field -- ignore
-        return None
-
-    # Else: The annotation is a field instance.
-    return annotation.type_class
+        # Else: The annotation is a field instance.
+        return self.type_class
 
 
 def dataclass(class_object: type[TStruct]) -> type[TStruct]:
@@ -198,13 +229,13 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
     field_index = 0
     n_fields_found = 0
     byte_offset = meta.size_bytes
-    all_annotations = typing.get_type_hints(class_object)
+    all_annotations = typing.get_type_hints(class_object, include_extras=True)
 
     for name, raw_annotation in all_annotations.items():
         annotation = AnnotationInfo.from_annotation(
             field_name=name, annotation=raw_annotation, struct_class=class_object
         )
-        field_instance = annotation_to_field_instance(annotation)
+        field_instance = annotation.make_field_instance()
 
         if field_instance is None:
             # Not a field or struct, so we'll ignore it.
