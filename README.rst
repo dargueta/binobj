@@ -6,7 +6,7 @@ binobj
 .. |build-status| image:: https://github.com/dargueta/binobj/actions/workflows/ci.yml/badge.svg
    :alt: Build status
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.7,%203.8,%203.9,%203.10,%203.11,%203.12-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.9,%203.10,%203.11,%203.12-blue.svg
    :alt: Python versions
 
 .. |installs-month| image:: https://pepy.tech/badge/binobj/month
@@ -51,7 +51,7 @@ The same example rewritten using ``binobj``:
         magic: Bytes = b"BM"
         file_size: UInt32
         _reserved: binobj.Bytes(const=b"\0\0\0\0", discard=True)
-        pixels_offset: UInt32()
+        pixels_offset: UInt32
 
         # Legacy DIB header
         header_size: UInt32 = 40
