@@ -209,7 +209,8 @@ def recursive_to_dicts(item: object) -> Any:
     return item
 
 
-class StructProtocol(Protocol):
+@typing.runtime_checkable
+class HasStruct(Protocol):
     __binobj_struct__: ClassVar[StructMetadata]
     """A class attribute defining features of the struct, such as its fields,
     validators, default values, etc.
@@ -217,6 +218,8 @@ class StructProtocol(Protocol):
     It's only of use for code that inspects struct definitions.
     """
 
+
+class StructProtocol(HasStruct):
     @classmethod
     def get_size(cls) -> Optional[int]: ...
 
