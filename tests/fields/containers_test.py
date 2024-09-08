@@ -401,10 +401,11 @@ def test_union__fields__load_basic():
 
 def test_union__field_class_crashes():
     """Passing a Field class to a Union should crash."""
-    with pytest.raises(errors.ConfigurationError) as errinfo:
+    with pytest.raises(
+        errors.ConfigurationError,
+        match=r"^A `Union` must be passed Field instances, not classes\.$",
+    ):
         fields.Union(fields.StringZ, load_decider=None, dump_decider=None)
-
-    assert str(errinfo.value) == "You must pass an instance of a Field, not a class."
 
 
 def test_union__dump_non_mapping_for_struct():

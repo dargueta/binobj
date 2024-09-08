@@ -17,6 +17,7 @@ from typing import TypeVar
 from typing import Union as _Union
 
 from typing_extensions import override
+from typing_extensions import TypeAlias
 
 from binobj import errors
 from binobj.fields.base import Field
@@ -33,18 +34,29 @@ T = TypeVar("T")
 TStruct = TypeVar("TStruct", bound=Struct)
 
 
-HaltCheckFn = Callable[
+HaltCheckFn: TypeAlias = Callable[
     ["Array[T]", BinaryIO, MutableSequence[Optional[T]], Any, StrDict], bool
 ]
+"""A function used to detect the end of an array when deserializing.
 
-FieldOrTStruct = _Union[Field[Any], type[Struct]]
-FieldLoadDecider = Callable[[BinaryIO, Sequence[Field[Any]], Any, StrDict], Field[Any]]
-FieldDumpDecider = Callable[[Any, Sequence[Field[Any]], Any, StrDict], Field[Any]]
+See :meth:`Array.should_halt` for a full description of arguments.
+"""
 
-StructLoadDecider = Callable[
+
+FieldLoadDecider: TypeAlias = Callable[
+    [BinaryIO, Sequence[Field[Any]], Any, StrDict], Field[Any]
+]
+
+FieldDumpDecider: TypeAlias = Callable[
+    [Any, Sequence[Field[Any]], Any, StrDict], Field[Any]
+]
+
+StructLoadDecider: TypeAlias = Callable[
     [BinaryIO, Sequence[type[Struct]], Any, StrDict], type[Struct]
 ]
-StructDumpDecider = Callable[[Any, Sequence[type[Struct]], Any, StrDict], type[Struct]]
+StructDumpDecider: TypeAlias = Callable[
+    [Any, Sequence[type[Struct]], Any, StrDict], type[Struct]
+]
 
 
 class Array(Field[list[Optional[T]]]):
@@ -65,7 +77,8 @@ class Array(Field[list[Optional[T]]]):
     :param callable halt_check:
         A function taking five arguments. See :meth:`should_halt` for the default
         implementation. Subclasses can override this function if desired to avoid having
-        to pass in a custom function every time.
+        to pass in a custom function every time. For further details, see
+        :data:`HaltCheckFn`.
 
     .. versionchanged:: 0.3.0
         ``count`` can now be a :class:`~.fields.base.Field` or string.
@@ -358,7 +371,7 @@ class Nested(Field[TStruct]):
         return self.struct_class.from_stream(stream, context)
 
 
-class Union(Field[T]):
+class Union(Field[Any]):
     """A field that can be one of several different types of structs or fields.
 
     :param choices:
@@ -430,7 +443,7 @@ class Union(Field[T]):
     @overload
     def __init__(
         self,
-        *choices: TStruct,
+        *choices: type[Struct],
         load_decider: StructLoadDecider,
         dump_decider: StructDumpDecider,
         **kwargs: Any,
@@ -439,24 +452,24 @@ class Union(Field[T]):
 
     def __init__(
         self,
-        *choices: T,
+        *choices: Any,
         load_decider: Any,
         dump_decider: Any,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
         if any(isinstance(c, type) and issubclass(c, Field) for c in choices):
             raise errors.ConfigurationError(
-                "You must pass an instance of a Field, not a class.", field=self
+                "A `Union` must be passed Field instances, not classes.", field=self
             )
 
+        super().__init__(**kwargs)
         self.choices = choices
         self.load_decider = load_decider
         self.dump_decider = dump_decider
 
     @override
     def _do_dump(
-        self, stream: BinaryIO, data: T, context: object, all_fields: StrDict
+        self, stream: BinaryIO, data: Any, context: object, all_fields: StrDict
     ) -> None:
         dumper = self.dump_decider(data, self.choices, context, all_fields)
         if isinstance(dumper, Field):
@@ -474,7 +487,9 @@ class Union(Field[T]):
             )
 
     @override
-    def _do_load(self, stream: BinaryIO, context: object, loaded_fields: StrDict) -> T:
+    def _do_load(
+        self, stream: BinaryIO, context: object, loaded_fields: StrDict
+    ) -> Any:
         loader = self.load_decider(stream, self.choices, context, loaded_fields)
         if isinstance(loader, Field):
             return loader._do_load(stream, context, loaded_fields)  # noqa: SLF001
