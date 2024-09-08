@@ -113,23 +113,18 @@ class String(Field[str]):
         """Dump a fixed-length string into the stream."""
         stream.write(self._encode_and_resize(data, all_fields))
 
-    def _encode_and_resize(
-        self, string: str, all_fields: Optional[StrDict] = None
-    ) -> bytes:
+    def _encode_and_resize(self, string: str, all_fields: StrDict) -> bytes:
         """Encode a string and size it to this field.
 
         :param str string:
             The string to encode.
         :param dict all_fields:
-            Optional. A dict of all fields that are being dumped. Used for calculating
-            the length of the field if that depends on the value of another field.
+            A dict of all fields that are being dumped. Used for calculating the length
+            of the field if that depends on the value of another field.
 
         :return: ``string`` encoded as ``size`` bytes.
         :rtype: bytes
         """
-        if all_fields is None:
-            all_fields = {}
-
         to_dump = string.encode(self.encoding)
         write_size = self.get_expected_size(all_fields)
 
