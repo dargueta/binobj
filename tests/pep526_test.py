@@ -7,13 +7,13 @@ errors and you will be sad.
 from __future__ import annotations
 
 import random
-import typing
 import sys
+import typing
 from typing import Annotated
 from typing import ClassVar
 from typing import Optional
-from typing import Union
 from typing import TYPE_CHECKING
+from typing import Union
 
 import pytest
 
@@ -21,6 +21,7 @@ import binobj
 from binobj import errors
 from binobj import fields
 from binobj.pep526 import dataclass
+
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Any
@@ -149,7 +150,7 @@ def test_decorator_with_only_assigned_fields_crashes():
             field = fields.Bytes(size=10)
 
 
-@pytest.fixture()
+@pytest.fixture
 def NestedFields(BasicClass: type[binobj.Struct]) -> type[binobj.Struct]:
     basic_class = type(
         "NestedFields",

@@ -61,7 +61,7 @@ __all__ = ["dataclass"]
 TStruct = TypeVar("TStruct", bound=Struct)
 
 
-def flatten_pep593_if_present(annotation: Any) -> list[Any]:
+def flatten_annotations(annotation: Any) -> list[Any]:
     """Convert an annotation that *might* be a :class:`typing.Annotated` into a list.
 
     This is very similar to :func:`more_itertools.always_iterable`, except for type
@@ -157,8 +157,8 @@ class AnnotationInfo:
                 # A Struct class is shorthand for Nested(Struct).
                 return fields.Nested(self.type_class)
             if issubclass(self.type_class, fields.Field):
-                # This is a Field class. Initialize it with only the arguments we're certain
-                # of. This gives us a Field instance.
+                # This is a Field class. Initialize it with only the arguments we're
+                # certain of. This gives us a Field instance.
                 kw: dict[str, Any]
                 kw = {"null_value": fields.DEFAULT} if self.nullable else {}
 
@@ -212,7 +212,7 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
     all_annotations = typing.get_type_hints(class_object, include_extras=True)
 
     for name, raw_annotation in all_annotations.items():
-        flattened_annotations = flatten_pep593_if_present(raw_annotation)
+        flattened_annotations = flatten_annotations(raw_annotation)
 
         info_list = [
             AnnotationInfo.from_annotation(name, ann, class_object)
