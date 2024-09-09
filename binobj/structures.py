@@ -229,7 +229,7 @@ def collect_assigned_fields(
 
     .. versionchanged:: 0.12.0
         Removed redundant first argument. The class name is now taken from
-        `class_metadata` instead of as an explicit argument.
+        `class_metadata` instead of needing to be passed in as an explicit argument.
     """
     field_index = len(class_metadata.components)
     n_fields_found = 0

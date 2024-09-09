@@ -183,6 +183,7 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
 
     Here are a few examples of how you can declare your fields::
 
+        @binobj.dataclass
         class MyStruct(binobj.Struct):
             # Preferred: use a class object
             foo: UInt16
@@ -197,6 +198,20 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
             # Instances are allowed but are less readable. Be careful not to *assign*
             # the field instance!
             baz: Timestamp64(signed=False)
+
+    For compatibility with type checkers, use :class:`typing.Annotated`. The struct
+    above would be declared like this::
+
+        @binobj.dataclass
+        class MyStruct(binobj.Struct):
+            foo: Annotated[int, UInt16]
+            bar: Annotated[str, StringZ] = ""
+
+            # We don't need Annotated[...] here because type checkers will expect the
+            # same annotation that BinObj uses.
+            sub_struct: MyOtherStruct
+
+            baz: Annotated[datetime, Timestamp64(signed=False)]
 
     .. versionadded:: 0.9.0
 

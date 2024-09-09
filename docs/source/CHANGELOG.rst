@@ -1,8 +1,106 @@
 Changelog
 =========
 
+0.12.0
+------
+
+Released 2024-09-09
+
+New Features
+~~~~~~~~~~~~
+
+Type Checking Compatibility
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Type checker-compatible annotations are finally here! The old dataclass annotation way
+would cause type checkers to report errors when you try assigning an ``int`` to a field
+marked as ``UInt8``. You can now get around this by using ``typing.Annotated``.
+
+The old way:
+
+.. code-block:: python
+
+        @binobj.dataclass
+        class MyStruct(binobj.Struct):
+            foo: UInt16
+            bar: StringZ = ""
+            sub_struct: MyOtherStruct
+            baz: Timestamp64(signed=False)
+
+To save you headaches with MyPy, the same struct can be declared like so:
+
+.. code-block:: python
+
+        @binobj.dataclass
+        class MyStruct(binobj.Struct):
+            foo: Annotated[int, UInt16]
+            bar: Annotated[str, StringZ] = ""
+            sub_struct: MyOtherStruct    # Note no change necessary here
+            baz: Annotated[datetime, Timestamp64(signed=False)]
+
+Full Mapping-like Behavior
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Two new struct wrappers, ``StructMappingProxy`` and ``MutableStructMappingProxy``, allow
+you to use a ``Struct`` exactly as you would a ``Mapping`` or ``MutableMapping``:
+
+.. code-block:: python
+
+    ro_proxy = binobj.StructMappingProxy(struct_instance)
+    assert ro_proxy.struct is struct_instance  # Original struct still available
+
+    for key, value in ro_proxy.items():
+        print(f"{k!r} = {v!r}")
+
+    cm = collections.ChainMap({}, binobj.MutableStructMappingProxy(struct_instance))
+
+These are typed as ``Mapping[str, Any]`` and ``MutableMapping[str, Any]``, respectively.
+
+Other New Features
+^^^^^^^^^^^^^^^^^^
+
+Now testing on Python 3.13-rc1.
+
+.. _PEP 593: https://peps.python.org/pep-0593/
+
+Deprecations
+~~~~~~~~~~~~
+
+* Support for Python 3.9 will be removed in the next backwards-incompatible release.
+* Using ``Field`` instances as bare annotations is deprecated; use ``typing.Annotated``
+  instead.
+
+Bugfixes
+~~~~~~~~
+
+* On Python ≤ 3.10, using ``Field`` instances as type annotations completely broke if
+  deferred annotation evaluation was enabled with ``from __future__ import annotations``.
+  This can now be worked around by using ``Annotated``, or with normal field assignment.
+* When reading fixed data, if ``exact`` was true the error message would be one byte off
+  when saying how much it expected to read.
+* Better type annotations for containers.
+* Error messages now use ``__qualname__`` for classes, instead of ``__name__``. This
+  will only change the output of nested classes.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+Dropped support for EOL Python 3.7 and 3.8.
+
+Other Changes
+~~~~~~~~~~~~~
+
+* Refactored ``Struct`` class initialization and pushed it into a factory method on
+  ``StructMetadata``. The eventual goal is to completely eliminate the need for
+  inheriting ``Struct``.
+* Switched from Black to Ruff.
+* Minimum version of ``typing_extensions`` is now 4.4.
+* Upgraded test dependencies.
+
 0.11.4
 ------
+
+Released 2024-03-13
 
 Bugfixes
 ~~~~~~~~
@@ -28,6 +126,8 @@ Other Changes
 0.11.3
 ------
 
+Released 2023-11-10
+
 Bugfixes
 ~~~~~~~~
 
@@ -36,6 +136,8 @@ in 3.10. We now handle that case in the annotation detection.
 
 0.11.2
 ------
+
+(YANKED)
 
 Bugfixes
 ~~~~~~~~
@@ -56,6 +158,8 @@ Other Changes
 
 0.11.1
 ------
+
+Released 2023-09-16
 
 Bugfixes
 ~~~~~~~~
@@ -90,6 +194,8 @@ behaves the same.
 
 0.11.0
 ------
+
+Released 2023-02-14
 
 New Features
 ~~~~~~~~~~~~
