@@ -84,7 +84,7 @@ target-version = "py39"
 keep-runtime-typing = true
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F403"]
+"__init__.py" = ["F403", "PLC0414"]
 "tests/*" = ["ANN", "D", "S101", "S311"]
 "tests/pep526_*.py" = ["N802", "N803", "I002"]
 

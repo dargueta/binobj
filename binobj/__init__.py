@@ -8,6 +8,7 @@ from typing import Optional
 
 from .errors import *
 from .fields import *
+from .pep526 import dataclass as dataclass
 from .structures import *
 
 

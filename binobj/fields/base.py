@@ -92,7 +92,7 @@ class Field(Generic[T]):
         :class:`~binobj.fields.numeric.Integer`, and so on.
     :param default:
         The default value to use if a value for this field isn't passed to the struct
-        for serialization, (deprecated) or a callable taking no arguments that will
+        for serialization, or (deprecated) a callable taking no arguments that will
         return a default value.
 
         This argument *must* be of the same type as the field, i.e. it must be a string
