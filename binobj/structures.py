@@ -17,13 +17,12 @@ from typing import Any
 from typing import BinaryIO
 from typing import ClassVar
 from typing import Final
-from typing import Optional
 from typing import overload
 from typing import Protocol
+from typing import TypeGuard
 from typing import TypeVar
 
 from typing_extensions import Self
-from typing_extensions import TypeGuard
 
 from binobj import decorators
 from binobj import errors
@@ -82,7 +81,7 @@ class StructMetadata:
     .. versionadded:: 0.9.0
     """
 
-    size_bytes: Optional[int] = 0
+    size_bytes: int | None = 0
     """The total size of the struct in bytes, if it's a fixed value.
 
     This is only used for classes declared using PEP 526 type annotations and should
@@ -176,7 +175,7 @@ class StructMetadata:
     def load_meta_options(self, meta: type) -> None:
         self.argument_defaults = dict(getattr(meta, "argument_defaults", {}))
 
-    def get_size(self, field_values: Optional[StrDict] = None) -> Optional[int]:
+    def get_size(self, field_values: StrDict | None = None) -> int | None:
         """Get the size of a Struct.
 
         If the Struct contains variable-length fields, it may still be possible to
@@ -204,7 +203,7 @@ class StructMetadata:
 def collect_assigned_fields(
     namespace: StrDict,
     class_metadata: StructMetadata,
-    byte_offset: Optional[int],
+    byte_offset: int | None,
 ) -> int:
     """Collect all fields defined by class variable assignment to a struct.
 
@@ -300,7 +299,7 @@ def recursive_to_dicts(item: object) -> Any:
         return item.to_dict()
     if isinstance(item, Mapping):
         return {recursive_to_dicts(k): recursive_to_dicts(v) for k, v in item.items()}
-    if isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+    if isinstance(item, Sequence) and not isinstance(item, str | bytes | bytearray):
         return [recursive_to_dicts(v) for v in item]
     return item
 
@@ -476,7 +475,7 @@ class Struct(HasStruct):
         cls,
         stream: BinaryIO,
         context: object = None,
-        init_kwargs: Optional[StrDict] = None,
+        init_kwargs: StrDict | None = None,
     ) -> Self:
         """Load a struct from the given stream.
 
@@ -522,7 +521,7 @@ class Struct(HasStruct):
         data: bytes,
         context: object = None,
         exact: bool = True,
-        init_kwargs: Optional[StrDict] = None,
+        init_kwargs: StrDict | None = None,
     ) -> Self:
         """Load a struct from the given byte string.
 
@@ -562,7 +561,7 @@ class Struct(HasStruct):
     def partial_load(
         cls,
         stream: BinaryIO,
-        last_field: Optional[str] = None,
+        last_field: str | None = None,
         context: object = None,
     ) -> Self:
         """Partially load this object, either until EOF or the named field.
@@ -679,7 +678,7 @@ class Struct(HasStruct):
         return loaded_data[name]
 
     def partial_dump(
-        self, stream: BinaryIO, last_field: Optional[str] = None, context: object = None
+        self, stream: BinaryIO, last_field: str | None = None, context: object = None
     ) -> None:
         """Partially dump the object, up to and including the last named field.
 
@@ -716,7 +715,7 @@ class Struct(HasStruct):
                 return
 
     @classmethod
-    def get_size(cls) -> Optional[int]:
+    def get_size(cls) -> int | None:
         """Return the size of this struct in bytes, if possible.
 
         If there are variable-sized fields that can't be resolved, this function returns
@@ -790,7 +789,7 @@ class Struct(HasStruct):
         # defined.
         self_values = recursive_to_dicts({n: self[n] for n in list(self)})
 
-        if not isinstance(other, (Struct, Mapping)):
+        if not isinstance(other, Struct | Mapping):
             return False
 
         other_values = recursive_to_dicts({n: other[n] for n in list(other)})

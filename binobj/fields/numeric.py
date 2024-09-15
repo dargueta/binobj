@@ -21,7 +21,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from typing import Any
     from typing import BinaryIO
     from typing import Final
-    from typing import Optional
 
     from binobj.typedefs import EndianString
     from binobj.typedefs import StrDict
@@ -73,7 +72,7 @@ class Float(Field[float]):
         self,
         *,
         format_string: FloatFormat,
-        endian: Optional[EndianString] = None,
+        endian: EndianString | None = None,
         **kwargs: Any,
     ):
         super().__init__(size=struct.calcsize(format_string), **kwargs)
@@ -104,7 +103,7 @@ class Float(Field[float]):
     def _do_dump(
         self,
         stream: BinaryIO,
-        data: Optional[float],
+        data: float | None,
         context: object,
         all_fields: StrDict,
     ) -> None:
@@ -177,7 +176,7 @@ class Integer(Field[int]):
     def __init__(
         self,
         *,
-        endian: Optional[EndianString] = None,
+        endian: EndianString | None = None,
         signed: bool = True,
         **kwargs: Any,
     ):
@@ -226,7 +225,7 @@ class VariableLengthInteger(Integer):
         self,
         *,
         vli_format: VarIntEncoding,
-        max_bytes: Optional[int] = None,
+        max_bytes: int | None = None,
         **kwargs: Any,
     ):
         encoding_info = varints.INTEGER_ENCODING_MAP.get(vli_format)
@@ -402,7 +401,7 @@ class Timestamp(Field[datetime.datetime]):
         size: int,
         resolution: str = "s",
         tz_aware: bool = False,
-        endian: Optional[EndianString] = None,
+        endian: EndianString | None = None,
         signed: bool = True,
         **kwargs: Any,
     ):

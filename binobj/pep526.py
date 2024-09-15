@@ -38,7 +38,6 @@ import dataclasses
 import typing
 import warnings
 from typing import Any
-from typing import Optional
 from typing import TypeVar
 from typing import Union
 
@@ -97,7 +96,7 @@ class AnnotationInfo:
     This is here for forward compatibility and should be ignored for now.
     """
 
-    has_default: Optional[bool] = None
+    has_default: bool | None = None
     default_value: Any = fields.UNDEFINED
 
     nullable: bool = False
@@ -149,7 +148,7 @@ class AnnotationInfo:
             nullable=nullable,
         )
 
-    def make_field_instance(self) -> Optional[Field[Any]]:
+    def make_field_instance(self) -> Field[Any] | None:
         """Convert a type annotation to a Field object if it represents one."""
         if isinstance(self.type_class, type):
             # We got a class object. Could be a struct or field, ignore everything else.

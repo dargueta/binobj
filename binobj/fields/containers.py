@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Mapping
 from collections.abc import MutableSequence
@@ -10,14 +11,11 @@ from collections.abc import Sequence
 from collections.abc import Sized
 from typing import Any
 from typing import BinaryIO
-from typing import Callable
-from typing import Optional
 from typing import overload
+from typing import TypeAlias
 from typing import TypeVar
-from typing import Union as _Union
 
 from typing_extensions import override
-from typing_extensions import TypeAlias
 
 from binobj import errors
 from binobj.fields.base import Field
@@ -35,7 +33,7 @@ TStruct = TypeVar("TStruct", bound=Struct)
 
 
 HaltCheckFn: TypeAlias = Callable[
-    ["Array[T]", BinaryIO, MutableSequence[Optional[T]], Any, StrDict], bool
+    ["Array[T]", BinaryIO, MutableSequence[T | None], Any, StrDict], bool
 ]
 """A function used to detect the end of an array when deserializing.
 
@@ -59,7 +57,7 @@ StructDumpDecider: TypeAlias = Callable[
 ]
 
 
-class Array(Field[list[Optional[T]]]):
+class Array(Field[list[T | None]]):
     """An array of other serializable objects.
 
     :param Field component:
@@ -97,8 +95,8 @@ class Array(Field[list[Optional[T]]]):
         self,
         component: Field[T],
         *,
-        count: _Union[int, Field[int], str, None] = None,
-        halt_check: Optional[HaltCheckFn[T]] = None,
+        count: int | Field[int] | str | None = None,
+        halt_check: HaltCheckFn[T] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -107,7 +105,7 @@ class Array(Field[list[Optional[T]]]):
         maybe_assign_name(self.component, self.name)
 
         if count is None or (
-            isinstance(count, (int, str, Field)) and not isinstance(count, bool)
+            isinstance(count, int | str | Field) and not isinstance(count, bool)
         ):
             # The isinstance bool check is needed because `bool` is a subclass of `int`.
             self.count = count
@@ -117,7 +115,7 @@ class Array(Field[list[Optional[T]]]):
         if isinstance(self.count, int) and component.has_fixed_size:
             self._size = self.count * typing.cast(int, component.size)
 
-    def get_final_element_count(self, field_values: StrDict) -> Optional[int]:
+    def get_final_element_count(self, field_values: StrDict) -> int | None:
         """Calculate the number of elements in the array based on other fields' values.
 
         :param dict field_values:
@@ -171,7 +169,7 @@ class Array(Field[list[Optional[T]]]):
     def should_halt(
         seq: Array[T],
         stream: BinaryIO,
-        values: list[Optional[T]],
+        values: list[T | None],
         context: object,  # noqa: ARG004
         loaded_fields: StrDict,
     ) -> bool:
@@ -239,7 +237,7 @@ class Array(Field[list[Optional[T]]]):
     def _do_dump(
         self,
         stream: BinaryIO,
-        data: Iterable[Optional[T]],
+        data: Iterable[T | None],
         context: object,
         all_fields: StrDict,
     ) -> None:
@@ -272,8 +270,8 @@ class Array(Field[list[Optional[T]]]):
     def _dump_unsized(
         self,
         stream: BinaryIO,
-        data: Iterable[Optional[T]],
-        n_elems: Optional[int],
+        data: Iterable[T | None],
+        n_elems: int | None,
         context: object,
         all_fields: StrDict,
     ) -> None:
@@ -299,7 +297,7 @@ class Array(Field[list[Optional[T]]]):
 
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> list[Optional[T]]:
+    ) -> list[T | None]:
         """Load a structure list from the given stream.
 
         :param BinaryIO stream:
@@ -314,7 +312,7 @@ class Array(Field[list[Optional[T]]]):
         :return: The deserialized data.
         :rtype: list
         """
-        result: list[Optional[T]] = []
+        result: list[T | None] = []
         while not self.halt_check(self, stream, result, context, loaded_fields):
             component = self.component.from_stream(stream, context, loaded_fields)
             if component is NOT_PRESENT:
@@ -354,7 +352,7 @@ class Nested(Field[TStruct]):
     def _do_dump(
         self,
         stream: BinaryIO,
-        data: _Union[StrDict, TStruct],
+        data: StrDict | TStruct,
         context: object,
         all_fields: StrDict,
     ) -> None:

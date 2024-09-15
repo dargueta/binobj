@@ -18,7 +18,6 @@ from binobj.fields.base import Field
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Any
     from typing import BinaryIO
-    from typing import Optional
 
     from binobj.typedefs import StrDict
 
@@ -32,7 +31,7 @@ class Bytes(Field[bytes]):
     @override
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> Optional[bytes]:
+    ) -> bytes | None:
         return self._read_exact_size(stream, loaded_fields)
 
     @override
@@ -81,11 +80,11 @@ class String(Field[str]):
         self,
         *,
         encoding: str = "iso-8859-1",
-        pad_byte: Optional[bytes] = None,
+        pad_byte: bytes | None = None,
         **kwargs: Any,
     ):
         if pad_byte is not None:
-            if not isinstance(pad_byte, (bytes, bytearray)):
+            if not isinstance(pad_byte, bytes | bytearray):
                 raise errors.ConfigurationError(
                     "`pad_byte` must be a bytes-like object.", field=self
                 )
@@ -101,7 +100,7 @@ class String(Field[str]):
     @override
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> Optional[str]:
+    ) -> str | None:
         """Load a fixed-length string from a stream."""
         to_load = self._read_exact_size(stream, loaded_fields)
         return to_load.decode(self.encoding)
@@ -159,7 +158,7 @@ class StringZ(String):
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
     ) -> str:
-        max_bytes: Optional[int]
+        max_bytes: int | None
         try:
             max_bytes = self.get_expected_size(loaded_fields)
         except errors.UndefinedSizeError:
@@ -245,7 +244,7 @@ class UUID4(Field[uuid.UUID]):
     @override
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> Optional[uuid.UUID]:
+    ) -> uuid.UUID | None:
         raw_data = stream.read(self.size)
         if len(raw_data) < self.size:
             raise errors.UnexpectedEOFError(

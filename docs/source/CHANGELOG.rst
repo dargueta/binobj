@@ -1,6 +1,28 @@
 Changelog
 =========
 
+1.0.0
+-----
+
+Migration Guide
+~~~~~~~~~~~~~~~
+
+Initializing ``Field``
+^^^^^^^^^^^^^^^^^^^^^^
+
+1. Factory functions must be passed in ``factory``, not ``default``.
+2. ``const`` is now a boolean indicating the field must have the default value.
+
+.. code-block:: python
+
+    # Old way
+    UInt32(const=1234)
+
+    # New way
+    UInt32(const=True, default=1234)
+
+The default value for ``null_value`` is now ``None``, not ``UNDEFINED``.
+
 0.12.0
 ------
 

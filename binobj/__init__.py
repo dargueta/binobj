@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib.metadata
 from typing import NamedTuple
-from typing import Optional
 
 from .errors import *
 from .fields import *
@@ -18,7 +17,7 @@ class VersionInfo(NamedTuple):
     major: int
     minor: int
     patch: int
-    suffix: Optional[str]
+    suffix: str | None
 
     @classmethod
     def from_string(cls, version: str) -> VersionInfo:
