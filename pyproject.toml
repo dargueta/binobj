@@ -40,13 +40,13 @@ typing-extensions = ">=4.4"
 [tool.poetry.group.dev.dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-coverage = "7.6.1"
+coverage = "7.6.7"
 coverage-pyver-pragma = "0.3.3"
-mypy = {version = "1.11.2", markers = "platform_python_implementation == 'CPython'"}
-ruff = "0.6.5"
+mypy = {version = "1.13.0", markers = "platform_python_implementation == 'CPython'"}
+ruff = "^0.8.0"
 pytest = "8.3.3"
-pytest-cov = "5.0.0"
-pytest-randomly = "3.15.0"
+pytest-cov = "6.0.0"
+pytest-randomly = "3.16.0"
 
 [tool.poetry.urls]
 Homepage = "https://dargueta.github.io/binobj"
