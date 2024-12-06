@@ -50,7 +50,7 @@ The same example rewritten using ``binobj``:
 
         magic: Bytes = b"BM"
         file_size: UInt32
-        _reserved: binobj.Bytes(const=b"\0\0\0\0", discard=True)
+        _reserved: binobj.Bytes(const=True, default=b"\0\0\0\0", discard=True)
         pixels_offset: UInt32
 
         # Legacy DIB header

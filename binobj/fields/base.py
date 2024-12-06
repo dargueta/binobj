@@ -81,26 +81,23 @@ class Field(Generic[T]):
             fields declared in a normal class if it doesn't match the existing name.
             Only use this argument if you're building a struct programmatically.
     :param const:
-        A constant value this field is expected to take. It will always have this value
-        when dumped, and will fail validation if the field isn't this value when loaded.
-        Useful for reserved fields and file tags.
+        A boolean indicating if this field has a fixed value. It will always have this
+        value when dumped, and will fail validation if the field isn't this value when
+        loaded. Useful for reserved fields and file tags.
 
         This argument *must* be of the same type as the field, i.e. it must be a string
         for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on.
     :param default:
         The default value to use if a value for this field isn't passed to the struct
-        for serialization, or (deprecated) a callable taking no arguments that will
-        return a default value.
+        for serialization. This is mutually exclusive with ``factory``.
 
         This argument *must* be of the same type as the field, i.e. it must be a string
         for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on.
-
-        .. deprecated:: 0.11.0
-            Do not pass a factory function to this argument. Use ``factory`` instead.
     :param callable factory:
-        A callable taking no arguments that returns a default value for this field.
+        A callable taking no arguments that returns a default value for this field. This
+        is mutually exclusive with ``default``.
     :param bool discard:
         When deserializing, don't include this field in the returned results. This means
         that you won't be able to use the value for anything later. For example, if you
@@ -109,7 +106,10 @@ class Field(Generic[T]):
             name_size = fields.UInt16(discard=True)
             filename = fields.StringZ(encoding="utf-8")
             _filename_padding = fields.Bytes(
-                const=b"\0", discard=True, present=lambda f, *_: f["name_size"] % 2
+                const=True,
+                default=b"\0",
+                discard=True,
+                present=lambda f, *_: f["name_size"] % 2,
             )
 
         this will crash with a :class:`KeyError` because ``name_size`` was discarded.
@@ -297,7 +297,7 @@ class Field(Generic[T]):
                 "Do not pass values for both `default` and `factory`.", field=self
             )
 
-        if const and self.default is UNDEFINED:
+        if const and default is UNDEFINED and factory is None:
             raise errors.ConfigurationError(
                 "A default value or factory must be provided if `const` is True.",
                 field=self,
@@ -312,10 +312,12 @@ class Field(Generic[T]):
 
         if size is not None:
             self._size = size
-        elif self.default is None or self.default is UNDEFINED:
-            self._size = None
         else:
-            self._size = self._size_for_value(self.default)
+            default_value = self.default
+            if default_value is None or default_value is UNDEFINED:
+                self._size = None
+            else:
+                self._size = self._size_for_value(default_value)
 
     @property
     def size(self) -> int | str | Field[int] | None:
@@ -546,10 +548,9 @@ class Field(Generic[T]):
         """Get the size of the serialized value, or ``None`` if it can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const`` is
-        given. It's *HIGHLY DISCOURAGED* to implement this function in your own field
-        subclasses, since it *must not* call :meth:`from_stream`, :meth:`from_bytes`,
-        :meth:`to_stream`, or :meth:`to_bytes`. Doing so could result in infinite
-        recursion.
+        given. Subclasses that override this function *must not* call
+        :meth:`from_stream`, :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`.
+        Doing so could result in infinite recursion.
 
         :param value:
             The value to serialize.
