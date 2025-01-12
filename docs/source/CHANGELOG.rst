@@ -4,6 +4,18 @@ Changelog
 1.0.0
 -----
 
+New Features
+~~~~~~~~~~~~
+
+* Official support for 3.13.
+* Fields can be declared using ``typing.Annotated`` to allow type checkers to
+  work properly.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+Dropped support for EOL Python 3.7, 3.8, and 3.9.
+
 Migration Guide
 ~~~~~~~~~~~~~~~
 
