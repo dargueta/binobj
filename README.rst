@@ -20,6 +20,15 @@ binobj
 A cross-platform Python 3 library for reading and writing structured binary data
 in an object-oriented (ish) style.
 
+Project Status
+--------------
+
+This is still alive!
+
+There'll be a long gap as I'm working on version 1.0 which is a *major* overhaul.
+I'll do my best to respond to bug reports, but don't expect any new releases
+anytime soon.
+
 Why use ``binobj``?
 -------------------
 
