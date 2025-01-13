@@ -1,6 +1,40 @@
 Changelog
 =========
 
+1.0.0
+-----
+
+New Features
+~~~~~~~~~~~~
+
+* Official support for 3.13.
+* Fields can be declared using ``typing.Annotated`` to allow type checkers to
+  work properly.
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+Dropped support for EOL Python 3.7, 3.8, and 3.9.
+
+Migration Guide
+~~~~~~~~~~~~~~~
+
+Initializing ``Field``
+^^^^^^^^^^^^^^^^^^^^^^
+
+1. Factory functions must be passed in ``factory``, not ``default``.
+2. ``const`` is now a boolean indicating the field must have the default value.
+
+.. code-block:: python
+
+    # Old way
+    UInt32(const=1234)
+
+    # New way
+    UInt32(const=True, default=1234)
+
+The default value for ``null_value`` is now ``None``, not ``UNDEFINED``.
+
 0.12.0
 ------
 

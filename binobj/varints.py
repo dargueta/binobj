@@ -10,13 +10,12 @@ import enum
 import math
 import typing
 from typing import BinaryIO
-from typing import Callable
 
 from binobj import helpers
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import Optional
+    from collections.abc import Callable
 
     from binobj.typedefs import EndianString
 
@@ -94,7 +93,7 @@ def decode_integer_compact(stream: BinaryIO) -> int:
     :return: The decoded integer.
     :rtype: int
     """
-    sign: Optional[int] = None
+    sign: int | None = None
     value = 0
 
     while True:

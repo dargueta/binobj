@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import functools
-from typing import Callable
-from typing import Optional
 from typing import TYPE_CHECKING
-from typing import Union
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Callable
     from collections.abc import Iterable
     from typing import Any
 
@@ -29,13 +27,13 @@ class ValidatorMethodWrapper:
     """
 
     def __init__(
-        self, func: Union[FieldValidator, StructValidator], field_names: Iterable[str]
+        self, func: FieldValidator | StructValidator, field_names: Iterable[str]
     ):
         self.func = func
         self.field_names = tuple(field_names or ())
         functools.wraps(func)(self)
 
-    def __call__(self, *args: Any) -> Optional[bool]:
+    def __call__(self, *args: Any) -> bool | None:
         """Execute the wrapped function."""
         return self.func(*args)
 
