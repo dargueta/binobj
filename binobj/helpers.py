@@ -121,6 +121,6 @@ def peek_bytes(stream: BinaryIO, count: int, short_read_okay: bool = True) -> by
 
     if not short_read_okay and len(data) < count:
         raise EOFError(
-            "Short read: expected %d bytes in stream, read %d." % (count, len(data))
+            f"Short read: expected {count} bytes in stream, read {len(data)}."
         )
     return data

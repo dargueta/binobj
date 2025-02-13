@@ -40,7 +40,7 @@ class FAT12BootSector(binobj.Struct):
     def total_logical_sectors(self, total_sectors):
         if total_sectors < 1 or total_sectors >= 2**32:
             raise ValueError(
-                "Total sectors must be in [1, 2^32). Got: %d" % total_sectors
+                f"Total sectors must be in [1, 2^32). Got: {total_sectors!r}."
             )
         if total_sectors < 65535:
             self.total_logical_sectors_16 = total_sectors

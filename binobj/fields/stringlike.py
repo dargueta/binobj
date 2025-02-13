@@ -23,7 +23,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from binobj.typedefs import StrDict
 
 
-__all__ = ["Bytes", "String", "StringZ", "UUID4", "UUIDFormat"]
+__all__ = ["UUID4", "Bytes", "String", "StringZ", "UUIDFormat"]
 
 
 class Bytes(Field[bytes]):

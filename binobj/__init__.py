@@ -32,8 +32,8 @@ class VersionInfo(NamedTuple):
         # Having a version suffix is rare for this library, so we'll tell pycoverage to
         # ignore this branch.
         if self.suffix:  # pragma: no cover
-            return "%d.%d.%d-%s" % (self.major, self.minor, self.patch, self.suffix)
-        return "%d.%d.%d" % (self.major, self.minor, self.patch)
+            return f"{self.major}.{self.minor}.{self.patch}-{self.suffix}"
+        return f"{self.major}.{self.minor}.{self.patch}"
 
 
 __version__ = importlib.metadata.version("binobj")
