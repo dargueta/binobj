@@ -23,10 +23,10 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 __all__ = [
+    "UUID4",
     "Bytes",
     "String",
     "StringZ",
-    "UUID4",
     "UUIDFormat",
 ]
 

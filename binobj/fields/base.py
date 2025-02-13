@@ -263,7 +263,8 @@ class Field(Generic[T]):
         Recording the explicit arguments is necessary so that a field can use the
         fallback values its container class gives for anything else.
         """
-        instance: C = super().__new__(cls)
+        # TODO (dargueta): I'm not 1000% sure MyPy is wrong on this line.
+        instance: C = super().__new__(cls)  # type: ignore[misc]
         instance.__explicit_init_args__ = frozenset(kwargs.keys())  # type: ignore[attr-defined]
         return instance
 
@@ -315,7 +316,7 @@ class Field(Generic[T]):
         else:
             default_value = self.default
             if default_value is None or default_value is UNDEFINED:
-                raise RuntimeError("This should never happen")
+                # `size` is null (the field is unsized) and there's no default value.
                 self._size = None
             else:
                 self._size = self._size_for_value(default_value)
@@ -523,6 +524,7 @@ class Field(Generic[T]):
         """
         return self.null_value is not None
 
+    @property
     def default(self) -> T | None | _Undefined:
         """The default value of this field, or :data:`UNDEFINED`.
 
