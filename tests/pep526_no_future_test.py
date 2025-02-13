@@ -155,9 +155,9 @@ def test_nested_works(
     NestedFields: type[binobj.Struct], BasicClass: type[binobj.Struct]
 ):
     assert isinstance(NestedFields.basic, fields.Nested)
-    assert (
-        NestedFields.basic.struct_class is BasicClass
-    ), f"{NestedFields.basic.struct_class=}, wanted {BasicClass!r}"
+    assert NestedFields.basic.struct_class is BasicClass, (
+        f"{NestedFields.basic.struct_class=}, wanted {BasicClass!r}"
+    )
 
 
 def test_passing_callable_triggers_warning():

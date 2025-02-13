@@ -46,7 +46,7 @@ def test_const_sets_size__bytes():
 
     In this case we assume the simple case where len(const) == size.
     """
-    field = fields.Bytes(const=b"abcdef")
+    field = fields.Bytes(const=True, default=b"abcdef")
     assert field.size is not None, "Size wasn't set."
     assert field.size == 6, "Size is incorrect."
 
@@ -61,7 +61,7 @@ def test_const_set_size__string_ascii():
     """Passing `const` will set the size of a string correctly for single byte
     encodings.
     """
-    field = fields.String(const="asdfghjkl")
+    field = fields.String(const=True, default="asdfghjkl")
 
     assert field.size is not None, "Size wasn't set."
     assert field.size == 9, "Size is incorrect."
@@ -71,7 +71,7 @@ def test_const_set_size__string_utf16():
     """Passing `const` will set the size of a string correctly for multi-byte
     encodings.
     """
-    field = fields.String(const="asdf", encoding="utf-16-le")
+    field = fields.String(const=True, default="asdf", encoding="utf-16-le")
 
     assert field.size is not None, "Size wasn't set."
     assert field.size == 8, "Size is incorrect."
@@ -88,14 +88,14 @@ def test_const_set_size__sized_int_works():
 
 def test_const_set_size__stringz():
     """Variable-length strings MUST set their size with ``const``."""
-    field = fields.StringZ(const="asdf")
+    field = fields.StringZ(const=True, default="asdf")
     assert field.size is not None, "Size wasn't set."
     assert field.size == 5, "Size is incorrect."
 
 
 def test_const_set_size__stringz_utf16():
     """Variable-length strings MUST set their size with ``const``."""
-    field = fields.StringZ(const="wxyz", encoding="utf-16")
+    field = fields.StringZ(const=True, default="wxyz", encoding="utf-16")
     assert field.size is not None, "Size wasn't set."
     assert field.size == 12, "Size is incorrect."
 
@@ -167,9 +167,9 @@ def test_dump__field_only__no_value_no_default():
 class BasicStructWithArray(binobj.Struct):
     """A basic structure with a sized array."""
 
-    header = fields.Bytes(const=b"ABC")
+    header = fields.Bytes(const=True, default=b"ABC")
     numbers = fields.Array(fields.UInt16(endian="big"), count=2)
-    trailer = fields.Bytes(const=b"XYZ")
+    trailer = fields.Bytes(const=True, default=b"XYZ")
 
 
 def test_set_const_crashes__setattr():

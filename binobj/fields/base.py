@@ -315,6 +315,7 @@ class Field(Generic[T]):
         else:
             default_value = self.default
             if default_value is None or default_value is UNDEFINED:
+                raise RuntimeError("This should never happen")
                 self._size = None
             else:
                 self._size = self._size_for_value(default_value)
