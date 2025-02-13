@@ -6,7 +6,7 @@ binobj
 .. |build-status| image:: https://github.com/dargueta/binobj/actions/workflows/ci.yml/badge.svg
    :alt: Build status
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.9,%203.10,%203.11,%203.12,%203.13-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.10,%203.11,%203.12,%203.13-blue.svg
    :alt: Python versions
 
 .. |installs-month| image:: https://pepy.tech/badge/binobj/month
@@ -59,7 +59,7 @@ The same example rewritten using ``binobj``:
 
         magic: Bytes = b"BM"
         file_size: UInt32
-        _reserved: binobj.Bytes(const=b"\0\0\0\0", discard=True)
+        _reserved: binobj.Bytes(const=True, default=b"\0\0\0\0", discard=True)
         pixels_offset: UInt32
 
         # Legacy DIB header
@@ -90,7 +90,7 @@ System Requirements
 
 - This package will *not* work on a `mixed-endian`_ system. Those are pretty rare
   nowadays so chances are you won't have a problem.
-- This has been tested on CPython 3.9-3.13, PyPy 3.9-3.10.
+- This has been tested on CPython 3.10-3.13, and PyPy 3.10.
 
 .. _mixed-endian: https://en.wikipedia.org/wiki/Endianness#Mixed
 

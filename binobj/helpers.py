@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import sys
 from typing import BinaryIO
-from typing import Optional
 from typing import TYPE_CHECKING
 
 from binobj import errors
@@ -20,7 +19,7 @@ def read_int(
     stream: BinaryIO,
     n_bytes: int,
     signed: bool = True,
-    endian: Optional[EndianString] = None,
+    endian: EndianString | None = None,
 ) -> int:
     """Read an integer from the given byte stream.
 
@@ -57,7 +56,7 @@ def write_int(
     value: int,
     n_bytes: int,
     signed: bool = True,
-    endian: Optional[EndianString] = None,
+    endian: EndianString | None = None,
 ) -> None:
     """Write an integer to a stream.
 
@@ -88,7 +87,7 @@ def write_int(
     stream.write(value.to_bytes(n_bytes, endian, signed=signed))
 
 
-def iter_bytes(stream: BinaryIO, max_bytes: Optional[int] = None) -> Iterator[bytes]:
+def iter_bytes(stream: BinaryIO, max_bytes: int | None = None) -> Iterator[bytes]:
     """Wrap a stream in an iterator that yields individual bytes, not lines.
 
     :param stream:
@@ -121,6 +120,6 @@ def peek_bytes(stream: BinaryIO, count: int, short_read_okay: bool = True) -> by
 
     if not short_read_okay and len(data) < count:
         raise EOFError(
-            "Short read: expected %d bytes in stream, read %d." % (count, len(data))
+            f"Short read: expected {count} bytes in stream, read {len(data)}."
         )
     return data

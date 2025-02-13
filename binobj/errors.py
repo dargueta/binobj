@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import typing
 from typing import Any
-from typing import Optional
 from typing import TypeVar
-from typing import Union
 
 import more_itertools as m_iter
 
@@ -51,7 +49,7 @@ class Error(Exception):
     Do not throw this exception directly.
     """
 
-    def __init__(self, message: Optional[str] = None, *args: object):
+    def __init__(self, message: str | None = None, *args: object):
         # If there is no error message, use the first line of the docstring.
         if message is None and hasattr(self, "__doc__") and self.__doc__:
             message = self.__doc__.splitlines()[0]
@@ -83,16 +81,16 @@ class ConfigurationError(Error):
         The ``struct`` and ``obj`` arguments.
     """
 
-    field: Optional[FieldOrName]
-    struct: Optional[StructOrName]
+    field: FieldOrName | None
+    struct: StructOrName | None
     obj: Any
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        field: Optional[FieldOrName] = None,
-        struct: Optional[StructOrName] = None,
+        field: FieldOrName | None = None,
+        struct: StructOrName | None = None,
         obj: object = None,
     ):
         if not (field or struct or obj):
@@ -135,11 +133,11 @@ class SerializationError(Error):
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        struct: Optional[Struct] = None,
-        field: Optional[FieldOrName] = None,
-        value: Optional[T] = None,
+        struct: Struct | None = None,
+        field: FieldOrName | None = None,
+        value: T | None = None,
     ):
         super().__init__(message)
         self.struct = struct
@@ -162,11 +160,11 @@ class DeserializationError(Error):
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        field: Optional[Field[Any]] = None,
-        data: Optional[bytes] = None,
-        offset: Optional[int] = None,
+        field: Field[Any] | None = None,
+        data: bytes | None = None,
+        offset: int | None = None,
     ):
         super().__init__(message)
         self.field = field
@@ -185,9 +183,7 @@ class ValidationError(Error):
         The invalid value.
     """
 
-    def __init__(
-        self, message: Optional[str] = None, *, field: Field[T], value: Optional[T]
-    ):
+    def __init__(self, message: str | None = None, *, field: Field[T], value: T | None):
         if not message:
             message = f"Invalid value for {field}: {value!r}"
 
@@ -205,7 +201,7 @@ class FieldReferenceError(Error):
         The name of the field that failed to be referenced.
     """
 
-    def __init__(self, message: Optional[str] = None, *, field: str):
+    def __init__(self, message: str | None = None, *, field: str):
         if not message:
             message = f"Attempted to reference a missing or undefined field: {field!r}"
 
@@ -235,8 +231,8 @@ class ImmutableFieldError(IllegalOperationError):
         The ``field`` argument.
     """
 
-    def __init__(self, *, field: Optional[Field[Any]] = None):
-        message: Optional[str]
+    def __init__(self, *, field: Field[Any] | None = None):
+        message: str | None
         if field is not None:
             message = f"Cannot assign to immutable field: {field!r}"
         else:
@@ -374,9 +370,7 @@ class UnserializableValueError(SerializationError):
         Optional. The reason for the failure.
     """
 
-    def __init__(
-        self, *, field: Field[T], value: Optional[T], reason: Optional[str] = None
-    ):
+    def __init__(self, *, field: Field[T], value: T | None, reason: str | None = None):
         if reason is not None:
             message = f"{field} can't serialize value: {reason}"
         else:
@@ -407,7 +401,7 @@ class UnexpectedValueError(SerializationError):
         was unexpected. Don't pass :class:`~binobj.fields.base.Field` instances.
     """
 
-    def __init__(self, *, struct: Struct, name: Union[str, Iterable[str]]):
+    def __init__(self, *, struct: Struct, name: str | Iterable[str]):
         self.names = set(m_iter.always_iterable(name))
 
         msg = (
@@ -446,7 +440,7 @@ class ArraySizeError(SerializationError):
     """
 
     def __init__(
-        self, *, field: Field[Any], n_expected: int, n_given: Optional[int] = None
+        self, *, field: Field[Any], n_expected: int, n_given: int | None = None
     ):
         if n_given is not None:
             if n_given > n_expected:
@@ -473,7 +467,7 @@ class UnexpectedEOFError(DeserializationError):
         bytes.
     """
 
-    def __init__(self, *, field: Optional[Field[Any]], size: int, offset: int):
+    def __init__(self, *, field: Field[Any] | None, size: int, offset: int):
         super().__init__(
             f"Unexpected EOF while trying to read {size} bytes at offset {offset}.",
             field=field,
