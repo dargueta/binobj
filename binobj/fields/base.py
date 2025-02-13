@@ -298,6 +298,12 @@ class Field(Generic[T]):
                 "Do not pass values for both `default` and `factory`.", field=self
             )
 
+        if callable(default):
+            raise TypeError(
+                "Do not use a callable as the default value. Pass this to the `factory`"
+                " argument instead."
+            )
+
         if const and default is UNDEFINED and factory is None:
             raise errors.ConfigurationError(
                 "A default value or factory must be provided if `const` is True.",

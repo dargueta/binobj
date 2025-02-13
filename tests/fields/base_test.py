@@ -81,7 +81,7 @@ def test_const_set_size__sized_int_works():
     """Already-sized integers shouldn't have a problem with the size override
     code.
     """
-    field = fields.Int64(const=1234567890)
+    field = fields.Int64(const=True, default=1234567890)
     assert field.size is not None, "Size wasn't set."
     assert field.size == 8, "Size is incorrect."
 
@@ -327,7 +327,7 @@ def test_field_subclass_super_delegation():
 class BasicPresentStruct(binobj.Struct):
     flags = fields.UInt16(endian="little")
     thing = fields.StringZ(present=lambda f, *_: f["flags"] & 0x8000)
-    other_thing = fields.UInt16(const=0x1234, endian="little")
+    other_thing = fields.UInt16(const=True, default=0x1234, endian="little")
 
     @flags.computes
     def _flags(self, all_values):
@@ -401,13 +401,13 @@ def test_binding_defaults_applied__class_name_prefix():
     assert Test.unaffected.endian == sys.byteorder, "Explicit argument was overridden"
 
 
+@pytest.mark.xfail
 def test_callable_default_warns():
     """Passing a callable for `default` triggers a warning."""
     with pytest.deprecated_call():
         fields.Int32(name="whatever", default=lambda: 123)
 
 
-@pytest.mark.xfail
 def test_callable_default_crashes():
     """Passing a callable for `default` triggers a TypeError."""
     with pytest.raises(TypeError):

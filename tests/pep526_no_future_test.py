@@ -160,6 +160,7 @@ def test_nested_works(
     )
 
 
+@pytest.mark.xfail
 def test_passing_callable_triggers_warning():
     with pytest.deprecated_call():
 
@@ -168,7 +169,6 @@ def test_passing_callable_triggers_warning():
             some_field: fields.Int32 = lambda: random.randrange(1024)
 
 
-@pytest.mark.xfail
 def test_passing_callable_crashes():
     with pytest.raises(TypeError):
 

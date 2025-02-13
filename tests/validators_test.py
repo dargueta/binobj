@@ -145,7 +145,7 @@ def test_struct_validator__inheriting():
                 )
 
     class Subclass(Class):
-        const = fields.Bytes(const=b"asdf")
+        const = fields.Bytes(const=True, default=b"asdf")
 
     with pytest.raises(errors.ValidationError):
         Subclass(string="123", integer=456).to_bytes()

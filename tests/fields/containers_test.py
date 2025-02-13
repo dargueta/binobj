@@ -107,9 +107,9 @@ def test_array__dump_nested():
 
 
 class BasicStructWithArray(binobj.Struct):
-    header = fields.String(const="ABC")
+    header = fields.String(const=True, default="ABC")
     numbers = fields.Array(fields.UInt16(endian="big"), count=2)
-    trailer = fields.String(const="XYZ")
+    trailer = fields.String(const=True, default="XYZ")
 
 
 def test_array__fixed_in_struct():
@@ -133,7 +133,7 @@ def bswsa_should_halt(_seq, _stream, values, _context, _loaded_fields):
 
 class BasicStructWithSentinelArray(binobj.Struct):
     numbers = fields.Array(fields.UInt8(), halt_check=bswsa_should_halt)
-    eof = fields.String(const="ABC")
+    eof = fields.String(const=True, default="ABC")
 
 
 def test_array__variable_length_sentinel_in_struct():
@@ -147,13 +147,13 @@ def test_array__variable_length_sentinel_in_struct():
 class BasicStructWithArraySizeField(binobj.Struct):
     n_numbers = fields.UInt8()
     numbers = fields.Array(fields.UInt8(), count=n_numbers)
-    eof = fields.String(const="ABC")
+    eof = fields.String(const=True, default="ABC")
 
 
 class BasicStructWithArraySizeFieldAsName(binobj.Struct):
     n_numbers = fields.UInt8()
     numbers = fields.Array(fields.UInt8(), count="n_numbers")
-    eof = fields.String(const="ABC")
+    eof = fields.String(const=True, default="ABC")
 
 
 @pytest.mark.parametrize(
@@ -180,7 +180,7 @@ def test_array__variable_length_forward_reference_crashes():
     class _Crash(binobj.Struct):
         n_numbers = fields.UInt8()
         numbers = fields.Array(fields.UInt8(), count="eof")
-        eof = fields.String(const="ABC")
+        eof = fields.String(const=True, default="ABC")
 
     with pytest.raises(errors.FieldReferenceError):
         _Crash.from_bytes(b"\0\0ABC")
@@ -288,12 +288,12 @@ def test_array__count_wrong_type():
 
 
 class UnionItemA(binobj.Struct):
-    _id = fields.UInt8(const=0xFF)
+    _id = fields.UInt8(const=True, default=0xFF)
     value = fields.StringZ()
 
 
 class UnionItemB(binobj.Struct):
-    _id = fields.UInt8(const=0x7F)
+    _id = fields.UInt8(const=True, default=0x7F)
     other = fields.UInt16(endian="little")
 
 

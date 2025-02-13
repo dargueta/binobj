@@ -9,7 +9,7 @@ from binobj import fields
 
 
 class FAT12BootSector(binobj.Struct):
-    jump = fields.Bytes(const=b"\xeb\x3c\x90")
+    jump = fields.Bytes(const=True, default=b"\xeb\x3c\x90")
     oem_name = fields.String(size=8, default="mkdosfs", pad_byte=b" ", encoding="ascii")
     bytes_per_sector = fields.UInt16(default=512)
     sectors_per_cluster = fields.UInt8()
@@ -24,13 +24,13 @@ class FAT12BootSector(binobj.Struct):
     num_hidden_sectors = fields.UInt32(default=0)
     total_logical_sectors_32 = fields.UInt32()
     drive_number = fields.UInt8()
-    _reserved = fields.Bytes(const=b"\0", discard=True)
-    _ex_boot_signature = fields.Bytes(const=b"\x29", discard=True)
+    _reserved = fields.Bytes(const=True, default=b"\0", discard=True)
+    _ex_boot_signature = fields.Bytes(const=True, default=b"\x29", discard=True)
     volume_id = fields.UInt32(factory=lambda: random.randrange(2**32))
     volume_label = fields.String(size=11)
     fs_type = fields.String(size=8, default="FAT12", pad_byte=b" ", encoding="ascii")
     boot_code = fields.Bytes(size=448, default=b"\xcc" * 448)
-    boot_signature = fields.Bytes(const=b"\x55\xaa")
+    boot_signature = fields.Bytes(const=True, default=b"\x55\xaa")
 
     @property
     def total_logical_sectors(self):

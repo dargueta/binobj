@@ -38,7 +38,7 @@ def test_integer_no_specified_size():
 def test_const_set_size__varint():
     """Variable integers should set their size when ``const`` is defined."""
     field = numeric.VariableLengthInteger(
-        vli_format=varints.VarIntEncoding.VLQ, const=987654321
+        vli_format=varints.VarIntEncoding.VLQ, const=True, default=987654321
     )
     assert field.size == 5
 

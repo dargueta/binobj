@@ -45,13 +45,13 @@ def test_dump__use_default_value():
     assert field.to_bytes() == b"\xde\xad\xbe\xef"
 
 
+@pytest.mark.xfail
 def test_dump__use_default_callable_warns():
     """Test dumping when the default value is a callable."""
     with pytest.deprecated_call():
         fields.UInt32(name="field", default=lambda: 0x1234, endian="big")
 
 
-@pytest.mark.xfail
 def test_dump__use_default_callable_crashes():
     """Test dumping when the default value is a callable."""
     with pytest.raises(TypeError):
@@ -215,7 +215,7 @@ def test_to_dict__crash_on_undefined():
 
 
 class Basic(binobj.Struct):
-    abc = fields.Bytes(const=b"ABC")
+    abc = fields.Bytes(const=True, default=b"ABC")
     ghi = fields.Int32()
     jkl = fields.Int64(default=0xBADC0FFEE)
     mno = fields.String(size=2)
