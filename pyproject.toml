@@ -2,15 +2,13 @@
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Poetry
-
-[tool.poetry]
+[project]
 name = "binobj"
 version = "0.12.0"
 description = "A Python library for reading and writing structured binary data."
-authors = ["Diego Argueta <620513-dargueta@users.noreply.github.com>"]
-readme = "README.rst"
+authors = [
+    { name = "Diego Argueta", email = "620513-dargueta@users.noreply.github.com" },
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -31,11 +29,24 @@ exclude = [
     "docs",
     "tests",
 ]
+requires-python = ">=3.10"
+dependencies = [
+    "more-itertools >= 4.0",
+    "typing-extensions >= 4.4",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-more-itertools = ">=4.0"
-typing-extensions = ">=4.4"
+[project.urls]
+Homepage = "https://dargueta.github.io/binobj"
+Repository = "https://github.com/dargueta/binobj"
+Documentation = "https://dargueta.github.io/binobj"
+"Bug Tracker" = "https://github.com/dargueta/binobj/issues"
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Poetry
+
+[tool.poetry]
+requires-poetry = ">=2.0"
+readme = "README.rst"
 
 [tool.poetry.group.dev.dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
@@ -49,12 +60,6 @@ pytest-cov = "6.1.1"
 pytest-randomly = "3.16.0"
 # Due to this bug https://stackoverflow.com/q/75307814
 setuptools = "*"
-
-[tool.poetry.urls]
-Homepage = "https://dargueta.github.io/binobj"
-Repository = "https://github.com/dargueta/binobj"
-Documentation = "https://dargueta.github.io/binobj"
-"Bug Tracker" = "https://github.com/dargueta/binobj/issues"
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
