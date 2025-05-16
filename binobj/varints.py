@@ -71,7 +71,7 @@ def encode_integer_compact(value: int) -> bytes:
         sign_bit = 0
 
     n_bits = value.bit_length()
-    n_bytes = 1 + int(math.ceil((n_bits - 6) / 7))
+    n_bytes = 1 + math.ceil((n_bits - 6) / 7)
 
     buf = bytearray(n_bytes)
 
@@ -127,7 +127,7 @@ def encode_integer_vlq(value: int) -> bytes:
         return b"\0"
 
     n_bits = value.bit_length()
-    n_bytes = int(math.ceil(n_bits / 7))
+    n_bytes = math.ceil(n_bits / 7)
     buf = bytearray(n_bytes)
 
     for i in range(n_bytes - 1, -1, -1):

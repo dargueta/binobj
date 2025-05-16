@@ -113,7 +113,7 @@ class Array(Field[list[T | None]]):
             raise TypeError("`count` must be an integer, string, or a `Field`.")
 
         if isinstance(self.count, int) and component.has_fixed_size:
-            self._size = self.count * typing.cast(int, component.size)
+            self._size = self.count * typing.cast("int", component.size)
 
     def get_final_element_count(self, field_values: StrDict) -> int | None:
         """Calculate the number of elements in the array based on other fields' values.
@@ -163,7 +163,7 @@ class Array(Field[list[T | None]]):
                 f"Array size depends on field {name!r} but it wasn't found.",
                 field=name,
             )
-        return typing.cast(int, field_values[name])
+        return typing.cast("int", field_values[name])
 
     @staticmethod
     def should_halt(
@@ -359,7 +359,7 @@ class Nested(Field[TStruct]):
         if isinstance(data, Struct):
             data.to_stream(stream, context)
         else:
-            instance = self.struct_class(**typing.cast(StrDict, data))
+            instance = self.struct_class(**typing.cast("StrDict", data))
             instance.to_stream(stream, context)
 
     @override

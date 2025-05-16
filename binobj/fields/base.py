@@ -27,6 +27,8 @@ if typing.TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Collection
     from collections.abc import Iterable
 
+    from typing_extensions import Self
+
     from binobj.structures import Struct
     from binobj.structures import StructMetadata
     from binobj.typedefs import FieldValidator
@@ -66,7 +68,6 @@ NOT_PRESENT = _NotPresent.token
 """
 
 T = TypeVar("T")
-C = TypeVar("C")
 
 
 class Field(Generic[T]):
@@ -257,15 +258,14 @@ class Field(Generic[T]):
 
     _size: int | str | Field[int] | None
 
-    def __new__(cls: type[C], *_args: object, **kwargs: object) -> C:
+    def __new__(cls, *_args: object, **kwargs: object) -> Self:
         """Create a new instance, recording which keyword arguments were passed in.
 
         Recording the explicit arguments is necessary so that a field can use the
         fallback values its container class gives for anything else.
         """
-        # TODO (dargueta): I'm not 1000% sure MyPy is wrong on this line.
-        instance: C = super().__new__(cls)  # type: ignore[misc]
-        instance.__explicit_init_args__ = frozenset(kwargs.keys())  # type: ignore[attr-defined]
+        instance: Self = super().__new__(cls)
+        instance.__explicit_init_args__ = frozenset(kwargs.keys())
         return instance
 
     def __init__(  # noqa: PLR0913
@@ -312,8 +312,8 @@ class Field(Generic[T]):
 
         # These attributes are typically set by the struct containing the field after
         # the field's instantiated.
-        self.name = typing.cast(str, name)
-        self.index = typing.cast(int, None)
+        self.name = typing.cast("str", name)
+        self.index = typing.cast("int", None)
         self.offset: int | None = None
         self._compute_fn = None
 
@@ -572,7 +572,7 @@ class Field(Generic[T]):
         # Since this is called in the constructor we need to check to see if _size has
         # been assigned to yet.
         if self.has_fixed_size and hasattr(self, "_size"):
-            return typing.cast(int, self._size)
+            return typing.cast("int", self._size)
         return None
 
     def _get_expected_size(self, field_values: StrDict) -> int:  # pragma: no cover
@@ -825,7 +825,7 @@ class Field(Generic[T]):
         if data is DEFAULT:
             # Typecast is not entirely truthful; this may return UNDEFINED if the field
             # has no default value.
-            data = typing.cast(T | None, self.default)
+            data = typing.cast("T | None", self.default)
 
         if data is UNDEFINED or data is DEFAULT:
             raise errors.MissingRequiredValueError(field=self)
@@ -843,7 +843,7 @@ class Field(Generic[T]):
         serialized_value = buf.getvalue()
         current_size = len(serialized_value)
         if self.has_fixed_size:
-            expected_size = typing.cast(int, self.size)
+            expected_size = typing.cast("int", self.size)
         elif self.size is None:
             expected_size = current_size
         else:

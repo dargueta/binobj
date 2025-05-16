@@ -27,13 +27,16 @@ from typing_extensions import Self
 from binobj import decorators
 from binobj import errors
 from binobj import fields
-from binobj.typedefs import MethodFieldValidator
-from binobj.typedefs import MutableStrDict
-from binobj.typedefs import StrDict
-from binobj.typedefs import StructValidator
 
 
 __all__ = ["Struct", "is_struct"]
+
+
+if typing.TYPE_CHECKING:  # pragma: no cover
+    from binobj.typedefs import MethodFieldValidator
+    from binobj.typedefs import MutableStrDict
+    from binobj.typedefs import StrDict
+    from binobj.typedefs import StructValidator
 
 
 T = TypeVar("T")
@@ -245,7 +248,7 @@ def collect_assigned_fields(
 
         item.bind_to_container(class_metadata, item_name, field_index, byte_offset)
         if byte_offset is not None and item.has_fixed_size:
-            byte_offset += typing.cast(int, item.size)
+            byte_offset += typing.cast("int", item.size)
         else:
             byte_offset = None
 
@@ -360,7 +363,7 @@ class Struct(HasStruct):
 
         # Validate the entirety of the struct.
         for struct_validator in self.__binobj_struct__.struct_validators:
-            struct_validator(self, typing.cast(StrDict, self))
+            struct_validator(self, typing.cast("StrDict", self))
 
     def to_stream(self, stream: BinaryIO, context: object = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
@@ -453,7 +456,7 @@ class Struct(HasStruct):
         for field in self.__binobj_struct__.components.values():
             try:
                 dct[field.name] = field.compute_value_for_dump(
-                    typing.cast(StrDict, self)
+                    typing.cast("StrDict", self)
                 )
             except (errors.SerializationError, errors.UndefinedSizeError):  # noqa: PERF203
                 pass
@@ -497,7 +500,7 @@ class Struct(HasStruct):
             The ``init_kwargs`` argument.
         """
         if init_kwargs:
-            results = typing.cast(MutableStrDict, copy.deepcopy(init_kwargs))
+            results = typing.cast("MutableStrDict", copy.deepcopy(init_kwargs))
         else:
             results = {}
 
@@ -763,7 +766,7 @@ class Struct(HasStruct):
 
         for field in self.__binobj_struct__.components.values():
             if field.has_fixed_size:
-                size += typing.cast(int, field.size)
+                size += typing.cast("int", field.size)
             else:
                 try:
                     size += field.get_expected_size(current_fields)

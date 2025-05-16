@@ -257,7 +257,7 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
 
         field_instance.bind_to_container(meta, name, field_index, byte_offset)
         if byte_offset is not None and field_instance.has_fixed_size:
-            byte_offset += typing.cast(int, field_instance.size)
+            byte_offset += typing.cast("int", field_instance.size)
         else:
             byte_offset = None
 
