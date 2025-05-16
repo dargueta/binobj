@@ -40,12 +40,12 @@ typing-extensions = ">=4.4"
 [tool.poetry.group.dev.dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-coverage = "7.6.10"
+coverage = "7.8.0"
 coverage-pyver-pragma = "0.3.3"
 mypy = {version = "1.15.0", markers = "platform_python_implementation == 'CPython'"}
-ruff = "0.9.6"
-pytest = "8.3.4"
-pytest-cov = "6.0.0"
+ruff = "0.11.10"
+pytest = "8.3.5"
+pytest-cov = "6.1.1"
 pytest-randomly = "3.16.0"
 # Due to this bug https://stackoverflow.com/q/75307814
 setuptools = "*"
