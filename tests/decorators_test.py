@@ -48,7 +48,7 @@ def test_computes__const_field_fails():
     with pytest.raises(errors.ConfigurationError):
 
         class Class(binobj.Struct):
-            blah = fields.UInt16(const=1234)
+            blah = fields.UInt16(const=True, default=1234)
 
             @blah.computes
             def _blah(self, _all_fields):

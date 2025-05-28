@@ -22,16 +22,16 @@ class SimpleBMPFileHeader(binobj.Struct):
     is valid.
     """
 
-    magic = fields.Bytes(const=b"BM", discard=True)
+    magic = fields.Bytes(const=True, default=b"BM", discard=True)
     file_size = fields.UInt32()
-    _reserved = fields.Bytes(const=b"\0\0\0\0", discard=True)
+    _reserved = fields.Bytes(const=True, default=b"\0\0\0\0", discard=True)
     pixels_offset = fields.UInt32()
 
     # Legacy DIB header (BITMAPINFOHEADER)
-    header_size = fields.UInt32(const=40, discard=True)
+    header_size = fields.UInt32(const=True, default=40, discard=True)
     image_width = fields.Int32()
     image_height = fields.Int32()
-    n_color_planes = fields.UInt16(const=1)
+    n_color_planes = fields.UInt16(const=True, default=1)
     n_bits_per_pixel = fields.UInt16()
     compression_method = fields.UInt32()
     bitmap_size = fields.UInt32()

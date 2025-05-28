@@ -46,7 +46,7 @@ def test_const_sets_size__bytes():
 
     In this case we assume the simple case where len(const) == size.
     """
-    field = fields.Bytes(const=b"abcdef")
+    field = fields.Bytes(const=True, default=b"abcdef")
     assert field.size is not None, "Size wasn't set."
     assert field.size == 6, "Size is incorrect."
 
@@ -61,7 +61,7 @@ def test_const_set_size__string_ascii():
     """Passing `const` will set the size of a string correctly for single byte
     encodings.
     """
-    field = fields.String(const="asdfghjkl")
+    field = fields.String(const=True, default="asdfghjkl")
 
     assert field.size is not None, "Size wasn't set."
     assert field.size == 9, "Size is incorrect."
@@ -71,7 +71,7 @@ def test_const_set_size__string_utf16():
     """Passing `const` will set the size of a string correctly for multi-byte
     encodings.
     """
-    field = fields.String(const="asdf", encoding="utf-16-le")
+    field = fields.String(const=True, default="asdf", encoding="utf-16-le")
 
     assert field.size is not None, "Size wasn't set."
     assert field.size == 8, "Size is incorrect."
@@ -81,21 +81,21 @@ def test_const_set_size__sized_int_works():
     """Already-sized integers shouldn't have a problem with the size override
     code.
     """
-    field = fields.Int64(const=1234567890)
+    field = fields.Int64(const=True, default=1234567890)
     assert field.size is not None, "Size wasn't set."
     assert field.size == 8, "Size is incorrect."
 
 
 def test_const_set_size__stringz():
     """Variable-length strings MUST set their size with ``const``."""
-    field = fields.StringZ(const="asdf")
+    field = fields.StringZ(const=True, default="asdf")
     assert field.size is not None, "Size wasn't set."
     assert field.size == 5, "Size is incorrect."
 
 
 def test_const_set_size__stringz_utf16():
     """Variable-length strings MUST set their size with ``const``."""
-    field = fields.StringZ(const="wxyz", encoding="utf-16")
+    field = fields.StringZ(const=True, default="wxyz", encoding="utf-16")
     assert field.size is not None, "Size wasn't set."
     assert field.size == 12, "Size is incorrect."
 
@@ -167,9 +167,9 @@ def test_dump__field_only__no_value_no_default():
 class BasicStructWithArray(binobj.Struct):
     """A basic structure with a sized array."""
 
-    header = fields.Bytes(const=b"ABC")
+    header = fields.Bytes(const=True, default=b"ABC")
     numbers = fields.Array(fields.UInt16(endian="big"), count=2)
-    trailer = fields.Bytes(const=b"XYZ")
+    trailer = fields.Bytes(const=True, default=b"XYZ")
 
 
 def test_set_const_crashes__setattr():
@@ -327,7 +327,7 @@ def test_field_subclass_super_delegation():
 class BasicPresentStruct(binobj.Struct):
     flags = fields.UInt16(endian="little")
     thing = fields.StringZ(present=lambda f, *_: f["flags"] & 0x8000)
-    other_thing = fields.UInt16(const=0x1234, endian="little")
+    other_thing = fields.UInt16(const=True, default=0x1234, endian="little")
 
     @flags.computes
     def _flags(self, all_values):
@@ -401,13 +401,13 @@ def test_binding_defaults_applied__class_name_prefix():
     assert Test.unaffected.endian == sys.byteorder, "Explicit argument was overridden"
 
 
+@pytest.mark.xfail
 def test_callable_default_warns():
     """Passing a callable for `default` triggers a warning."""
     with pytest.deprecated_call():
         fields.Int32(name="whatever", default=lambda: 123)
 
 
-@pytest.mark.xfail
 def test_callable_default_crashes():
     """Passing a callable for `default` triggers a TypeError."""
     with pytest.raises(TypeError):

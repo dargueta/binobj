@@ -10,13 +10,12 @@ import enum
 import math
 import typing
 from typing import BinaryIO
-from typing import Callable
 
 from binobj import helpers
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import Optional
+    from collections.abc import Callable
 
     from binobj.typedefs import EndianString
 
@@ -72,7 +71,7 @@ def encode_integer_compact(value: int) -> bytes:
         sign_bit = 0
 
     n_bits = value.bit_length()
-    n_bytes = 1 + int(math.ceil((n_bits - 6) / 7))
+    n_bytes = 1 + math.ceil((n_bits - 6) / 7)
 
     buf = bytearray(n_bytes)
 
@@ -94,7 +93,7 @@ def decode_integer_compact(stream: BinaryIO) -> int:
     :return: The decoded integer.
     :rtype: int
     """
-    sign: Optional[int] = None
+    sign: int | None = None
     value = 0
 
     while True:
@@ -128,7 +127,7 @@ def encode_integer_vlq(value: int) -> bytes:
         return b"\0"
 
     n_bits = value.bit_length()
-    n_bytes = int(math.ceil(n_bits / 7))
+    n_bytes = math.ceil(n_bits / 7)
     buf = bytearray(n_bytes)
 
     for i in range(n_bytes - 1, -1, -1):

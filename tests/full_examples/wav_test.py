@@ -17,9 +17,9 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class WAVFileHeader(binobj.Struct):
-    riff_header = fields.Bytes(const=b"RIFF")
+    riff_header = fields.Bytes(const=True, default=b"RIFF")
     size = fields.UInt32(endian="little")
-    file_format = fields.Bytes(const=b"WAVE")
+    file_format = fields.Bytes(const=True, default=b"WAVE")
 
     # Format and data chunks follow
 
@@ -30,8 +30,8 @@ class WAVFormatChunk(binobj.Struct):
             "endian": "little",
         }
 
-    chunk_id = fields.Bytes(const=b"fmt ")
-    size = fields.UInt32(const=16)
+    chunk_id = fields.Bytes(const=True, default=b"fmt ")
+    size = fields.UInt32(const=True, default=16)
     audio_format = fields.UInt16()
     n_channels = fields.UInt16()
     sample_rate = fields.UInt32()
@@ -54,7 +54,7 @@ class WAVFormatChunk(binobj.Struct):
 
 
 class WAVDataChunk(binobj.Struct):
-    chunk_id = fields.Bytes(const=b"data")
+    chunk_id = fields.Bytes(const=True, default=b"data")
     size = fields.UInt32(endian="little")
     audio_data = fields.Bytes(size=size)
 

@@ -10,7 +10,8 @@ PIP := python3 -m pip
 
 
 poetry.lock: pyproject.toml
-	poetry lock --no-update
+	# Poetry 2.0 removed --no-update
+	poetry lock --no-update || poetry lock
 	touch $@
 
 # Coverage file gets changed on every test run so we can use it to see when the

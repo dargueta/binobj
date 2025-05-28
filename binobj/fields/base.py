@@ -11,24 +11,23 @@ import typing
 import warnings
 from typing import Any
 from typing import BinaryIO
-from typing import Callable
 from typing import ClassVar
 from typing import Generic
-from typing import Optional
 from typing import overload
 from typing import TypeVar
-from typing import Union
 
 import more_itertools as m_iter
-from typing_extensions import Self
 
 from binobj import errors
 from binobj import helpers
 
 
 if typing.TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Callable
     from collections.abc import Collection
     from collections.abc import Iterable
+
+    from typing_extensions import Self
 
     from binobj.structures import Struct
     from binobj.structures import StructMetadata
@@ -83,26 +82,23 @@ class Field(Generic[T]):
             fields declared in a normal class if it doesn't match the existing name.
             Only use this argument if you're building a struct programmatically.
     :param const:
-        A constant value this field is expected to take. It will always have this value
-        when dumped, and will fail validation if the field isn't this value when loaded.
-        Useful for reserved fields and file tags.
+        A boolean indicating if this field has a fixed value. It will always have this
+        value when dumped, and will fail validation if the field isn't this value when
+        loaded. Useful for reserved fields and file tags.
 
         This argument *must* be of the same type as the field, i.e. it must be a string
         for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on.
     :param default:
         The default value to use if a value for this field isn't passed to the struct
-        for serialization, or (deprecated) a callable taking no arguments that will
-        return a default value.
+        for serialization. This is mutually exclusive with ``factory``.
 
         This argument *must* be of the same type as the field, i.e. it must be a string
         for a :class:`~binobj.fields.stringlike.String`, an integer for an
         :class:`~binobj.fields.numeric.Integer`, and so on.
-
-        .. deprecated:: 0.11.0
-            Do not pass a factory function to this argument. Use ``factory`` instead.
     :param callable factory:
-        A callable taking no arguments that returns a default value for this field.
+        A callable taking no arguments that returns a default value for this field. This
+        is mutually exclusive with ``default``.
     :param bool discard:
         When deserializing, don't include this field in the returned results. This means
         that you won't be able to use the value for anything later. For example, if you
@@ -111,7 +107,10 @@ class Field(Generic[T]):
             name_size = fields.UInt16(discard=True)
             filename = fields.StringZ(encoding="utf-8")
             _filename_padding = fields.Bytes(
-                const=b"\0", discard=True, present=lambda f, *_: f["name_size"] % 2
+                const=True,
+                default=b"\0",
+                discard=True,
+                present=lambda f, *_: f["name_size"] % 2,
             )
 
         this will crash with a :class:`KeyError` because ``name_size`` was discarded.
@@ -186,9 +185,9 @@ class Field(Generic[T]):
 
     .. versionadded:: 0.9.0
 
-    * The ``not_present_value`` argument.
-    * ``size`` has full support for :class:`Field`\s and field name values. This
-      used to be only supported by some fields, with others left out by accident.
+        * The ``not_present_value`` argument.
+        * ``size`` has full support for :class:`Field`\s and field name values. This
+          used to be only supported by some fields, with others left out by accident.
 
     .. versionchanged:: 0.9.0
         ``null_value`` can now also be a deserialized value. For example, you could pass
@@ -204,9 +203,12 @@ class Field(Generic[T]):
     .. versionadded:: 0.11.0
         The ``factory`` argument.
 
-    .. deprecated:: 0.11.0
-        Passing a factory function to ``default`` is now deprecated. Use ``factory``
-        instead.
+    .. versionchanged:: 1.0.0
+
+        * ``const`` is now a boolean indicating if the field is a constant value or not.
+          The constant value is provided by ``default`` or ``factory``.
+        * A callable returning the default value must be passed to the ``factory``
+          argument, not ``default``.
     """
 
     __overrideable_attributes__: ClassVar[Collection[str]] = ()
@@ -233,11 +235,11 @@ class Field(Generic[T]):
     rather than ``Optional[str]``.
     """
 
-    const: Union[T, _Undefined]
-    """The fixed value of a field, if applicable.
+    const: bool
+    """Indicates if the field has a fixed value, given by :attr:`default`.
 
-    This is mostly useful for fields that act as `magic numbers`_ or reserved fields
-    in a struct that should be set to nulls.
+    This is useful for fields that act as `magic numbers`_, or for or reserved fields in
+    a struct that should be set to nulls.
 
     .. _magic numbers: https://en.wikipedia.org/wiki/Magic_number_(programming)
     """
@@ -249,10 +251,12 @@ class Field(Generic[T]):
     nonetheless important to ensure the proper layout of the struct.
     """
 
-    _default: Union[T, None, _Undefined]
+    _default: T | None | _Undefined
     """The default dump value for the field if the user doesn't pass a value in."""
 
-    _compute_fn: Optional[Callable[[Field[T], StrDict], Optional[T]]]
+    _compute_fn: Callable[[Field[T], StrDict], T | None] | None
+
+    _size: int | str | Field[int] | None
 
     def __new__(cls, *_args: object, **kwargs: object) -> Self:
         """Create a new instance, recording which keyword arguments were passed in.
@@ -260,25 +264,26 @@ class Field(Generic[T]):
         Recording the explicit arguments is necessary so that a field can use the
         fallback values its container class gives for anything else.
         """
-        instance = super().__new__(cls)
+        instance: Self = super().__new__(cls)
         instance.__explicit_init_args__ = frozenset(kwargs.keys())
         return instance
 
     def __init__(  # noqa: PLR0913
         self,
         *,
-        name: Optional[str] = None,
-        const: Union[T, _Undefined] = UNDEFINED,
-        default: Union[T, None, Callable[[], Optional[T]], _Undefined] = UNDEFINED,
-        factory: Optional[Callable[[], Optional[T]]] = None,
+        name: str | None = None,
+        const: bool = False,
+        default: T | None | _Undefined = UNDEFINED,
+        factory: Callable[[], T | None] | None = None,
         discard: bool = False,
-        null_value: Union[bytes, _Default, _Undefined, T] = UNDEFINED,
-        size: Union[int, str, Field[int], None] = None,
-        validate: Union[FieldValidator, Iterable[FieldValidator]] = (),
-        present: Callable[[StrDict, Any, Optional[BinaryIO]], bool] = (lambda *_: True),
-        not_present_value: Union[T, None, _NotPresent] = NOT_PRESENT,
+        null_value: T | bytes | _Default | None = None,
+        size: int | str | Field[int] | None = None,
+        validate: FieldValidator | Iterable[FieldValidator] = (),
+        present: Callable[[StrDict, Any, BinaryIO | None], bool] = (lambda *_: True),
+        not_present_value: T | None | _NotPresent = NOT_PRESENT,
     ):
         self.const = const
+        self._default = default
         self.discard = discard
         self.null_value = null_value
         self.present = present
@@ -293,34 +298,37 @@ class Field(Generic[T]):
                 "Do not pass values for both `default` and `factory`.", field=self
             )
 
-        if default is UNDEFINED and const is not UNDEFINED:
-            # If no default is given but `const` is, set the default value to `const`.
-            self._default = const
-        elif callable(default):
-            warnings.warn(
-                "Passing a callable to `default` is deprecated. Use `factory` instead.",
-                DeprecationWarning,
-                stacklevel=2,
+        if callable(default):
+            raise TypeError(
+                "Do not use a callable as the default value. Pass this to the `factory`"
+                " argument instead."
             )
-            self._default = UNDEFINED
-            self.factory = default
-        else:
-            self._default = default
+
+        if const and default is UNDEFINED and factory is None:
+            raise errors.ConfigurationError(
+                "A default value or factory must be provided if `const` is True.",
+                field=self,
+            )
 
         # These attributes are typically set by the struct containing the field after
         # the field's instantiated.
-        self.name = typing.cast(str, name)
-        self.index = typing.cast(int, None)
-        self.offset: Optional[int] = None
+        self.name = typing.cast("str", name)
+        self.index = typing.cast("int", None)
+        self.offset: int | None = None
         self._compute_fn = None
 
-        if size is not None or const is UNDEFINED:
+        if size is not None:
             self._size = size
         else:
-            self._size = self._size_for_value(const)
+            default_value = self.default
+            if default_value is None or default_value is UNDEFINED:
+                # `size` is null (the field is unsized) and there's no default value.
+                self._size = None
+            else:
+                self._size = self._size_for_value(default_value)
 
     @property
-    def size(self) -> Union[int, str, Field[int], None]:
+    def size(self) -> int | str | Field[int] | None:
         """The size of this field, in bytes.
 
         If the field is of variable size, such as a null-terminated string, this will be
@@ -343,7 +351,7 @@ class Field(Generic[T]):
         struct_info: StructMetadata,
         name: str,
         index: int,
-        offset: Optional[int] = None,
+        offset: int | None = None,
     ) -> None:
         """Bind this field to a Struct and apply any predefined defaults.
 
@@ -401,7 +409,7 @@ class Field(Generic[T]):
         self,
         all_values: StrDict,
         context: object = None,
-    ) -> Union[T, None, _NotPresent]:
+    ) -> T | None | _NotPresent:
         """Calculate the value for this field upon dumping.
 
         :param dict all_values:
@@ -440,7 +448,7 @@ class Field(Generic[T]):
         if self.name in all_values:
             # The value is already set in the struct so we don't need to do anything.
             value_to_dump = all_values[self.name]
-        elif self._default is not UNDEFINED:
+        elif self.default is not UNDEFINED:
             # The value is *not* set in the struct. Either this field must have a
             # default value, or it must be a computed field. Check for default values
             # here.
@@ -459,7 +467,7 @@ class Field(Generic[T]):
             raise errors.MissingRequiredValueError(field=self)
         return value_to_dump  # type: ignore[no-any-return]
 
-    def computes(self, method: Callable[[Field[T], StrDict], Optional[T]]) -> None:
+    def computes(self, method: Callable[[Field[T], StrDict], T | None]) -> None:
         """Decorator that marks a function as computing the value for a field.
 
         You can use this for automatically assigning values based on other fields. For
@@ -498,7 +506,7 @@ class Field(Generic[T]):
             raise errors.ConfigurationError(
                 f"Can't define two computing functions for field {self!r}.", field=self
             )
-        if self.const is not UNDEFINED:
+        if self.const:
             raise errors.ConfigurationError(
                 "Cannot set compute function for a const field.", field=self
             )
@@ -520,18 +528,21 @@ class Field(Generic[T]):
 
         :type: bool
         """
-        return self.null_value is not UNDEFINED
+        return self.null_value is not None
 
     @property
-    def default(self) -> Union[T, None, _Undefined]:
+    def default(self) -> T | None | _Undefined:
         """The default value of this field, or :data:`UNDEFINED`.
 
         .. versionchanged:: 0.6.1
             If no default is defined but ``const`` is, this property returns the value
             for ``const``.
+
+        .. versionchanged:: 1.0.0
+            The return value of :attr:`factory` is cached.
         """
-        if self.factory:
-            return self.factory()
+        if self.factory and self._default is UNDEFINED:
+            self._default = self.factory()
         return self._default
 
     @property
@@ -540,16 +551,15 @@ class Field(Generic[T]):
 
         :type: bool
         """
-        return self.const is UNDEFINED and self.default is UNDEFINED
+        return (not self.const) and self.default is UNDEFINED
 
-    def _size_for_value(self, value: T) -> Optional[int]:  # noqa: ARG002
+    def _size_for_value(self, value: T) -> int | None:  # noqa: ARG002
         """Get the size of the serialized value, or ``None`` if it can't be computed.
 
         This is an ugly hack for computing ``size`` properly when only ``const`` is
-        given. It's *HIGHLY DISCOURAGED* to implement this function in your own field
-        subclasses, since it *must not* call :meth:`from_stream`, :meth:`from_bytes`,
-        :meth:`to_stream`, or :meth:`to_bytes`. Doing so could result in infinite
-        recursion.
+        given. Subclasses that override this function *must not* call
+        :meth:`from_stream`, :meth:`from_bytes`, :meth:`to_stream`, or :meth:`to_bytes`.
+        Doing so could result in infinite recursion.
 
         :param value:
             The value to serialize.
@@ -562,7 +572,7 @@ class Field(Generic[T]):
         # Since this is called in the constructor we need to check to see if _size has
         # been assigned to yet.
         if self.has_fixed_size and hasattr(self, "_size"):
-            return typing.cast(int, self._size)
+            return typing.cast("int", self._size)
         return None
 
     def _get_expected_size(self, field_values: StrDict) -> int:  # pragma: no cover
@@ -659,8 +669,8 @@ class Field(Generic[T]):
         self,
         stream: BinaryIO,
         context: object = None,
-        loaded_fields: Optional[StrDict] = None,
-    ) -> Union[T, None, _NotPresent]:
+        loaded_fields: StrDict | None = None,
+    ) -> T | None | _NotPresent:
         """Load data from the given stream.
 
         :param BinaryIO stream:
@@ -691,7 +701,7 @@ class Field(Generic[T]):
                 # see if the *raw binary* form is null. This isn't an error UNLESS
                 # null_value is `DEFAULT`. If null_value is DEFAULT and we can't
                 # determine the size, then we're out of luck.
-                if self.null_value is DEFAULT:
+                if self.null_value is UNDEFINED:
                     raise errors.CannotDetermineNullError(field=self) from None
             else:
                 potential_null_bytes = helpers.peek_bytes(stream, len(null_repr))
@@ -723,7 +733,7 @@ class Field(Generic[T]):
             loaded_value = None
 
         # TODO (dargueta): Change this to a validator instead.
-        if self.const is not UNDEFINED and loaded_value != self.const:
+        if self.const and loaded_value != self.default:
             raise errors.ValidationError(field=self, value=loaded_value)
 
         for validator in self.validators:
@@ -736,8 +746,8 @@ class Field(Generic[T]):
         data: bytes,
         context: object = None,
         exact: bool = True,
-        loaded_fields: Optional[StrDict] = None,
-    ) -> Union[T, None, _NotPresent]:
+        loaded_fields: StrDict | None = None,
+    ) -> T | None | _NotPresent:
         """Load from the given byte string.
 
         :param bytes data:
@@ -773,7 +783,7 @@ class Field(Generic[T]):
     @abc.abstractmethod
     def _do_load(
         self, stream: BinaryIO, context: object, loaded_fields: StrDict
-    ) -> Optional[T]:
+    ) -> T | None:
         """Load an object from the stream.
 
         :param BinaryIO stream:
@@ -791,9 +801,9 @@ class Field(Generic[T]):
     def to_stream(  # noqa: C901
         self,
         stream: BinaryIO,
-        data: Union[T, None, _Default] = DEFAULT,
+        data: T | None | _Default = DEFAULT,
         context: object = None,
-        all_fields: Optional[StrDict] = None,
+        all_fields: StrDict | None = None,
     ) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
@@ -815,7 +825,7 @@ class Field(Generic[T]):
         if data is DEFAULT:
             # Typecast is not entirely truthful; this may return UNDEFINED if the field
             # has no default value.
-            data = typing.cast(Optional[T], self.default)
+            data = typing.cast("T | None", self.default)
 
         if data is UNDEFINED or data is DEFAULT:
             raise errors.MissingRequiredValueError(field=self)
@@ -833,7 +843,7 @@ class Field(Generic[T]):
         serialized_value = buf.getvalue()
         current_size = len(serialized_value)
         if self.has_fixed_size:
-            expected_size = typing.cast(int, self.size)
+            expected_size = typing.cast("int", self.size)
         elif self.size is None:
             expected_size = current_size
         else:
@@ -865,9 +875,9 @@ class Field(Generic[T]):
 
     def to_bytes(
         self,
-        data: Union[Optional[T], _Default] = DEFAULT,
+        data: T | None | _Default = DEFAULT,
         context: object = None,
-        all_fields: Optional[StrDict] = None,
+        all_fields: StrDict | None = None,
     ) -> bytes:
         """Convert the given data into bytes.
 
@@ -907,7 +917,7 @@ class Field(Generic[T]):
         """
         raise errors.UnserializableValueError(field=self, value=data)
 
-    def _get_null_repr(self, all_fields: Optional[StrDict] = None) -> bytes:
+    def _get_null_repr(self, all_fields: StrDict | None = None) -> bytes:
         """Return the serialized value for ``None``.
 
         We need this function because there's some logic involved in determining if
@@ -925,45 +935,36 @@ class Field(Generic[T]):
         if all_fields is None:
             all_fields = {}
 
-        if self.null_value is UNDEFINED:
+        if self.null_value is None:
             raise errors.UnserializableValueError(
                 reason=f"`None` is not an acceptable value for {self}.",
                 field=self,
                 value=None,
             )
-        if self.null_value not in (DEFAULT, None):
-            if isinstance(self.null_value, bytes):
-                return self.null_value
+        if isinstance(self.null_value, bytes):
+            return self.null_value
 
-            # This is a bit of a hack. We can't call to_bytes() directly because that'll
-            # trigger infinite recursion if we do. Thus, we have to call the dumping
-            # function directly in all its ugly glory.
-            buf = io.BytesIO()
+        if self.null_value is DEFAULT:
+            # User wants us to use all null bytes for the default null value.
+            try:
+                return b"\0" * self.get_expected_size(all_fields)
+            except errors.UndefinedSizeError:
+                raise errors.UnserializableValueError(
+                    reason=f"Can't guess appropriate serialization of `None` for {self}"
+                    " because it has no fixed size.",
+                    field=self,
+                    value=None,
+                ) from None
 
-            # Note: We need the typecast here because MyPy doesn't correctly detect that
-            # we're filtering out DEFAULT in the `if` statement above. It thinks that
-            # null_value can still be DEFAULT, so we cast it to this field's type.
-            self._do_dump(
-                buf,
-                typing.cast(T, self.null_value),
-                context=None,
-                all_fields=all_fields,
-            )
-            return buf.getvalue()
-
-        # User wants us to use all null bytes for the default null value.
-        try:
-            return b"\0" * self.get_expected_size(all_fields)
-        except errors.UndefinedSizeError:
-            raise errors.UnserializableValueError(
-                reason=f"Can't guess appropriate serialization of `None` for {self}"
-                " because it has no fixed size.",
-                field=self,
-                value=None,
-            ) from None
+        # This is a bit of a hack. We can't call to_bytes() directly because that'll
+        # trigger infinite recursion if we do. Thus, we have to call the dumping
+        # function directly in all its ugly glory.
+        buf = io.BytesIO()
+        self._do_dump(buf, self.null_value, context=None, all_fields=all_fields)
+        return buf.getvalue()
 
     def _read_exact_size(
-        self, stream: BinaryIO, loaded_fields: Optional[StrDict] = None
+        self, stream: BinaryIO, loaded_fields: StrDict | None = None
     ) -> bytes:
         """Read exactly the number of bytes this object takes up or crash.
 
@@ -1003,7 +1004,7 @@ class Field(Generic[T]):
     @overload
     def __get__(
         self, instance: Struct, owner: type[Struct]
-    ) -> Optional[T]: ...  # pragma: no cover
+    ) -> T | None: ...  # pragma: no cover
 
     # This annotation is bogus and only here to make MyPy happy. See bug report here:
     # https://github.com/python/mypy/issues/9416
@@ -1019,8 +1020,8 @@ class Field(Generic[T]):
             return instance.__values__[self.name]
         return self.compute_value_for_dump(instance)
 
-    def __set__(self, instance: Struct, value: Optional[T]) -> None:
-        if self._compute_fn or self.const is not UNDEFINED:
+    def __set__(self, instance: Struct, value: T | None) -> None:
+        if self._compute_fn or self.const:
             raise errors.ImmutableFieldError(field=self)
 
         for validator in self.validators:

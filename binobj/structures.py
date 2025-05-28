@@ -17,24 +17,26 @@ from typing import Any
 from typing import BinaryIO
 from typing import ClassVar
 from typing import Final
-from typing import Optional
 from typing import overload
 from typing import Protocol
+from typing import TypeGuard
 from typing import TypeVar
 
 from typing_extensions import Self
-from typing_extensions import TypeGuard
 
 from binobj import decorators
 from binobj import errors
 from binobj import fields
-from binobj.typedefs import MethodFieldValidator
-from binobj.typedefs import MutableStrDict
-from binobj.typedefs import StrDict
-from binobj.typedefs import StructValidator
 
 
 __all__ = ["Struct", "is_struct"]
+
+
+if typing.TYPE_CHECKING:  # pragma: no cover
+    from binobj.typedefs import MethodFieldValidator
+    from binobj.typedefs import MutableStrDict
+    from binobj.typedefs import StrDict
+    from binobj.typedefs import StructValidator
 
 
 T = TypeVar("T")
@@ -82,7 +84,7 @@ class StructMetadata:
     .. versionadded:: 0.9.0
     """
 
-    size_bytes: Optional[int] = 0
+    size_bytes: int | None = 0
     """The total size of the struct in bytes, if it's a fixed value.
 
     This is only used for classes declared using PEP 526 type annotations and should
@@ -176,7 +178,7 @@ class StructMetadata:
     def load_meta_options(self, meta: type) -> None:
         self.argument_defaults = dict(getattr(meta, "argument_defaults", {}))
 
-    def get_size(self, field_values: Optional[StrDict] = None) -> Optional[int]:
+    def get_size(self, field_values: StrDict | None = None) -> int | None:
         """Get the size of a Struct.
 
         If the Struct contains variable-length fields, it may still be possible to
@@ -204,7 +206,7 @@ class StructMetadata:
 def collect_assigned_fields(
     namespace: StrDict,
     class_metadata: StructMetadata,
-    byte_offset: Optional[int],
+    byte_offset: int | None,
 ) -> int:
     """Collect all fields defined by class variable assignment to a struct.
 
@@ -246,7 +248,7 @@ def collect_assigned_fields(
 
         item.bind_to_container(class_metadata, item_name, field_index, byte_offset)
         if byte_offset is not None and item.has_fixed_size:
-            byte_offset += typing.cast(int, item.size)
+            byte_offset += typing.cast("int", item.size)
         else:
             byte_offset = None
 
@@ -300,7 +302,7 @@ def recursive_to_dicts(item: object) -> Any:
         return item.to_dict()
     if isinstance(item, Mapping):
         return {recursive_to_dicts(k): recursive_to_dicts(v) for k, v in item.items()}
-    if isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+    if isinstance(item, Sequence) and not isinstance(item, str | bytes | bytearray):
         return [recursive_to_dicts(v) for v in item]
     return item
 
@@ -361,7 +363,7 @@ class Struct(HasStruct):
 
         # Validate the entirety of the struct.
         for struct_validator in self.__binobj_struct__.struct_validators:
-            struct_validator(self, typing.cast(StrDict, self))
+            struct_validator(self, typing.cast("StrDict", self))
 
     def to_stream(self, stream: BinaryIO, context: object = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
@@ -454,7 +456,7 @@ class Struct(HasStruct):
         for field in self.__binobj_struct__.components.values():
             try:
                 dct[field.name] = field.compute_value_for_dump(
-                    typing.cast(StrDict, self)
+                    typing.cast("StrDict", self)
                 )
             except (errors.SerializationError, errors.UndefinedSizeError):  # noqa: PERF203
                 pass
@@ -476,7 +478,7 @@ class Struct(HasStruct):
         cls,
         stream: BinaryIO,
         context: object = None,
-        init_kwargs: Optional[StrDict] = None,
+        init_kwargs: StrDict | None = None,
     ) -> Self:
         """Load a struct from the given stream.
 
@@ -498,7 +500,7 @@ class Struct(HasStruct):
             The ``init_kwargs`` argument.
         """
         if init_kwargs:
-            results = typing.cast(MutableStrDict, copy.deepcopy(init_kwargs))
+            results = typing.cast("MutableStrDict", copy.deepcopy(init_kwargs))
         else:
             results = {}
 
@@ -522,7 +524,7 @@ class Struct(HasStruct):
         data: bytes,
         context: object = None,
         exact: bool = True,
-        init_kwargs: Optional[StrDict] = None,
+        init_kwargs: StrDict | None = None,
     ) -> Self:
         """Load a struct from the given byte string.
 
@@ -562,7 +564,7 @@ class Struct(HasStruct):
     def partial_load(
         cls,
         stream: BinaryIO,
-        last_field: Optional[str] = None,
+        last_field: str | None = None,
         context: object = None,
     ) -> Self:
         """Partially load this object, either until EOF or the named field.
@@ -679,7 +681,7 @@ class Struct(HasStruct):
         return loaded_data[name]
 
     def partial_dump(
-        self, stream: BinaryIO, last_field: Optional[str] = None, context: object = None
+        self, stream: BinaryIO, last_field: str | None = None, context: object = None
     ) -> None:
         """Partially dump the object, up to and including the last named field.
 
@@ -716,7 +718,7 @@ class Struct(HasStruct):
                 return
 
     @classmethod
-    def get_size(cls) -> Optional[int]:
+    def get_size(cls) -> int | None:
         """Return the size of this struct in bytes, if possible.
 
         If there are variable-sized fields that can't be resolved, this function returns
@@ -764,7 +766,7 @@ class Struct(HasStruct):
 
         for field in self.__binobj_struct__.components.values():
             if field.has_fixed_size:
-                size += typing.cast(int, field.size)
+                size += typing.cast("int", field.size)
             else:
                 try:
                     size += field.get_expected_size(current_fields)
@@ -790,7 +792,7 @@ class Struct(HasStruct):
         # defined.
         self_values = recursive_to_dicts({n: self[n] for n in list(self)})
 
-        if not isinstance(other, (Struct, Mapping)):
+        if not isinstance(other, Struct | Mapping):
             return False
 
         other_values = recursive_to_dicts({n: other[n] for n in list(other)})

@@ -145,7 +145,7 @@ def test_struct_validator__inheriting():
                 )
 
     class Subclass(Class):
-        const = fields.Bytes(const=b"asdf")
+        const = fields.Bytes(const=True, default=b"asdf")
 
     with pytest.raises(errors.ValidationError):
         Subclass(string="123", integer=456).to_bytes()
@@ -165,7 +165,7 @@ def test_field_validator__child_doesnt_affect_parent():
                 raise errors.ValidationError("high", field=field, value=value)
 
     class Subclass(Class):
-        const = fields.Bytes(const=b"asdf")
+        const = fields.Bytes(const=True, default=b"asdf")
 
         @decorators.validates("string")
         def validator_2(self, field, value):

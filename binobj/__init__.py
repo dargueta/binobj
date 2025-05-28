@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib.metadata
 from typing import NamedTuple
-from typing import Optional
 
 from .errors import *
 from .fields import *
@@ -18,7 +17,7 @@ class VersionInfo(NamedTuple):
     major: int
     minor: int
     patch: int
-    suffix: Optional[str]
+    suffix: str | None
 
     @classmethod
     def from_string(cls, version: str) -> VersionInfo:
@@ -29,11 +28,12 @@ class VersionInfo(NamedTuple):
         return cls(int(major), int(minor), int(patch), suffix or None)
 
     def __str__(self) -> str:
+        version = f"{self.major}.{self.minor}.{self.patch}"
         # Having a version suffix is rare for this library, so we'll tell pycoverage to
         # ignore this branch.
         if self.suffix:  # pragma: no cover
-            return f"{self.major}.{self.minor}.{self.patch}-{self.suffix}"
-        return f"{self.major}.{self.minor}.{self.patch}"
+            return version + f"-{self.suffix}"
+        return version
 
 
 __version__ = importlib.metadata.version("binobj")

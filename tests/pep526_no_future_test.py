@@ -5,12 +5,9 @@ Once we drop support for Python <=3.10 this won't be necessary anymore.
 """
 
 import random
-import typing
 from typing import Annotated
 from typing import Any
 from typing import ClassVar
-from typing import Optional
-from typing import Union
 
 import pytest
 
@@ -93,12 +90,12 @@ def test_typing_union_breaks():
 
         @dataclass
         class _BrokenClass(binobj.Struct):
-            some_value: typing.Union[binobj.UInt32, binobj.UInt16]
+            some_value: binobj.UInt32 | binobj.UInt16
 
 
 @dataclass
 class NullableFieldsStruct(binobj.Struct):
-    nullable: Optional[fields.Int32]
+    nullable: fields.Int32 | None
     not_nullable: fields.StringZ
 
 
@@ -158,11 +155,12 @@ def test_nested_works(
     NestedFields: type[binobj.Struct], BasicClass: type[binobj.Struct]
 ):
     assert isinstance(NestedFields.basic, fields.Nested)
-    assert (
-        NestedFields.basic.struct_class is BasicClass
-    ), f"{NestedFields.basic.struct_class=}, wanted {BasicClass!r}"
+    assert NestedFields.basic.struct_class is BasicClass, (
+        f"{NestedFields.basic.struct_class=}, wanted {BasicClass!r}"
+    )
 
 
+@pytest.mark.xfail
 def test_passing_callable_triggers_warning():
     with pytest.deprecated_call():
 
@@ -171,7 +169,6 @@ def test_passing_callable_triggers_warning():
             some_field: fields.Int32 = lambda: random.randrange(1024)
 
 
-@pytest.mark.xfail
 def test_passing_callable_crashes():
     with pytest.raises(TypeError):
 
@@ -202,8 +199,8 @@ def test_pep593_annotated__with_union():
 
     @dataclass
     class PEP593Class(binobj.Struct):
-        foo: Annotated[Union[int, float], fields.UInt32] = 123
-        bar: Annotated[Union[int, str, None], fields.String(size=16)]
+        foo: Annotated[int | float, fields.UInt32] = 123
+        bar: Annotated[int | str | None, fields.String(size=16)]
         ignore_me: int
         ignore_as_well: Annotated[int, bool]
 
@@ -221,7 +218,7 @@ def test_pep593_annotated__not_as_first():
     @dataclass
     class PEP593Class(binobj.Struct):
         foo: Annotated[int, float, fields.UInt32, bool] = 123
-        bar: Annotated[Union[int, str], bool, fields.String(size=16)]
+        bar: Annotated[int | str, bool, fields.String(size=16)]
         ignore_me: int
         ignore_as_well: Annotated[int, bool]
 

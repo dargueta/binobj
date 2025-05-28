@@ -19,7 +19,7 @@ class CPIOFileHeader(binobj.Struct):
             "endian": "little",
         }
 
-    magic = fields.UInt16(const=0o070707, discard=True)
+    magic = fields.UInt16(const=True, default=0o070707, discard=True)
     device_id = fields.UInt16(default=0)
     inumber = fields.UInt16(default=0)
     mode = fields.UInt16(default=0o644)
@@ -32,7 +32,10 @@ class CPIOFileHeader(binobj.Struct):
     file_size = fields.UInt32()
     filename = fields.StringZ(encoding="utf-8")
     _filename_padding = fields.Bytes(
-        const=b"\0", discard=True, present=lambda f, *_: f["name_size"] % 2
+        const=True,
+        default=b"\0",
+        discard=True,
+        present=lambda f, *_: f["name_size"] % 2,
     )
     data = fields.Bytes(size=file_size)
 
@@ -54,24 +57,21 @@ def test_dump__padding_null_behaves(filename):
     struct = CPIOFileHeader(filename=filename, data=file_data, modified_time=when)
     serialized = struct.to_bytes()
 
-    assert (
-        serialized
-        == (
-            b"\xc7\x71"  # Magic
-            b"\x00\x00"  # Device ID
-            b"\x00\x00"  # inumber
-            b"\xa4\x01"  # Mode
-            b"\x00\x00"  # Owner UID
-            b"\x00\x00"  # Owner GID
-            b"\x00\x00"  # number of links
-            b"\x00\x00"  # Device version
-            + int(when.timestamp()).to_bytes(4, "little")  # Modified time
-            + len(filename_bytes).to_bytes(2, "little")  # Filename size
-            + len(file_data).to_bytes(4, "little")  # File size
-            + filename_bytes
-            + (b"\0" * (len(filename_bytes) % 2))
-            + file_data  # File contents
-        )
+    assert serialized == (
+        b"\xc7\x71"  # Magic
+        b"\x00\x00"  # Device ID
+        b"\x00\x00"  # inumber
+        b"\xa4\x01"  # Mode
+        b"\x00\x00"  # Owner UID
+        b"\x00\x00"  # Owner GID
+        b"\x00\x00"  # number of links
+        b"\x00\x00"  # Device version
+        + int(when.timestamp()).to_bytes(4, "little")  # Modified time
+        + len(filename_bytes).to_bytes(2, "little")  # Filename size
+        + len(file_data).to_bytes(4, "little")  # File size
+        + filename_bytes
+        + (b"\0" * (len(filename_bytes) % 2))
+        + file_data  # File contents
     )
 
 
