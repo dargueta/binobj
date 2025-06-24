@@ -20,7 +20,7 @@ def test_encode_vlq_basic(value, expected):
 def test_encode_vlq_negative_crashes():
     """Passing a negative value to the VLQ encoder must always fail."""
     with pytest.raises(
-        ValueError, match="The VLQ integer encoding doesn't support negative numbers."
+        ValueError, match=r"The VLQ integer encoding doesn't support negative numbers\."
     ):
         varints.encode_integer_vlq(-1)
 
@@ -76,7 +76,7 @@ def test_encode_uleb128(value, expected):
 def test_encode_uleb128__negative_crashes():
     with pytest.raises(
         ValueError,
-        match="The ULEB128 integer encoding doesn't support negative numbers.",
+        match=r"The ULEB128 integer encoding doesn't support negative numbers\.",
     ):
         assert varints.encode_integer_uleb128(-1)
 

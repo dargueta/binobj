@@ -120,7 +120,7 @@ def test_partial_load__bad_column():
     stream = io.BytesIO(b"zyxwvut\0\xba\xdc\x0f\xfe\xe1\x5b\xad\x01")
 
     with pytest.raises(
-        ValueError, match="BasicStruct doesn't have a field named 'lol'."
+        ValueError, match=r"BasicStruct doesn't have a field named 'lol'\."
     ):
         BasicStruct.partial_load(stream, "lol")
 

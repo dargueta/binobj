@@ -6,6 +6,7 @@ select = ["ALL"]
 extend-ignore = [
     "ANN401",
     "COM812",
+    "CPY001",   # Requires copyright notice in every file
     "D105",
     "D107",
     "DTZ",
@@ -23,8 +24,16 @@ keep-runtime-typing = true
 
 [lint.per-file-ignores]
 "__init__.py" = ["F403", "PLC0414"]
-"tests/*" = ["ANN", "D", "S101", "S311"]
+"tests/*" = [
+    "ANN",
+    "D",        # Forces docstrings and such
+    "PLR6301",  # Method could be a function, class method, or static method
+    "S101",
+    "S311",
+]
 "tests/pep526_*.py" = ["N802", "N803", "I002"]
+"tests/full_examples/cpio_test.py" = ["PLR6301"]
+"tests/validators_test.py" = ["PLR6301"]
 
 [lint.isort]
 force-single-line = true

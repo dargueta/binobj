@@ -418,6 +418,6 @@ def test_union__dump_non_mapping_for_struct():
     )
 
     with pytest.raises(
-        TypeError, match="Cannot dump a non-Mapping-like object as a .+: 'foo'"
+        TypeError, match=r"Cannot dump a non-Mapping-like object as a .+: 'foo'"
     ):
         field.to_bytes("foo")

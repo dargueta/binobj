@@ -49,17 +49,22 @@ class VarIntEncoding(enum.Enum):
 
 
 def _read_uint8(stream: BinaryIO) -> int:
-    """Read an unsigned 8-bit integer from the given byte stream."""
+    """Read an unsigned 8-bit integer from the given byte stream.
+
+    Returns:
+        An unsigned integer in the range [0, 256).
+    """
     return helpers.read_int(stream, 1, signed=False)
 
 
 def encode_integer_compact(value: int) -> bytes:
     """Encode an integer with signed VLQ encoding.
 
-    :param int value: The value to encode.
+    Arguments:
+        value (int): The value to encode.
 
-    :return: The encoded integer.
-    :rtype: bytes
+    Returns:
+        The encoded integer.
     """
     if value == 0:
         return b"\0"
@@ -88,10 +93,11 @@ def encode_integer_compact(value: int) -> bytes:
 def decode_integer_compact(stream: BinaryIO) -> int:
     """Decode an integer with signed VLQ encoding.
 
-    :param BinaryIO stream: The stream to read from.
+    Arguments:
+        stream (BinaryIO): The stream to read from.
 
-    :return: The decoded integer.
-    :rtype: int
+    Returns:
+        The decoded integer.
     """
     sign: int | None = None
     value = 0
@@ -114,11 +120,15 @@ def decode_integer_compact(stream: BinaryIO) -> int:
 def encode_integer_vlq(value: int) -> bytes:
     """Encode an integer with the unsigned VLQ encoding.
 
-    :param int value:
-        The value to encode. Must be a non-negative integer.
+    Arguments:
+        value (int):
+            The value to encode. Must be a non-negative integer.
 
-    :return: ``value`` encoded as a variable-length integer in VLQ format.
-    :rtype: bytes
+    Returns:
+        ``value`` encoded as a variable-length integer in VLQ format.
+
+    Raises:
+        ValueError: ``value`` is negative.
     """
     if value < 0:
         raise ValueError("The VLQ integer encoding doesn't support negative numbers.")
@@ -141,10 +151,11 @@ def encode_integer_vlq(value: int) -> bytes:
 def decode_integer_vlq(stream: BinaryIO) -> int:
     """Decode an unsigned VLQ-encoded integer from the given stream.
 
-    :param BinaryIO stream: The stream to read from.
+    Arguments:
+        stream (BinaryIO): The stream to read from.
 
-    :return: The decoded integer.
-    :rtype: int
+    Returns:
+        The decoded integer.
     """
     value = 0
     while True:
@@ -158,10 +169,14 @@ def decode_integer_vlq(stream: BinaryIO) -> int:
 def encode_integer_uleb128(value: int) -> bytes:
     """Encode an integer with unsigned LEB128 encoding.
 
-    :param int value: The value to encode.
+    Arguments:
+        value (int): The value to encode.
 
-    :return: ``value`` encoded as a variable-length integer in ULEB128 format.
-    :rtype: bytes
+    Returns:
+        ``value`` encoded as a variable-length integer in ULEB128 format.
+
+    Raises:
+        ValueError: ``value`` is negative.
     """
     if value < 0:
         raise ValueError(
@@ -183,10 +198,11 @@ def encode_integer_uleb128(value: int) -> bytes:
 def decode_integer_uleb128(stream: BinaryIO) -> int:
     """Decode an unsigned LEB128-encoded integer from the given stream.
 
-    :param BinaryIO stream: The stream to read from.
+    Arguments:
+        stream (BinaryIO): The stream to read from.
 
-    :return: The decoded integer.
-    :rtype: int
+    Returns:
+        The decoded integer.
     """
     value = 0
     bits_read = 0
@@ -203,10 +219,11 @@ def decode_integer_uleb128(stream: BinaryIO) -> int:
 def encode_integer_leb128(value: int) -> bytes:
     """Encode an integer with signed LEB128 encoding.
 
-    :param int value: The value to encode.
+    Arguments:
+        value (int): The value to encode.
 
-    :return: ``value`` encoded as a variable-length integer in LEB128 format.
-    :rtype: bytes
+    Returns:
+        ``value`` encoded as a variable-length integer in LEB128 format.
     """
     if value == 0:
         return b"\0"
@@ -240,10 +257,11 @@ def encode_integer_leb128(value: int) -> bytes:
 def decode_integer_leb128(stream: BinaryIO) -> int:
     """Decode a signed LEB128-encoded integer from the given stream.
 
-    :param BinaryIO stream: The stream to read from.
+    Arguments:
+        stream (BinaryIO): The stream to read from.
 
-    :return: The decoded integer.
-    :rtype: int
+    Returns:
+        The decoded integer.
     """
     starting_offset = stream.tell()
     value = decode_integer_uleb128(stream)

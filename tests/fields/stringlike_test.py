@@ -12,7 +12,7 @@ from binobj import Struct
 from binobj.fields import stringlike
 
 
-def test_bytes__dump_too_short():
+def test_bytes__dump_too_short() -> None:
     """Crash if we try dumping a Bytes field without enough bytes."""
     field = stringlike.Bytes(size=4)
 
@@ -20,7 +20,7 @@ def test_bytes__dump_too_short():
         field.to_bytes(b"")
 
 
-def test_bytes__dump_too_long():
+def test_bytes__dump_too_long() -> None:
     """Crash if we try dumping a Bytes field too many bytes."""
     field = stringlike.Bytes(size=4)
 
@@ -28,34 +28,34 @@ def test_bytes__dump_too_long():
         field.to_bytes(b"!" * 11)
 
 
-def test_bytes__null():
+def test_bytes__null() -> None:
     field = fields.Bytes(size=7, null_value=DEFAULT)
     assert field.to_bytes(None) == b"\x00" * 7
 
 
-def test_bytes__dump_null_default():
+def test_bytes__dump_null_default() -> None:
     field = stringlike.String(null_value=b"trash", default=None)
     assert field.to_bytes(None) == b"trash"
 
 
-def test_bytes__dump_null_factory():
+def test_bytes__dump_null_factory() -> None:
     field = stringlike.Bytes(null_value=b"NULL", factory=lambda: None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
-def test_string__load_basic():
+def test_string__load_basic() -> None:
     """Basic test of loading a String"""
     field = stringlike.String(size=13, encoding="utf-8")
     assert field.from_bytes(b"\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf") == r"¯\_(ツ)_/¯"
 
 
-def test_string__dump_basic():
+def test_string__dump_basic() -> None:
     """Basic test of dumping a String"""
     field = stringlike.String(size=13, encoding="utf-8")
     assert field.to_bytes(r"¯\_(ツ)_/¯") == b"\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf"
 
 
-def test_string__dump_no_size():
+def test_string__dump_no_size() -> None:
     """Try dumping a string without its size set."""
     field = stringlike.String()
     with pytest.raises(errors.UndefinedSizeError):
@@ -63,65 +63,65 @@ def test_string__dump_no_size():
 
 
 @pytest.mark.parametrize("null_value", ["NULL", b"NULL"])
-def test_string__dump_null_default(null_value):
+def test_string__dump_null_default(null_value: str | bytes) -> None:
     field = stringlike.String(null_value=null_value, default=None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
 @pytest.mark.parametrize("null_value", ["NULL", b"NULL"])
-def test_string__dump_null_factory(null_value):
+def test_string__dump_null_factory(null_value: str | bytes) -> None:
     field = stringlike.String(null_value=null_value, factory=lambda: None, size=4)
     assert field.to_bytes(None) == b"NULL"
 
 
 @pytest.mark.parametrize("size_field", [fields.UInt8(name="size"), "size"])
-def test_string__dump_variable_size(size_field):
+def test_string__dump_variable_size(size_field: fields.Field | str) -> None:
     """Dumping a field with variable size should work."""
     field = stringlike.String(size=size_field)
     assert field.to_bytes("asdf", all_fields={"size": 4}) == b"asdf"
 
 
-def test_string__dump_too_long_before_encoding():
+def test_string__dump_too_long_before_encoding() -> None:
     """Basic test of dumping a string that's too long into a String."""
     field = stringlike.String(size=5, encoding="utf-8")
     with pytest.raises(errors.ValueSizeError):
         assert field.to_bytes("abcdefg")
 
 
-def test_string__dump_too_long_after_encoding():
+def test_string__dump_too_long_after_encoding() -> None:
     """Test dumping a string that's too long only after encoding to bytes."""
     field = stringlike.String(size=4, encoding="utf-8")
     with pytest.raises(errors.ValueSizeError):
         assert field.to_bytes("très")
 
 
-def test_string__dump_too_short_before_encoding():
+def test_string__dump_too_short_before_encoding() -> None:
     """Basic test of dumping a string that's too short into a String."""
     field = stringlike.String(size=5, encoding="utf-8")
     with pytest.raises(errors.ValueSizeError):
         assert field.to_bytes("a")
 
 
-def test_string__dump_too_short_before_encoding__pad():
+def test_string__dump_too_short_before_encoding__pad() -> None:
     """Dumping a string that's too short before encoding is okay."""
     field = stringlike.String(size=5, pad_byte=b" ")
     assert field.to_bytes("a") == b"a    "
 
 
-def test_string__dump_too_short_after_encoding__pad():
+def test_string__dump_too_short_after_encoding__pad() -> None:
     """Dumping a string that's too short but uses padding is okay."""
     field = stringlike.String(size=8, pad_byte=b"\0", encoding="utf-32-be")
     assert field.to_bytes("a") == b"\0\0\0a\0\0\0\0"
 
 
-def test_string__dump_too_long_before_encoding__pad():
+def test_string__dump_too_long_before_encoding__pad() -> None:
     """``pad_byte`` shouldn't prevent a crash if a string is too long."""
     field = stringlike.String(size=5, pad_byte=b"?")
     with pytest.raises(errors.ValueSizeError):
         field.to_bytes("abcdefgh")
 
 
-def test_string__dump_too_long_after_encoding__pad():
+def test_string__dump_too_long_after_encoding__pad() -> None:
     """``pad_byte`` shouldn't prevent a crash if a string is too long after
     encoding it."""
     field = stringlike.String(size=3, pad_byte=b"?", encoding="utf-16-le")
@@ -129,7 +129,7 @@ def test_string__dump_too_long_after_encoding__pad():
         field.to_bytes("ab")
 
 
-def test_stringz__dump_null_default():
+def test_stringz__dump_null_default() -> None:
     field = fields.StringZ(size=7, null_value=DEFAULT)
     assert field.to_bytes(None) == b"\x00" * 7
 
@@ -138,18 +138,20 @@ def test_stringz__dump_null_default():
     "default_value_kwarg", [{"default": None}, {"factory": lambda: None}]
 )
 @pytest.mark.parametrize("null_value", ["NULL", b"NULL\x00"])
-def test_stringz__unsized_dump_null_default(null_value, default_value_kwarg):
+def test_stringz__unsized_dump_null_default(
+    null_value: str | bytes, default_value_kwarg: dict[str, object]
+):
     field = stringlike.StringZ(null_value=null_value, **default_value_kwarg)
     assert field.to_bytes(None) == b"NULL\x00"
 
 
-def test_stringz__dump_too_long():
+def test_stringz__dump_too_long() -> None:
     field = stringlike.StringZ(size=5)
     with pytest.raises(errors.ValueSizeError):
         field.to_bytes("asdfqwerty")
 
 
-def test_stringz__dump_too_short():
+def test_stringz__dump_too_short() -> None:
     field = stringlike.StringZ(size=5)
     with pytest.raises(errors.ValueSizeError):
         field.to_bytes("a")
@@ -160,59 +162,59 @@ class StringZStringStruct(Struct):
     data_field = stringlike.StringZ(size=size_field)
 
 
-def test_stringz__dump_too_long__size_field():
+def test_stringz__dump_too_long__size_field() -> None:
     instance = StringZStringStruct(size_field=4, data_field="asdfqwerty")
     with pytest.raises(errors.ValueSizeError):
         instance.to_bytes()
 
 
-def test_stringz__dump_too_short__size_field():
+def test_stringz__dump_too_short__size_field() -> None:
     instance = StringZStringStruct(size_field=4, data_field="a")
     with pytest.raises(errors.ValueSizeError):
         instance.to_bytes()
 
 
-def test_string__load_null_default():
+def test_string__load_null_default() -> None:
     field = fields.String(size=7, null_value=DEFAULT)
     assert field.from_bytes(b"\x00" * 7) is None
 
 
 @pytest.mark.parametrize("null_value", [b"N\x00U\x00L\x00L\x00", "NULL"])
-def test_string__null_value(null_value):
+def test_string__null_value(null_value: str | bytes) -> None:
     field = fields.String(size=8, null_value=null_value, encoding="utf-16-le")
     assert field.from_bytes(b"N\x00U\x00L\x00L\x00") is None
 
 
-def test_string__pad_byte_wrong_type():
+def test_string__pad_byte_wrong_type() -> None:
     """Trying to pass a regular string as pad_byte will explode."""
     with pytest.raises(errors.ConfigurationError):
         stringlike.String(size=4, pad_byte=" ")  # type: ignore[arg-type]
 
 
-def test_string__pad_byte_too_long():
+def test_string__pad_byte_too_long() -> None:
     """The padding byte must be exactly one byte."""
     with pytest.raises(errors.ConfigurationError):
         stringlike.String(size=4, pad_byte=b"0123")
 
 
-def test_string__pad_default():
+def test_string__pad_default() -> None:
     """The default value should be padded if necessary."""
     field = stringlike.String(size=4, pad_byte=b" ", default="?")
     assert field.to_bytes() == b"?   "
 
 
-def test_stringz__pad():
+def test_stringz__pad() -> None:
     field = stringlike.StringZ(size=4, pad_byte=b" ")
     assert field.to_bytes("a") == b"a\x00  "
 
 
-def test_stringz__load_basic():
+def test_stringz__load_basic() -> None:
     """Basic test of StringZ loading."""
     field = stringlike.StringZ(encoding="utf-8")
     assert field.from_bytes(b"\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0") == r"¯\_(ツ)_/¯"
 
 
-def test_stringz__load_eof_before_null():
+def test_stringz__load_eof_before_null() -> None:
     """Crash if we hit the end of the data before we get a null byte."""
     field = stringlike.StringZ(encoding="utf-8")
     with pytest.raises(errors.DeserializationError):
@@ -225,7 +227,7 @@ def test_stringz__dump_basic():
     assert field.to_bytes(r"¯\_(ツ)_/¯") == b"\xc2\xaf\\_(\xe3\x83\x84)_/\xc2\xaf\0"
 
 
-def test_stringz__dump_multibyte():
+def test_stringz__dump_multibyte() -> None:
     """Basic multibyte test dump."""
     field = stringlike.StringZ(encoding="utf-32-le")
     assert (
@@ -234,7 +236,7 @@ def test_stringz__dump_multibyte():
     )
 
 
-def test_stringz__dump_multibyte_with_bom():
+def test_stringz__dump_multibyte_with_bom() -> None:
     """Ensure multibyte encodings work with StringZ as well and the BOM isn't
     added before the null byte."""
     field = stringlike.StringZ(encoding="utf-16")
@@ -245,7 +247,7 @@ def test_stringz__dump_multibyte_with_bom():
         assert field.to_bytes("AbCd") == b"\xfe\xff\x00A\x00b\x00C\x00d\x00\x00"
 
 
-def test_stringz_load_multibyte():
+def test_stringz_load_multibyte() -> None:
     """Test loading multibyte strings with a terminating null."""
     field = stringlike.StringZ(encoding="utf-16")
     assert field.from_bytes(b"\xff\xfeA\x00b\x00C\x00d\x00\x00\x00") == "AbCd"
@@ -253,24 +255,24 @@ def test_stringz_load_multibyte():
 
 
 @pytest.mark.parametrize("null_value", [b"NULL\x00", "NULL"])
-def test_stringz__load_null_value(null_value):
+def test_stringz__load_null_value(null_value: str | bytes) -> None:
     field = stringlike.StringZ(null_value=null_value)
     assert field.from_bytes(b"NULL\x00") is None
 
 
-def test_stringz__load_default_null_crashes():
+def test_stringz__load_default_null_crashes() -> None:
     field = stringlike.StringZ(null_value=DEFAULT)
     with pytest.raises(errors.CannotDetermineNullError):
         field.from_bytes(b"\x00")
 
 
-def test_stringz__dump_default_null_crashes():
+def test_stringz__dump_default_null_crashes() -> None:
     field = stringlike.StringZ(null_value=DEFAULT)
     with pytest.raises(errors.UnserializableValueError):
         field.to_bytes(None)
 
 
-def test_stringz__load_with_default():
+def test_stringz__load_with_default() -> None:
     field = stringlike.StringZ(default="abc123")
     assert field.from_bytes(b"qwerty\x00") == "qwerty"
 
@@ -284,11 +286,13 @@ def test_stringz__load_with_default():
         (stringlike.UUIDFormat.HEX_STRING, "hex"),
     ],
 )
-def test_uuid_round_trip(storage_format, accessor_name):
+def test_uuid_round_trip(
+    storage_format: stringlike.UUIDFormat, accessor_name: str
+) -> None:
     field = stringlike.UUID4(stored_as=storage_format)
     value = uuid.uuid4()
     serialized = field.to_bytes(value)
-    if accessor_name == "":
+    if not accessor_name:
         expected_value = str(value).encode("ascii")
     elif accessor_name == "hex":
         expected_value = value.hex.encode("ascii")
@@ -301,7 +305,7 @@ def test_uuid_round_trip(storage_format, accessor_name):
     assert loaded == value, "Deserialized value is wrong"
 
 
-def test_uuid_short_read():
+def test_uuid_short_read() -> None:
     field = stringlike.UUID4(stored_as=stringlike.UUIDFormat.CANONICAL_STRING)
     with pytest.raises(errors.UnexpectedEOFError):
         field.from_bytes(b"asdf")

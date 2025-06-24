@@ -33,6 +33,10 @@ setup:
 lint: $(SOURCEFILES)
 	tox -e lint
 
+.PHONY: format
+format:
+	ruff format binobj tests
+
 .PHONY: clean
 clean:
 	-$(MAKE) -C $(DOCSDIR) clean

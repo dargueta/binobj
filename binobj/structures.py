@@ -407,13 +407,16 @@ class Struct(HasStruct):
         native Python types. As such, validation is *not* performed since that was done
         while loading.
 
-        :param bool keep_discardable:
-            If True, don't exclude fields marked with ``discard=True`` from the result.
+        Arguments:
+            keep_discardable (bool):
+                If True, don't exclude fields marked with ``discard=True`` from the
+                result.
 
-        :rtype: Dict[str, Any]
+        Returns:
+            The struct, loaded as a mapping of field names to their values.
 
-        :raise MissingRequiredValueError:
-            One or more fields don't have assigned values.
+        Raises:
+            MissingRequiredValueError: One or more fields don't have assigned values.
 
         .. versionchanged:: 0.3.0
             This now recursively calls :meth:`.to_dict` on all nested structs and arrays
@@ -449,6 +452,9 @@ class Struct(HasStruct):
         We use this to get values for all computed fields as well as any fields that
         have no dependencies and can serialize themselves (e.g. Bytes and sized int
         fields). This allows us to resolve forward references.
+
+        Returns:
+            The struct, loaded as a mapping of field names to their values.
         """
         dct = {}
 
@@ -482,19 +488,20 @@ class Struct(HasStruct):
     ) -> Self:
         """Load a struct from the given stream.
 
-        :param BinaryIO stream:
-            The stream to load data from.
-        :param context:
-            Additional data to pass to the components'
-            :meth:`~binobj.fields.base.Field.from_stream` methods. Subclasses must
-            ignore anything they don't recognize.
-        :param dict init_kwargs:
-            Additional keyword arguments to pass to the struct's constructor, for
-            subclasses that take additional arguments beyond the fields that comprise
-            the struct. You can also use this to *override* field values; anything given
-            in here takes precedence over loaded values.
+        Arguments:
+            stream (BinaryIO):
+                A binary stream to get the data from.
+            context:
+                Additional data to pass to this method. Subclasses must ignore anything
+                they don't recognize.
+            init_kwargs:
+                Additional keyword arguments to pass to the struct's constructor, for
+                subclasses that take additional arguments beyond the fields that
+                comprise the struct. You can also use this to *override* field values;
+                anything given in here takes precedence over loaded values.
 
-        :return: The loaded struct.
+        Returns:
+            The loaded struct.
 
         .. versionadded:: 0.7.0
             The ``init_kwargs`` argument.
@@ -528,23 +535,29 @@ class Struct(HasStruct):
     ) -> Self:
         """Load a struct from the given byte string.
 
-        :param bytes data:
-            A bytes-like object to get the data from.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore anything they
-            don't recognize.
-        :param bool exact:
-            ``data`` must contain exactly the number of bytes required. If not all the
-            bytes in ``data`` were used when reading the struct, throw an exception.
-        :param dict init_kwargs:
-            Additional keyword arguments to pass to the struct's constructor, for
-            subclasses that take additional arguments beyond the fields that comprise
-            the struct. You can also use this to *override* field values; anything given
-            in here takes precedence over loaded values.
+        Arguments:
+            data (bytes):
+                A bytes-like object to get the data from.
+            context:
+                Additional data to pass to this method. Subclasses must ignore anything
+                they don't recognize.
+            exact (bool):
+                ``data`` must contain exactly the number of bytes required. If not all
+                the bytes in ``data`` were used when reading the struct, throw an
+                exception.
+            init_kwargs:
+                Additional keyword arguments to pass to the struct's constructor, for
+                subclasses that take additional arguments beyond the fields that
+                comprise the struct. You can also use this to *override* field values;
+                anything given in here takes precedence over loaded values.
 
-        :return: The loaded struct.
-        :raise ExtraneousDataError:
-            ``exact`` is True and there's data left over at the end of the byte string.
+        Returns:
+            The loaded struct.
+
+        Raises:
+            ExtraneousDataError:
+                ``exact`` is True and there's data left over at the end of the byte
+                string.
 
         .. versionadded:: 0.7.0
             The ``init_kwargs`` argument.
@@ -578,18 +591,20 @@ class Struct(HasStruct):
 
         .. note::
             Because the struct is only partially loaded, struct-level validators are
-            *not* executed. Individual fields still are.
+            *not* executed. Validators for individual fields still are.
 
-        :param BinaryIO stream:
-            The stream to load from.
-        :param str last_field:
-            The name of the last field to load in the object. If given, enough bytes for
-            this and all previous fields *must* be present in the stream.
-        :param context:
-            Any object containing extra information to pass to the fields'
-            :meth:`~binobj.fields.base.Field.from_stream` method.
+        Arguments:
+            stream (BinaryIO):
+                The stream to load from.
+            last_field (str):
+                The name of the last field to load in the object. If given, enough bytes
+                for this and all previous fields *must* be present in the stream.
+            context:
+                Any object containing extra information to pass to the fields'
+                :meth:`~binobj.fields.base.Field.from_stream` method.
 
-        :return: The loaded struct.
+        Returns:
+            The loaded struct.
         """
         if (
             last_field is not None
@@ -637,23 +652,29 @@ class Struct(HasStruct):
         including this field must be read. Unfortunately, this means that unrelated
         validation errors can be thrown if other fields have problems.
 
-        :param BinaryIO stream:
-            The stream to read from. It's assumed that the stream pointer is positioned
-            at the start of a struct. The stream pointer is returned to its original
-            position even if an exception occurred.
-        :param str name:
-            The name of the field to retrieve.
-        :param context:
-            Optional. Any object containing extra information to pass to the
-            :meth:`~binobj.fields.base.Field.from_stream` method of the field. For
-            fields located at a variable offset, this will be passed to the
-            :meth:`~binobj.fields.base.Field.from_stream` method of *each* field read.
+        Arguments:
+            stream (BinaryIO):
+                The stream to read from. It's assumed that the stream pointer is
+                positioned at the start of a struct. The stream pointer is returned to
+                its original position even if an exception occurred.
+            name (str):
+                The name of the field to retrieve.
+            context:
+                Optional. Any object containing extra information to pass to the
+                :meth:`~binobj.fields.base.Field.from_stream` method of the field. For
+                fields located at a variable offset, this will be passed to the
+                :meth:`~binobj.fields.base.Field.from_stream` method of *each* field
+                read.
 
-        :return: The value of the field in the struct data.
+        Returns:
+            The value of the field in the struct data.
 
-        :raise UnexpectedEOFError:
-            The end of the stream was reached before the requested field could be
-            completely read.
+        Raises:
+            UnexpectedEOFError:
+                The end of the stream was reached before the requested field could be
+                completely read.
+            ValueError:
+                There's no defined field with the given name.
         """
         if name not in cls.__binobj_struct__.components:
             raise ValueError(f"{cls.__name__} doesn't have a field named {name!r}.")
@@ -691,13 +712,18 @@ class Struct(HasStruct):
         If ``last_field`` isn't given, as many fields will be serialized as possible up
         to the first missing one.
 
-        :param BinaryIO stream:
-            The stream to dump into.
-        :param str last_field:
-            The name of the last field in the object to dump.
-        :param context:
-            Any object containing extra information to pass to the fields'
-            :meth:`~binobj.fields.base.Field.from_stream` methods.
+        Arguments:
+            stream (BinaryIO):
+                The stream to dump into.
+            last_field (str):
+                The name of the last field in the object to dump.
+            context:
+                Any object containing extra information to pass to the fields'
+                :meth:`~binobj.fields.base.Field.from_stream` methods.
+
+        Raises:
+            MissingRequiredValueError:
+                One or more required fields don't have a value set.
         """
         data = self.__values__
 

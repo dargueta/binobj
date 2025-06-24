@@ -417,7 +417,7 @@ def test_callable_default_crashes():
 def test_default_and_factory_triggers_error():
     with pytest.raises(
         errors.ConfigurationError,
-        match="Do not pass values for both `default` and `factory`.",
+        match=r"Do not pass values for both `default` and `factory`\.",
     ):
         fields.Int8(name="asdf", default=123, factory=lambda: 123)
 
