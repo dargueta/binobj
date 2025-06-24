@@ -51,12 +51,11 @@ readme = "README.rst"
 [tool.poetry.group.dev.dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-coverage = "7.8.2"
+coverage = "7.9.1"
 coverage-pyver-pragma = "0.3.3"
-mypy = {version = "1.15.0", markers = "platform_python_implementation == 'CPython'"}
-ruff = "0.11.11"
-pytest = "8.3.5"
-pytest-cov = "6.1.1"
+mypy = {version = "1.16.1", markers = "platform_python_implementation == 'CPython'"}
+pytest = "8.4.1"
+pytest-cov = "6.2.1"
 pytest-randomly = "3.16.0"
 # Due to this bug https://stackoverflow.com/q/75307814
 setuptools = "*"
