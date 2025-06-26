@@ -123,7 +123,11 @@ def test_array__fixed_in_struct():
 
 
 def bswsa_should_halt(_seq, _stream, values, _context, _loaded_fields):
-    """Halting function for :attr:`BasicStructWithSentinelArray.numbers`."""
+    """Halting function for :attr:`BasicStructWithSentinelArray.numbers`.
+
+    Returns:
+        True if the end of the array has been reached, False otherwise.
+    """
     if values and values[-1] == 0:
         # Hit sentinel, remove it from the end of the array.
         del values[-1]

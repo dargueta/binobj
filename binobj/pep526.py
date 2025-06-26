@@ -66,6 +66,10 @@ def flatten_annotations(annotation: Any) -> list[Any]:
     This is very similar to :func:`more_itertools.always_iterable`, except for type
     annotations. Single annotations are converted to a one-element list; PEP-593
     annotations are flattened into a list and returned.
+
+    Returns:
+        The type annotation, with all sub-annotations (if any) expanded out into a flat
+        list.
     """
     if not hasattr(annotation, "__metadata__"):
         return [annotation]
@@ -106,6 +110,31 @@ class AnnotationInfo:
     def from_annotation(
         cls, field_name: str, annotation: Any, struct_class: type[TStruct]
     ) -> Self:
+        """Factory method for construction from an arbitrary type annotation.
+
+        Arguments:
+            field_name (str):
+                The name of the attribute this annotation is for.
+            annotation:
+                The type annotation. This can be anything, and doesn't need to represent
+                a BinObj field.
+            struct_class (type):
+                The class the attribute was defined on.
+
+        Returns:
+            A new AnnotationInfo instance.
+
+        Raises:
+            InvalidTypeAnnotationError:
+                The annotation is the union of two or more non-None types. This probably
+                means the caller intended to use a BinObj `Union`, not the Python native
+                :class:`typing.Union`.
+
+                * If you want the union of two or more BinObj field types, you must use
+                  :class:`binobj.fields.containers.Union`.
+                * If you want a BinObj field with additional annotations, use
+                  :class:`typing.Annotated` and pass both to it.
+        """
         type_class = annotation
         type_args = typing.get_args(annotation)
         nullable = type(None) in type_args
@@ -149,7 +178,12 @@ class AnnotationInfo:
         )
 
     def make_field_instance(self) -> Field[Any] | None:
-        """Convert a type annotation to a Field object if it represents one."""
+        """Convert a type annotation to a Field object if it represents one.
+
+        Returns:
+            Field: The BinObj Field derived from this type annotation, if possible.
+            None: The type annotation is not a BinObj field definition.
+        """
         if isinstance(self.type_class, type):
             # We got a class object. Could be a struct or field, ignore everything else.
             if issubclass(self.type_class, Struct):
@@ -211,6 +245,20 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
             sub_struct: MyOtherStruct
 
             baz: Annotated[datetime, Timestamp64(signed=False)]
+
+    Raises:
+        ConfigurationError:
+            A field has multiple BinObj annotations in its `Annotated` list.
+
+        FieldRedefinedError:
+            A field was already defined in a superclass of this struct.
+
+        NoDefinedFieldsError:
+            The class has no defined fields. This usually indicates missing type
+            annotations.
+
+        MixedDeclarationsError:
+            The class has both fields defined by assignment and also by type annotation.
 
     .. versionadded:: 0.9.0
 

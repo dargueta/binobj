@@ -107,11 +107,18 @@ class StructMetadata:
     def from_class(cls, struct_class: type) -> Self:
         """Create a StructMetadata from any class defining BinObj fields.
 
-        :param type struct_class:
-            The class object to inspect. This doesn't need to be a subclass of
-            :class:`.Struct`, nor does it need to have any ancestors that are subclasses
-            of it.
-        :return: The computed metadata.
+        Arguments:
+            struct_class (type):
+                The class object to inspect. This doesn't need to be a subclass of
+                :class:`.Struct`, nor does it need to have any ancestors that are
+                subclasses of it.
+
+        Returns: The computed metadata.
+
+        Raises:
+            MultipleInheritanceError:
+                ``struct_class`` has more than one parent class. BinObj currently does
+                not support resolving field ordering for structs with multiple parents.
 
         .. versionadded:: 0.12.0
         """
@@ -176,6 +183,7 @@ class StructMetadata:
         return metadata
 
     def load_meta_options(self, meta: type) -> None:
+        """Update settings on this class from the given metadata class."""
         self.argument_defaults = dict(getattr(meta, "argument_defaults", {}))
 
     def get_size(self, field_values: StrDict | None = None) -> int | None:
@@ -185,10 +193,12 @@ class StructMetadata:
         derive the serialized size if the values of assigned fields are passed in via
         ``field_values``.
 
-        :param dict field_values:
-            Optional. A mapping of assigned field values, to aid inferring the size of
-            the struct if it's not a fixed size.
-        :return:
+        Arguments:
+            field_values:
+                Optional. A mapping of assigned field values, to aid inferring the size
+                of the struct if it's not a fixed size.
+
+        Returns:
             The size of the struct in bytes, or ``None`` if it couldn't be computed.
 
         .. versionadded:: 0.12.0
@@ -222,6 +232,10 @@ def collect_assigned_fields(
 
     Returns:
         int: The number of fields found.
+
+    Raises:
+        FieldRedefinedError:
+            The struct defines a field with the same name as a field in its superclass.
 
     .. versionadded:: 0.9.0
 
@@ -295,8 +309,12 @@ def recursive_to_dicts(item: object) -> Any:
 
     This is used when a :class:`Struct` is converted to a dictionary.
 
-    :param item:
-        Anything. If it's an unsupported type it'll get returned as is.
+    Arguments:
+        item:
+            Anything. If it's an unsupported type it'll get returned as is.
+
+    Returns:
+        If `item` is a :class:`Struct`, that struct as a dict. Otherwise, `item`.
     """
     if isinstance(item, Struct):
         return item.to_dict()
@@ -317,7 +335,7 @@ class HasStruct(Protocol):
     """
 
 
-class Struct(HasStruct):
+class Struct(HasStruct):  # noqa: PLW1641
     """An ordered collection of fields and other structures.
 
     .. versionchanged:: 0.5.0
@@ -344,7 +362,8 @@ class Struct(HasStruct):
     def validate_contents(self) -> None:
         """Validate the stored values in this struct.
 
-        :raise ~binobj.errors.ValidationError: Validation failed.
+        Raises:
+            ValidationError: Validation failed.
 
         .. versionadded:: 0.4.0
         """
@@ -368,11 +387,12 @@ class Struct(HasStruct):
     def to_stream(self, stream: BinaryIO, context: object = None) -> None:
         """Convert the given data into bytes and write it to ``stream``.
 
-        :param BinaryIO stream:
-            The stream to write the serialized data into.
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore anything they
-            don't recognize.
+        Arguments:
+            stream (BinaryIO):
+                The stream to write the serialized data into.
+            context:
+                Additional data to pass to this method. Subclasses must ignore anything
+                they don't recognize.
         """
         self.validate_contents()
 
@@ -389,12 +409,13 @@ class Struct(HasStruct):
     def to_bytes(self, context: object = None) -> bytes:
         """Convert the given data into bytes.
 
-        :param context:
-            Additional data to pass to this method. Subclasses must ignore anything they
-            don't recognize.
+        Arguments:
+            context:
+                Additional data to pass to this method. Subclasses must ignore anything
+                they don't recognize.
 
-        :return: The serialized data.
-        :rtype: bytes
+        Returns:
+            The serialized data.
         """
         stream = io.BytesIO()
         self.to_stream(stream, context)
@@ -416,7 +437,7 @@ class Struct(HasStruct):
             The struct, loaded as a mapping of field names to their values.
 
         Raises:
-            MissingRequiredValueError: One or more fields don't have assigned values.
+            ValueError: One or more fields don't have assigned values.
 
         .. versionchanged:: 0.3.0
             This now recursively calls :meth:`.to_dict` on all nested structs and arrays
@@ -443,6 +464,7 @@ class Struct(HasStruct):
             for field in self.__binobj_struct__.components.values():
                 if field.discard:
                     del dct[field.name]
+                raise ValueError
 
         return recursive_to_dicts(dct)
 
@@ -605,6 +627,10 @@ class Struct(HasStruct):
 
         Returns:
             The loaded struct.
+
+        Raises:
+            ValueError: The struct has no field with the name given by `last_field`.
+            UnexpectedEOFError: Hit EOF before finishing reading the requested fields.
         """
         if (
             last_field is not None
