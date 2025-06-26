@@ -23,6 +23,8 @@ jobs:
             tox-env: mypy
           - python-version: "3.13"
             tox-env: lint
+          - python-version: "3.13"
+            tox-env: format
     steps:
     - uses: actions/checkout@v4.2.2
     - name: Set up Python ${{ matrix.python-version }}
