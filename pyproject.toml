@@ -51,9 +51,9 @@ readme = "README.rst"
 [tool.poetry.group.dev.dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-coverage = "7.9.2"
+coverage = "7.10.1"
 coverage-pyver-pragma = "0.3.3"
-mypy = {version = "1.16.1", markers = "platform_python_implementation == 'CPython'"}
+mypy = {version = "1.17.1", markers = "platform_python_implementation == 'CPython'"}
 pytest = "8.4.1"
 pytest-cov = "6.2.1"
 pytest-randomly = "3.16.0"
