@@ -113,7 +113,8 @@ class StructMetadata:
                 :class:`.Struct`, nor does it need to have any ancestors that are
                 subclasses of it.
 
-        Returns: The computed metadata.
+        Returns:
+            The computed metadata.
 
         Raises:
             MultipleInheritanceError:
@@ -696,9 +697,6 @@ class Struct(HasStruct):  # noqa: PLW1641
             The value of the field in the struct data.
 
         Raises:
-            UnexpectedEOFError:
-                The end of the stream was reached before the requested field could be
-                completely read.
             ValueError:
                 There's no defined field with the given name.
         """

@@ -260,6 +260,9 @@ def dataclass(class_object: type[TStruct]) -> type[TStruct]:
         MixedDeclarationsError:
             The class has both fields defined by assignment and also by type annotation.
 
+    Returns:
+        The original class, modified to include the struct definition.
+
     .. versionadded:: 0.9.0
 
     .. _PEP 526: https://www.python.org/dev/peps/pep-0526/
