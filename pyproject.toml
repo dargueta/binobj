@@ -15,10 +15,10 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Typing :: Typed",
@@ -29,7 +29,7 @@ exclude = [
     "docs",
     "tests",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "more-itertools >= 4.0",
     "typing-extensions >= 4.4",
@@ -51,10 +51,10 @@ readme = "README.rst"
 [tool.poetry.group.dev.dependencies]
 # For reproducibility please pin all direct dependencies as tightly as possible,
 # down to the patch version.
-coverage = "7.10.7"
+coverage = "7.11.3"
 coverage-pyver-pragma = "0.3.3"
 mypy = {version = "1.18.2", markers = "platform_python_implementation == 'CPython'"}
-pytest = "8.4.2"
+pytest = "9.0.1"
 pytest-cov = "7.0.0"
 pytest-randomly = "4.0.1"
 # Due to this bug https://stackoverflow.com/q/75307814
