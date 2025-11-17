@@ -35,7 +35,8 @@ lint: $(SOURCEFILES)
 
 .PHONY: format
 format:
-	ruff format binobj tests
+	poetry run ruff check --select I --fix binobj tests
+	poetry run ruff format binobj tests
 
 .PHONY: clean
 clean:
