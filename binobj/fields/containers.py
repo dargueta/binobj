@@ -331,7 +331,7 @@ class Nested(Field[TStruct]):
     .. code-block:: python
 
         class Address(Struct):
-            ...Any
+            ...
 
         class Person(Struct):
             name = fields.StringZ()
@@ -359,7 +359,7 @@ class Nested(Field[TStruct]):
         if isinstance(data, Struct):
             data.to_stream(stream, context)
         else:
-            instance = self.struct_class(**typing.cast("StrDict", data))
+            instance = self.struct_class(**data)
             instance.to_stream(stream, context)
 
     @override

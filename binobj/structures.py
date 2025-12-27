@@ -367,7 +367,7 @@ class Struct(HasStruct):  # noqa: PLW1641
             ValidationError: Validation failed.
 
         .. versionadded:: 0.4.0
-        """
+        """  # noqa: DOC502
         for f_name, validators in self.__binobj_struct__.field_validators.items():
             f_obj = self.__binobj_struct__.components[f_name]
             value = self[f_name]

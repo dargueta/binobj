@@ -60,40 +60,45 @@ def write_int(
 ) -> None:
     """Write an integer to a stream.
 
-    :param BinaryIO stream:
-        The stream to write the integer to.
-    :param int value:
-        The integer to dump into the stream.
-    :param int n_bytes:
-        The number of bytes the integer should take up. Exactly this many bytes will be
-        written into the stream, so ensure that there's enough bits to represent
-        ``value``.
-    :param bool signed:
-        If ``True``, write this integer in two's-complement format. Otherwise, write it
-        as an unsigned integer. A negative ``value`` will trigger an
-        :class:`OverflowError` if this is ``False``.
-    :param str endian:
-        The endianness to use when writing the integer, either "big" or "little". If not
-        given, will default to the system's native byte order as given by
-        :data:`sys.byteorder`.
+    Arguments:
+        stream (BinaryIO):
+            The stream to write the integer to.
+        value (int):
+            The integer to dump into the stream.
+        n_bytes (int):
+            The number of bytes the integer should take up. Exactly this many bytes will
+            be written into the stream, so ensure that there's enough bits to represent
+            ``value``.
+        signed (bool):
+            If ``True``, write this integer in two's-complement format. Otherwise, write
+            it as an unsigned integer. A negative ``value`` will trigger an
+            :class:`OverflowError` if this is ``False``.
+        endian (str):
+            The endianness to use when writing the integer, either "big" or "little". If
+            not given, will default to the system's native byte order as given by
+            :data:`sys.byteorder`.
 
-    :raise OverflowError:
-        ``value`` can't be represented only by ``n_bytes`` bytes. The number is too big,
-        or it's negative and ``signed`` is ``False``.
+    Raises:
+        OverflowError:
+            ``value`` can't be represented only by ``n_bytes`` bytes. The number is too
+            big, or it's negative and ``signed`` is ``False``.
     """
     if not endian:
         endian = sys.byteorder
-
     stream.write(value.to_bytes(n_bytes, endian, signed=signed))
 
 
 def iter_bytes(stream: BinaryIO, max_bytes: int | None = None) -> Iterator[bytes]:
     """Wrap a stream in an iterator that yields individual bytes, not lines.
 
-    :param stream:
-        A stream opened in binary mode.
-    :param int max_bytes:
-        The maximum number of bytes to read.
+    Arguments:
+        stream (BinaryIO):
+            A stream opened in binary mode.
+        max_bytes (int):
+            The maximum number of bytes to read.
+
+    Yields:
+        Individual bytes from the stream.
 
     .. versionadded:: 0.2.1
     """
@@ -109,6 +114,12 @@ def iter_bytes(stream: BinaryIO, max_bytes: int | None = None) -> Iterator[bytes
 
 def peek_bytes(stream: BinaryIO, count: int, short_read_okay: bool = True) -> bytes:
     """Read the next ``count`` bytes in the stream without moving the stream pointer.
+
+    Returns:
+        bytes: The data read.
+
+    Raises:
+        EOFError: Fewer than `count` bytes were left in the input.
 
     .. versionadded:: 0.9.0
     """
