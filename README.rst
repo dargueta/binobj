@@ -1,6 +1,23 @@
 binobj
 ======
 
+
+Project Status
+--------------
+
+I'm no longer working on this, unfortunately. When I first started, dataclasses and type
+annotations didn't exist, and I modeled it after Marshmallow. There are other libraries
+and tools you can use, with much less vestigial cruft.
+
+`dataclasses-struct <https://pypi.org/project/dataclasses-struct/>`_ is the closest thing to
+a drop-in replacement. Here are some other options you may be interested in:
+
+- `Kaitai <https://kaitai.io/>`_: Language-agnostic data (de)serialization using YAML specs.
+- `bitproto <https://bitproto.readthedocs.io/en/latest/>`_: Language-agnostic analog to protobuf, but on a bit level.
+- `caterpillar-py <https://pypi.org/project/caterpillar-py/>`_: Comprehensive, but beware the GPLv3 license.
+- `mrcrowbar <https://github.com/moralrecordings/mrcrowbar>`_: Unique ORM-like approach, *many* features.
+- `byteclasses <https://io.thetacom.info/byteclasses/>`_: Might be dead, but worth looking at.
+
 |build-status| |python-versions| |installs-month| |installs-ever|
 
 .. |build-status| image:: https://github.com/dargueta/binobj/actions/workflows/ci.yml/badge.svg
@@ -19,15 +36,6 @@ binobj
 
 A cross-platform Python 3 library for reading and writing structured binary data
 in an object-oriented (ish) style.
-
-Project Status
---------------
-
-This is still alive!
-
-There'll be a long gap as I'm working on version 1.0 which is a *major* overhaul.
-I'll do my best to respond to bug reports, but don't expect any new releases
-anytime soon.
 
 Why use ``binobj``?
 -------------------
